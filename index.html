@@ -12,110 +12,101 @@
             --gold: #d4af37; 
             --gold-dark: #b8860b;
             --dark: #1a1a1a; 
-            --light: #f9f9f9; 
+            --light: #f8f9fa; 
             --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-        
-        body { 
-            background-color: var(--light); 
-            color: #333; 
-            line-height: 1.6;
-            overflow-x: hidden; 
-        }
+        body { background: var(--light); color: #333; overflow-x: hidden; scroll-behavior: smooth; }
 
         /* HEADER */
         header { 
-            background: rgba(26, 26, 26, 0.95); 
+            background: rgba(26, 26, 26, 0.9); 
             color: white; 
             padding: 15px 0; 
             position: sticky; 
             top: 0; 
             z-index: 1000; 
-            border-bottom: 3px solid var(--gold);
-            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--gold); 
+            backdrop-filter: blur(15px); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
         .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: auto; padding: 0 20px; }
-        .logo { font-size: 22px; font-weight: bold; text-transform: uppercase; font-family: 'Playfair Display', serif; }
+        .logo { font-size: 26px; font-weight: bold; text-transform: uppercase; font-family: 'Playfair Display', serif; letter-spacing: 1px; }
         .logo span { color: var(--gold); }
-        nav ul { display: flex; list-style: none; gap: 15px; }
-        nav a { color: white; text-decoration: none; font-weight: 600; font-size: 12px; text-transform: uppercase; transition: 0.3s; cursor: pointer; }
+        nav ul { display: flex; list-style: none; gap: 25px; }
+        nav a { color: white; text-decoration: none; cursor: pointer; font-weight: 600; text-transform: uppercase; font-size: 13px; transition: 0.3s; }
         nav a:hover { color: var(--gold); }
 
-        /* HERO SECTION */
+        /* SECTIONS */
+        .content-section { display: none; padding: 80px 20px; max-width: 1200px; margin: auto; min-height: 80vh; }
+        .active { display: block !important; animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* HERO */
+        #anasayfa { padding: 0; max-width: 100%; }
         .hero { 
-            height: 70vh; 
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('resimler/logo.jpg');
+            height: 85vh; 
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('resimler/logo.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
-            display: flex; justify-content: center; align-items: center; color: white; text-align: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            color: white; text-align: center;
         }
-        .hero-icerik { 
-            padding: 30px; border-radius: 15px; background: rgba(0,0,0,0.4); 
-            backdrop-filter: blur(5px); border: 1px solid rgba(212, 175, 55, 0.3);
-            max-width: 800px; margin: 0 20px;
+        .hero-icerik {
+            background: rgba(255, 255, 255, 0.1); 
+            padding: 50px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px); animation: zoomIn 1s; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
-        .hero h1 { font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--gold); margin-bottom: 10px; }
-        .hero-btn { 
-            background: var(--gold); color: white; border: none; padding: 12px 30px; 
-            border-radius: 50px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s;
-        }
-        .hero-btn:hover { background: var(--white); color: var(--dark); }
+        @keyframes zoomIn { from { opacity: 0; scale: 0.9; } to { opacity: 1; scale: 1; } }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 6vw, 4.5rem); color: var(--gold); margin-bottom: 15px; }
+        .hero p { font-size: 1.3rem; font-weight: 300; max-width: 600px; margin: auto; line-height: 1.6; color: #eee; }
+        .hero-btn { background: var(--gold); color: white; border: none; padding: 16px 45px; border-radius: 50px; cursor: pointer; font-weight: bold; margin-top: 40px; text-transform: uppercase; letter-spacing: 1px; transition: 0.4s; }
+        .hero-btn:hover { background: var(--white); color: var(--dark); transform: translateY(-5px); }
 
-        /* CONTENT SECTIONS */
-        .content-section { display: none; padding: 40px 20px; max-width: 1200px; margin: auto; }
-        .active { display: block !important; animation: fadeIn 0.6s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* GALERİ */
+        .category-title { border-left: 5px solid var(--gold); padding-left: 15px; margin: 50px 0 30px; text-transform: uppercase; font-size: 2rem; color: var(--dark); font-family: 'Playfair Display', serif; }
+        .maps-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .maps-gallery img { width: 100%; height: 250px; object-fit: cover; border-radius: 15px; cursor: pointer; transition: 0.4s; box-shadow: var(--shadow); border: 2px solid white; }
+        .maps-gallery img:hover { transform: scale(1.05) rotate(1deg); border-color: var(--gold); }
 
-        /* GRID SYSTEM (Resim Taşmasını Önleyen Kısım) */
-        .category-title { border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin: 30px 0; font-family: 'Playfair Display', serif; font-size: 1.8rem; }
+        /* URUN KARTLARI */
+        .urun-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 35px; }
+        .card { background: white; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); text-align: center; padding-bottom: 30px; transition: 0.4s; border: 1px solid #efefef; }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); border-color: var(--gold); }
+        .card img { width: 100%; height: 280px; object-fit: cover; cursor: zoom-in; transition: 0.3s; }
+        .card h3 { margin-top: 20px; font-family: 'Playfair Display', serif; font-size: 1.5rem; }
         
-        .urun-grid, .maps-gallery { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 20px; 
-        }
-
-        .card { 
-            background: var(--white); border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08); transition: 0.3s; border: 1px solid #eee;
-            display: flex; flex-direction: column;
-        }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-        
-        .card img, .maps-gallery img { 
-            width: 100%; 
-            height: 250px; 
-            object-fit: cover; /* Resmin kutuya tam sığmasını sağlar */
-            display: block;
-        }
-
-        .card-body { padding: 20px; text-align: center; }
-        .price { color: var(--gold-dark); font-size: 1.4rem; font-weight: bold; margin: 10px 0; }
-
-        /* BUTTONS */
-        .btn { 
-            background: var(--dark); color: white; border: none; padding: 10px; 
-            border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s;
-        }
+        .btn { background: var(--dark); color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; width: 85%; font-weight: bold; margin-top: 15px; transition: 0.3s; }
         .btn:hover { background: var(--gold); }
-        .btn-wa { background: #25D366; color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; display: inline-block; font-weight: bold; margin-top: 20px; }
+        .btn-clear { background: var(--red); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-bottom: 30px; }
+        .btn-wa { background: #25D366; color: white; padding: 18px 50px; border-radius: 50px; text-decoration: none; display: inline-block; font-weight: bold; font-size: 1.2rem; transition: 0.3s; border: none; cursor: pointer; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2); }
+        .btn-wa:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(37, 211, 102, 0.4); }
+
+        /* YORUMLAR */
+        .review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .review-card { background: white; padding: 35px; border-radius: 20px; position: relative; box-shadow: var(--shadow); border-bottom: 4px solid var(--gold); }
+        .review-card i.fa-quote-left { position: absolute; top: 20px; right: 20px; color: #eee; font-size: 2rem; }
+
+        /* FORM */
+        .info-box { background: white; padding: 40px; border-radius: 20px; margin-top: 40px; box-shadow: var(--shadow); }
+        .info-box h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 25px; color: var(--gold-dark); }
+        .info-box input, .info-box textarea { width: 100%; padding: 15px; margin: 12px 0; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 15px; background: #fdfdfd; transition: 0.3s; }
+        .info-box input:focus { border-color: var(--gold); outline: none; background: white; }
 
         /* MODAL */
-        #urunModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; }
-        .modal-icerik { 
-            background:white; max-width:800px; margin:5vh auto; border-radius:15px; overflow:hidden; 
-            display:flex; flex-wrap:wrap; position:relative;
-        }
-        .modal-sol { flex:1; min-width:300px; background:#000; overflow:hidden; }
-        .modal-sol img { width:100%; height:100%; object-fit: contain; }
-        .modal-sag { flex:1; padding:30px; min-width:300px; }
+        #urunModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; padding: 20px; backdrop-filter: blur(8px); }
+        .modal-icerik { background:white; max-width:1000px; margin:2vh auto; display:flex; flex-wrap:wrap; border-radius:25px; overflow:hidden; position:relative; animation: slideUp 0.5s; }
+        .modal-sol { flex:1.2; min-width:350px; background:#000; display:flex; align-items:center; overflow:hidden; }
+        .modal-sol img { width:100%; transition: 0.3s; cursor: crosshair; }
+        .modal-sag { flex:1; padding:50px; min-width:350px; background: white; }
 
         /* RESPONSIVE */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
-            .nav-container { flex-direction: column; gap: 10px; }
-            nav ul { gap: 10px; }
+            .nav-container { flex-direction: column; gap: 15px; }
+            .hero h1 { font-size: 2.8rem; }
+            .modal-icerik { flex-direction: column; margin: 0; }
+            .modal-sol { min-width: 100%; height: 300px; }
         }
     </style>
 </head>
@@ -139,63 +130,128 @@
         <div class="hero">
             <div class="hero-icerik">
                 <h1>Göçmen Perde</h1>
-                <p>Bursa'da Kalite ve Güvenin Adresi. Evinize Şıklık Katıyoruz.</p>
-                <button class="hero-btn" onclick="go('urunler')">MODELLERİ GÖR</button>
+                <p>Bursa'nın Kalbinde, Pencerelerinize ve Mobilyalarınıza Değer Katan Dokunuşlar.</p>
+                <button class="hero-btn" onclick="go('urunler')">MODELLERİ KEŞFET</button>
             </div>
         </div>
-        
-        <h2 class="category-title">Mağazamızdan Görünümler</h2>
-        <div class="maps-gallery">
-            <img src="resimler/foto1.jpg">
-            <img src="resimler/foto2.jpg">
-            <img src="resimler/foto3.jpg">
-            <img src="resimler/foto9.jpg">
+
+        <div style="padding-top: 40px;">
+            <h2 class="category-title">Dükkanımızdan Kareler</h2>
+            <div class="maps-gallery">
+                <img src="resimler/foto1.jpg" onclick="detay('Mağazamız', this.src, '', 'Bizi Osmangazi\'deki dükkanımızda ziyaret edin.')">
+                <img src="resimler/foto2.jpg" onclick="detay('Teşhir Alanı', this.src, '', 'Yüzlerce çeşit kumaş seçeneği.')">
+                <img src="resimler/foto9.jpg" onclick="detay('Koleksiyon', this.src, '', 'En yeni modeller.')">
+                <img src="resimler/foto10.jpg" onclick="detay('İç Mekan', this.src, '', 'Konforlu alışverişin adresi.')">
+                <img src="resimler/foto3.jpg" onclick="detay('Özel Dikim', this.src, '', 'İsteğinize özel tasarımlar.')">
+                <img src="resimler/foto5.jpg" onclick="detay('Örtü Modelleri', this.src, '', 'Mobilyalarınız için şıklık.')">
+            </div>
+
+            <h2 class="category-title" style="margin-top:80px;">Müşteri Yorumları</h2>
+            <div class="review-grid">
+                <div class="review-card">
+                    <i class="fas fa-quote-left"></i>
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p>"Zeynel Bey'e çok teşekkürler. İşçilik muazzam, tam zamanında teslimat yapıldı."</p>
+                    <small style="display:block; margin-top:15px; font-weight:bold; color:var(--gold-dark); text-align: right;">- Google Haritalar</small>
+                </div>
+                <div class="review-card">
+                    <i class="fas fa-quote-left"></i>
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p>"Bursa'da perde denince tek geçerim. Kalite ve güven bir arada."</p>
+                    <small style="display:block; margin-top:15px; font-weight:bold; color:var(--gold-dark); text-align: right;">- Google Haritalar</small>
+                </div>
+            </div>
         </div>
     </div>
 
     <div id="urunler" class="content-section">
-        <h2 class="category-title">Öne Çıkan Modeller</h2>
+        <h2 class="category-title">Tül ve Fon Perdeler</h2>
         <div class="urun-grid">
             <div class="card">
-                <img src="resimler/dikili_perde.jpeg">
-                <div class="card-body">
-                    <h3>Saray Tül Perde</h3>
-                    <div class="price">200 TL / mt</div>
-                    <button class="btn" onclick="ekle('Saray Tül', 200)">SEPETE EKLE</button>
+                <img src="resimler/dikili_perde.jpeg" onclick="detay('Saray Tül', this.src, '200', 'Bursa üretimi, ütü istemez örme tül kumaş.')">
+                <h3>Saray Tül Perde</h3>
+                <div style="color:var(--gold-dark); font-weight:bold; margin:10px 0; font-size: 1.6rem;">200 TL / mt</div>
+                <div style="margin-bottom: 10px;">
+                    <input type="number" id="q-tul" value="1" min="1" style="width:70px; padding:8px; border-radius:10px; border:1px solid #ddd;"> <span style="font-weight: 600;">mt</span>
                 </div>
+                <button class="btn" onclick="ekle('Saray Tül', 200, 'q-tul')">SEPETE EKLE</button>
             </div>
             <div class="card">
-                <img src="resimler/brillant_fon.jpeg">
-                <div class="card-body">
-                    <h3>Premium Fon Perde</h3>
-                    <div class="price">4.500 TL</div>
-                    <button class="btn" onclick="ekle('Premium Fon', 4500)">SEPETE EKLE</button>
-                </div>
+                <img src="resimler/kumas_fon_renkli.jpeg" onclick="detay('Ekonomik Fon', this.src, '2.500', 'Uygun fiyatlı, kaliteli dekoratif fon perde.')">
+                <h3>Ekonomik Fon</h3>
+                <div style="color:var(--gold-dark); font-weight:bold; margin:10px 0; font-size: 1.6rem;">2.500 TL</div>
+                <button class="btn" onclick="ekle('Ekonomik Fon', 2500)">SEPETE EKLE</button>
             </div>
             <div class="card">
-                <img src="resimler/koltuk_ortusu.jpeg">
-                <div class="card-body">
-                    <h3>Koltuk Örtü Seti</h3>
-                    <div class="price">1.500 TL</div>
-                    <button class="btn" onclick="ekle('Örtü Set', 1500)">SEPETE EKLE</button>
-                </div>
+                <img src="resimler/brillant_fon.jpeg" onclick="detay('VIP Premium Fon', this.src, '4.500', 'Kadife dokulu, karartma özellikli lüks fon perde.')">
+                <h3>VIP Premium Fon</h3>
+                <div style="color:var(--gold-dark); font-weight:bold; margin:10px 0; font-size: 1.6rem;">4.500 TL</div>
+                <button class="btn" onclick="ekle('VIP Premium Fon', 4500)">SEPETE EKLE</button>
+            </div>
+        </div>
+
+        <h2 class="category-title" style="margin-top:60px;">Koltuk Örtüleri</h2>
+        <div class="urun-grid">
+            <div class="card">
+                <img src="resimler/koltuk_ortusu.jpeg" onclick="detay('Örtü Set (3+3+1+1)', this.src, '1.500', 'Bürümcük kumaş esnek set. 2 üçlü, 2 tekli koltuk için.')">
+                <h3>Örtü Set (3+3+1+1)</h3>
+                <div style="color:var(--gold-dark); font-weight:bold; margin:10px 0; font-size: 1.6rem;">1.500 TL</div>
+                <button class="btn" onclick="ekle('Örtü Set (3311)', 1500)">SEPETE EKLE</button>
+            </div>
+            <div class="card">
+                <img src="resimler/koltuk_ortusu.jpeg" onclick="detay('Örtü Set (3+3)', this.src, '1.200', 'Esnek bürümcük kumaş. 2 adet üçlü koltuk için set.')">
+                <h3>Örtü Set (3+3)</h3>
+                <div style="color:var(--gold-dark); font-weight:bold; margin:10px 0; font-size: 1.6rem;">1.200 TL</div>
+                <button class="btn" onclick="ekle('Örtü Set (33)', 1200)">SEPETE EKLE</button>
             </div>
         </div>
     </div>
 
     <div id="sepetiniz" class="content-section">
-        <h2 class="category-title">Siparişiniz</h2>
-        <div id="liste" style="background:white; padding:20px; border-radius:10px;">Sepetiniz boş.</div>
-        <div style="text-align:right; margin-top:20px;">
-            <h3>Toplam: <span id="toplam" style="color:var(--gold-dark)">0</span> TL</h3>
-            <button class="btn-wa" onclick="wa()">WHATSAPP İLE SİPARİŞ VER</button>
+        <h2 class="category-title">Sipariş Listeniz</h2>
+        <div style="margin-top:20px;">
+            <button class="btn-clear" onclick="bosalt()"><i class="fas fa-trash"></i> SEPETİ BOŞALT</button>
+            <div id="liste" style="background:white; padding:35px; border-radius:20px; min-height: 150px; box-shadow: var(--shadow); font-size: 1.1rem; border-left: 5px solid #eee;">Sepetiniz şu an boş.</div>
+            
+            <div class="info-box">
+                <h3><i class="fas fa-truck" style="margin-right: 15px;"></i>Teslimat Bilgileri</h3>
+                <input type="text" id="m-isim" placeholder="Adınız Soyadınız">
+                <input type="text" id="m-tel" placeholder="Telefon Numaranız">
+                <textarea id="m-adres" rows="4" placeholder="Teslimat Adresiniz (Mahalle, Sokak, No, Daire)"></textarea>
+            </div>
+
+            <div style="text-align:right; margin-top:40px;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 30px;">Toplam: <span id="toplam" style="color:var(--gold-dark)">0</span> TL</h2>
+                <button class="btn-wa" onclick="wa()"><i class="fab fa-whatsapp" style="margin-right: 10px;"></i> SİPARİŞİ WHATSAPP'A GÖNDER</button>
+            </div>
         </div>
     </div>
 
     <div id="iletisim" class="content-section">
-        <h2 class="category-title">İletişim Bilgileri</h2>
-        <p><strong>Adres:</strong> Bağlarbaşı Mah. Mümin Gençoğlu Cad. Osmangazi/BURSA</p>
-        <p><strong>Telefon:</strong> 0501 211 0958</p>
+        <h2 class="category-title">Bize Ulaşın</h2>
+        <div style="background:white; padding:50px; border-radius:25px; margin-top:20px; line-height: 2.5; font-size: 1.1rem; box-shadow: var(--shadow);">
+            <p><strong><i class="fas fa-map-marker-alt" style="color:var(--gold); width: 30px;"></i> Adres:</strong> Bağlarbaşı Mah. Mümin Gençoğlu Cad. 1. Sarıgül Sokak No:3/A Osmangazi/BURSA</p>
+            <p><strong><i class="fas fa-phone" style="color:var(--gold); width: 30px;"></i> Telefon:</strong> 0501 211 0958</p>
+            <a href="http://maps.google.com/?q=Bağlarbaşı+Mah.+Mümin+Gençoğlu+Cad.+1.+Sarıgül+Sokak+No:3/A+Osmangazi+BURSA" target="_blank" style="display:inline-block; margin-top:30px; color:white; background: #4285F4; text-decoration:none; font-weight:bold; padding: 15px 30px; border-radius: 15px; transition: 0.3s;">📍 Google Haritalar'da Yol Tarifi Al</a>
+        </div>
+    </div>
+
+    <div id="urunModal" onclick="this.style.display='none'">
+        <div class="modal-icerik" onclick="event.stopPropagation()">
+            <span style="position:absolute; top:20px; right:30px; font-size:45px; cursor:pointer; color:#333; z-index: 10;" onclick="document.getElementById('urunModal').style.display='none'">×</span>
+            <div class="modal-sol" onmousemove="zoom(event)" onmouseleave="resetZoom()">
+                <img id="mImg" src="">
+            </div>
+            <div class="modal-sag">
+                <h2 id="mBaslik" style="font-family: 'Playfair Display', serif; margin-bottom:20px; font-size: 2.2rem;"></h2>
+                <div id="mFiyat" style="font-size:36px; color:var(--gold-dark); font-weight:bold; margin-bottom:30px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;"></div>
+                <p id="mAciklama" style="line-height:2; color:#666; font-size: 1.1rem;"></p>
+                <div style="margin-top:40px; padding:20px; background: #fdfaf0; border-radius: 15px; font-weight: 600; color: #444;">
+                    <p style="margin-bottom: 10px;"><i class="fas fa-check-circle" style="color:#27ae60; margin-right:10px;"></i> Kaliteli Bursa İşçiliği</p>
+                    <p><i class="fas fa-award" style="color:var(--gold); margin-right:10px;"></i> Zeynel Göçmen Güvencesi</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -209,27 +265,54 @@
             window.scrollTo(0,0);
         }
 
-        function ekle(n, p) {
-            basket.push({n, p});
-            total += p;
-            render();
-            alert("Ürün eklendi!");
+        function ekle(n, p, inputId) {
+            var q = inputId ? document.getElementById(inputId).value : 1;
+            if(q < 1) return alert("Geçerli miktar girin!");
+            var sub = p * q;
+            basket.push({n, q, sub});
+            total += sub;
+            renderBasket();
+            alert("Harika! Ürün sepete eklendi.");
         }
 
-        function render() {
+        function bosalt() {
+            if(confirm("Tüm sepet temizlensin mi Zeynel Bey?")) {
+                basket = []; total = 0; renderBasket();
+            }
+        }
+
+        function renderBasket() {
             document.getElementById('count').innerText = basket.length;
             document.getElementById('toplam').innerText = total.toLocaleString();
             var l = document.getElementById('liste');
-            if(basket.length == 0) { l.innerHTML = "Sepetiniz boş."; return; }
-            l.innerHTML = basket.map(i => `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;"><span>${i.n}</span><b>${i.p} TL</b></div>`).join('');
+            if(basket.length == 0) { l.innerHTML = "Sepetiniz şu an boş."; return; }
+            l.innerHTML = basket.map(i => `<div style="display:flex; justify-content:space-between; padding:20px 0; border-bottom:1px solid #f0f0f0;"><span><b>${i.n}</b> <br><small style="color:#666">${i.q} adet/mt</small></span><b>${i.sub.toLocaleString()} TL</b></div>`).join('');
         }
 
+        function detay(n, r, p, a) {
+            document.getElementById('mBaslik').innerText = n;
+            document.getElementById('mImg').src = r;
+            document.getElementById('mFiyat').innerText = p ? p + " TL" : "";
+            document.getElementById('mAciklama').innerText = a;
+            document.getElementById('urunModal').style.display = "block";
+        }
+
+        function zoom(e) {
+            const img = document.getElementById('mImg');
+            img.style.transformOrigin = `${e.offsetX}px ${e.offsetY}px`;
+            img.style.transform = "scale(2.5)";
+        }
+        function resetZoom() { document.getElementById('mImg').style.transform = "scale(1)"; }
+
         function wa() {
-            if(basket.length == 0) return alert("Sepetiniz boş!");
-            var m = "GÖÇMEN PERDE SİPARİŞİ:%0A" + basket.map(i => "- " + i.n + " (" + i.p + " TL)").join("%0A") + "%0A%0AToplam: " + total + " TL";
+            if(basket.length == 0) return alert("Önce ürün eklemelisiniz!");
+            var isim = document.getElementById('m-isim').value;
+            var tel = document.getElementById('m-tel').value;
+            var adres = document.getElementById('m-adres').value;
+            if(!isim || !tel || !adres) return alert("Lütfen teslimat bilgilerini eksiksiz doldurun!");
+            var m = "*GÖÇMEN PERDE BURSA - YENİ SİPARİŞ*%0A%0A*👤 MÜŞTERİ*%0AIsim: " + isim + "%0AAdres: " + adres + "%0A%0A*🛒 ÜRÜNLER*%0A" + basket.map(i => "- " + i.n + " ("+i.q+") : " + i.sub + " TL").join("%0A") + "%0A%0A*💰 TOPLAM: " + total + " TL*";
             window.open("https://api.whatsapp.com/send?phone=905012110958&text=" + m);
         }
     </script>
 </body>
 </html>
-
