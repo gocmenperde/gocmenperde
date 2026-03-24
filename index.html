@@ -1037,87 +1037,108 @@ function updateCardPreview(){
 
 /* ─── Sipariş Gönderme ─── */
 function submitOrder(){
-  const name    = document.getElementById('f-name').value.trim();
-  const phone   = document.getElementById('f-phone').value.trim();
-  const addr    = document.getElementById('f-addr').value.trim();
-  const note    = document.getElementById('f-note').value.trim();
-  const method  = document.getElementById('f-payment').value;
+  var name   = document.getElementById('f-name').value.trim();
+  var phone  = document.getElementById('f-phone').value.trim();
+  var addr   = document.getElementById('f-addr').value.trim();
+  var note   = document.getElementById('f-note').value.trim();
+  var method = document.getElementById('f-payment').value;
 
   if(!name || !phone || !addr){
-    showToast('⚠ Lütfen tüm zorunlu alanları doldurun');
+    showToast('Lutfen tum zorunlu alanlari doldurun');
     return;
   }
 
-  // Kredi kartı doğrulama
   if(method === 'kredikarti'){
-    const cardNum = document.getElementById('f-cardnumber').value.replace(/\s/g,'');
-    const cvv     = document.getElementById('f-cvv').value;
-    const expiry  = document.getElementById('f-expiry').value;
-    const holder  = document.getElementById('f-cardholder').value.trim();
-
-    if(cardNum.length !== 16){
-      showToast('⚠ Kart numarası 16 haneli olmalıdır'); return;
-    }
-    if(cvv.length !== 3){
-      showToast('⚠ CVV 3 haneli olmalıdır'); return;
-    }
-    if(expiry.length !== 5 || !expiry.includes('/')){
-      showToast('⚠ Son kullanma tarihi AA/YY formatında olmalıdır'); return;
-    }
-    if(!holder){
-      showToast('⚠ Kart sahibinin adını giriniz'); return;
-    }
+    var cardNum = document.getElementById('f-cardnumber').value.replace(/\s/g,'');
+    var cvv     = document.getElementById('f-cvv').value;
+    var expiry  = document.getElementById('f-expiry').value;
+    var holder  = document.getElementById('f-cardholder').value.trim();
+    if(cardNum.length !== 16){ showToast('Kart numarasi 16 haneli olmalidir'); return; }
+    if(cvv.length !== 3)     { showToast('CVV 3 haneli olmalidir'); return; }
+    if(!expiry.includes('/') || expiry.length !== 5){ showToast('Son kullanma AA/YY formatinda olmalidir'); return; }
+    if(!holder){ showToast('Kart sahibinin adini giriniz'); return; }
   }
 
-  // Sepet kontrolü
-  if(!basket.length){
-    showToast('⚠ Sepetiniz boş'); return;
-  }
+  if(!basket.length){ showToast('Sepetiniz bos'); return; }
 
-  // Butonları devre dışı bırak
-  const btn = document.getElementById(method === 'havale' ? 'paymentSentBtn' : 'submitOrderBtn');
-  const originalHTML = btn.innerHTML;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
-  btn.classList.add('submit-loading');
+  /* Butonu kilitle */
+  var btnId = (method === 'havale') ? 'paymentSentBtn' : 'submitOrderBtn';
+  var btn   = document.getElementById(btnId);
+  var origHTML = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gonderiliyor...';
+  btn.disabled  = true;
 
-  // Ürün listesini metin olarak oluştur
-  const itemLines = basket.map(i =>
-    `• ${i.name} — ${i.qty} ${i.isMeter ? 'mt' : 'adet'} × ${i.price.toLocaleString('tr-TR')} TL = ${i.sub.toLocaleString('tr-TR')} TL`
-  ).join('\n');
+  /* Urun listesi */
+  var lines = basket.map(function(i){
+    return i.name + ' | ' + i.qty + ' ' + (i.isMeter ? 'mt' : 'adet') + ' x ' + i.price + ' TL = ' + i.sub + ' TL';
+  }).join('\n');
 
-  const paymentLabels = {kapida:'Kapıda Ödeme', havale:'Havale / EFT', kredikarti:'Kredi Kartı'};
+  var odeme = {kapida:'Kapida Odeme', havale:'Havale/EFT', kredikarti:'Kredi Karti'}[method] || method;
 
-  // EmailJS template parametreleri
-  // Template'inizde bu değişkenleri kullanın: {{to_email}}, {{customer_name}},
-  // {{customer_phone}}, {{delivery_address}}, {{payment_method}},
-  // {{order_items}}, {{order_total}}, {{order_note}}
-  const templateParams = {
-    to_email:        EMAILJS_TO_EMAIL,
-    customer_name:   name,
-    customer_phone:  phone,
-    delivery_address: addr,
-    payment_method:  paymentLabels[method],
-    order_items:     itemLines,
-    order_total:     total.toLocaleString('tr-TR') + ' TL',
-    order_note:      note || '—'
-  };
+  var msg =
+    'Musteri   : ' + name  + '\n' +
+    'Telefon   : ' + phone + '\n' +
+    'Odeme     : ' + odeme + '\n' +
+    'Adres     : ' + addr  + '\n' +
+    'Not       : ' + (note || '-') + '\n\n' +
+    'URUNLER\n' + lines + '\n\n' +
+    'TOPLAM    : ' + total + ' TL';
 
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-    .then(() => {
-      // Başarılı
-      btn.innerHTML = originalHTML;
-      btn.classList.remove('submit-loading');
-      basket = []; total = 0;
-      document.getElementById('cartCount').innerText = 0;
-      saveCartToStorage();
-      document.getElementById('successModal').classList.add('open');
+  /* ── EmailJS REST API — SDK yerine dogrudan HTTP ile gonder ── */
+  /* Bu yontem init/version sorunlarindan bagimsiz calisir.      */
+  /* EmailJS template'inizde sadece {{message}} kullanin.        */
+  /* "To Email" alanina muhammedeminturk.16@gmail.com yazin.     */
+  fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    method : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body   : JSON.stringify({
+      service_id : 'service_ek1695p',
+      template_id: 'template_o4bnwvi',
+      user_id    : '2YShEY9OBdyUyU3Xf',
+      accessToken: 'IgcBKCdkCKlxrYIrcqJgA',
+      template_params: {
+        /* Bu degisken isimler EmailJS template'inizdekilerle ayni olmali */
+        from_name : name,
+        from_phone: phone,
+        reply_to  : 'noreply@gocmenperde.com',
+        message   : msg,
+        /* Ek degerler — template'de kullanmak isterseniz */
+        to_name       : 'Gocmen Perde',
+        order_total   : total + ' TL',
+        payment_method: odeme,
+        delivery_addr : addr
+      }
     })
-    .catch(err => {
-      console.error('EmailJS hata:', err);
-      btn.innerHTML = originalHTML;
-      btn.classList.remove('submit-loading');
-      showToast('⚠ Mail gönderilemedi. WhatsApp ile iletişime geçin: 0501 211 09 58');
-    });
+  })
+  .then(function(res){
+    return res.ok ? res.text() : res.text().then(function(t){ throw {status: res.status, text: t}; });
+  })
+  .then(function(txt){
+    console.log('EmailJS basarili:', txt);
+    btn.innerHTML = origHTML;
+    btn.disabled  = false;
+    basket = []; total = 0;
+    document.getElementById('cartCount').innerText = 0;
+    saveCartToStorage();
+    document.getElementById('successModal').classList.add('open');
+  })
+  .catch(function(err){
+    var status = err.status || '?';
+    var text   = err.text   || JSON.stringify(err);
+    console.error('EmailJS HATA | status:', status, '| detay:', text);
+    btn.innerHTML = origHTML;
+    btn.disabled  = false;
+
+    var hint = 'Hata kodu: ' + status + '.';
+    if(status === 400) hint = '400 — Template degiskenleri eslesmedi. Template\'de {{message}} var mi?';
+    if(status === 401) hint = '401 — Public key yanlis. EmailJS panelinden kontrol edin.';
+    if(status === 403) hint = '403 — Domain izinli degil. EmailJS > Account > Allowed Origins ekleyin.';
+    if(status === 404) hint = '404 — Service veya Template ID bulunamadi. ID\'leri kontrol edin.';
+    if(status === 422) hint = '422 — Template\'de "To Email" alani eksik. Template\'i duzenleyin.';
+
+    showToast('Mail gonderilemedi: ' + hint);
+    console.error('Tam hata:', JSON.stringify(err));
+  });
 }
 
 /* ─── Modal ─── */
