@@ -610,6 +610,112 @@ footer span{color:var(--gold)}
 }
 </style>
 </head>
+<!-- ═══════════ CART ═══════════ -->
+<section id="cart" class="section">
+  <div class="cart-container">
+    <h1 class="cart-title">Sipariş <em>Listeniz</em></h1>
+
+    <div id="cartContent"></div>
+
+    <!-- Ödeme Seçenekleri -->
+    <div class="order-form" id="paymentOptions" style="margin-top: 30px;">
+      <h3><i class="fas fa-credit-card" style="color:var(--gold);margin-right:10px"></i>Ödeme Yöntemi</h3>
+      
+      <!-- Kredi Kartı Seçeneği -->
+      <div class="payment-method" style="margin-bottom: 20px;">
+        <input type="radio" id="card" name="payment" value="card" checked>
+        <label for="card" style="margin-left: 8px;">Kredi/Debit Kartı</label>
+        
+        <div class="card-form" style="margin: 15px 0; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius);">
+          <!-- Kart Önizleme -->
+          <div style="background: #1a1a1a; color: white; padding: 25px; border-radius: 15px; margin-bottom: 20px; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <div style="font-size: 1.2rem; font-weight: bold;">Kart Önizleme</div>
+              <img id="cardType" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/1200px-Visa_Inc._logo.svg.png" alt="Kart Tipi" style="width: 60px; display: none;">
+            </div>
+            <div style="margin-bottom: 15px;">
+              <label style="font-size: 0.7rem; color: #aaa;">Kart Numarası</label>
+              <div id="cardNumberPreview" style="font-size: 1.1rem; letter-spacing: 3px; font-family: monospace;">**** **** **** ****</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+              <div>
+                <label style="font-size: 0.7rem; color: #aaa;">Son Kullanma Tarihi</label>
+                <div id="expiryPreview" style="font-size: 1rem;">MM/YY</div>
+              </div>
+              <div>
+                <label style="font-size: 0.7rem; color: #aaa;">CVV</label>
+                <div id="cvvPreview" style="font-size: 1rem;">***</div>
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: #aaa;">Kart Sahibi</label>
+              <div id="cardHolderPreview" style="font-size: 1rem; text-transform: uppercase;">AD SOYAD</div>
+            </div>
+          </div>
+
+          <!-- Kart Bilgileri Girişi -->
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Kart Sahibi Ad Soyad</label>
+              <input type="text" id="cardHolder" class="form-input" placeholder="Ahmet Yılmaz" required>
+            </div>
+            <div class="form-group full">
+              <label>Kart Numarası</label>
+              <input type="text" id="cardNumber" class="form-input" placeholder="4111 1111 1111 1111" maxlength="19" required>
+            </div>
+            <div class="form-group">
+              <label>Son Kullanma Tarihi (MM/YY)</label>
+              <input type="text" id="expiry" class="form-input" placeholder="12/28" maxlength="5" required>
+            </div>
+            <div class="form-group">
+              <label>CVV</label>
+              <input type="text" id="cvv" class="form-input" placeholder="123" maxlength="3" required>
+            </div>
+            <div class="form-group full">
+              <label>Kart Tipi</label>
+              <div style="display: flex; gap: 10px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/1200px-Visa_Inc._logo.svg.png" alt="Visa" style="width: 60px; opacity: 0.5;" id="visa">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1200px-Mastercard-logo.svg.png" alt="Mastercard" style="width: 60px; opacity: 0.5;" id="mastercard">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EFT/Havale Seçeneği -->
+      <div class="payment-method">
+        <input type="radio" id="eft" name="payment" value="eft">
+        <label for="eft" style="margin-left: 8px;">EFT/Havale</label>
+        
+        <div class="eft-info" style="margin: 15px 0; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius); display: none;">
+          <p style="font-size: 0.9rem; color: var(--slate);">Sipariş tutarını aşağıdaki hesaba yatırın ve "Gönderdim" butonuna tıklayın:</p>
+          <div style="background: var(--warm-white); padding: 15px; border-radius: var(--radius); margin: 10px 0;">
+            <p><strong>Alıcı Adı:</strong> Zeynel Türkoğlu</p>
+            <p><strong>Banka:</strong> Kuveyt Türk</p>
+            <p><strong>IBAN:</strong> TR 050020500009513424000001</p>
+            <p><strong>Açıklama:</strong> Sipariş No: [OTOMATİK NUMARA]</p>
+          </div>
+          <button class="add-btn" onclick="confirmEFT()" style="margin-top: 10px;">Gönderdim</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-footer" id="cartFooter">
+      <div>
+        <button class="clear-btn" onclick="clearCart()">
+          <i class="fas fa-trash-can"></i> Sepeti Temizle
+        </button>
+        <div class="total-display" style="margin-top: 20px;">
+          <span class="total-label">Toplam Tutar</span>
+          <div class="total-amount" id="totalAmount">0 <span>TL</span></div>
+        </div>
+      </div>
+      <button class="wa-btn" onclick="submitPayment()">
+        <i class="fas fa-check"></i> Siparişi Onayla
+      </button>
+    </div>
+  </div>
+</section>
 <!-- MOBILE MENU -->
 <div id="mobileMenu" style="
 position:fixed;
@@ -1138,6 +1244,93 @@ display:none;
 </div>
 
 <script>
+// Kart tipi tespiti ve önizleme
+document.getElementById('cardNumber').addEventListener('input', function(e) {
+  const num = e.target.value.replace(/\s/g, '');
+  const visa = /^4[0-9]{12}(?:[0-9]{3})?$/.test(num);
+  const mastercard = /^5[1-5][0-9]{14}$/.test(num);
+  
+  // Kart numarasını formatla (4 haneli boşluklar)
+  e.target.value = num.replace(/(\d{4})(?=\d)/g, '$1 ');
+  
+  // Kart tipi logosunu güncelle
+  document.getElementById('visa').style.opacity = visa ? 1 : 0.5;
+  document.getElementById('mastercard').style.opacity = mastercard ? 1 : 0.5;
+  document.getElementById('cardType').src = visa ? 'visa-logo.png' : mastercard ? 'mastercard-logo.png' : '';
+  document.getElementById('cardType').style.display = visa || mastercard ? 'block' : 'none';
+  
+  // Önizlemeyi güncelle
+  document.getElementById('cardNumberPreview').textContent = e.target.value || '**** **** **** ****';
+});
+
+// Son kullanma tarihi ve CVV önizleme
+document.getElementById('expiry').addEventListener('input', function(e) {
+  const val = e.target.value.replace(/[^0-9/]/g, '');
+  if (val.length === 2 && !val.includes('/')) e.target.value = val + '/';
+  document.getElementById('expiryPreview').textContent = val || 'MM/YY';
+});
+
+document.getElementById('cvv').addEventListener('input', function(e) {
+  document.getElementById('cvvPreview').textContent = e.target.value || '***';
+});
+
+document.getElementById('cardHolder').addEventListener('input', function(e) {
+  document.getElementById('cardHolderPreview').textContent = e.target.value.toUpperCase() || 'AD SOYAD';
+});
+
+// Ödeme yöntemi değişikliği
+document.querySelectorAll('input[name="payment"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    document.querySelector('.card-form').style.display = this.value === 'card' ? 'block' : 'none';
+    document.querySelector('.eft-info').style.display = this.value === 'eft' ? 'block' : 'none';
+  });
+});
+
+// EFT onayı
+function confirmEFT() {
+  showToast('EFT bildirimi alındı. Siparişiniz onaylandı.');
+  // Gerçekte: Kullanıcıya sipariş numarası gönderilir ve banka bildirimi beklenir.
+}
+
+// Ödeme işlemi (gerçek entegrasyon için değiştirilmeli)
+function submitPayment() {
+  const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+  
+  if (paymentMethod === 'card') {
+    // Kredi kartı ödemesi: Ödeme ağ geçitine (örneğin: Iyzico) istek gönder
+    const cardData = {
+      holder: document.getElementById('cardHolder').value,
+      number: document.getElementById('cardNumber').value.replace(/\s/g, ''),
+      expiry: document.getElementById('expiry').value,
+      cvv: document.getElementById('cvv').value
+    };
+    
+    // Örneğin: Iyzico API'sine istek gönder
+    // fetch('https://api.iyzico.com/payment', { method: 'POST', body: cardData })
+    //   .then(res => res.json())
+    //   .then(data => {
+    //     if (data.success) showToast('Ödeme başarılı!');
+    //     else showToast('Ödeme başarısız: ' + data.error);
+    //   });
+  } else {
+    // EFT ödemesi: Kullanıcının "gönderdim" tıklaması durumunda onay ver
+    showToast('Siparişiniz alındı. Ödeme onaylandıktan sonra teslimat yapılıcak.');
+  }
+}
+// Node.js ile sipariş detaylarını e-posta gönderme (backend)
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: { user: 'your-email@gmail.com', pass: 'app-password' }
+});
+
+function sendOrderEmail(order) {
+  transporter.sendMail({
+    to: 'muhammedeminturk.16@gmail.com',
+    subject: 'Yeni Sipariş',
+    text: `Sipariş Detayı: ${JSON.stringify(order)}`
+  });
+}
 /* MOBIL MENU */
 function toggleMenu(){
   const menu = document.getElementById('mobileMenu');
