@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -7,7 +8,14 @@
 <meta name="description" content="Göçmen Perde - Bursa'nın En Seçkin Perde ve Koltuk Örtüsü Mağazası. Osmangazi'de 30 yıllık tecrübe.">
 <title>Göçmen Perde | Bursa'nın Seçkin Perde Evi</title>
 <!-- EmailJS için entegrasyon (ücretsiz kullanabilirsiniz) -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+<script type="text/javascript">
+  (function(){
+    // Sizin public anahtarınız buraya yazılıyor, kontrol et
+    emailjs.init("2YShEY9OBdyUyU3Xf");
+  })();
+</script>
+
 <script type="text/javascript">
   (function(){
     emailjs.init("KENDI_EMAILJS_PUBLIC_ANAHATLARINIZI_BURAYA_YAZIN");
@@ -1113,10 +1121,17 @@ function submitOrder(){
     total: total
   };
 
-  // EmailJS ile mail gönder
-  emailjs.send("KENDI_EMAILJS_SERVICE_ID", "KENDI_EMAILJS_TEMPLATE_ID", {
+emailjs.send(
+  "service_ek1695p", // Sizin servis ID'niz (değişmez)
+  "template_o4bnwvi",
+  {
     to_email: "muhammedeminturk.16@gmail.com",
     order_details: JSON.stringify(orderData, null, 2)
+  }
+)
+// Sipariş detayları
+  }
+)
   }).then(() => {
     // Başarılı
     clearCart();
