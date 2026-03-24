@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -12,6 +11,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
+/* MOBİL MENU */
 #mobileMenu button{
   background:none;
   border:none;
@@ -45,16 +45,24 @@
 /* ─── RESET & BASE ──────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--cream);color:var(--ink);font-family:var(--ff-body);font-weight:300;overflow-x:hidden;cursor:none}
+/* İMLEÇ SORUNU İÇİN DÜZENLEME: Sadece masaüstünde özel imleç kullan, mobilde standart */
+@media(min-width:768px){
+  body{cursor:none}
+  .cursor-dot,.cursor-ring{display:block}
+}
+@media(max-width:767px){
+  body{cursor:auto}
+  .cursor-dot,.cursor-ring{display:none}
+  button,a,[onclick]{cursor:pointer !important}
+}
+body{background:var(--cream);color:var(--ink);font-family:var(--ff-body);font-weight:300;overflow-x:hidden;}
 
-/* ─── CUSTOM CURSOR ─────────────────────────────── */
-.cursor{position:fixed;pointer-events:none;z-index:9999;mix-blend-mode:multiply;transition:transform 0.1s}
-.cursor-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;position:fixed;top:0;left:0;transform:translate(-50%,-50%)}
-.cursor-ring{width:32px;height:32px;border:1.5px solid var(--gold);border-radius:50%;position:fixed;top:0;left:0;transform:translate(-50%,-50%);transition:0.15s ease-out}
-body:hover .cursor-dot{opacity:1}
+/* ─── CUSTOM CURSOR (DÜZELTİLDİ) ─────────────────────────────── */
+.cursor-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;position:fixed;top:0;left:0;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;mix-blend-mode:multiply}
+.cursor-ring{width:32px;height:32px;border:1.5px solid var(--gold);border-radius:50%;position:fixed;top:0;left:0;transform:translate(-50%,-50%);transition:0.15s ease-out;z-index:9998;pointer-events:none;mix-blend-mode:multiply}
 
 /* ─── LOADER ────────────────────────────────────── */
-#loader{position:fixed;inset:0;background:var(--ink);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;transition:opacity 0.6s}
+#loader{position:fixed;inset:0;background:var(--ink);z-index:9997;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;transition:opacity 0.6s}
 #loader.hide{opacity:0;pointer-events:none}
 .loader-text{font-family:var(--ff-display);font-size:clamp(2rem,5vw,4rem);color:var(--gold);letter-spacing:8px;text-transform:uppercase}
 .loader-line{width:0;height:1px;background:var(--gold);animation:lineGrow 1.8s ease forwards 0.3s}
@@ -65,11 +73,17 @@ body:hover .cursor-dot{opacity:1}
 ::-webkit-scrollbar-track{background:var(--cream)}
 ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
 
+/* AÇILIR SEPET VE ARAMA İÇİN STİLLER */
+.mini-cart,.search-bar,.favorite-bar{position:fixed;top:75px;right:5%;width:90%;max-width:400px;background:white;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);z-index:1000;display:none;padding:20px;max-height:70vh;overflow-y:auto}
+.mini-cart.open,.search-bar.open,.favorite-bar.open{display:block}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;display:none}
+.overlay.open{display:block}
+
 /* ─── HEADER ────────────────────────────────────── */
 header{
   position:fixed;top:0;left:0;right:0;z-index:1000;
   padding:0 5%;
-  background:rgba(247,244,239,0.92);
+  background:rgba(247,244,239,0.96);
   backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);
   transition:var(--transition);
@@ -80,6 +94,7 @@ header{
 }
 .logo-mark{
   display:flex;align-items:center;gap:14px;text-decoration:none;
+  cursor:pointer;
 }
 .logo-icon{
   width:44px;height:44px;
@@ -107,7 +122,7 @@ header{
 
 nav{display:flex;align-items:center;gap:8px}
 .nav-link{
-  background:none;border:none;cursor:none;
+  background:none;border:none;cursor:pointer;
   font-family:var(--ff-body);font-size:0.75rem;font-weight:500;
   color:var(--slate);letter-spacing:2px;text-transform:uppercase;
   padding:10px 16px;border-radius:6px;
@@ -120,16 +135,25 @@ nav{display:flex;align-items:center;gap:8px}
 }
 .nav-link:hover{color:var(--gold)}
 .nav-link:hover::after{transform:scaleX(1)}
-
+.nav-icon{width:36px;height:36px;border-radius:50%;background:none;border:none;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--slate);cursor:pointer;transition:var(--transition);position:relative}
+.nav-icon:hover{background:rgba(201,168,76,0.1);color:var(--gold)}
+.badge{
+  position:absolute;top:0;right:0;
+  background:var(--gold);color:var(--ink);
+  font-size:0.65rem;font-weight:700;
+  width:18px;height:18px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
 .nav-cart{
   display:flex;align-items:center;gap:8px;
   background:var(--ink);color:white;
-  border:none;cursor:none;
+  border:none;cursor:pointer;
   padding:10px 20px;border-radius:50px;
   font-size:0.75rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;
   transition:var(--transition);
 }
 .nav-cart:hover{background:var(--gold)}
+.nav-cart:hover .cart-badge{background:var(--ink);color:white}
 .cart-badge{
   background:var(--gold);color:var(--ink);
   font-size:0.65rem;font-weight:700;
@@ -137,13 +161,12 @@ nav{display:flex;align-items:center;gap:8px}
   display:flex;align-items:center;justify-content:center;
   transition:transform 0.3s;
 }
-.nav-cart:hover .cart-badge{background:var(--ink);color:white}
 
-/* ─── MOBILE MENU TOGGLE ────────────────────────── */
-.mobile-toggle{display:none;background:none;border:none;cursor:none;flex-direction:column;gap:5px;padding:8px}
+/* MOBİL MENÜ TOGGLE (DÜZELTİLDİ) */
+.mobile-toggle{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:8px}
 .mobile-toggle span{display:block;width:24px;height:1.5px;background:var(--ink);transition:var(--transition)}
 
-/* ─── SECTIONS ──────────────────────────────────── */
+/* ─── SECTİON STİLLERİ ──────────────────────────────────── */
 .section{display:none;min-height:100vh;padding-top:75px}
 .section.active{display:block}
 .fade-in{animation:fadeUp 0.7s ease both}
@@ -200,7 +223,7 @@ nav{display:flex;align-items:center;gap:8px}
 }
 .btn-primary{
   background:var(--gold);color:var(--ink);
-  border:none;cursor:none;
+  border:none;cursor:pointer;
   padding:16px 42px;border-radius:50px;
   font-size:0.75rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;
   transition:var(--transition);
@@ -208,7 +231,7 @@ nav{display:flex;align-items:center;gap:8px}
 .btn-primary:hover{background:white;transform:translateY(-2px);box-shadow:0 15px 40px rgba(201,168,76,0.3)}
 .btn-outline{
   background:transparent;color:white;
-  border:1px solid rgba(255,255,255,0.2);cursor:none;
+  border:1px solid rgba(255,255,255,0.2);cursor:pointer;
   padding:16px 42px;border-radius:50px;
   font-size:0.75rem;font-weight:500;letter-spacing:3px;text-transform:uppercase;
   transition:var(--transition);
@@ -247,7 +270,7 @@ nav{display:flex;align-items:center;gap:8px}
 
 /* ─── GALLERY ───────────────────────────────────── */
 .gallery-section{padding:80px 5%}
-.section-header{max-width:1400px;margin:0 auto 50px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+.section-header{max-width:1400px;margin:0 auto 50px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .section-tag{font-size:0.65rem;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
 .section-title{font-family:var(--ff-display);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--ink);line-height:1.1}
 .section-title em{color:var(--gold);font-style:italic}
@@ -262,7 +285,7 @@ nav{display:flex;align-items:center;gap:8px}
 }
 .gallery-item{
   position:relative;overflow:hidden;border-radius:var(--radius);
-  background:var(--ink);cursor:none;
+  background:var(--ink);cursor:pointer;
 }
 .gallery-item:nth-child(1){grid-column:span 3;grid-row:span 2;height:440px}
 .gallery-item:nth-child(2){grid-column:span 2;height:210px}
@@ -287,29 +310,27 @@ nav{display:flex;align-items:center;gap:8px}
 .gallery-item:hover .gallery-overlay{opacity:1}
 .gallery-label{color:white;font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;font-weight:500}
 
-/* ─── PRODUCTS PAGE ─────────────────────────────── */
+/* ÜRÜNLER SAYFASI YENİ FİLTRE YAPISI */
 #products{background:var(--warm-white)}
-.products-hero{
-  padding:100px 5% 60px;max-width:1400px;margin:auto;
-  text-align:center;
-}
-.products-hero .section-tag{display:block;margin-bottom:12px}
-.products-hero .section-title{font-size:clamp(2.5rem,5vw,4rem);margin-bottom:16px}
-.products-hero p{font-size:0.9rem;color:var(--slate);max-width:500px;margin:auto;line-height:1.8}
+.products-layout{max-width:1400px;margin:auto;padding:100px 5% 80px;display:grid;grid-template-columns:280px 1fr;gap:40px}
+@media(max-width:900px){.products-layout{grid-template-columns:1fr}}
+.filters-panel{background:white;padding:24px;border-radius:var(--radius);border:1px solid var(--border);height:fit-content;position:sticky;top:100px}
+@media(max-width:900px){.filters-panel{display:none;position:fixed;top:75px;left:5%;width:90%;z-index:1000;max-height:80vh;overflow-y:auto} .filters-panel.open{display:block}}
+.filter-group{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.filter-group:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.filter-title{font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--ink);font-weight:600;margin-bottom:12px}
+.filter-option{display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer}
+.filter-option input{width:18px;height:18px;accent-color:var(--gold)}
+.filter-option label{font-size:0.85rem;color:var(--slate)}
+.price-inputs{display:flex;gap:8px;align-items:center}
+.price-inputs input{width:50%;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:0.8rem}
+.mobile-filter-toggle{display:none;margin:0 5% 20px;padding:14px 24px;background:var(--ink);color:white;border:none;border-radius:50px;cursor:pointer;font-size:0.75rem;text-transform:uppercase;letter-spacing:2px}
+@media(max-width:900px){.mobile-filter-toggle{display:inline-flex;align-items:center;gap:8px}}
+.sort-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:10px}
+#searchInput{width:100%;max-width:300px;padding:12px 20px;border:1px solid var(--border);border-radius:50px;font-size:0.8rem;background:url(https://cdn-icons-png.flaticon.com/512/54/54481.png) no-repeat 12px center;background-size:16px;background-color:white;padding-left:40px}
+#sortSelect{padding:10px 20px;border:1px solid var(--border);border-radius:50px;font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;background:white}
 
-.filter-tabs{
-  max-width:1400px;margin:0 auto 50px;padding:0 5%;
-  display:flex;gap:10px;flex-wrap:wrap;
-}
-.filter-btn{
-  background:none;border:1px solid var(--border);cursor:none;
-  padding:10px 24px;border-radius:50px;
-  font-size:0.72rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;
-  color:var(--slate);transition:var(--transition);
-}
-.filter-btn:hover,.filter-btn.active{background:var(--ink);color:white;border-color:var(--ink)}
-
-.products-container{max-width:1400px;margin:auto;padding:0 5% 80px}
+.products-hero{display:none}
 .category-label{
   font-family:var(--ff-display);font-size:1.5rem;font-weight:700;
   color:var(--ink);margin-bottom:30px;
@@ -325,8 +346,12 @@ nav{display:flex;align-items:center;gap:8px}
   background:white;border-radius:var(--radius);overflow:hidden;
   border:1px solid var(--border);
   transition:var(--transition);
-  cursor:none;
+  cursor:pointer;
+  position:relative;
 }
+.fav-btn{position:absolute;top:14px;right:14px;width:36px;height:36px;background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--slate);transition:var(--transition);z-index:10}
+.fav-btn.active{color:#c0392b}
+.fav-btn:hover{transform:scale(1.1)}
 .product-card:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:var(--gold-light)}
 .product-img-wrap{position:relative;height:280px;overflow:hidden;background:var(--cream)}
 .product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s var(--transition)}
@@ -338,10 +363,10 @@ nav{display:flex;align-items:center;gap:8px}
   padding:5px 12px;border-radius:50px;
 }
 .product-zoom{
-  position:absolute;top:14px;right:14px;
+  position:absolute;top:14px;left:14px;
   width:36px;height:36px;border-radius:50%;
   background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);
-  border:none;cursor:none;
+  border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   color:var(--ink);font-size:0.85rem;
   opacity:0;transition:var(--transition);
@@ -364,7 +389,7 @@ nav{display:flex;align-items:center;gap:8px}
   font-family:var(--ff-body);
 }
 .add-btn{
-  background:var(--ink);color:white;border:none;cursor:none;
+  background:var(--ink);color:white;border:none;cursor:pointer;
   padding:10px 20px;border-radius:8px;
   font-size:0.7rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;
   transition:var(--transition);white-space:nowrap;
@@ -387,14 +412,18 @@ nav{display:flex;align-items:center;gap:8px}
 .cart-item-name{font-weight:500}
 .cart-item-sub{font-size:0.75rem;color:var(--slate)}
 .cart-item-price{font-family:var(--ff-display);font-size:1.2rem;font-weight:700;color:var(--gold)}
-.remove-btn{background:none;border:none;cursor:none;color:var(--slate);transition:color 0.3s;font-size:0.9rem}
+.remove-btn{background:none;border:none;cursor:pointer;color:var(--slate);transition:color 0.3s;font-size:0.9rem}
 .remove-btn:hover{color:#c0392b}
-
+.qty-update-btn{width:24px;height:24px;border:1px solid var(--border);border-radius:50%;background:none;cursor:pointer}
 .cart-empty{
   text-align:center;padding:80px 20px;
   font-family:var(--ff-display);font-size:1.5rem;color:var(--slate);font-style:italic;
 }
 .cart-empty i{display:block;font-size:3rem;margin-bottom:20px;opacity:0.3}
+
+.coupon-area{margin:20px 0;display:flex;gap:10px;max-width:400px}
+#couponInput{flex:1;padding:12px;border:1px solid var(--border);border-radius:8px}
+#couponBtn{padding:12px 24px;background:var(--ink);color:white;border:none;border-radius:8px;cursor:pointer;text-transform:uppercase;font-size:0.7rem;letter-spacing:2px}
 
 .order-form{
   background:white;border:1px solid var(--border);border-radius:var(--radius);
@@ -427,14 +456,14 @@ nav{display:flex;align-items:center;gap:8px}
 .total-amount span{color:var(--gold)}
 .wa-btn{
   display:inline-flex;align-items:center;gap:12px;
-  background:#25D366;color:white;border:none;cursor:none;
+  background:#25D366;color:white;border:none;cursor:pointer;
   padding:18px 42px;border-radius:50px;
   font-size:0.8rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;
   transition:var(--transition);
 }
 .wa-btn:hover{background:#1da851;transform:translateY(-2px);box-shadow:0 15px 40px rgba(37,211,102,0.3)}
 .clear-btn{
-  background:none;border:1px solid rgba(192,57,43,0.2);cursor:none;
+  background:none;border:1px solid rgba(192,57,43,0.2);cursor:pointer;
   color:#c0392b;padding:12px 24px;border-radius:8px;
   font-size:0.7rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;
   transition:var(--transition);
@@ -444,6 +473,7 @@ nav{display:flex;align-items:center;gap:8px}
 /* ─── CONTACT ───────────────────────────────────── */
 #contact{background:var(--ink)}
 .contact-container{max-width:1400px;margin:auto;padding:120px 5% 80px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+@media(max-width:900px){.contact-container{grid-template-columns:1fr}}
 .contact-left .section-tag{color:var(--gold)}
 .contact-left .section-title{color:white}
 .contact-left .section-title em{color:var(--gold)}
@@ -511,7 +541,7 @@ nav{display:flex;align-items:center;gap:8px}
 }
 .modal-close{
   position:absolute;top:16px;right:16px;z-index:10;
-  width:36px;height:36px;background:rgba(15,14,13,0.6);border:none;cursor:none;
+  width:36px;height:36px;background:rgba(15,14,13,0.6);border:none;cursor:pointer;
   border-radius:50%;display:flex;align-items:center;justify-content:center;
   color:white;font-size:1rem;transition:var(--transition);
   backdrop-filter:blur(6px);
@@ -560,12 +590,11 @@ footer{
 }
 footer span{color:var(--gold)}
 
-/* ─── RESPONSIVE ────────────────────────────────── */
+/* ─── RESPONSİVE SON DÜZENLEMELER ────────────────────────────────── */
 @media(max-width:900px){
   .features-inner{grid-template-columns:repeat(2,1fr)}
   .gallery-grid{grid-template-columns:1fr 1fr}
   .gallery-item{grid-column:span 1 !important;grid-row:span 1 !important;height:180px !important}
-  .contact-container{grid-template-columns:1fr}
   .form-grid{grid-template-columns:1fr}
   .form-group.full{grid-column:span 1}
   .modal-box{flex-direction:column}
@@ -577,6 +606,7 @@ footer span{color:var(--gold)}
   .features-inner{grid-template-columns:1fr 1fr}
   .hero-title{font-size:3.5rem}
   .cart-footer{flex-direction:column;align-items:flex-start}
+  #searchInput{max-width:100%}
 }
 </style>
 </head>
@@ -598,7 +628,6 @@ gap:20px;
   <button onclick="go('cart');toggleMenu()">Sepetim</button>
   <button onclick="go('contact');toggleMenu()">İletişim</button>
 </div>
-
 <div id="menuOverlay" onclick="toggleMenu()" style="
 position:fixed;
 inset:0;
@@ -606,9 +635,25 @@ background:rgba(0,0,0,0.5);
 z-index:1500;
 display:none;
 "></div>
-<body>
+<div class="overlay" id="globalOverlay" onclick="closeAllPopups()"></div>
 
-<!-- CURSOR -->
+<!-- AÇILIR POPUPLAR -->
+<div class="search-bar" id="searchBar">
+  <input type="text" id="headerSearchInput" placeholder="Ürün ara..." style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;">
+  <div id="searchResults"></div>
+</div>
+<div class="favorite-bar" id="favoriteBar">
+  <h3 style="font-family:var(--ff-display);font-size:1.5rem;margin-bottom:20px">Favorilerim</h3>
+  <div id="favoriteList"></div>
+</div>
+<div class="mini-cart" id="miniCart">
+  <h3 style="font-family:var(--ff-display);font-size:1.5rem;margin-bottom:20px">Sepetim</h3>
+  <div id="miniCartList"></div>
+  <button class="btn-primary" style="width:100%;margin-top:20px" onclick="go('cart');closeAllPopups()">Siparişi Tamamla</button>
+</div>
+
+<body>
+<!-- CURSOR (DÜZELTİLDİ) -->
 <div class="cursor-dot" id="cursorDot"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
@@ -624,7 +669,7 @@ display:none;
 <!-- HEADER -->
 <header id="mainHeader">
   <div class="header-inner">
-    <a class="logo-mark" onclick="go('home')" style="cursor:none">
+    <a class="logo-mark" onclick="go('home')">
       <div class="logo-icon"></div>
       <div class="logo-text">
         <span class="logo-main">Göçmen <em style="color:var(--gold);font-style:normal">Perde</em></span>
@@ -635,13 +680,20 @@ display:none;
       <button class="nav-link" onclick="go('home')">Anasayfa</button>
       <button class="nav-link" onclick="go('products')">Koleksiyon</button>
       <button class="nav-link" onclick="go('contact')">İletişim</button>
-      <button class="nav-cart" onclick="go('cart')">
+      <button class="nav-icon" onclick="togglePopup('searchBar')">
+        <i class="fas fa-search"></i>
+      </button>
+      <button class="nav-icon" onclick="togglePopup('favoriteBar')">
+        <i class="far fa-heart"></i>
+        <span class="badge" id="favoriteCount">0</span>
+      </button>
+      <button class="nav-cart" onclick="togglePopup('miniCart')">
         <i class="fas fa-bag-shopping" style="font-size:0.9rem"></i>
         Sepet
         <span class="cart-badge" id="cartCount">0</span>
       </button>
     </nav>
-    <button class="mobile-toggle" id="mobileToggle" onclick="go('products')">
+    <button class="mobile-toggle" id="mobileToggle" onclick="toggleMenu()">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -649,7 +701,6 @@ display:none;
 
 <!-- ═══════════ HOME ═══════════ -->
 <section id="home" class="section active">
-
   <div class="hero">
     <div class="hero-bg"></div>
     <div class="hero-pattern"></div>
@@ -775,116 +826,165 @@ display:none;
     <p>El emeği, göz nuru. Her ürün Zeynel Bey'in 30 yıllık tecrübesiyle seçilmiş.</p>
   </div>
 
-  <div class="filter-tabs">
-    <button class="filter-btn active" onclick="filterProducts('all',this)">Tümü</button>
-    <button class="filter-btn" onclick="filterProducts('perde',this)">Perdeler</button>
-    <button class="filter-btn" onclick="filterProducts('koltuk',this)">Koltuk Örtüleri</button>
-  </div>
+  <button class="mobile-filter-toggle" onclick="document.getElementById('filtersPanel').classList.toggle('open')">
+    <i class="fas fa-filter"></i> Filtreleri Aç/Kapat
+  </button>
 
-  <div class="products-container">
-    <div class="category-label">Tül &amp; Fon Perdeler</div>
-    <div class="products-grid">
-
-      <div class="product-card" data-cat="perde">
-        <div class="product-img-wrap">
-          <img src="resimler/dikili_perde.jpeg" alt="Saray Tül" loading="lazy">
-          <span class="product-badge">Çok Satan</span>
-          <button class="product-zoom" onclick="openModal('Saray Tül Perde','resimler/dikili_perde.jpeg','200 TL / mt','Bursa üretimi özel örme tül kumaş. Ütü istemez, dayanıklı ve ışık geçiren yapısıyla odanıza ferahlık katar. Metre başına fiyatlandırılır.','Tül Perde')">
-            <i class="fas fa-expand"></i>
-          </button>
+  <div class="products-layout">
+    <div class="filters-panel" id="filtersPanel">
+      <h3 class="filter-title">Filtreleme</h3>
+      <div class="filter-group">
+        <h4 class="filter-title">Kategori</h4>
+        <div class="filter-option">
+          <input type="checkbox" id="cat-all" checked onclick="applyFilters()">
+          <label for="cat-all">Tümü</label>
         </div>
-        <div class="product-info">
-          <div class="product-name">Saray Tül Perde</div>
-          <div class="product-desc">Bursa üretimi örme tül · Ütü istemez · Işık geçiren</div>
-          <div class="product-bottom">
-            <div>
-              <div class="product-price">200 TL<small> / mt</small></div>
-            </div>
-            <div class="qty-wrap">
-              <input type="number" class="qty-input" id="q-saraytul" value="1" min="1">
-              <button class="add-btn" onclick="addToCart('Saray Tül Perde',200,'q-saraytul',true)">+ Ekle</button>
-            </div>
-          </div>
+        <div class="filter-option">
+          <input type="checkbox" id="cat-perde" onclick="applyFilters()">
+          <label for="cat-perde">Perdeler</label>
+        </div>
+        <div class="filter-option">
+          <input type="checkbox" id="cat-koltuk" onclick="applyFilters()">
+          <label for="cat-koltuk">Koltuk Örtüleri</label>
         </div>
       </div>
-
-      <div class="product-card" data-cat="perde">
-        <div class="product-img-wrap">
-          <img src="resimler/kumas_fon_renkli.jpeg" alt="Ekonomik Fon" loading="lazy">
-          <span class="product-badge">Uygun Fiyat</span>
-          <button class="product-zoom" onclick="openModal('Ekonomik Fon Perde','resimler/kumas_fon_renkli.jpeg','2.500 TL','Renk seçeneği geniş, kaliteli dekoratif fon perde. Evinizin her odasına uyum sağlayan modeller mevcuttur. Dikim dahil fiyattır.','Fon Perde')">
-            <i class="fas fa-expand"></i>
-          </button>
-        </div>
-        <div class="product-info">
-          <div class="product-name">Ekonomik Fon Perde</div>
-          <div class="product-desc">Geniş renk skalası · Dikim dahil · Dekoratif model</div>
-          <div class="product-bottom">
-            <div class="product-price">2.500 TL</div>
-            <button class="add-btn" onclick="addToCart('Ekonomik Fon Perde',2500,null,false)">+ Ekle</button>
-          </div>
+      <div class="filter-group">
+        <h4 class="filter-title">Fiyat Aralığı</h4>
+        <div class="price-inputs">
+          <input type="number" id="minPrice" placeholder="Min" min="0" oninput="applyFilters()">
+          <input type="number" id="maxPrice" placeholder="Maks" max="10000" oninput="applyFilters()">
         </div>
       </div>
-
-      <div class="product-card" data-cat="perde">
-        <div class="product-img-wrap">
-          <img src="resimler/brillant_fon.jpeg" alt="VIP Premium Fon" loading="lazy">
-          <span class="product-badge">Premium</span>
-          <button class="product-zoom" onclick="openModal('VIP Premium Fon Perde','resimler/brillant_fon.jpeg','4.500 TL','Kadife dokulu, karartma özellikli lüks fon perde. Işık sızdırmaz yapısı ve asil görünümüyle yatak odalarına özel tasarlanmıştır. Dikim dahil fiyattır.','Lüks Fon Perde')">
-            <i class="fas fa-expand"></i>
-          </button>
+      <div class="filter-group">
+        <h4 class="filter-title">Özellikler</h4>
+        <div class="filter-option">
+          <input type="checkbox" id="feat-karartma" onclick="applyFilters()">
+          <label for="feat-karartma">Karartma Özellikli</label>
         </div>
-        <div class="product-info">
-          <div class="product-name">VIP Premium Fon</div>
-          <div class="product-desc">Kadife doku · Karartma özellikli · Lüks seri</div>
-          <div class="product-bottom">
-            <div class="product-price">4.500 TL</div>
-            <button class="add-btn" onclick="addToCart('VIP Premium Fon Perde',4500,null,false)">+ Ekle</button>
-          </div>
+        <div class="filter-option">
+          <input type="checkbox" id="feat-utu" onclick="applyFilters()">
+          <label for="feat-utu">Ütü İstemez</label>
+        </div>
+        <div class="filter-option">
+          <input type="checkbox" id="feat-premium" onclick="applyFilters()">
+          <label for="feat-premium">Premium Seri</label>
         </div>
       </div>
-
     </div>
 
-    <div class="category-label">Koltuk Örtüleri</div>
-    <div class="products-grid">
-
-      <div class="product-card" data-cat="koltuk">
-        <div class="product-img-wrap">
-          <img src="resimler/koltuk_ortusu.jpeg" alt="Örtü Set 3+3+1+1" loading="lazy">
-          <span class="product-badge">Komple Set</span>
-          <button class="product-zoom" onclick="openModal('Koltuk Örtü Seti (3+3+1+1)','resimler/koltuk_ortusu.jpeg','1.500 TL','Esnek bürümcük kumaş, 2 adet üçlü ve 2 adet tekli koltuk için eksiksiz set. Koltuk formuna tam uyum sağlar, yıkama kolaylığı sunar. Tüm renkler mevcuttur.','Koltuk Örtüsü')">
-            <i class="fas fa-expand"></i>
-          </button>
-        </div>
-        <div class="product-info">
-          <div class="product-name">Örtü Set (3+3+1+1)</div>
-          <div class="product-desc">Bürümcük kumaş · 2 üçlü + 2 tekli · Esnek form</div>
-          <div class="product-bottom">
-            <div class="product-price">1.500 TL</div>
-            <button class="add-btn" onclick="addToCart('Koltuk Örtü Seti 3+3+1+1',1500,null,false)">+ Ekle</button>
-          </div>
-        </div>
+    <div class="products-content">
+      <div class="sort-bar">
+        <input type="text" id="searchInput" placeholder="Ürün ara..." oninput="applyFilters()">
+        <select id="sortSelect" onchange="applyFilters()">
+          <option value="popular">En Çok Satan</option>
+          <option value="price-asc">Fiyat (Artan)</option>
+          <option value="price-desc">Fiyat (Azalan)</option>
+        </select>
       </div>
 
-      <div class="product-card" data-cat="koltuk">
-        <div class="product-img-wrap">
-          <img src="resimler/koltuk_ortusu.jpeg" alt="Örtü Set 3+3" loading="lazy">
-          <span class="product-badge">İkili Set</span>
-          <button class="product-zoom" onclick="openModal('Koltuk Örtü Seti (3+3)','resimler/koltuk_ortusu.jpeg','1.200 TL','Esnek bürümcük kumaş, 2 adet üçlü koltuk için set. Solmaz renkleri ve uzun ömürlü yapısıyla mobilyanızı korur.','Koltuk Örtüsü')">
-            <i class="fas fa-expand"></i>
-          </button>
-        </div>
-        <div class="product-info">
-          <div class="product-name">Örtü Set (3+3)</div>
-          <div class="product-desc">Bürümcük kumaş · 2 adet üçlü koltuk · Solmaz renk</div>
-          <div class="product-bottom">
-            <div class="product-price">1.200 TL</div>
-            <button class="add-btn" onclick="addToCart('Koltuk Örtü Seti 3+3',1200,null,false)">+ Ekle</button>
+      <div class="category-label">Tüm Ürünler</div>
+      <div class="products-grid">
+        <div class="product-card" data-cat="perde" data-price="200" data-features="utu">
+          <button class="fav-btn" onclick="toggleFavorite('Saray Tül Perde',this)"><i class="far fa-heart"></i></button>
+          <div class="product-img-wrap">
+            <img src="resimler/dikili_perde.jpeg" alt="Saray Tül" loading="lazy">
+            <span class="product-badge">Çok Satan</span>
+            <button class="product-zoom" onclick="openModal('Saray Tül Perde','resimler/dikili_perde.jpeg','200 TL / mt','Bursa üretimi özel örme tül kumaş. Ütü istemez, dayanıklı ve ışık geçiren yapısıyla odanıza ferahlık katar. Metre başına fiyatlandırılır.','Tül Perde')">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+          <div class="product-info">
+            <div class="product-name">Saray Tül Perde</div>
+            <div class="product-desc">Bursa üretimi örme tül · Ütü istemez · Işık geçiren</div>
+            <div class="product-bottom">
+              <div>
+                <div class="product-price">200 TL<small> / mt</small></div>
+              </div>
+              <div class="qty-wrap">
+                <input type="number" class="qty-input" id="q-saraytul" value="1" min="1">
+                <button class="add-btn" onclick="addToCart('Saray Tül Perde',200,'q-saraytul',true)">+ Ekle</button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
+        <div class="product-card" data-cat="perde" data-price="2500">
+          <button class="fav-btn" onclick="toggleFavorite('Ekonomik Fon Perde',this)"><i class="far fa-heart"></i></button>
+          <div class="product-img-wrap">
+            <img src="resimler/kumas_fon_renkli.jpeg" alt="Ekonomik Fon" loading="lazy">
+            <span class="product-badge">Uygun Fiyat</span>
+            <button class="product-zoom" onclick="openModal('Ekonomik Fon Perde','resimler/kumas_fon_renkli.jpeg','2.500 TL','Renk seçeneği geniş, kaliteli dekoratif fon perde. Evinizin her odasına uyum sağlayan modeller mevcuttur. Dikim dahil fiyattır.','Fon Perde')">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+          <div class="product-info">
+            <div class="product-name">Ekonomik Fon Perde</div>
+            <div class="product-desc">Geniş renk skalası · Dikim dahil · Dekoratif model</div>
+            <div class="product-bottom">
+              <div class="product-price">2.500 TL</div>
+              <button class="add-btn" onclick="addToCart('Ekonomik Fon Perde',2500,null,false)">+ Ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-cat="perde" data-price="4500" data-features="karartma,premium">
+          <button class="fav-btn" onclick="toggleFavorite('VIP Premium Fon Perde',this)"><i class="far fa-heart"></i></button>
+          <div class="product-img-wrap">
+            <img src="resimler/brillant_fon.jpeg" alt="VIP Premium Fon" loading="lazy">
+            <span class="product-badge">Premium</span>
+            <button class="product-zoom" onclick="openModal('VIP Premium Fon Perde','resimler/brillant_fon.jpeg','4.500 TL','Kadife dokulu, karartma özellikli lüks fon perde. Işık sızdırmaz yapısı ve asil görünümüyle yatak odalarına özel tasarlanmıştır. Dikim dahil fiyattır.','Lüks Fon Perde')">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+          <div class="product-info">
+            <div class="product-name">VIP Premium Fon</div>
+            <div class="product-desc">Kadife doku · Karartma özellikli · Lüks seri</div>
+            <div class="product-bottom">
+              <div class="product-price">4.500 TL</div>
+              <button class="add-btn" onclick="addToCart('VIP Premium Fon Perde',4500,null,false)">+ Ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-cat="koltuk" data-price="1500">
+          <button class="fav-btn" onclick="toggleFavorite('Koltuk Örtü Seti 3+3+1+1',this)"><i class="far fa-heart"></i></button>
+          <div class="product-img-wrap">
+            <img src="resimler/koltuk_ortusu.jpeg" alt="Örtü Set 3+3+1+1" loading="lazy">
+            <span class="product-badge">Komple Set</span>
+            <button class="product-zoom" onclick="openModal('Koltuk Örtü Seti (3+3+1+1)','resimler/koltuk_ortusu.jpeg','1.500 TL','Esnek bürümcük kumaş, 2 adet üçlü ve 2 adet tekli koltuk için eksiksiz set. Koltuk formuna tam uyum sağlar, yıkama kolaylığı sunar. Tüm renkler mevcuttur.','Koltuk Örtüsü')">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+          <div class="product-info">
+            <div class="product-name">Örtü Set (3+3+1+1)</div>
+            <div class="product-desc">Bürümcük kumaş · 2 üçlü + 2 tekli · Esnek form</div>
+            <div class="product-bottom">
+              <div class="product-price">1.500 TL</div>
+              <button class="add-btn" onclick="addToCart('Koltuk Örtü Seti 3+3+1+1',1500,null,false)">+ Ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-cat="koltuk" data-price="1200">
+          <button class="fav-btn" onclick="toggleFavorite('Koltuk Örtü Seti 3+3',this)"><i class="far fa-heart"></i></button>
+          <div class="product-img-wrap">
+            <img src="resimler/koltuk_ortusu.jpeg" alt="Örtü Set 3+3" loading="lazy">
+            <span class="product-badge">İkili Set</span>
+            <button class="product-zoom" onclick="openModal('Koltuk Örtü Seti (3+3)','resimler/koltuk_ortusu.jpeg','1.200 TL','Esnek bürümcük kumaş, 2 adet üçlü koltuk için set. Solmaz renkleri ve uzun ömürlü yapısıyla mobilyanızı korur.','Koltuk Örtüsü')">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div>
+          <div class="product-info">
+            <div class="product-name">Örtü Set (3+3)</div>
+            <div class="product-desc">Bürümcük kumaş · 2 adet üçlü koltuk · Solmaz renk</div>
+            <div class="product-bottom">
+              <div class="product-price">1.200 TL</div>
+              <button class="add-btn" onclick="addToCart('Koltuk Örtü Seti 3+3',1200,null,false)">+ Ekle</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
@@ -910,6 +1010,14 @@ display:none;
         <div class="form-group">
           <label>Telefon</label>
           <input type="tel" id="f-phone" class="form-input" placeholder="05xx xxx xx xx">
+        </div>
+        <div class="form-group">
+          <label>Ödeme Yöntemi</label>
+          <select id="f-payment" class="form-input">
+            <option value="kapida">Kapıda Ödeme</option>
+            <option value="havale">Havale / EFT</option>
+            <option value="kredikarti">Kredi Kartı ile Ödeme</option>
+          </select>
         </div>
         <div class="form-group full">
           <label>Teslimat Adresi</label>
@@ -1030,54 +1138,75 @@ display:none;
 </div>
 
 <script>
-/* ─── MOBILE MENU ─── */
+/* MOBIL MENU */
 function toggleMenu(){
   const menu = document.getElementById('mobileMenu');
   const overlay = document.getElementById('menuOverlay');
-
   if(menu.style.left === "0px"){
     menu.style.left = "-100%";
     overlay.style.display = "none";
   } else {
+    closeAllPopups();
     menu.style.left = "0px";
     overlay.style.display = "block";
   }
 }
-
-/* hamburger butonunu değiştir */
 document.getElementById('mobileToggle').onclick = toggleMenu;
-/* ─── CURSOR ─── */
+
+/* POPUP KAPATMA FONKSİYONU */
+function closeAllPopups(){
+  document.querySelectorAll('.mini-cart,.search-bar,.favorite-bar,.filters-panel').forEach(el => el.classList.remove('open'));
+  document.getElementById('globalOverlay').classList.remove('open');
+}
+function togglePopup(popupId){
+  const popup = document.getElementById(popupId);
+  const overlay = document.getElementById('globalOverlay');
+  closeAllPopups();
+  if(!popup.classList.contains('open')){
+    popup.classList.add('open');
+    overlay.classList.add('open');
+    if(popupId === 'miniCart') renderMiniCart();
+    if(popupId === 'favoriteBar') renderFavorites();
+  }
+}
+
+/* CUSTOM CURSOR (DÜZELTİLDİ) */
 const dot = document.getElementById('cursorDot');
 const ring = document.getElementById('cursorRing');
-document.addEventListener('mousemove', e => {
-  dot.style.left = e.clientX + 'px';
-  dot.style.top = e.clientY + 'px';
-  setTimeout(() => {
-    ring.style.left = e.clientX + 'px';
-    ring.style.top = e.clientY + 'px';
-  }, 60);
-});
-document.querySelectorAll('button,a,[onclick]').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    ring.style.transform = 'translate(-50%,-50%) scale(1.6)';
-    ring.style.background = 'rgba(201,168,76,0.08)';
+if(window.innerWidth > 767){
+  document.addEventListener('mousemove', e => {
+    dot.style.left = e.clientX + 'px';
+    dot.style.top = e.clientY + 'px';
+    setTimeout(() => {
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    }, 60);
   });
-  el.addEventListener('mouseleave', () => {
-    ring.style.transform = 'translate(-50%,-50%) scale(1)';
-    ring.style.background = 'transparent';
+  document.querySelectorAll('button,a,[onclick]').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      ring.style.transform = 'translate(-50%,-50%) scale(1.6)';
+      ring.style.background = 'rgba(201,168,76,0.08)';
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.background = 'transparent';
+    });
   });
-});
+}
 
-/* ─── LOADER ─── */
+/* LOADER */
 window.addEventListener('load', () => {
   setTimeout(() => {
     document.getElementById('loader').classList.add('hide');
     setTimeout(() => document.getElementById('loader').remove(), 700);
   }, 1800);
+  loadFavoritesFromStorage();
+  loadCartFromStorage();
 });
 
-/* ─── NAVIGATION ─── */
+/* NAVİGASYON */
 function go(id) {
+  closeAllPopups();
   document.querySelectorAll('.section').forEach(s => {
     s.classList.remove('active');
     s.style.display = 'none';
@@ -1091,15 +1220,49 @@ function go(id) {
   window.scrollTo({top:0, behavior:'smooth'});
   if (id === 'cart') renderCart();
 }
-// init display
 document.querySelectorAll('.section').forEach(s => {
   if(!s.classList.contains('active')) s.style.display = 'none';
 });
 
-/* ─── CART STATE ─── */
+/* FAVORİLER SİSTEMİ */
+let favorites = [];
+function toggleFavorite(name, btn){
+  const existingIndex = favorites.findIndex(f => f.name === name);
+  if(existingIndex > -1){
+    favorites.splice(existingIndex, 1);
+    btn.classList.remove('active');
+    btn.innerHTML = '<i class="far fa-heart"></i>';
+    showToast('Ürün favorilerden çıkarıldı');
+  } else {
+    favorites.push({name});
+    btn.classList.add('active');
+    btn.innerHTML = '<i class="fas fa-heart"></i>';
+    showToast('Ürün favorilere eklendi');
+  }
+  document.getElementById('favoriteCount').innerText = favorites.length;
+  saveFavoritesToStorage();
+}
+function renderFavorites(){
+  const list = document.getElementById('favoriteList');
+  if(favorites.length === 0){
+    list.innerHTML = '<p style="color:var(--slate);text-align:center;padding:20px">Henüz favori ürününüz yok.</p>';
+    return;
+  }
+  list.innerHTML = favorites.map(f => `<div style="padding:12px 0;border-bottom:1px solid var(--border)">${f.name}</div>`).join('');
+}
+function saveFavoritesToStorage(){localStorage.setItem('gocmenPerdeFavorites', JSON.stringify(favorites))}
+function loadFavoritesFromStorage(){
+  const saved = localStorage.getItem('gocmenPerdeFavorites');
+  if(saved) favorites = JSON.parse(saved);
+  document.getElementById('favoriteCount').innerText = favorites.length;
+  document.querySelectorAll('.fav-btn').forEach(btn => {
+    // basit eşleşme için ürün ismine göre aktif yap
+  });
+}
+
+/* CART STATE */
 let basket = [];
 let total = 0;
-
 function addToCart(name, price, inputId, isMeter) {
   const qty = inputId ? parseInt(document.getElementById(inputId).value) || 1 : 1;
   if(qty < 1) { showToast('Geçerli miktar giriniz'); return; }
@@ -1113,24 +1276,49 @@ function addToCart(name, price, inputId, isMeter) {
   total = basket.reduce((a,b) => a + b.sub, 0);
   document.getElementById('cartCount').innerText = basket.reduce((a,b) => a + b.qty, 0);
   showToast('✓ Sepete eklendi: ' + name);
-  renderCart();
+  saveCartToStorage();
 }
-
+function updateItemQty(idx, change){
+  basket[idx].qty += change;
+  if(basket[idx].qty < 1) { removeItem(idx); return; }
+  basket[idx].sub = basket[idx].price * basket[idx].qty;
+  total = basket.reduce((a,b) => a + b.sub, 0);
+  saveCartToStorage();
+  renderCart();
+  renderMiniCart();
+}
 function removeItem(idx) {
   total -= basket[idx].sub;
   basket.splice(idx, 1);
   total = basket.reduce((a,b) => a + b.sub, 0);
   document.getElementById('cartCount').innerText = basket.reduce((a,b) => a + b.qty, 0);
+  saveCartToStorage();
   renderCart();
+  renderMiniCart();
 }
-
 function clearCart() {
   if(!confirm('Sepet temizlensin mi?')) return;
   basket = []; total = 0;
   document.getElementById('cartCount').innerText = 0;
+  saveCartToStorage();
   renderCart();
 }
-
+function renderMiniCart(){
+  const list = document.getElementById('miniCartList');
+  if(basket.length === 0){
+    list.innerHTML = '<p style="color:var(--slate);text-align:center;padding:20px">Sepetiniz boş.</p>';
+    return;
+  }
+  list.innerHTML = basket.map((item,i) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-weight:500">${item.name}</div>
+        <div style="font-size:0.8rem;color:var(--slate)">${item.qty} adet</div>
+      </div>
+      <div style="font-family:var(--ff-display);font-weight:700;color:var(--gold)">${item.sub.toLocaleString('tr-TR')} TL</div>
+    </div>
+  `).join('');
+}
 function renderCart() {
   const content = document.getElementById('cartContent');
   const footer = document.getElementById('cartFooter');
@@ -1146,6 +1334,11 @@ function renderCart() {
       <td>
         <div class="cart-item-name">${item.name}</div>
         <div class="cart-item-sub">${item.isMeter ? item.qty + ' mt × ' + item.price.toLocaleString('tr-TR') + ' TL' : item.qty + ' adet'}</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+          <button class="qty-update-btn" onclick="updateItemQty(${i},-1)">-</button>
+          <span>${item.qty}</span>
+          <button class="qty-update-btn" onclick="updateItemQty(${i},1)">+</button>
+        </div>
       </td>
       <td style="text-align:right">
         <span class="cart-item-price">${item.sub.toLocaleString('tr-TR')} TL</span>
@@ -1164,22 +1357,46 @@ function renderCart() {
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
+    <div class="coupon-area">
+      <input type="text" id="couponInput" class="form-input" placeholder="Kupon kodu girin">
+      <button id="couponBtn" onclick="applyCoupon()">Uygula</button>
+    </div>
   `;
   document.getElementById('totalAmount').innerHTML = total.toLocaleString('tr-TR') + ' <span>TL</span>';
   footer.style.display = 'flex';
   form.style.display = 'block';
 }
-
+function saveCartToStorage(){localStorage.setItem('gocmenPerdeCart', JSON.stringify(basket))}
+function loadCartFromStorage(){
+  const saved = localStorage.getItem('gocmenPerdeCart');
+  if(saved) {
+    basket = JSON.parse(saved);
+    total = basket.reduce((a,b) => a + b.sub, 0);
+    document.getElementById('cartCount').innerText = basket.reduce((a,b) => a + b.qty, 0);
+  }
+}
+function applyCoupon(){
+  const code = document.getElementById('couponInput').value.trim();
+  if(code === 'ILKSIPARIS10'){
+    total = total * 0.9;
+    document.getElementById('totalAmount').innerHTML = total.toLocaleString('tr-TR') + ' <span>TL</span>';
+    showToast('Kupon uygulandı: %10 indirim');
+  } else {
+    showToast('Geçersiz kupon kodu');
+  }
+}
 function sendWhatsApp() {
   if(basket.length === 0) { showToast('Önce ürün ekleyiniz'); return; }
   const name = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
   const addr = document.getElementById('f-addr').value.trim();
   const note = document.getElementById('f-note').value.trim();
+  const payment = document.getElementById('f-payment').value;
+  const paymentText = {kapida:"Kapıda Ödeme", havale:"Havale/EFT", kredikarti:"Kredi Kartı"}[payment];
   if(!name || !phone || !addr) { showToast('⚠ Lütfen tüm alanları doldurun'); return; }
   let msg = `*🏠 GÖÇMEN PERDE — YENİ SİPARİŞ*\n\n`;
   msg += `*👤 MÜŞTERİ BİLGİLERİ*\n`;
-  msg += `İsim: ${name}\nTelefon: ${phone}\nAdres: ${addr}`;
+  msg += `İsim: ${name}\nTelefon: ${phone}\nAdres: ${addr}\nÖdeme Yöntemi: ${paymentText}`;
   if(note) msg += `\nNot: ${note}`;
   msg += `\n\n*🛒 ÜRÜNLER*\n`;
   basket.forEach(i => { msg += `• ${i.name} (${i.qty} ${i.isMeter?'mt':'adet'}) → ${i.sub.toLocaleString('tr-TR')} TL\n`; });
@@ -1187,7 +1404,7 @@ function sendWhatsApp() {
   window.open('https://api.whatsapp.com/send?phone=905012110958&text=' + encodeURIComponent(msg));
 }
 
-/* ─── MODAL ─── */
+/* MODAL */
 function openModal(title, src, price, desc, tag) {
   document.getElementById('mTitle').innerText = title;
   document.getElementById('mImg').src = src;
@@ -1203,11 +1420,9 @@ function closeModal(e) {
     document.body.style.overflow = '';
   }
 }
-
 function openGalleryModal(src, title, desc) {
   openModal(title, src, '', desc, 'Dükkanımız');
 }
-
 function zoomImg(e) {
   const img = document.getElementById('mImg');
   const rect = img.getBoundingClientRect();
@@ -1220,20 +1435,48 @@ function resetImgZoom() {
   document.getElementById('mImg').style.transform = 'scale(1)';
 }
 
-/* ─── FILTER ─── */
-function filterProducts(cat, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.product-card').forEach(card => {
-    if(cat === 'all' || card.dataset.cat === cat) {
-      card.style.display = 'block';
-    } else {
-      card.style.display = 'none';
-    }
+/* FİLTRELEME SİSTEMİ */
+function applyFilters(){
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const sortValue = document.getElementById('sortSelect').value;
+  const minPrice = document.getElementById('minPrice').value || 0;
+  const maxPrice = document.getElementById('maxPrice').value || Infinity;
+  const catPerde = document.getElementById('cat-perde').checked;
+  const catKoltuk = document.getElementById('cat-koltuk').checked;
+  const featKarartma = document.getElementById('feat-karartma')?.checked || false;
+  const featUtu = document.getElementById('feat-utu')?.checked || false;
+  const featPremium = document.getElementById('feat-premium')?.checked || false;
+
+  const cards = document.querySelectorAll('.product-card');
+  cards.forEach(card => {
+    const cardCat = card.dataset.cat;
+    const cardPrice = parseInt(card.dataset.price);
+    const cardName = card.querySelector('.product-name').innerText.toLowerCase();
+    const cardDesc = card.querySelector('.product-desc').innerText.toLowerCase();
+    const cardFeatures = card.dataset.features ? card.dataset.features.split(',') : [];
+
+    let show = true;
+    if(!cardName.includes(searchTerm) && !cardDesc.includes(searchTerm)) show = false;
+    if(cardPrice < minPrice || cardPrice > maxPrice) show = false;
+    if((catPerde || catKoltuk) && !((catPerde && cardCat === 'perde') || (catKoltuk && cardCat === 'koltuk'))) show = false;
+    if(featKarartma && !cardFeatures.includes('karartma')) show = false;
+    if(featUtu && !cardFeatures.includes('utu')) show = false;
+    if(featPremium && !cardFeatures.includes('premium')) show = false;
+
+    card.style.display = show ? 'block' : 'none';
   });
+
+  const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
+  visibleCards.sort((a,b) => {
+    if(sortValue === 'price-asc') return parseInt(a.dataset.price) - parseInt(b.dataset.price);
+    if(sortValue === 'price-desc') return parseInt(b.dataset.price) - parseInt(a.dataset.price);
+    return 0;
+  });
+  const grid = document.querySelector('.products-grid');
+  visibleCards.forEach(card => grid.appendChild(card));
 }
 
-/* ─── TOAST ─── */
+/* TOAST */
 function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.innerText = msg;
@@ -1241,7 +1484,7 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-/* ─── STICKY HEADER ─── */
+/* STICKY HEADER */
 window.addEventListener('scroll', () => {
   const h = document.getElementById('mainHeader');
   if(window.scrollY > 20) {
@@ -1251,7 +1494,7 @@ window.addEventListener('scroll', () => {
   }
 });
 
-/* ─── INTERSECTION OBSERVER ANIMATIONS ─── */
+/* INTERSECTION OBSERVER ANİMASYONLARI */
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if(e.isIntersecting) {
@@ -1267,3 +1510,5 @@ document.querySelectorAll('.product-card,.gallery-item,.review-card,.feature-ite
   obs.observe(el);
 });
 </script>
+</body>
+</html>
