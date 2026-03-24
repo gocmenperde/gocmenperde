@@ -11,6 +11,46 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
+#loader {
+  background: var(--ink); /* Siyah arka plan */
+  z-index: 9999; /* Diğer elementlerin üstünde olsun */
+  transition: opacity 0.6s ease; /* Yumuşak geçiş */
+}
+
+#loader.hide {
+  opacity: 0;
+  pointer-events: none; /* Tıklamalara izin vermem */
+}
+
+/* Mobilde yükleyici metni boyutunu küçült */
+@media (max-width: 768px) {
+  .loader-text {
+    font-size: 2rem; /* Daha küçük yazı boyutu */
+  }
+  .loader-line {
+    width: 150px; /* Çizgi uzunluğu */
+  }
+}
+.section {
+  display: none; /* Varsayılan olarak gizle */
+  position: relative;
+  z-index: 1; /* Yükleyiciden alt küme */
+}
+
+.section.active {
+  display: block; /* Aktif section'ı göster */
+}
+
+/* Mobilde section yüksekliğini düzelt */
+@media (max-width: 768px) {
+  #home {
+    padding-top: 0 !important;
+  }
+  .hero {
+    min-height: 100vh; /* Ekranı tam doldur */
+  }
+}
+
 /* Loader text boyutunu mobilde küçült */
 @media (max-width: 768px) {
   .loader-text {
@@ -1026,6 +1066,20 @@ footer span{color:var(--gold)}
 </div>
 
 <script>
+// Yükleyiciyi mobilde hızlıca kaldır
+window.addEventListener('DOMContentLoaded', () => {
+  const loader = document.getElementById('loader');
+  if (loader) {
+    // Mobil cihazlarda 1 saniye sonra gizle
+    const delay = window.innerWidth <= 768 ? 1000 : 1800;
+    setTimeout(() => {
+      loader.style.opacity = '0'; // Opaklığı sıfırla
+      setTimeout(() => {
+        loader.remove(); // Tamamen DOM'dan kaldır
+      }, 600); // Transition süresini bekle
+    }, delay);
+  }
+});
 // Loader'ı mobilde hızlıca gizle
 window.addEventListener('load', () => {
   const loader = document.getElementById('loader');
