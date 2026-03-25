@@ -168,7 +168,13 @@ nav { display:flex;align-items:center;gap:8px }
 }
 
 @media(max-width:900px){ 
-.products-layout {grid-template-columns:1fr;padding:40px 5% 80px;}}
+.products-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 24px;
+  width: 100%;
+  align-items: start;
+}
 @media(max-width:900px){.products-layout {grid-template-columns:1fr;padding:40px 5% 80px;}}
 .products-content {min-width:0;width:100%;}
 .filters-panel { background:white;padding:24px;border-radius:var(--radius);border:1px solid var(--border);height:fit-content;position:sticky;top:100px }
