@@ -1,5 +1,21 @@
 [
   {
+    "id": "tl-perde-1774552678382",
+    "name": "Tül Perde",
+    "desc": "Birinci Kalite",
+    "image": "resimler/tulperde.WEBP",
+    "price": 250,
+    "oldPrice": 500,
+    "cat": "perde",
+    "unit": "mt",
+    "isMeter": true,
+    "features": "Ütüistemez",
+    "badge": "%50 İNDİRİM",
+    "active": true,
+    "specs": {},
+    "care": {}
+  },
+  {
     "id": "fon-perde-1774540697343",
     "name": "Fon Perde",
     "desc": "Evinize şıklık ve karakter katmak isteyenler için tasarlanan desenli fon perdeler, dekorasyonun tamamlayıcı en önemli parçalarından biridir. Modern ve klasik çizgileri bir araya getiren özel desenleri sayesinde salon, oturma odası ve yatak odalarında estetik bir görünüm sağlar.\n\nYüksek kaliteli kumaşı sayesinde güneş ışığını dengeli şekilde keser, iç mekânda daha konforlu ve huzurlu bir ortam oluşturur. Dayanıklı yapısı uzun ömürlü kullanım sunarken, kolay temizlenebilir özelliği ile pratiklik sağlar.\n\nFarklı renk ve desen seçenekleri ile her tarza uyum sağlayan desenli fon perdeler, yaşam alanlarınıza sıcak ve zarif bir dokunuş katar.",
