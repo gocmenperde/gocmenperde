@@ -361,58 +361,9 @@ th:nth-child(3),td:nth-child(3),th:nth-child(5),td:nth-child(5){display:none}
       <button class="close-modal-btn" onclick="closeProductModal()"><i class="fas fa-xmark"></i></button>
     </div>
     <div class="form-modal-body">
-    <input type="hidden" id="editIndex">
-    <div class="fg"><label>Ürün Adı *</label><input type="text" id="f-name" placeholder="Ürün adını girin"></div>
-    <div class="fg"><label>Kısa Açıklama *</label><textarea id="f-desc" placeholder="Ürün açıklaması..."></textarea></div>
-    
-    <div class="form-row">
-        <div class="fg"><label>Güncel Fiyat (TL) *</label><input type="number" id="f-price" placeholder="300"></div>
-        <div class="fg"><label>Eski Fiyat (TL)</label><input type="number" id="f-oldprice" placeholder="400"></div>
-    </div>
-
-    <div class="form-row">
-        <div class="fg"><label>Kategori *</label>
-            <select id="f-cat">
-                <option value="carsaf">Çarşaf</option>
-                <option value="perde">Perde</option>
-                <option value="koltuk">Koltuk Örtüsü</option>
-            </select>
-        </div>
-        <div class="fg"><label>Birim</label>
-            <select id="f-unit">
-                <option value="adet">Adet</option>
-                <option value="mt">Metre (mt)</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="fg">
-        <label>ÜRÜN RESMİ SEÇ</label>
-        <input type="file" id="resimSec" accept="image/*" class="login-input" style="margin-bottom: 5px;">
-        <input type="hidden" id="f-image"> <small id="yuklemeDurumu" style="color: #666; display: block;"></small>
-    </div>
-
-    <div class="fg">
-        <label>ÜRÜN ÖZELLİKLERİ (Her satıra bir tane)</label>
-        <textarea id="f-specs" placeholder="Malzeme: %100 Pamuk&#10;Ölçü: 160x220 cm" rows="3"></textarea>
-    </div>
-
-    <div class="fg">
-        <label>BAKIM TALİMATLARI</label>
-        <textarea id="f-care" placeholder="30 derecede yıkayınız, ütü istemez" rows="2"></textarea>
-    </div>
-
-    <div class="fg"><label>İndirim Etiketi</label><input type="text" id="f-badge" placeholder="%25 İNDİRİM"></div>
-    
-    <div class="fg"><label>Stok Durumu</label>
-        <div class="switch-wrap">
-            <div class="switch on" id="activeSwitch" onclick="toggleSwitch()"></div>
-            <span id="activeSwitchLabel" style="font-size:0.85rem;color:var(--green)">Aktif</span>
-        </div>
-    </div>
-</div>
-
-
+      <input type="hidden" id="editIndex">
+      <div class="fg"><label>Ürün Adı *</label><input type="text" id="f-name" placeholder="Ürün adını girin"></div>
+      <div class="fg"><label>Kısa Açıklama *</label><textarea id="f-desc" placeholder="Ürün açıklaması..."></textarea></div>
       <div class="form-row">
         <div class="fg"><label>Güncel Fiyat (TL) *</label><input type="number" id="f-price" placeholder="300"></div>
         <div class="fg"><label>Eski Fiyat (TL)</label><input type="number" id="f-oldprice" placeholder="400 (boş bırakılabilir)"></div>
@@ -432,24 +383,7 @@ th:nth-child(3),td:nth-child(3),th:nth-child(5),td:nth-child(5){display:none}
           </select>
         </div>
       </div>
-      <div class="form-group">
-    <label>RESİM SEÇ</label>
-    <input type="file" id="resimSec" accept="image/*" class="form-control" style="margin-bottom: 10px;">
-    
-    <input type="hidden" id="resimYolu">
-    
-    <small id="yuklemeDurumu" style="color: #666; display: block; margin-top: 5px;"></small>
-</div>
-<div class="form-group">
-    <label>ÖZELLİKLER (VİRGÜLLE AYIRIN)</label>
-    <textarea id="ozellikler" class="form-control" placeholder="Örn: Bambu tül, leke tutmaz, dökümlü kumaş"></textarea>
-</div>
-
-<div class="form-group">
-    <label>BAKIM TALİMATLARI</label>
-    <textarea id="bakim" class="form-control" placeholder="Örn: 30 derecede yıkayınız, nemli asınız"></textarea>
-</div>
-
+      <div class="fg"><label>Resim Yolu</label><input type="text" id="f-image" placeholder="resimler/urun.jpg" oninput="previewImg()"><img id="imgPreview" class="img-preview" src="" alt=""></div>
       <div class="fg"><label>İndirim Etiketi (opsiyonel)</label><input type="text" id="f-badge" placeholder="%25 İNDİRİM"></div>
       <div class="fg"><label>Özellikler (virgülle ayırın)</label><input type="text" id="f-features" placeholder="karartma, utu, premium"></div>
       <div class="fg"><label>Stok Durumu</label>
@@ -624,53 +558,57 @@ function editProduct(idx){
   document.getElementById('productModal').classList.add('open');
 }
 
-function saveProduct() {
+function saveProduct(){
   const name = document.getElementById('f-name').value.trim();
   const desc = document.getElementById('f-desc').value.trim();
   const price = parseFloat(document.getElementById('f-price').value);
-  const image = document.getElementById('f-image').value; // ImgBB'den gelen link
+  if(!name){ aToast('⚠️ Ürün adı zorunlu'); return; }
+  if(!price){ aToast('⚠️ Fiyat zorunlu'); return; }
 
-  if (!name || !price) { aToast('⚠️ Ad ve Fiyat zorunlu!'); return; }
-
-  // Özellikleri (Specs) objeye çevir
-  const specsInput = document.getElementById('f-specs').value;
-  const specsObj = {};
-  specsInput.split('\n').forEach(line => {
-    const [key, value] = line.split(':');
-    if (key && value) specsObj[key.trim()] = value.trim();
-  });
-
+  const oldPriceVal = document.getElementById('f-oldprice').value;
+  const unitVal = document.getElementById('f-unit').value;
   const obj = {
-    id: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now(),
-    name,
-    desc,
-    image: image || 'resimler/placeholder.jpg',
+    id: name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '-' + Date.now(),
+    name, desc,
+    image: document.getElementById('f-image').value || 'resimler/placeholder.jpg',
     price,
-    oldPrice: parseFloat(document.getElementById('f-oldprice').value) || null,
+    oldPrice: oldPriceVal ? parseFloat(oldPriceVal) : null,
     cat: document.getElementById('f-cat').value,
-    unit: document.getElementById('f-unit').value,
-    isMeter: document.getElementById('f-unit').value === 'mt',
+    unit: unitVal,
+    isMeter: unitVal === 'mt',
+    features: document.getElementById('f-features').value.replace(/\s/g,''),
     badge: document.getElementById('f-badge').value || '',
     active: activeSwitch,
-    specs: specsObj,
-    care: { instructions: document.getElementById('f-care').value } // Bakım talimatı
+    specs: {}, care: {}
   };
 
   const idx = document.getElementById('editIndex').value;
-  if (idx !== '') {
-    obj.id = PRODUCTS[idx].id;
-    PRODUCTS[idx] = obj;
-    aToast('✓ Güncellendi');
+  if(idx !== ''){
+    obj.id = PRODUCTS[parseInt(idx)].id;
+    obj.specs = PRODUCTS[parseInt(idx)].specs || {};
+    obj.care  = PRODUCTS[parseInt(idx)].care || {};
+    PRODUCTS[parseInt(idx)] = obj;
+    aToast('✓ Ürün güncellendi: ' + name);
   } else {
     PRODUCTS.unshift(obj);
-    aToast('✓ Eklendi');
+    aToast('✓ Yeni ürün eklendi: ' + name);
   }
-
   closeProductModal();
-  renderTable(); 
-  renderDashboard();
+  renderTable(); renderDashboard();
 }
 
+function toggleProduct(idx){
+  PRODUCTS[idx].active = !PRODUCTS[idx].active;
+  aToast(PRODUCTS[idx].active ? '✓ Ürün aktive edildi' : '⚠️ Ürün pasife alındı');
+  renderTable(); renderDashboard();
+}
+
+function deleteProduct(idx){
+  if(!confirm(`"${PRODUCTS[idx].name}" silinsin mi?`)) return;
+  PRODUCTS.splice(idx,1);
+  aToast('✓ Ürün silindi');
+  renderTable(); renderDashboard();
+}
 
 function closeProductModal(){ document.getElementById('productModal').classList.remove('open'); }
 
@@ -807,41 +745,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-document.getElementById('resimSec').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    const durumText = document.getElementById('yuklemeDurumu');
-    
-    if (!file) return;
-
-    durumText.innerText = "Resim yükleniyor, lütfen bekleyin...";
-    durumText.style.color = "blue";
-
-    const formData = new FormData();
-    formData.append('image', file);
-
-    try {
-        // Ücretsiz resim yükleme servisi (ImgBB) - API KEY alman gerekir
-        // Şimdilik mantığı görmen için bu örnek:
-        const response = await fetch('https://api.imgbb.com/1/upload?key=2bd17f6ab401a5f6d218ab70956a5eb6', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // Yüklenen resmin linkini gizli inputa yazıyoruz
-            document.getElementById('resimYolu').value = data.data.url;
-            durumText.innerText = "✅ Resim başarıyla yüklendi!";
-            durumText.style.color = "green";
-        } else {
-            durumText.innerText = "❌ Yükleme hatası!";
-        }
-    } catch (error) {
-        console.error("Hata:", error);
-        durumText.innerText = "❌ Sunucuya bağlanılamadı.";
-    }
-});
 
 </script>
 
