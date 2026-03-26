@@ -1,5 +1,21 @@
 [
   {
+    "id": "tl-perde-bambu-1774553191711",
+    "name": "Tül Perde Bambu",
+    "desc": "Bambu Desen Tül Perde",
+    "image": "resimler/bambutul.PNG",
+    "price": 300,
+    "oldPrice": 600,
+    "cat": "perde",
+    "unit": "mt",
+    "isMeter": true,
+    "features": "Ütüistemezharikatüller",
+    "badge": "%50 İNDİRİM",
+    "active": true,
+    "specs": {},
+    "care": {}
+  },
+  {
     "id": "tl-perde-1774552678382",
     "name": "Tül Perde",
     "desc": "Birinci Kalite",
