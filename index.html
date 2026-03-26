@@ -336,6 +336,92 @@ nav{display:flex;align-items:center;gap:8px}
 .success-box h2{font-family:var(--ff-display);font-size:2rem;margin-bottom:10px}
 .success-box p{color:var(--slate);margin-bottom:30px}
 
+/* ── About Page ── */
+#about{background:var(--warm-white)}
+.about-hero{position:relative;background:var(--ink);padding:140px 5% 100px;overflow:hidden}
+.about-hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(201,168,76,0.12) 0%,transparent 60%)}
+.about-hero-pattern{position:absolute;inset:0;opacity:0.03;background-image:repeating-linear-gradient(45deg,var(--gold) 0,var(--gold) 1px,transparent 0,transparent 50%);background-size:30px 30px}
+.about-hero-inner{max-width:800px;position:relative;z-index:2}
+.about-eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:0.7rem;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:24px}
+.about-eyebrow::before{content:'';width:40px;height:1px;background:var(--gold);opacity:0.5}
+.about-hero h1{font-family:var(--ff-display);font-size:clamp(2.8rem,6vw,6rem);font-weight:700;color:white;line-height:0.95;margin-bottom:24px}
+.about-hero h1 em{color:var(--gold);font-style:italic}
+.about-hero-desc{font-size:1rem;color:rgba(247,244,239,0.6);line-height:1.9;max-width:580px}
+
+.about-stats{background:var(--gold);padding:40px 5%}
+.about-stats-inner{max-width:100%;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:768px){.about-stats-inner{grid-template-columns:repeat(2,1fr)}}
+.stat-item{text-align:center;padding:10px}
+.stat-number{font-family:var(--ff-display);font-size:clamp(2.5rem,5vw,4rem);font-weight:700;color:var(--ink);line-height:1;display:block}
+.stat-label{font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:rgba(15,14,13,0.65);margin-top:6px;display:block;font-weight:500}
+
+.about-story{padding:100px 5%;background:var(--warm-white)}
+.about-story-inner{max-width:100%;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+@media(max-width:900px){.about-story-inner{grid-template-columns:1fr;gap:40px}}
+.about-story-img{position:relative}
+.about-story-img-frame{width:100%;aspect-ratio:4/3;border-radius:16px;overflow:hidden;background:var(--cream)}
+.about-story-img-frame img{width:100%;height:100%;object-fit:cover}
+.about-story-badge{position:absolute;bottom:-20px;right:-20px;background:var(--ink);color:var(--gold);padding:24px;border-radius:12px;text-align:center;box-shadow:var(--shadow)}
+.about-story-badge .badge-num{font-family:var(--ff-display);font-size:2.5rem;font-weight:700;display:block;line-height:1}
+.about-story-badge .badge-text{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;opacity:0.7;margin-top:4px;display:block}
+@media(max-width:900px){.about-story-badge{bottom:-10px;right:10px}}
+.about-story-text .section-tag{margin-bottom:10px}
+.about-story-text h2{font-family:var(--ff-display);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--ink);line-height:1.1;margin-bottom:24px}
+.about-story-text h2 em{color:var(--gold);font-style:italic}
+.about-story-text p{font-size:0.9rem;color:var(--slate);line-height:1.95;margin-bottom:16px}
+.about-quote{margin-top:32px;padding:24px 28px;background:white;border-left:3px solid var(--gold);border-radius:0 12px 12px 0;box-shadow:0 4px 20px rgba(0,0,0,0.04)}
+.about-quote p{font-family:var(--ff-display);font-size:1.1rem;font-style:italic;color:var(--ink);line-height:1.7;margin:0}
+.about-quote cite{display:block;margin-top:10px;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-style:normal;font-family:var(--ff-body)}
+
+.about-values{padding:100px 5%;background:var(--cream)}
+.about-values-inner{max-width:100%;margin:auto}
+.about-values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px}
+@media(max-width:900px){.about-values-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.about-values-grid{grid-template-columns:1fr}}
+.value-card{background:white;border:1px solid var(--border);border-radius:16px;padding:36px;transition:var(--transition);position:relative;overflow:hidden}
+.value-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transform:scaleX(0);transform-origin:left;transition:transform 0.4s ease}
+.value-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.value-card:hover::before{transform:scaleX(1)}
+.value-icon{width:56px;height:56px;background:linear-gradient(135deg,rgba(201,168,76,0.12),rgba(201,168,76,0.06));border:1px solid rgba(201,168,76,0.25);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--gold);margin-bottom:20px}
+.value-card h3{font-family:var(--ff-display);font-size:1.3rem;font-weight:600;color:var(--ink);margin-bottom:12px}
+.value-card p{font-size:0.84rem;color:var(--slate);line-height:1.85}
+
+.about-team{padding:100px 5%;background:var(--ink)}
+.about-team-inner{max-width:100%;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+@media(max-width:900px){.about-team-inner{grid-template-columns:1fr}}
+.about-team .section-tag{color:var(--gold);margin-bottom:10px}
+.about-team h2{font-family:var(--ff-display);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:white;line-height:1.1;margin-bottom:24px}
+.about-team h2 em{color:var(--gold);font-style:italic}
+.about-team-desc p{font-size:0.9rem;color:rgba(247,244,239,0.6);line-height:1.9;margin-bottom:14px}
+.about-team-features{margin-top:36px;display:flex;flex-direction:column;gap:16px}
+.team-feat{display:flex;align-items:flex-start;gap:16px;padding:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.1);border-radius:12px;transition:var(--transition)}
+.team-feat:hover{background:rgba(201,168,76,0.06);border-color:rgba(201,168,76,0.2)}
+.team-feat-icon{width:40px;height:40px;flex-shrink:0;border:1px solid rgba(201,168,76,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:0.9rem}
+.team-feat h4{font-size:0.78rem;letter-spacing:1px;color:rgba(247,244,239,0.85);font-weight:600;margin-bottom:4px}
+.team-feat p{font-size:0.78rem;color:rgba(247,244,239,0.45);line-height:1.6}
+.about-team-portrait{position:relative}
+.portrait-frame{width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.15)}
+.portrait-frame img{width:100%;height:100%;object-fit:cover;filter:grayscale(20%)}
+.portrait-caption{margin-top:20px;text-align:center}
+.portrait-caption h3{font-family:var(--ff-display);font-size:1.5rem;font-weight:600;color:white;margin-bottom:4px}
+.portrait-caption p{font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+
+/* ── Modal: Ürüne özel detay tab'ları ── */
+.modal-tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--cream);border-radius:8px;padding:4px}
+.modal-tab{flex:1;background:none;border:none;cursor:pointer;padding:8px 12px;border-radius:6px;font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;font-weight:500;color:var(--slate);font-family:var(--ff-body);transition:var(--transition)}
+.modal-tab.active{background:white;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.modal-tab-content{display:none}
+.modal-tab-content.active{display:block}
+.modal-specs{display:flex;flex-direction:column;gap:10px}
+.modal-spec-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.82rem}
+.modal-spec-row:last-child{border-bottom:none}
+.modal-spec-key{color:var(--slate);font-weight:400}
+.modal-spec-val{color:var(--ink);font-weight:600;text-align:right}
+.modal-add-wrap{margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.modal-qty-input{width:60px;height:44px;text-align:center;border:1px solid var(--border);border-radius:8px;font-size:1rem;font-family:var(--ff-body);background:var(--cream)}
+.modal-add-btn{flex:1;background:var(--ink);color:white;border:none;cursor:pointer;padding:14px 24px;border-radius:10px;font-size:0.75rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body)}
+.modal-add-btn:hover{background:var(--gold);color:var(--ink)}
+
 /* ── Footer ── */
 footer{background:var(--ink);color:rgba(247,244,239,0.4);text-align:center;padding:30px 5%;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;border-top:1px solid rgba(201,168,76,0.1)}
 footer span{color:var(--gold)}
@@ -349,6 +435,7 @@ footer span{color:var(--gold)}
   <div class="menu-logo">Göçmen Perde</div>
   <button onclick="go('home');toggleMenu()"><i class="fas fa-home" style="margin-right:10px;color:var(--gold)"></i>Anasayfa</button>
   <button onclick="go('products');toggleMenu()"><i class="fas fa-th-large" style="margin-right:10px;color:var(--gold)"></i>Koleksiyon</button>
+  <button onclick="go('about');toggleMenu()"><i class="fas fa-store" style="margin-right:10px;color:var(--gold)"></i>Hakkımızda</button>
   <button onclick="go('cart');toggleMenu()"><i class="fas fa-bag-shopping" style="margin-right:10px;color:var(--gold)"></i>Sepetim</button>
   <button onclick="go('contact');toggleMenu()"><i class="fas fa-map-marker-alt" style="margin-right:10px;color:var(--gold)"></i>İletişim</button>
 </div>
@@ -405,6 +492,7 @@ footer span{color:var(--gold)}
     <nav>
       <button class="nav-link" onclick="go('home')">Anasayfa</button>
       <button class="nav-link" onclick="go('products')">Koleksiyon</button>
+      <button class="nav-link" onclick="go('about')">Hakkımızda</button>
       <button class="nav-link" onclick="go('contact')">İletişim</button>
       <button class="nav-icon" onclick="togglePopup('searchBar')"><i class="fas fa-search"></i></button>
       <button class="nav-icon" onclick="togglePopup('favoriteBar')">
@@ -887,8 +975,166 @@ footer span{color:var(--gold)}
   <footer><p>© 2026 <span>Göçmen Perde</span> — Tüm Hakları Saklıdır · Osmangazi, Bursa</p></footer>
 </section>
 
-<!-- Ürün Modal -->
+<!-- Hakkımızda -->
 
+<section id="about" class="section">
+
+  <!-- Hero -->
+
+  <div class="about-hero">
+    <div class="about-hero-bg"></div>
+    <div class="about-hero-pattern"></div>
+    <div class="about-hero-inner">
+      <div class="about-eyebrow">Bursa · Osmangazi · 1993'ten Bugüne</div>
+      <h1>Göçmen Perde:<br><em>30 Yıllık</em><br>Bir Hikâye</h1>
+      <p class="about-hero-desc">Bir kumaşın pencerenizde nasıl duracağı, bir rengin odanıza ne kattığı ve bir dikişin yıllar içinde nasıl dayandığı — bunları anlayan bir usta ve onun kurduğu mağaza. Osmangazi'nin kalbinde, Göçmen Perde.</p>
+    </div>
+  </div>
+
+  <!-- İstatistikler -->
+
+  <div class="about-stats">
+    <div class="about-stats-inner">
+      <div class="stat-item">
+        <span class="stat-number">30+</span>
+        <span class="stat-label">Yıllık Tecrübe</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">5.000+</span>
+        <span class="stat-label">Mutlu Müşteri</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">500+</span>
+        <span class="stat-label">Ürün Çeşidi</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">%100</span>
+        <span class="stat-label">Memnuniyet Garantisi</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hikâyemiz -->
+
+  <div class="about-story">
+    <div class="about-story-inner">
+      <div class="about-story-img">
+        <div class="about-story-img-frame">
+          <img src="resimler/foto1.jpg" alt="Göçmen Perde Showroom" loading="lazy">
+        </div>
+        <div class="about-story-badge">
+          <span class="badge-num">1993</span>
+          <span class="badge-text">Kuruluş Yılı</span>
+        </div>
+      </div>
+      <div class="about-story-text">
+        <div class="section-tag">Hikâyemiz</div>
+        <h2>Bir Ustalık <em>Mirası</em></h2>
+        <p>Göçmen Perde, 1993 yılında Zeynel Göçmen'in küçük bir dükkan açmasıyla Bursa Osmangazi'de hayat buldu. Zeynel Bey, mesleğini yalnızca bir geçim kaynağı olarak değil, bir sanat olarak benimsedi. Her perdede bir evinin ruhunu, her kumaşta bir ailenin hikâyesini gördü.</p>
+        <p>Yıllar içinde mağaza büyüdü; ama asıl büyüyen şey müşteri güveni oldu. Binlerce Bursa evi, oturma odalarının perdelerini, yatak odalarının tüllerini, koltuk örtülerini Zeynel Bey'in elinden aldı. Bugün hâlâ aynı özen, aynı el emeği ve aynı kişisel ilgiyle hizmet vermeye devam ediyoruz.</p>
+        <p>Showroomumuzda yüzlerce kumaş örneği, onlarca hazır model ve özel dikim seçenekleriyle Bursa'nın en kapsamlı perde mağazası olmaktan gurur duyuyoruz. Her müşterimizin evine özel çözümler sunmak, bize en büyük tatmini veriyor.</p>
+        <div class="about-quote">
+          <p>"Perde sadece bir kumaş parçası değil, evinizin karakteridir. Doğru seçildiğinde odanızı dönüştürür, yanlış seçildiğinde rahatsız eder. Ben 30 yıldır her müşterimin evine kendi evim gibi özen gösteriyorum."</p>
+          <cite>— Zeynel Göçmen, Kurucu Usta</cite>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Değerlerimiz -->
+
+  <div class="about-values">
+    <div class="about-values-inner">
+      <div style="text-align:center;max-width:600px;margin:0 auto">
+        <div class="section-tag" style="justify-content:center;display:flex">Neden Biz?</div>
+        <h2 class="section-title" style="text-align:center;margin-top:8px">Farkımızı <em>Yaratan</em> Değerler</h2>
+        <p style="font-size:0.88rem;color:var(--slate);line-height:1.8;margin-top:16px">30 yıldır aynı ilkelerle çalışıyoruz. İşin sırrı basit: kaliteden ödün vermemek, müşteriye doğruyu söylemek, verilen sözü tutmak.</p>
+      </div>
+      <div class="about-values-grid">
+        <div class="value-card">
+          <div class="value-icon"><i class="fas fa-scissors"></i></div>
+          <h3>Özel Dikim Uzmanlığı</h3>
+          <p>Her pencere farklı, her oda farklı. Standart ölçüler yerine sizin pencerenize, sizin zevkinize göre biçilmiş perdeler üretiyoruz. Ölçü alımından montaja kadar tüm süreç bize ait.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon"><i class="fas fa-award"></i></div>
+          <h3>Kalite Güvencesi</h3>
+          <p>Kullandığımız her kumaş, seçtiğimiz her aksesuar titizlikle test edilmiştir. Yıllarca solmayan renkler, düşmeyen dikişler ve şeklini koruyun kumaşlar sunmak önceliğimizdir.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon"><i class="fas fa-handshake"></i></div>
+          <h3>Dürüst Danışmanlık</h3>
+          <p>Bütçenizi göz önünde bulundurur, gerçekten ihtiyacınız olan ürünü öneriri, fazlasını satmaya çalışmayız. Müşterimizin memnuniyeti uzun vadeli ilişkimizin temelidir.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon"><i class="fas fa-truck"></i></div>
+          <h3>Kapıdan Montaja</h3>
+          <p>Sipariş verdiğiniz anda işimiz başlar. Bursa içi teslimat ve profesyonel montaj hizmetimizle perdeniz tam istediğiniz gibi, tam zamanında evinizde asılı olur.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon"><i class="fas fa-palette"></i></div>
+          <h3>Geniş Koleksiyon</h3>
+          <p>Tülden fona, kadifeden bürümcüğe, karartma perdeden dekoratif modellere kadar 500'den fazla kumaş ve model seçeneği. Her tarza, her bütçeye uygun çözümler.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon"><i class="fas fa-rotate-left"></i></div>
+          <h3>Satış Sonrası Destek</h3>
+          <p>Alışverişiniz bitmedi, ilişkimiz başladı. Ürünlerinizde yaşanan herhangi bir sorun için bizi arayın, çözüm üretelim. Memnun olmayan müşteri ile ayrılmayız.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kurucu & Ekip -->
+
+  <div class="about-team">
+    <div class="about-team-inner">
+      <div class="about-team-desc">
+        <div class="section-tag">Ustamız</div>
+        <h2>Zeynel Bey ile <em>Tanışın</em></h2>
+        <div>
+          <p>Zeynel Göçmen, henüz genç yaşta perde sektörüne girerek bu işi bir meslek olarak değil, bir tutku olarak benimsedi. Onlarca yıl boyunca Bursa'nın en seçkin evleri, en özel otelleri ve en prestijli mekanları Zeynel Bey'in elinden çıkan perdelerle donatıldı.</p>
+          <p>Teknik bilgisini sanatsal bir duyarlılıkla birleştiren Zeynel Bey, size doğru kumaşı, doğru rengi ve doğru modeli önerme konusunda Bursa'nın en güvenilir isimlerinden biri. Mağazamıza girdiğinizde kuru bir satıcıyla değil, gerçek bir uzmanla konuştuğunuzu hissedersiniz.</p>
+          <p>Her müşterisinin evini kendi evi gibi gören, verdiği söze sadık, işini seven bir usta: Zeynel Göçmen.</p>
+        </div>
+        <div class="about-team-features">
+          <div class="team-feat">
+            <div class="team-feat-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div><h4>30+ Yıl Sektör Deneyimi</h4><p>Tekstil ve perde sektöründe derin bilgi birikimi, kumaş teknolojileri ve trende hâkim.</p></div>
+          </div>
+          <div class="team-feat">
+            <div class="team-feat-icon"><i class="fas fa-ruler-combined"></i></div>
+            <div><h4>Kişisel Ölçü ve Danışmanlık</h4><p>Her müşteri için bizzat ölçü alır, mekânı değerlendirir ve en doğru çözümü önerir.</p></div>
+          </div>
+          <div class="team-feat">
+            <div class="team-feat-icon"><i class="fas fa-star"></i></div>
+            <div><h4>Google'da 5 Yıldız</h4><p>Binlerce mutlu müşterinin değerlendirmesiyle Bursa'nın en çok tercih edilen perde ustası.</p></div>
+          </div>
+          <div class="team-feat">
+            <div class="team-feat-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div><h4>Osmangazi'nin Güvenilir Adresi</h4><p>1993'ten bu yana aynı yerde, aynı özenle. Bursa halkının vazgeçilmez perde durağı.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="about-team-portrait">
+        <div class="portrait-frame">
+          <img src="resimler/foto1.jpg" alt="Zeynel Göçmen" loading="lazy">
+        </div>
+        <div class="portrait-caption">
+          <h3>Zeynel Göçmen</h3>
+          <p>Kurucu · Usta Perdeci</p>
+        </div>
+        <div style="margin-top:30px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+          <a href="tel:+905012110958" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(201,168,76,0.2);color:rgba(247,244,239,0.8);text-decoration:none;padding:12px 20px;border-radius:50px;font-size:0.75rem;letter-spacing:1px;transition:var(--transition)" onmouseover="this.style.background='rgba(201,168,76,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'"><i class="fas fa-phone" style="color:var(--gold)"></i> Ara</a>
+          <a href="https://wa.me/905012110958" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:white;text-decoration:none;padding:12px 20px;border-radius:50px;font-size:0.75rem;letter-spacing:1px;transition:var(--transition)" onmouseover="this.style.background='#1da851'" onmouseout="this.style.background='#25D366'"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+          <button onclick="go('products')" style="display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;padding:12px 20px;border-radius:50px;font-size:0.75rem;font-weight:600;letter-spacing:1px;transition:var(--transition)" onmouseover="this.style.background='#e8d5a3'" onmouseout="this.style.background='var(--gold)'"><i class="fas fa-th-large"></i> Koleksiyona Git</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer><p>© 2026 <span>Göçmen Perde</span> — Tüm Hakları Saklıdır · Osmangazi, Bursa</p></footer>
+</section>
 <div class="modal-overlay" id="productModal" onclick="closeModalOverlay(event)">
   <div class="modal-box">
     <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-xmark"></i></button>
@@ -901,14 +1147,33 @@ footer span{color:var(--gold)}
       <div class="modal-tag" id="mTag"></div>
       <h2 class="modal-title" id="mTitle"></h2>
       <div class="modal-price-wrap" id="mPriceWrap"></div>
-      <p class="modal-desc" id="mDesc"></p>
-      <div class="modal-features">
-        <div class="modal-feat"><i class="fas fa-check-circle"></i> Kaliteli Bursa İşçiliği</div>
-        <div class="modal-feat"><i class="fas fa-star"></i> Zeynel Göçmen Güvencesi</div>
-        <div class="modal-feat"><i class="fas fa-truck"></i> Bursa İçi Teslimat</div>
-        <div class="modal-feat"><i class="fas fa-rotate-left"></i> Memnuniyet Garantisi</div>
-      </div>
-    </div>
+
+```
+  <!-- Tab Sistemi -->
+  <div class="modal-tabs">
+    <button class="modal-tab active" onclick="switchTab('desc')">Açıklama</button>
+    <button class="modal-tab" onclick="switchTab('specs')">Özellikler</button>
+    <button class="modal-tab" onclick="switchTab('care')">Bakım</button>
+  </div>
+
+  <div class="modal-tab-content active" id="tab-desc">
+    <p class="modal-desc" id="mDesc"></p>
+    <div class="modal-features" id="mFeatures"></div>
+  </div>
+
+  <div class="modal-tab-content" id="tab-specs">
+    <div class="modal-specs" id="mSpecs"></div>
+  </div>
+
+  <div class="modal-tab-content" id="tab-care">
+    <div class="modal-specs" id="mCare"></div>
+  </div>
+
+  <!-- Sepete Ekle (modal içi) -->
+  <div class="modal-add-wrap" id="mAddWrap"></div>
+</div>
+```
+
   </div>
 </div>
 
@@ -1345,17 +1610,81 @@ function submitOrder(){
   });
 }
 
+/* ─── Ürün Veritabanı (detaylar) ─── */
+const PRODUCT_DETAILS = {
+  'Tek Kişilik Çarşaf': {
+    features: ['fas fa-check-circle|Pamuklu dokuma kumaş, ciltle dost', 'fas fa-tshirt|Ütü gerektirmez — çıkar giymez!', 'fas fa-palette|Tüm renkler stokta mevcut', 'fas fa-ruler|Tek kişilik yatak ölçüsü (160×220 cm)'],
+    specs: [['Malzeme','%100 Pamuk'],['Ölçü','160 × 220 cm'],['Bakım','Makinede 40°C'],['Renk Seçenekleri','8+ Renk'],['Seri','Ekonomik Sezon']],
+    care: [['Makine Yıkama','40°C veya soğuk program'],['Kurutma','Doğal kurumaya bırakın'],['Ütü','Gerekmez — özel bitim işlemi'],['Beyazlatıcı','Kullanmayın'],['Kuru Temizleme','Gerekmez']]
+  },
+  'Çift Kişilik Çarşaf': {
+    features: ['fas fa-check-circle|Pamuklu dokuma kumaş, ciltle dost', 'fas fa-tshirt|Ütü gerektirmez — rahat kullanım', 'fas fa-palette|Tüm renkler stokta mevcut', 'fas fa-ruler|Çift kişilik yatak ölçüsü (200×220 cm)'],
+    specs: [['Malzeme','%100 Pamuk'],['Ölçü','200 × 220 cm'],['Bakım','Makinede 40°C'],['Renk Seçenekleri','8+ Renk'],['Seri','Ekonomik Sezon']],
+    care: [['Makine Yıkama','40°C veya soğuk program'],['Kurutma','Doğal kurumaya bırakın'],['Ütü','Gerekmez — özel bitim işlemi'],['Beyazlatıcı','Kullanmayın'],['Kuru Temizleme','Gerekmez']]
+  },
+  'Saray Tül Perde': {
+    features: ['fas fa-check-circle|Bursa\'da dokunan özel örme tül', 'fas fa-sun|Işık geçiren yapısıyla ferah görünüm', 'fas fa-tshirt|Ütü istemez, şeklini korur', 'fas fa-ruler|Metre başı satış — istediğiniz uzunluk'],
+    specs: [['Malzeme','%100 Polyester Örme'],['Satış Birimi','Metre (mt)'],['En','280 cm (standart)'],['Bakım','Makinede 30°C, narin'],['Üretim','Bursa Yerli Üretim']],
+    care: [['Makine Yıkama','30°C narin program'],['Kurutma','Doğal, sarkmadan kuruyun'],['Ütü','Gerekmez, soğuk düklebilir'],['Ağartıcı','Kesinlikle kullanmayın'],['Düzeltme','Islak iken şekil verin']]
+  },
+  'Ekonomik Fon Perde': {
+    features: ['fas fa-check-circle|Geniş renk arşivinden seçin', 'fas fa-scissors|Dikim dahil fiyat — ek ücret yok', 'fas fa-palette|40+ renk seçeneği mevcuttur', 'fas fa-home|Salon, yatak odası ve çocuk odalarına uygun'],
+    specs: [['Malzeme','Polyester-Pamuk Karışım'],['Dikim','Dahil'],['Montaj','Ekstra ücretli'],['Renk','40+ Seçenek'],['Teslim','3–5 İş Günü']],
+    care: [['Makine Yıkama','40°C normal program'],['Kurutma','Doğal kuruyun, direkt güneş olmadan'],['Ütü','Orta ısı — ters çevirin'],['Yıkama Sıklığı','6 ayda bir önerilir'],['Toz Alma','Haftalık silkeleme']]
+  },
+  'VIP Premium Fon Perde': {
+    features: ['fas fa-crown|Kadife dokulu lüks kumaş seri', 'fas fa-moon|Karartma özellikli — ışık sızdırmaz', 'fas fa-scissors|Dikim dahil — tam ölçüye göre', 'fas fa-star|Otel ve konut projelerinde tercih edilen'],
+    specs: [['Malzeme','Kadife Dokulu Blackout'],['Karartma','%100 Işık Geçirmez'],['Dikim','Dahil'],['Seri','VIP Premium Koleksiyon'],['Teslim','5–7 İş Günü']],
+    care: [['Yıkama','Kuru temizleme önerilir'],['Ev Yıkama','30°C çok narin, yalnız'],['Ütü','Ters çevirin, düşük ısı'],['Güneş','Direkt güneşte solma riski az'],['Toz Alma','Hafif vakum ile']]
+  },
+  'Koltuk Örtü Seti 3+3+1+1': {
+    features: ['fas fa-check-circle|Esnek bürümcük kumaş — her koltuk formuna uyar', 'fas fa-couch|2 üçlü + 2 tekli — eksiksiz salon seti', 'fas fa-palette|Tüm renkler ve desenler mevcut', 'fas fa-tshirt|Makinede yıkanabilir, solmaz renkler'],
+    specs: [['Malzeme','%100 Bürümcük Polyester'],['İçerik','2 Üçlü + 2 Tekli Örtü'],['Esneklik','Tam esnek, her koltuk tipine uyar'],['Renk','Geniş renk kataloğu'],['Bakım','Makinede 30°C']],
+    care: [['Makine Yıkama','30°C narin program, çevirmeli'],['Kurutma','Koltuk üzerinde sererek kuruyun'],['Ütü','Orta ısı — hafif nemli iken'],['Renk','Renkli olanları ayrı yıkayın'],['Çekme','İlk yıkamada hafif çekme normal']]
+  },
+  'Koltuk Örtü Seti 3+3': {
+    features: ['fas fa-check-circle|Esnek bürümcük kumaş — her koltuk formuna uyar', 'fas fa-couch|2 adet üçlü koltuk için ideal set', 'fas fa-palette|Tüm renkler ve desenler mevcut', 'fas fa-tshirt|Makinede yıkanabilir, solmaz renkler'],
+    specs: [['Malzeme','%100 Bürümcük Polyester'],['İçerik','2 Adet Üçlü Koltuk Örtüsü'],['Esneklik','Tam esnek, her koltuk tipine uyar'],['Renk','Geniş renk kataloğu'],['Bakım','Makinede 30°C']],
+    care: [['Makine Yıkama','30°C narin program'],['Kurutma','Koltuk üzerinde sererek kuruyun'],['Ütü','Orta ısı — hafif nemli iken'],['Renk','Renkli olanları ayrı yıkayın'],['Çekme','İlk yıkamada hafif çekme normal']]
+  }
+};
+
+function getProductDetails(title){
+  // Başlıktan en yakın eşleşmeyi bul
+  for(const key of Object.keys(PRODUCT_DETAILS)){
+    if(title.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(title.split(' ').slice(0,3).join(' ').toLowerCase())){
+      return PRODUCT_DETAILS[key];
+    }
+  }
+  // Çarşaf için genel
+  if(title.toLowerCase().includes('çarşaf')) return PRODUCT_DETAILS['Tek Kişilik Çarşaf'];
+  // Default
+  return {
+    features: ['fas fa-check-circle|Kaliteli Bursa işçiliği', 'fas fa-star|Zeynel Göçmen güvencesi', 'fas fa-truck|Bursa içi teslimat', 'fas fa-rotate-left|Memnuniyet garantisi'],
+    specs: [['Menşei','Bursa, Türkiye'],['Kalite','Yüksek kalite standart'],['Garanti','Memnuniyet garantisi']],
+    care: [['Bakım','Ürüne özel bilgi için arayın'],['Yıkama','Etiket bilgisine göre'],['Ütü','Ürüne göre değişir']]
+  };
+}
+
+/* ─── Modal Tab Sistemi ─── */
+function switchTab(tabId){
+  document.querySelectorAll('.modal-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['desc','specs','care'][i] === tabId);
+  });
+  document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-'+tabId).classList.add('active');
+}
+
 /* ─── Modal ─── */
-function openModal(title, src, desc, tag, price, oldPrice, unit){
+function openModal(title, src, desc, tag, price, oldPrice, unit, qtyInputId, isMeter){
   document.getElementById('mTitle').innerText = title;
   document.getElementById('mImg').src         = src;
   document.getElementById('mTag').innerText   = tag || '';
-  document.getElementById('mDesc').innerText  = desc || '';
 
+  // Fiyat
   const priceWrap = document.getElementById('mPriceWrap');
   const unitStr   = unit ? ' / ' + unit : '';
   const discBadge = document.getElementById('mDiscountBadge');
-
   if(oldPrice && oldPrice > price){
     const pct = Math.round((1 - price/oldPrice)*100);
     priceWrap.innerHTML =
@@ -1371,6 +1700,41 @@ function openModal(title, src, desc, tag, price, oldPrice, unit){
     priceWrap.innerHTML = '';
     discBadge.classList.add('hidden');
   }
+
+  // Ürün detaylarını al
+  const det = getProductDetails(title);
+
+  // Açıklama tab
+  document.getElementById('mDesc').innerText = desc || '';
+  const featEl = document.getElementById('mFeatures');
+  featEl.innerHTML = det.features.map(f => {
+    const [icon, text] = f.split('|');
+    return '<div class="modal-feat"><i class="' + icon + '"></i> ' + text + '</div>';
+  }).join('');
+
+  // Özellikler tab
+  document.getElementById('mSpecs').innerHTML = det.specs.map(([k,v]) =>
+    '<div class="modal-spec-row"><span class="modal-spec-key">' + k + '</span><span class="modal-spec-val">' + v + '</span></div>'
+  ).join('');
+
+  // Bakım tab
+  document.getElementById('mCare').innerHTML = det.care.map(([k,v]) =>
+    '<div class="modal-spec-row"><span class="modal-spec-key">' + k + '</span><span class="modal-spec-val">' + v + '</span></div>'
+  ).join('');
+
+  // Sepete ekle butonu (modal içi)
+  const addWrap = document.getElementById('mAddWrap');
+  if(price > 0){
+    const modalQtyId = 'modal-qty-' + Date.now();
+    addWrap.innerHTML =
+      '<input type="number" class="modal-qty-input" id="' + modalQtyId + '" value="1" min="1">' +
+      '<button class="modal-add-btn" onclick="addToCart(\'' + title.replace(/'/g,"\\'") + '\',' + price + ',\'' + modalQtyId + '\',' + (isMeter?'true':'false') + ');showToast(\'✓ Sepete eklendi\')"><i class="fas fa-bag-shopping" style="margin-right:8px"></i>Sepete Ekle</button>';
+  } else {
+    addWrap.innerHTML = '';
+  }
+
+  // Aktif tab'ı sıfırla
+  switchTab('desc');
 
   resetImgZoom();
   document.getElementById('productModal').classList.add('open');
@@ -1388,7 +1752,23 @@ function closeModalOverlay(e){
 }
 
 function openGalleryModal(src, title, desc){
-  openModal(title, src, desc, 'Dükkanımız', 0, null, '');
+  document.getElementById('mTitle').innerText = title;
+  document.getElementById('mImg').src         = src;
+  document.getElementById('mTag').innerText   = 'Dükkanımız';
+  document.getElementById('mDesc').innerText  = desc || '';
+  document.getElementById('mPriceWrap').innerHTML = '';
+  document.getElementById('mDiscountBadge').classList.add('hidden');
+  document.getElementById('mFeatures').innerHTML =
+    '<div class="modal-feat"><i class="fas fa-store"></i> Osmangazi, Bursa</div>' +
+    '<div class="modal-feat"><i class="fas fa-calendar"></i> 1993\'ten bu yana</div>' +
+    '<div class="modal-feat"><i class="fas fa-star"></i> 5 Yıldızlı hizmet</div>';
+  document.getElementById('mSpecs').innerHTML = '';
+  document.getElementById('mCare').innerHTML  = '';
+  document.getElementById('mAddWrap').innerHTML = '<button class="modal-add-btn" onclick="closeProductModal();go(\'contact\')"><i class="fas fa-map-marker-alt" style="margin-right:8px"></i>Mağazamıza Gel</button>';
+  switchTab('desc');
+  resetImgZoom();
+  document.getElementById('productModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
 /* ─── Zoom (sadece masaüstü) ─── */
