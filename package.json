@@ -1,6 +1,7 @@
-{
-  "type": "module",
-  "dependencies": {
-    "iyzipay": "^2.0.0"
-  }
-}
+fetch('/api/fonksiyon', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ mesaj: "Merhaba API" })
+})
+.then(res => res.json())
+.then(data => console.log(data));
