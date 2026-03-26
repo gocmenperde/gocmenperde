@@ -361,13 +361,57 @@ th:nth-child(3),td:nth-child(3),th:nth-child(5),td:nth-child(5){display:none}
       <button class="close-modal-btn" onclick="closeProductModal()"><i class="fas fa-xmark"></i></button>
     </div>
     <div class="form-modal-body">
-      <input type="hidden" id="editIndex">
-      <div class="fg"><label>Ürün Adı *</label><input type="text" id="f-name" placeholder="Ürün adını girin"></div>
-      <div class="fg"><label>Kısa Açıklama *</label><textarea id="f-desc" placeholder="Ürün açıklaması..."></textarea></div>
-      <div class="form-group" style="margin-top: 15px;">
-    <label>Ürün Özellikleri (Her satıra bir özellik: Malzeme: Pamuk gibi)</label>
-    <textarea id="productSpecs" placeholder="Malzeme: %100 Pamuk&#10;Ölçü: 160x220 cm&#10;Renk: Beyaz" rows="4" style="width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px;"></textarea>
+    <input type="hidden" id="editIndex">
+    <div class="fg"><label>Ürün Adı *</label><input type="text" id="f-name" placeholder="Ürün adını girin"></div>
+    <div class="fg"><label>Kısa Açıklama *</label><textarea id="f-desc" placeholder="Ürün açıklaması..."></textarea></div>
+    
+    <div class="form-row">
+        <div class="fg"><label>Güncel Fiyat (TL) *</label><input type="number" id="f-price" placeholder="300"></div>
+        <div class="fg"><label>Eski Fiyat (TL)</label><input type="number" id="f-oldprice" placeholder="400"></div>
+    </div>
+
+    <div class="form-row">
+        <div class="fg"><label>Kategori *</label>
+            <select id="f-cat">
+                <option value="carsaf">Çarşaf</option>
+                <option value="perde">Perde</option>
+                <option value="koltuk">Koltuk Örtüsü</option>
+            </select>
+        </div>
+        <div class="fg"><label>Birim</label>
+            <select id="f-unit">
+                <option value="adet">Adet</option>
+                <option value="mt">Metre (mt)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="fg">
+        <label>ÜRÜN RESMİ SEÇ</label>
+        <input type="file" id="resimSec" accept="image/*" class="login-input" style="margin-bottom: 5px;">
+        <input type="hidden" id="f-image"> <small id="yuklemeDurumu" style="color: #666; display: block;"></small>
+    </div>
+
+    <div class="fg">
+        <label>ÜRÜN ÖZELLİKLERİ (Her satıra bir tane)</label>
+        <textarea id="f-specs" placeholder="Malzeme: %100 Pamuk&#10;Ölçü: 160x220 cm" rows="3"></textarea>
+    </div>
+
+    <div class="fg">
+        <label>BAKIM TALİMATLARI</label>
+        <textarea id="f-care" placeholder="30 derecede yıkayınız, ütü istemez" rows="2"></textarea>
+    </div>
+
+    <div class="fg"><label>İndirim Etiketi</label><input type="text" id="f-badge" placeholder="%25 İNDİRİM"></div>
+    
+    <div class="fg"><label>Stok Durumu</label>
+        <div class="switch-wrap">
+            <div class="switch on" id="activeSwitch" onclick="toggleSwitch()"></div>
+            <span id="activeSwitchLabel" style="font-size:0.85rem;color:var(--green)">Aktif</span>
+        </div>
+    </div>
 </div>
+
 
       <div class="form-row">
         <div class="fg"><label>Güncel Fiyat (TL) *</label><input type="number" id="f-price" placeholder="300"></div>
@@ -584,11 +628,11 @@ function saveProduct() {
   const name = document.getElementById('f-name').value.trim();
   const desc = document.getElementById('f-desc').value.trim();
   const price = parseFloat(document.getElementById('f-price').value);
+  const image = document.getElementById('f-image').value; // ImgBB'den gelen link
 
-  if (!name) { aToast('⚠️ Ürün adı zorunlu'); return; }
-  if (!price) { aToast('⚠️ Fiyat zorunlu'); return; }
+  if (!name || !price) { aToast('⚠️ Ad ve Fiyat zorunlu!'); return; }
 
-  // Özellikleri (Specs) parçalayıp objeye çeviriyoruz
+  // Özellikleri (Specs) objeye çevir
   const specsInput = document.getElementById('f-specs').value;
   const specsObj = {};
   specsInput.split('\n').forEach(line => {
@@ -596,45 +640,30 @@ function saveProduct() {
     if (key && value) specsObj[key.trim()] = value.trim();
   });
 
-  const oldPriceVal = document.getElementById('f-oldprice').value;
-  const unitVal = document.getElementById('f-unit').value;
-
-  // Yeni ürün objesini oluşturuyoruz
   const obj = {
     id: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now(),
     name,
     desc,
-    image: document.getElementById('f-image').value || 'resimler/placeholder.jpg',
+    image: image || 'resimler/placeholder.jpg',
     price,
-    oldPrice: oldPriceVal ? parseFloat(oldPriceVal) : null,
+    oldPrice: parseFloat(document.getElementById('f-oldprice').value) || null,
     cat: document.getElementById('f-cat').value,
-    unit: unitVal,
-    isMeter: unitVal === 'mt',
-    features: document.getElementById('f-features').value.replace(/\s/g, ''),
+    unit: document.getElementById('f-unit').value,
+    isMeter: document.getElementById('f-unit').value === 'mt',
     badge: document.getElementById('f-badge').value || '',
     active: activeSwitch,
-    specs: specsObj, // Admin panelinden gelen özellikler buraya işleniyor
-    care: {}
+    specs: specsObj,
+    care: { instructions: document.getElementById('f-care').value } // Bakım talimatı
   };
 
   const idx = document.getElementById('editIndex').value;
-
   if (idx !== '') {
-    // GÜNCELLEME MODU: Mevcut ürünün bilgilerini koruyarak üzerine yazıyoruz
-    const existingProduct = PRODUCTS[parseInt(idx)];
-    obj.id = existingProduct.id; 
-    // Eğer admin panelinde özellikler boşsa, eski özelliklerini koru
-    if (Object.keys(specsObj).length === 0) {
-        obj.specs = existingProduct.specs || {};
-    }
-    obj.care = existingProduct.care || {};
-    
-    PRODUCTS[parseInt(idx)] = obj;
-    aToast('✓ Ürün güncellendi: ' + name);
+    obj.id = PRODUCTS[idx].id;
+    PRODUCTS[idx] = obj;
+    aToast('✓ Güncellendi');
   } else {
-    // YENİ EKLEME MODU
     PRODUCTS.unshift(obj);
-    aToast('✓ Yeni ürün eklendi: ' + name);
+    aToast('✓ Eklendi');
   }
 
   closeProductModal();
@@ -642,19 +671,6 @@ function saveProduct() {
   renderDashboard();
 }
 
-
-function toggleProduct(idx){
-  PRODUCTS[idx].active = !PRODUCTS[idx].active;
-  aToast(PRODUCTS[idx].active ? '✓ Ürün aktive edildi' : '⚠️ Ürün pasife alındı');
-  renderTable(); renderDashboard();
-}
-
-function deleteProduct(idx){
-  if(!confirm(`"${PRODUCTS[idx].name}" silinsin mi?`)) return;
-  PRODUCTS.splice(idx,1);
-  aToast('✓ Ürün silindi');
-  renderTable(); renderDashboard();
-}
 
 function closeProductModal(){ document.getElementById('productModal').classList.remove('open'); }
 
