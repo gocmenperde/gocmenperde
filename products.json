@@ -54,7 +54,7 @@
   {
     "id": "fon-perde-1774540697343",
     "name": "Fon Perde",
-    "desc": "Evinize şıklık ve karakter katmak isteyenler için tasarlanan desenli fon perdeler, dekorasyonun tamamlayıcı en önemli parçalarından biridir. Modern ve klasik çizgileri bir araya getiren özel desenleri sayesinde salon, oturma odası ve yatak odalarında estetik bir görünüm sağlar.\n\nYüksek kaliteli kumaşı sayesinde güneş ışığını dengeli şekilde keser, iç mekânda daha konforlu ve huzurlu bir ortam oluşturur. Dayanıklı yapısı uzun ömürlü kullanım sunarken, kolay temizlenebilir özelliği ile pratiklik sağlar.\n\nFarklı renk ve desen seçenekleri ile her tarza uyum sağlayan desenli fon perdeler, yaşam alanlarınıza sıcak ve zarif bir dokunuş katar.",
+    "desc": "Şıklığı ve zarafeti bir araya getiren fon perde, mekânınıza derinlik katarken dekorasyonunuzu tamamlayan kusursuz bir dokunuş sunar.",
     "image": "resimler/desenlifon.WEBP",
     "price": 5000,
     "oldPrice": 6250,
@@ -64,8 +64,12 @@
     "features": "Ütüİstemez",
     "badge": "1250 TL İNDİRİM",
     "active": true,
-    "specs": {},
-    "care": {}
+    "specs": {
+      "Evinize şıklık ve karakter katmak isteyenler için tasarlanan desenli fon perdeler, dekorasyonun tamamlayıcı en önemli parçalarından biridir. Modern ve klasik çizgileri bir araya getiren özel desenleri sayesinde salon, oturma odası ve yatak odalarında estetik bir görünüm sağlar.  Yüksek kaliteli kumaşı sayesinde güneş ışığını dengeli şekilde keser, iç mekânda daha konforlu ve huzurlu bir ortam oluşturur. Dayanıklı yapısı uzun ömürlü kullanım sunarken, kolay temizlenebilir özelliği ile pratiklik sağlar.  Farklı renk ve desen seçenekleri ile her tarza uyum sağlayan desenli fon perdeler, yaşam alanlarınıza sıcak ve zarif bir dokunuş katar.": ""
+    },
+    "care": {
+      "• 30°C’de hassas yıkama önerilir • Ağartıcı kullanılmamalıdır • Düşük ısıda ütülenebilir • Kurutma makinesinde düşük devir tercih edilmelidir • Direkt güneş ışığında uzun süre bırakılmaması önerilir": ""
+    }
   },
   {
     "id": "carsaf-beyaz",
