@@ -425,6 +425,49 @@ nav{display:flex;align-items:center;gap:8px}
 /* ── Footer ── */
 footer{background:var(--ink);color:rgba(247,244,239,0.4);text-align:center;padding:30px 5%;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;border-top:1px solid rgba(201,168,76,0.1)}
 footer span{color:var(--gold)}
+/* GENEL FULL WIDTH FIX (ANA SORUN) */
+body, html {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden;
+}
+
+.section {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ANA WRAPPER GENİŞLETME */
+.products-layout {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-left: 40px !important;
+  padding-right: 40px !important;
+  grid-template-columns: 300px 1fr !important;
+}
+
+/* ÜRÜNLER ALANI TAM YAYILSIN */
+.products-content {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* GRID TAM EKRAN DOLSUN */
+.products-grid {
+  width: 100% !important;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+}
+
+/* HEADER DA DAR KALMASIN */
+.header-inner {
+  max-width: 100% !important;
+}
+
+/* GENEL CONTAINER VARSA ONU DA KIR */
+.container {
+  max-width: 100% !important;
+}
 </style>
 
 </head>
