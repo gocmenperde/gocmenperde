@@ -1,0 +1,380 @@
+[
+  {
+    "id": "carsaf-beyaz",
+    "name": "Tek Kişilik Çarşaf Beyaz",
+    "desc": "Her türlü yatak için uygundur. Ütü istemez, pamuklu doku. Renk tercihinizi sipariş notunda belirtiniz.",
+    "image": "resimler/carsafbeyaz.jpg",
+    "price": 300,
+    "oldPrice": 400,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Pamuk",
+      "Ölçü": "160 × 220 cm",
+      "Renk": "Beyaz",
+      "Bakım": "Makinede 40°C",
+      "Seri": "Ekonomik Sezon"
+    },
+    "care": {
+      "Makine Yıkama": "40°C soğuk program",
+      "Kurutma": "Doğal kurumaya bırakın",
+      "Ütü": "Gerekmez",
+      "Beyazlatıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "carsaf-pembe",
+    "name": "Tek Kişilik Çarşaf Pembe",
+    "desc": "Her türlü yatak için uygundur. Ütü istemez, pamuklu doku.",
+    "image": "resimler/carsafpembe.jpg",
+    "price": 300,
+    "oldPrice": 400,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Pamuk",
+      "Ölçü": "160 × 220 cm",
+      "Renk": "Pembe",
+      "Bakım": "Makinede 40°C",
+      "Seri": "Ekonomik Sezon"
+    },
+    "care": {
+      "Makine Yıkama": "40°C soğuk program",
+      "Kurutma": "Doğal kurumaya bırakın",
+      "Ütü": "Gerekmez",
+      "Beyazlatıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "carsaf-kahve",
+    "name": "Tek Kişilik Çarşaf Kahverengi",
+    "desc": "Her türlü yatak için uygundur. Ütü istemez, pamuklu doku.",
+    "image": "resimler/carsafkahve.jpg",
+    "price": 300,
+    "oldPrice": 400,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Pamuk",
+      "Ölçü": "160 × 220 cm",
+      "Renk": "Kahverengi",
+      "Bakım": "Makinede 40°C",
+      "Seri": "Ekonomik Sezon"
+    },
+    "care": {
+      "Makine Yıkama": "40°C soğuk program",
+      "Kurutma": "Doğal kurumaya bırakın",
+      "Ütü": "Gerekmez",
+      "Beyazlatıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "carsaf-mor",
+    "name": "Tek Kişilik Çarşaf Mor",
+    "desc": "Her türlü yatak için uygundur. Ütü istemez, pamuklu doku.",
+    "image": "resimler/carsafmor.jpg",
+    "price": 300,
+    "oldPrice": 400,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Pamuk",
+      "Ölçü": "160 × 220 cm",
+      "Renk": "Mor",
+      "Bakım": "Makinede 40°C",
+      "Seri": "Ekonomik Sezon"
+    },
+    "care": {
+      "Makine Yıkama": "40°C soğuk program",
+      "Kurutma": "Doğal kurumaya bırakın",
+      "Ütü": "Gerekmez",
+      "Beyazlatıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "carsaf-gri",
+    "name": "Tek Kişilik Çarşaf Gri",
+    "desc": "Her türlü yatak için uygundur. Ütü istemez, pamuklu doku.",
+    "image": "resimler/carsafgri.jpg",
+    "price": 300,
+    "oldPrice": 400,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Pamuk",
+      "Ölçü": "160 × 220 cm",
+      "Renk": "Gri",
+      "Bakım": "Makinede 40°C",
+      "Seri": "Ekonomik Sezon"
+    },
+    "care": {
+      "Makine Yıkama": "40°C soğuk program",
+      "Kurutma": "Doğal kurumaya bırakın",
+      "Ütü": "Gerekmez",
+      "Beyazlatıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "carsaf-mavi",
+    "name": "Tek Kişilik Çarşaf Mavi",
+    "desc": "Her türlü yatak için uygundur. Ütü istemez, pamuklu doku.",
+    "image": "resimler/carsafmavi.jpg",
+    "price": 300,
+    "oldPrice": 400,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Pamuk",
+      "Ölçü": "160 × 220 cm",
+      "Renk": "Mavi",
+      "Bakım": "Makinede 40°C",
+      "Seri": "Ekonomik Sezon"
+    },
+    "care": {
+      "Makine Yıkama": "40°C soğuk program",
+      "Kurutma": "Doğal kurumaya bırakın",
+      "Ütü": "Gerekmez",
+      "Beyazlatıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "carsaf-sari",
+    "name": "Tek Kişilik Çarşaf Sarı",
+    "desc": "Her türlü yatak için uygundur. Ütü istemez, pamuklu doku.",
+    "image": "resimler/carsafsari.jpg",
+    "price": 300,
+    "oldPrice": 400,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Pamuk",
+      "Ölçü": "160 × 220 cm",
+      "Renk": "Sarı",
+      "Bakım": "Makinede 40°C",
+      "Seri": "Ekonomik Sezon"
+    },
+    "care": {
+      "Makine Yıkama": "40°C soğuk program",
+      "Kurutma": "Doğal kurumaya bırakın",
+      "Ütü": "Gerekmez",
+      "Beyazlatıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "carsaf-standart",
+    "name": "Tek Kişilik Çarşaf",
+    "desc": "Her türlü yatak için uygundur. Lütfen renk tercihinizi sipariş notunda belirtiniz.",
+    "image": "resimler/carsaf.jpg",
+    "price": 300,
+    "oldPrice": 400,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Pamuk",
+      "Ölçü": "160 × 220 cm",
+      "Renk": "Seçime Göre",
+      "Bakım": "Makinede 40°C",
+      "Seri": "Ekonomik Sezon"
+    },
+    "care": {
+      "Makine Yıkama": "40°C soğuk program",
+      "Kurutma": "Doğal kurumaya bırakın",
+      "Ütü": "Gerekmez",
+      "Beyazlatıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "carsaf-cift",
+    "name": "Çift Kişilik Çarşaf",
+    "desc": "Her türlü yatak için uygundur. Lütfen renk tercihinizi sipariş notunda belirtiniz.",
+    "image": "resimler/carsaf1.jpg",
+    "price": 350,
+    "oldPrice": 450,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Pamuk",
+      "Ölçü": "200 × 220 cm",
+      "Renk": "Seçime Göre",
+      "Bakım": "Makinede 40°C",
+      "Seri": "Ekonomik Sezon"
+    },
+    "care": {
+      "Makine Yıkama": "40°C soğuk program",
+      "Kurutma": "Doğal kurumaya bırakın",
+      "Ütü": "Gerekmez",
+      "Beyazlatıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "saray-tul",
+    "name": "Saray Tül Perde",
+    "desc": "Bursa üretimi özel örme tül kumaş. Ütü istemez, dayanıklı ve ışık geçiren yapısıyla odanıza ferahlık katar. Metre başına fiyatlandırılır.",
+    "image": "resimler/dikili_perde.jpeg",
+    "price": 200,
+    "oldPrice": 267,
+    "cat": "perde",
+    "unit": "mt",
+    "isMeter": true,
+    "features": "utu",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Polyester Örme",
+      "Satış Birimi": "Metre (mt)",
+      "En": "280 cm",
+      "Bakım": "Makinede 30°C",
+      "Üretim": "Bursa Yerli Üretim"
+    },
+    "care": {
+      "Makine Yıkama": "30°C narin program",
+      "Kurutma": "Doğal, sarkmadan kuruyun",
+      "Ütü": "Gerekmez",
+      "Ağartıcı": "Kullanmayın"
+    }
+  },
+  {
+    "id": "ekonomik-fon",
+    "name": "Ekonomik Fon Perde",
+    "desc": "Renk seçeneği geniş, kaliteli dekoratif fon perde. Evinizin her odasına uyum sağlayan modeller mevcuttur. Dikim dahil fiyattır.",
+    "image": "resimler/kumas_fon_renkli.jpeg",
+    "price": 2500,
+    "oldPrice": 3333,
+    "cat": "perde",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "Polyester-Pamuk Karışım",
+      "Dikim": "Dahil",
+      "Montaj": "Ekstra ücretli",
+      "Renk": "40+ Seçenek",
+      "Teslim": "3–5 İş Günü"
+    },
+    "care": {
+      "Makine Yıkama": "40°C normal program",
+      "Kurutma": "Doğal, direkt güneş olmadan",
+      "Ütü": "Orta ısı — ters çevirin",
+      "Yıkama Sıklığı": "6 ayda bir önerilir"
+    }
+  },
+  {
+    "id": "vip-premium-fon",
+    "name": "VIP Premium Fon Perde",
+    "desc": "Kadife dokulu, karartma özellikli lüks fon perde. Işık sızdırmaz yapısı ve asil görünümüyle yatak odalarına özel tasarlanmıştır. Dikim dahil fiyattır.",
+    "image": "resimler/brillant_fon.jpeg",
+    "price": 4500,
+    "oldPrice": 6000,
+    "cat": "perde",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "karartma,premium",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "Kadife Dokulu Blackout",
+      "Karartma": "%100 Işık Geçirmez",
+      "Dikim": "Dahil",
+      "Seri": "VIP Premium Koleksiyon",
+      "Teslim": "5–7 İş Günü"
+    },
+    "care": {
+      "Yıkama": "Kuru temizleme önerilir",
+      "Ev Yıkama": "30°C çok narin, yalnız",
+      "Ütü": "Ters çevirin, düşük ısı",
+      "Toz Alma": "Hafif vakum ile"
+    }
+  },
+  {
+    "id": "koltuk-set-4li",
+    "name": "Koltuk Örtü Seti (3+3+1+1)",
+    "desc": "Esnek bürümcük kumaş, 2 adet üçlü ve 2 adet tekli koltuk için eksiksiz set. Koltuk formuna tam uyum sağlar, yıkama kolaylığı sunar. Tüm renkler mevcuttur.",
+    "image": "resimler/koltuk_ortusu.jpeg",
+    "price": 1500,
+    "oldPrice": 2000,
+    "cat": "koltuk",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Bürümcük Polyester",
+      "İçerik": "2 Üçlü + 2 Tekli Örtü",
+      "Esneklik": "Tam esnek, her koltuk tipine uyar",
+      "Renk": "Geniş renk kataloğu",
+      "Bakım": "Makinede 30°C"
+    },
+    "care": {
+      "Makine Yıkama": "30°C narin program",
+      "Kurutma": "Koltuk üzerinde sererek kuruyun",
+      "Ütü": "Orta ısı — hafif nemli iken",
+      "Çekme": "İlk yıkamada hafif çekme normal"
+    }
+  },
+  {
+    "id": "koltuk-set-2li",
+    "name": "Koltuk Örtü Seti (3+3)",
+    "desc": "Esnek bürümcük kumaş, 2 adet üçlü koltuk için set. Solmaz renkleri ve uzun ömürlü yapısıyla mobilyanızı korur.",
+    "image": "resimler/koltuk_ortusu.jpeg",
+    "price": 1200,
+    "oldPrice": 1600,
+    "cat": "koltuk",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "",
+    "badge": "%25 İNDİRİM",
+    "active": true,
+    "specs": {
+      "Malzeme": "%100 Bürümcük Polyester",
+      "İçerik": "2 Adet Üçlü Koltuk Örtüsü",
+      "Esneklik": "Tam esnek, her koltuk tipine uyar",
+      "Renk": "Geniş renk kataloğu",
+      "Bakım": "Makinede 30°C"
+    },
+    "care": {
+      "Makine Yıkama": "30°C narin program",
+      "Kurutma": "Koltuk üzerinde sererek kuruyun",
+      "Ütü": "Orta ısı — hafif nemli iken",
+      "Çekme": "İlk yıkamada hafif çekme normal"
+    }
+  }
+]
