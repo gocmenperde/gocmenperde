@@ -364,6 +364,11 @@ th:nth-child(3),td:nth-child(3),th:nth-child(5),td:nth-child(5){display:none}
       <input type="hidden" id="editIndex">
       <div class="fg"><label>Ürün Adı *</label><input type="text" id="f-name" placeholder="Ürün adını girin"></div>
       <div class="fg"><label>Kısa Açıklama *</label><textarea id="f-desc" placeholder="Ürün açıklaması..."></textarea></div>
+      <div class="form-group" style="margin-top: 15px;">
+    <label>Ürün Özellikleri (Her satıra bir özellik: Malzeme: Pamuk gibi)</label>
+    <textarea id="productSpecs" placeholder="Malzeme: %100 Pamuk&#10;Ölçü: 160x220 cm&#10;Renk: Beyaz" rows="4" style="width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px;"></textarea>
+</div>
+
       <div class="form-row">
         <div class="fg"><label>Güncel Fiyat (TL) *</label><input type="number" id="f-price" placeholder="300"></div>
         <div class="fg"><label>Eski Fiyat (TL)</label><input type="number" id="f-oldprice" placeholder="400 (boş bırakılabilir)"></div>
@@ -558,44 +563,68 @@ function editProduct(idx){
   document.getElementById('productModal').classList.add('open');
 }
 
-function saveProduct(){
+function saveProduct() {
   const name = document.getElementById('f-name').value.trim();
   const desc = document.getElementById('f-desc').value.trim();
   const price = parseFloat(document.getElementById('f-price').value);
-  if(!name){ aToast('⚠️ Ürün adı zorunlu'); return; }
-  if(!price){ aToast('⚠️ Fiyat zorunlu'); return; }
+
+  if (!name) { aToast('⚠️ Ürün adı zorunlu'); return; }
+  if (!price) { aToast('⚠️ Fiyat zorunlu'); return; }
+
+  // Özellikleri (Specs) parçalayıp objeye çeviriyoruz
+  const specsInput = document.getElementById('f-specs').value;
+  const specsObj = {};
+  specsInput.split('\n').forEach(line => {
+    const [key, value] = line.split(':');
+    if (key && value) specsObj[key.trim()] = value.trim();
+  });
 
   const oldPriceVal = document.getElementById('f-oldprice').value;
   const unitVal = document.getElementById('f-unit').value;
+
+  // Yeni ürün objesini oluşturuyoruz
   const obj = {
-    id: name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '-' + Date.now(),
-    name, desc,
+    id: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now(),
+    name,
+    desc,
     image: document.getElementById('f-image').value || 'resimler/placeholder.jpg',
     price,
     oldPrice: oldPriceVal ? parseFloat(oldPriceVal) : null,
     cat: document.getElementById('f-cat').value,
     unit: unitVal,
     isMeter: unitVal === 'mt',
-    features: document.getElementById('f-features').value.replace(/\s/g,''),
+    features: document.getElementById('f-features').value.replace(/\s/g, ''),
     badge: document.getElementById('f-badge').value || '',
     active: activeSwitch,
-    specs: {}, care: {}
+    specs: specsObj, // Admin panelinden gelen özellikler buraya işleniyor
+    care: {}
   };
 
   const idx = document.getElementById('editIndex').value;
-  if(idx !== ''){
-    obj.id = PRODUCTS[parseInt(idx)].id;
-    obj.specs = PRODUCTS[parseInt(idx)].specs || {};
-    obj.care  = PRODUCTS[parseInt(idx)].care || {};
+
+  if (idx !== '') {
+    // GÜNCELLEME MODU: Mevcut ürünün bilgilerini koruyarak üzerine yazıyoruz
+    const existingProduct = PRODUCTS[parseInt(idx)];
+    obj.id = existingProduct.id; 
+    // Eğer admin panelinde özellikler boşsa, eski özelliklerini koru
+    if (Object.keys(specsObj).length === 0) {
+        obj.specs = existingProduct.specs || {};
+    }
+    obj.care = existingProduct.care || {};
+    
     PRODUCTS[parseInt(idx)] = obj;
     aToast('✓ Ürün güncellendi: ' + name);
   } else {
+    // YENİ EKLEME MODU
     PRODUCTS.unshift(obj);
     aToast('✓ Yeni ürün eklendi: ' + name);
   }
+
   closeProductModal();
-  renderTable(); renderDashboard();
+  renderTable(); 
+  renderDashboard();
 }
+
 
 function toggleProduct(idx){
   PRODUCTS[idx].active = !PRODUCTS[idx].active;
