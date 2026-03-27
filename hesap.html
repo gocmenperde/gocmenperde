@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Müşteri Paneli - Göçmen Perde</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .form-box { max-width: 300px; margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
+        input { display: block; width: 100%; margin-bottom: 10px; padding: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="kayitBolumu" class="form-box">
+        <h3>Yeni Kayıt</h3>
+        <input type="text" id="kayitAd" placeholder="Ad Soyad">
+        <input type="email" id="kayitEmail" placeholder="E-posta">
+        <input type="text" id="kayitTel" placeholder="Telefon (05xx)">
+        <input type="password" id="kayitSifre" placeholder="Şifre">
+        <button onclick="kayitOl()">Kayıt Ol</button>
+    </div>
+
+    <script>
+        async function kayitOl() {
+            const veri = {
+                action: 'register',
+                ad_soyad: document.getElementById('kayitAd').value,
+                email: document.getElementById('kayitEmail').value,
+                telefon: document.getElementById('kayitTel').value,
+                sifre: document.getElementById('kayitSifre').value
+            };
+
+            const cevap = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(veri)
+            });
+
+            const sonuc = await cevap.json();
+            
+            if(sonuc.success) {
+                alert('Tebrikler! Kayıt başarılı.');
+            } else {
+                alert('Hata oluştu: ' + sonuc.error);
+            }
+        }
+    </script>
+</body>
+</html>
