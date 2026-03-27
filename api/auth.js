@@ -1,9 +1,4 @@
 const { neon } = require(’@neondatabase/serverless’);
-const bcrypt = require(‘bcryptjs’);
-const jwt = require(‘jsonwebtoken’);
-
-const sql = neon(process.env.DATABASE_URL);
-const JWT_SECRET = process.env.JWT_SECRET || ‘gocmen-perde-secret-2024’;
 
 module.exports = async function handler(req, res) {
 res.setHeader(‘Access-Control-Allow-Origin’, ‘*’);
@@ -13,7 +8,15 @@ if (req.method === ‘OPTIONS’) return res.status(200).end();
 
 const { action } = req.query;
 
+let sql;
 try {
+sql = neon(process.env.DATABASE_URL);
+} catch(e) {
+return res.status(500).json({ error: ’DB bağlantı hatası: ’ + e.message });
+}
+
+try {
+// KAYIT
 if (action === ‘register’ && req.method === ‘POST’) {
 const { ad_soyad, email, telefon, sifre } = req.body;
 if (!ad_soyad || !email || !sifre)
@@ -26,36 +29,39 @@ return res.status(400).json({ error: ‘Şifre en az 6 karakter olmalıdır.’ 
   if (existing.length > 0)
     return res.status(409).json({ error: 'Bu email zaten kayıtlı.' });
 
-  const sifre_hash = await bcrypt.hash(sifre, 10);
+  // Basit hash (crypto modülü - harici paket gerektirmez)
+  const crypto = require('crypto');
+  const sifre_hash = crypto.createHash('sha256').update(sifre + 'gocmen_salt_2024').digest('hex');
+
   const result = await sql`
     INSERT INTO musteriler (ad_soyad, email, telefon, sifre_hash)
     VALUES (${ad_soyad}, ${email.toLowerCase()}, ${telefon || ''}, ${sifre_hash})
     RETURNING id, ad_soyad, email, telefon, created_at
   `;
   const user = result[0];
-  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '30d' });
+  const token = Buffer.from(JSON.stringify({ id: user.id, email: user.email, ts: Date.now() })).toString('base64');
   return res.status(201).json({ success: true, token, user });
 }
 
+// GİRİŞ
 if (action === 'login' && req.method === 'POST') {
   const { email, sifre } = req.body;
   if (!email || !sifre)
     return res.status(400).json({ error: 'Email ve şifre zorunludur.' });
 
-  const result = await sql`SELECT * FROM musteriler WHERE email = ${email.toLowerCase()}`;
+  const crypto = require('crypto');
+  const sifre_hash = crypto.createHash('sha256').update(sifre + 'gocmen_salt_2024').digest('hex');
+
+  const result = await sql`SELECT * FROM musteriler WHERE email = ${email.toLowerCase()} AND sifre_hash = ${sifre_hash}`;
   if (!result.length)
     return res.status(401).json({ error: 'Email veya şifre hatalı.' });
 
   const user = result[0];
-  const valid = await bcrypt.compare(sifre, user.sifre_hash);
-  if (!valid)
-    return res.status(401).json({ error: 'Email veya şifre hatalı.' });
-
-  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '30d' });
-  const { sifre_hash, ...safeUser } = user;
-  return res.status(200).json({ success: true, token, user: safeUser });
+  const token = Buffer.from(JSON.stringify({ id: user.id, email: user.email, ts: Date.now() })).toString('base64');
+  return res.status(200).json({ success: true, token, user: { id: user.id, ad_soyad: user.ad_soyad, email: user.email, telefon: user.telefon, created_at: user.created_at } });
 }
 
+// PROFİL
 if (action === 'profile' && req.method === 'GET') {
   const user = verifyToken(req);
   if (!user) return res.status(401).json({ error: 'Oturum geçersiz.' });
@@ -64,6 +70,7 @@ if (action === 'profile' && req.method === 'GET') {
   return res.status(200).json({ success: true, user: result[0] });
 }
 
+// GÜNCELLE
 if (action === 'update' && req.method === 'PUT') {
   const user = verifyToken(req);
   if (!user) return res.status(401).json({ error: 'Oturum geçersiz.' });
@@ -72,20 +79,22 @@ if (action === 'update' && req.method === 'PUT') {
   return res.status(200).json({ success: true });
 }
 
+// ŞİFRE DEĞİŞTİR
 if (action === 'change-password' && req.method === 'POST') {
   const user = verifyToken(req);
   if (!user) return res.status(401).json({ error: 'Oturum geçersiz.' });
   const { eski_sifre, yeni_sifre } = req.body;
-  const result = await sql`SELECT sifre_hash FROM musteriler WHERE id = ${user.id}`;
-  if (!result.length) return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
-  const valid = await bcrypt.compare(eski_sifre, result[0].sifre_hash);
-  if (!valid) return res.status(401).json({ error: 'Mevcut şifre hatalı.' });
+  const crypto = require('crypto');
+  const eski_hash = crypto.createHash('sha256').update(eski_sifre + 'gocmen_salt_2024').digest('hex');
+  const result = await sql`SELECT id FROM musteriler WHERE id = ${user.id} AND sifre_hash = ${eski_hash}`;
+  if (!result.length) return res.status(401).json({ error: 'Mevcut şifre hatalı.' });
   if (yeni_sifre.length < 6) return res.status(400).json({ error: 'Yeni şifre en az 6 karakter olmalı.' });
-  const hash = await bcrypt.hash(yeni_sifre, 10);
-  await sql`UPDATE musteriler SET sifre_hash = ${hash} WHERE id = ${user.id}`;
+  const yeni_hash = crypto.createHash('sha256').update(yeni_sifre + 'gocmen_salt_2024').digest('hex');
+  await sql`UPDATE musteriler SET sifre_hash = ${yeni_hash} WHERE id = ${user.id}`;
   return res.status(200).json({ success: true });
 }
 
+// ADRESLER
 if (action === 'addresses' && req.method === 'GET') {
   const user = verifyToken(req);
   if (!user) return res.status(401).json({ error: 'Oturum geçersiz.' });
@@ -114,7 +123,7 @@ return res.status(400).json({ error: 'Geçersiz işlem.' });
 ```
 
 } catch (err) {
-console.error(‘Auth error:’, err);
+console.error(‘Auth error:’, err.message);
 return res.status(500).json({ error: ’Sunucu hatası: ’ + err.message });
 }
 };
@@ -123,6 +132,8 @@ function verifyToken(req) {
 try {
 const auth = req.headers.authorization;
 if (!auth || !auth.startsWith(’Bearer ’)) return null;
-return jwt.verify(auth.slice(7), JWT_SECRET);
+const decoded = JSON.parse(Buffer.from(auth.slice(7), ‘base64’).toString());
+if (!decoded.id || !decoded.email) return null;
+return decoded;
 } catch { return null; }
 }
