@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 
 // Bağlantı dizesini en temiz haliyle buraya yazdım
-const connectionString = 'postgresql://neondb_owner:npg_RLwX8EZr0egy@ep-frosty-firefly-aluiy29f.eu-central-1.aws.neon.tech/neondb?sslmode=require';
+const connectionString = 'psql -h pg.neon.tech';
 
 const pool = new Pool({
   connectionString,
