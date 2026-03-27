@@ -1,23 +1,28 @@
 const { Pool } = require('pg');
 
-// Bağlantı dizesini en temiz haliyle buraya yazdım
-const connectionString = 'psql -h pg.neon.tech';
+// Senin gönderdiğin en güncel bağlantı kodu:
+const connectionString = 'postgresql://neondb_owner:npg_RLwX8EZr0egy@ep-frosty-firefly-aluiy29f.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
 
 const pool = new Pool({
   connectionString,
-  max: 1, // Ücretsiz paket için bağlantı sınırını düşük tutalım
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 export default async function handler(req, res) {
-  // CORS ayarları
+  // Tarayıcı izinleri (CORS)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Yalnızca POST' });
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Sadece POST kabul edilir' });
+  }
 
   const { action, ad_soyad, email, telefon, sifre } = req.body;
 
@@ -29,10 +34,10 @@ export default async function handler(req, res) {
       );
       return res.status(200).json({ success: true, user: result.rows[0] });
     }
-    return res.status(400).json({ error: 'İşlem belirtilmedi' });
+    
+    return res.status(400).json({ error: 'Geçersiz işlem' });
   } catch (error) {
-    // Hatayı Vercel loglarında görmek için
-    console.error('DATABASE_ERROR:', error.message);
+    console.error('Veritabanı hatası:', error.message);
     return res.status(500).json({ success: false, error: error.message });
   }
 }
