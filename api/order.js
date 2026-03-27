@@ -28,22 +28,24 @@ return res.status(400).json({ error: ‘Eksik bilgi.’ });
     }
   } catch {}
 
-  const result = await sql`
-    INSERT INTO siparisler (musteri_id, musteri_adi, telefon, adres, odeme_yontemi, urunler, toplam, siparis_notu)
-    VALUES (${musteri_id}, ${name}, ${phone}, ${address}, ${payment}, ${JSON.stringify(items)}, ${total}, ${note || ''})
-    RETURNING id, created_at
-  `;
+  const result = await pool.query(
+  'INSERT INTO siparisler (musteri_id, musteri_adi, telefon, adres, odeme_yontemi, urunler, toplam, siparis_notu) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id, created_at',
+  [musteri_id, name, phone, address, payment, JSON.stringify(items), total, note || '']
+);
+const row = result.rows[0];
+
   return res.status(201).json({ success: true, order_id: result[0].id });
 }
 
 if (action === 'my-orders' && req.method === 'GET') {
   const user = verifyToken(req);
   if (!user) return res.status(401).json({ error: 'Oturum geçersiz.' });
-  const result = await sql`
-    SELECT id, musteri_adi, telefon, adres, odeme_yontemi, urunler, toplam, durum, siparis_notu, created_at
-    FROM siparisler WHERE musteri_id = ${user.id} ORDER BY created_at DESC
-  `;
-  return res.status(200).json({ success: true, orders: result });
+  const result = await pool.query(
+  'SELECT id, musteri_adi, telefon, adres, odeme_yontemi, urunler, toplam, durum, siparis_notu, created_at FROM siparisler WHERE musteri_id = $1 ORDER BY created_at DESC',
+  [user.id]
+);
+
+  return res.status(200).json({ success: true, orders: result.rows });
 }
 
 return res.status(400).json({ error: 'Geçersiz işlem.' });
