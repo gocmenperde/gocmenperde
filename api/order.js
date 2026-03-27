@@ -1,4 +1,8 @@
-const { neon } = require(’@neondatabase/serverless’);
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const sql = (strings, ...values) => {
+  let text = ''; strings.forEach((s, i) => { text += s + (values[i] !== undefined ? `$${i+1}` : ''); }); return pool.query(text, values).then(r => r.rows);
+};
 
 module.exports = async function handler(req, res) {
 res.setHeader(‘Access-Control-Allow-Origin’, ‘*’);
@@ -7,13 +11,6 @@ res.setHeader(‘Access-Control-Allow-Headers’, ‘Content-Type, Authorization
 if (req.method === ‘OPTIONS’) return res.status(200).end();
 
 const { action } = req.query;
-
-let sql;
-try {
-sql = neon(process.env.DATABASE_URL);
-} catch(e) {
-return res.status(500).json({ error: ’DB bağlantı hatası: ’ + e.message });
-}
 
 try {
 if (action === ‘create’ && req.method === ‘POST’) {
