@@ -1,5 +1,30 @@
 [
   {
+    "id": "stor-perde-1774593801587",
+    "name": "Stor Perde",
+    "desc": "Modern tasarımı ve pratik kullanımıyla ışığı dilediğinizce yönlendiren, leke tutmayan şık stor perde.",
+    "image": "resimler/placeholder.jpg",
+    "price": 600,
+    "oldPrice": 750,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "",
+    "badge": "150 TL İNDİRİM",
+    "active": true,
+    "specs": {
+      "Mekanizma": "Birinci sınıf sessiz plastik/metal zincir sistemi",
+      "Kumaş": "%100 Polyester (Karartma veya Güneşlik seçenekli)",
+      "Stil": "Modern",
+      "Işık Geçirgenliği": "Filtreleme özelliği sayesinde göz yormayan doğal aydınlık",
+      "Desen": "Düz"
+    },
+    "care": {
+      "Kurutma": "Gölgede kurutun",
+      "Temizleme": "Nemli bezle silinebilir, yıkama gerektirmez"
+    }
+  },
+  {
     "id": "izgili-tl-perde-1774588078918",
     "name": "Çizgili Tül Perde",
     "desc": "Bu özel dokuma, Anadolu'nun köklü zarafetini modern mekanlara taşıyor.",
