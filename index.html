@@ -355,6 +355,12 @@ footer span{color:var(--gold)}
   <button onclick="go('about');toggleMenu()"><i class="fas fa-store" style="margin-right:10px;color:var(--gold)"></i>Hakkımızda</button>
   <button onclick="go('cart');toggleMenu()"><i class="fas fa-bag-shopping" style="margin-right:10px;color:var(--gold)"></i>Sepetim</button>
   <button onclick="go('contact');toggleMenu()"><i class="fas fa-map-marker-alt" style="margin-right:10px;color:var(--gold)"></i>İletişim</button>
+<button onclick="window.location.href='hesap.html'; toggleMenu()">
+    <i class="far fa-user"></i> <span id="userNameTextMobile">Giriş Yap</span>
+</button>
+<button onclick="window.location.href='hesap.html'; toggleMenu()" style="width: 100%; text-align: left; padding: 15px; background: none; border: none; color: white; display: flex; align-items: center; gap: 10px; font-family: inherit;">
+    <i class="far fa-user"></i> <span id="userNameTextMobile">Giriş Yap</span>
+</button>
 </div>
 <div id="menuOverlay" onclick="toggleMenu()"></div>
 <div class="overlay" id="globalOverlay" onclick="closeAllPopups()"></div>
@@ -413,6 +419,7 @@ footer span{color:var(--gold)}
       <button class="nav-link" id="userAccountBtn" onclick="window.location.href='hesap.html'">
     <i class="far fa-user"></i> <span id="userNameText">Giriş Yap</span>
 </button>
+
 
 
     </nav>
@@ -1076,20 +1083,24 @@ function initObserver(){
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Tarayıcı hafızasından kullanıcıyı al
-    const user = JSON.parse(localStorage.getItem('user'));
-    
-    // Eğer kullanıcı giriş yapmışsa ve ismi varsa
-    if (user && user.ad_soyad) {
-        const isimAlanı = document.getElementById('userNameText');
-        if (isimAlanı) {
-            // Sadece ilk ismi göster (Örn: Muhammed Emin -> Muhammed)
-            const ilkIsim = user.ad_soyad.split(' ')[0];
-            isimAlanı.innerText = ilkIsim;
+    const userData = localStorage.getItem('user');
+    if (userData) {
+        const user = JSON.parse(userData);
+        if (user && user.ad_soyad) {
+            const ilkIsim = user.ad_soyad.trim().split(' ')[0];
+            
+            // Masaüstü ismini değiştir
+            const dIsim = document.getElementById('userNameText');
+            if (dIsim) dIsim.innerText = ilkIsim;
+            
+            // Mobil ismini değiştir
+            const mIsim = document.getElementById('userNameTextMobile');
+            if (mIsim) mIsim.innerText = ilkIsim;
         }
     }
 });
 </script>
+
 
 </body>
 </html>
