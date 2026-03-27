@@ -1,95 +1,622 @@
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş & Kayıt - Göçmen Perde</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .auth-card { background: white; width: 90%; max-width: 400px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
-        .tabs { display: flex; background: #eee; }
-        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.3s; color: #666; }
-        .tab.active { background: white; color: #b08d57; border-bottom: 3px solid #b08d57; }
-        .form-area { padding: 30px; }
-        .form-group { display: none; }
-        .form-group.active { display: block; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; background: #b08d57; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .btn:disabled { background: #ccc; }
-        .logo-area { text-align: center; padding: 20px; background: #1a1a1a; color: white; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hesabım — Göçmen Perde</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+  --gold:#c9a84c;--gold-light:#e8d5a3;--ink:#0f0e0d;--cream:#f7f4ef;
+  --warm-white:#fdfcf9;--slate:#4a4743;--border:rgba(201,168,76,0.2);
+  --shadow:0 20px 60px rgba(0,0,0,0.08);--radius:12px;
+  --ff:'Cormorant Garamond',serif;--fb:'DM Sans',sans-serif;
+  --red:#c0392b;--green:#27ae60;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);font-weight:300;background:var(--cream);color:var(--ink);min-height:100vh}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+
+/* ── Header ── */
+.site-header{position:sticky;top:0;z-index:100;background:rgba(247,244,239,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(–border);padding:0 5%}
+.header-inner{height:72px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:14px;text-decoration:none;cursor:pointer}
+.logo-icon{width:40px;height:40px;background:var(–ink);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0}
+.logo-icon::before{content:’’;position:absolute;width:22px;height:26px;background:var(–gold);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.logo-icon::after{content:’’;position:absolute;width:11px;height:13px;background:var(–ink);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.logo-text{line-height:1}
+.logo-main{font-family:var(–ff);font-size:1.4rem;font-weight:700;color:var(–ink);letter-spacing:2px}
+.logo-main em{color:var(–gold);font-style:normal}
+.logo-sub{font-size:0.58rem;letter-spacing:5px;color:var(–gold);text-transform:uppercase;margin-top:2px;display:block}
+.back-btn{display:flex;align-items:center;gap:8px;background:none;border:1px solid var(–border);border-radius:50px;padding:8px 18px;font-family:var(–fb);font-size:0.75rem;color:var(–slate);cursor:pointer;transition:0.3s;letter-spacing:1px}
+.back-btn:hover{border-color:var(–gold);color:var(–gold)}
+
+/* ── Auth Ekranı ── */
+#authScreen{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 72px);padding:40px 20px}
+.auth-card{background:white;border-radius:20px;border:1px solid var(–border);box-shadow:var(–shadow);width:100%;max-width:440px;overflow:hidden}
+.auth-tabs{display:flex;background:var(–cream)}
+.auth-tab{flex:1;padding:16px;background:none;border:none;font-family:var(–fb);font-size:0.78rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;color:var(–slate);border-bottom:2px solid transparent;transition:0.3s}
+.auth-tab.active{color:var(–ink);border-bottom-color:var(–gold);background:white}
+.auth-body{padding:36px}
+.auth-title{font-family:var(–ff);font-size:1.9rem;font-weight:700;margin-bottom:6px}
+.auth-subtitle{font-size:0.8rem;color:var(–slate);margin-bottom:28px;line-height:1.6}
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.fg label{font-size:0.62rem;letter-spacing:3px;text-transform:uppercase;color:var(–slate);font-weight:600}
+.fg input{padding:13px 16px;border:1px solid var(–border);border-radius:8px;font-family:var(–fb);font-size:0.9rem;background:var(–cream);transition:border-color 0.2s;color:var(–ink)}
+.fg input:focus{outline:none;border-color:var(–gold)}
+.auth-btn{width:100%;padding:15px;background:var(–ink);color:white;border:none;border-radius:10px;font-family:var(–fb);font-size:0.8rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:0.3s;margin-top:8px}
+.auth-btn:hover{background:var(–gold);color:var(–ink)}
+.auth-btn:disabled{opacity:0.6;cursor:not-allowed}
+.auth-error{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:8px;padding:10px 14px;font-size:0.82rem;color:var(–red);margin-top:12px;display:none}
+.auth-error.show{display:block}
+
+/* ── Panel ── */
+#panelScreen{display:none;min-height:calc(100vh - 72px)}
+#panelScreen.show{display:block}
+.panel-layout{display:grid;grid-template-columns:260px 1fr;gap:0;min-height:calc(100vh - 72px)}
+@media(max-width:768px){.panel-layout{grid-template-columns:1fr}}
+
+/* ── Sidebar ── */
+.panel-sidebar{background:var(–ink);color:white;padding:0}
+.user-card{padding:28px 24px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.user-avatar{width:52px;height:52px;background:var(–gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(–ff);font-size:1.5rem;font-weight:700;color:var(–ink);margin-bottom:14px}
+.user-name{font-family:var(–ff);font-size:1.2rem;font-weight:600;color:white;margin-bottom:4px}
+.user-email{font-size:0.72rem;color:rgba(255,255,255,0.45);letter-spacing:1px}
+.panel-nav{padding:16px 0}
+.panel-nav-item{display:flex;align-items:center;gap:12px;padding:13px 24px;cursor:pointer;color:rgba(255,255,255,0.6);font-size:0.83rem;font-weight:500;border-left:3px solid transparent;transition:0.2s}
+.panel-nav-item:hover{background:rgba(255,255,255,0.05);color:white}
+.panel-nav-item.active{background:rgba(201,168,76,0.1);color:var(–gold);border-left-color:var(–gold)}
+.panel-nav-item i{width:18px;font-size:0.88rem}
+.panel-sidebar-footer{padding:20px 24px;border-top:1px solid rgba(255,255,255,0.08)}
+.logout-link{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.4);font-size:0.78rem;cursor:pointer;transition:0.2s;background:none;border:none;width:100%;padding:0;font-family:var(–fb)}
+.logout-link:hover{color:var(–red)}
+
+/* Mobile nav */
+.mobile-nav{display:none;background:var(–ink);padding:12px;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:768px){
+.panel-sidebar{display:none}
+.mobile-nav{display:flex}
+}
+.mobile-nav-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 16px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,0.5);font-size:0.62rem;letter-spacing:1px;text-transform:uppercase;border:none;background:none;font-family:var(–fb);transition:0.2s}
+.mobile-nav-item i{font-size:1.1rem}
+.mobile-nav-item.active{background:rgba(201,168,76,0.15);color:var(–gold)}
+
+/* ── Panel Main ── */
+.panel-main{padding:36px;background:var(–warm-white);overflow-y:auto}
+@media(max-width:768px){.panel-main{padding:20px}}
+.panel-page{display:none}.panel-page.active{display:block}
+.panel-title{font-family:var(–ff);font-size:2rem;font-weight:700;margin-bottom:6px}
+.panel-title em{color:var(–gold);font-style:italic}
+.panel-subtitle{font-size:0.82rem;color:var(–slate);margin-bottom:28px}
+
+/* ── Kart ── */
+.card{background:white;border:1px solid var(–border);border-radius:var(–radius);padding:24px;margin-bottom:16px}
+.card-title{font-family:var(–ff);font-size:1.2rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.card-title i{color:var(–gold);font-size:1rem}
+
+/* ── Form ── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+.form-btn{padding:12px 28px;background:var(–ink);color:white;border:none;border-radius:8px;font-family:var(–fb);font-size:0.78rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:0.3s}
+.form-btn:hover{background:var(–gold);color:var(–ink)}
+.form-btn-outline{background:white;color:var(–slate);border:1px solid var(–border)}.form-btn-outline:hover{border-color:var(–gold);color:var(–gold);background:white}
+.form-btn-danger{background:var(–red)}.form-btn-danger:hover{background:#a93226;color:white}
+.success-msg{background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.2);border-radius:8px;padding:10px 14px;font-size:0.82rem;color:var(–green);display:none}
+.success-msg.show{display:block}
+.error-msg{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:8px;padding:10px 14px;font-size:0.82rem;color:var(–red);display:none}
+.error-msg.show{display:block}
+
+/* ── Siparişler ── */
+.order-card{background:white;border:1px solid var(–border);border-radius:var(–radius);overflow:hidden;margin-bottom:16px}
+.order-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:#fafafa;border-bottom:1px solid var(–border);flex-wrap:wrap;gap:8px}
+.order-id{font-family:var(–ff);font-size:1rem;font-weight:600}
+.order-date{font-size:0.75rem;color:var(–slate)}
+.order-badge{padding:4px 12px;border-radius:20px;font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.badge-beklemede{background:rgba(201,168,76,0.12);color:#8c6d2f}
+.badge-hazirlaniyor{background:rgba(41,128,185,0.12);color:#1a5276}
+.badge-teslim{background:rgba(39,174,96,0.12);color:#1a6b3c}
+.badge-iptal{background:rgba(192,57,43,0.1);color:var(–red)}
+.order-body{padding:20px}
+.order-items{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.order-item{display:flex;justify-content:space-between;align-items:center;font-size:0.84rem;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.04)}
+.order-item:last-child{border-bottom:none}
+.order-total{text-align:right;font-family:var(–ff);font-size:1.3rem;font-weight:700;color:var(–ink)}
+.order-total span{color:var(–gold)}
+.empty-state{text-align:center;padding:60px 20px;color:var(–slate)}
+.empty-state i{font-size:3rem;opacity:0.2;display:block;margin-bottom:16px}
+.empty-state h3{font-family:var(–ff);font-size:1.4rem;margin-bottom:8px}
+.empty-state p{font-size:0.84rem;line-height:1.7}
+
+/* ── Adresler ── */
+.address-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:20px}
+.address-card{background:white;border:1px solid var(–border);border-radius:var(–radius);padding:20px;position:relative}
+.address-title{font-weight:600;font-size:0.9rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.address-title i{color:var(–gold);font-size:0.85rem}
+.address-text{font-size:0.82rem;color:var(–slate);line-height:1.7}
+.address-del{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(192,57,43,0.08);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(–red);font-size:0.75rem;transition:0.2s}
+.address-del:hover{background:var(–red);color:white}
+
+/* ── Favoriler ── */
+.fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.fav-card{background:white;border:1px solid var(–border);border-radius:var(–radius);padding:18px;display:flex;align-items:center;gap:12px}
+.fav-card i{color:var(–red);font-size:1.1rem;flex-shrink:0}
+.fav-name{font-size:0.88rem;font-weight:500;flex:1}
+.fav-remove{background:none;border:none;color:var(–slate);cursor:pointer;font-size:0.85rem;transition:color 0.2s}
+.fav-remove:hover{color:var(–red)}
+
+/* ── Dashboard istatistikler ── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr}}
+.stat-box{background:white;border:1px solid var(–border);border-radius:var(–radius);padding:20px;position:relative;overflow:hidden}
+.stat-box::before{content:’’;position:absolute;top:0;left:0;right:0;height:3px;background:var(–gold)}
+.stat-num{font-family:var(–ff);font-size:2rem;font-weight:700;color:var(–ink);line-height:1}
+.stat-lbl{font-size:0.7rem;color:var(–slate);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(–ink);color:white;padding:14px 22px;border-radius:10px;font-size:0.82rem;border-left:3px solid var(–gold);transform:translateX(120%);transition:transform 0.4s;pointer-events:none}
+.toast.show{transform:translateX(0)}
+@media(max-width:600px){.toast{right:12px;left:12px;bottom:16px;transform:translateY(120%)}.toast.show{transform:translateY(0)}}
+
+/* Loading spinner */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:white;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+
 </head>
 <body>
 
-<div class="auth-card">
-    <div class="logo-area">
-        <h2 style="margin:0; letter-spacing: 2px;">GÖÇMEN PERDE</h2>
-    </div>
-    <div class="tabs">
-        <div id="loginTab" class="tab active" onclick="showForm('login')">GİRİŞ YAP</div>
-        <div id="registerTab" class="tab" onclick="showForm('register')">KAYIT OL</div>
+<!-- Header -->
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" href="/">
+      <div class="logo-icon"></div>
+      <div class="logo-text">
+        <span class="logo-main">Göçmen <em>Perde</em></span>
+        <span class="logo-sub">Bursa · Est. 1993</span>
+      </div>
+    </a>
+    <button class="back-btn" onclick="window.location.href='/'">
+      <i class="fas fa-arrow-left"></i> Ana Sayfaya Dön
+    </button>
+  </div>
+</header>
+
+<!-- AUTH EKRANI -->
+
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Giriş Yap</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Kayıt Ol</button>
     </div>
 
-    <div class="form-area">
-        <div id="loginForm" class="form-group active">
-            <input type="email" id="lEmail" placeholder="E-posta Adresi">
-            <input type="password" id="lPass" placeholder="Şifre">
-            <button class="btn" onclick="submitForm('login')" id="lBtn">GİRİŞ YAP</button>
-        </div>
-
-        <div id="registerForm" class="form-group">
-            <input type="text" id="rName" placeholder="Ad Soyad">
-            <input type="email" id="rEmail" placeholder="E-posta">
-            <input type="text" id="rPhone" placeholder="Telefon (05xx...)">
-            <input type="password" id="rPass" placeholder="Şifre">
-            <button class="btn" onclick="submitForm('register')" id="rBtn">HESAP OLUŞTUR</button>
-        </div>
-    </div>
+```
+<!-- Giriş -->
+<div class="auth-body" id="loginForm">
+  <h2 class="auth-title">Hoş <em style="color:var(--gold);font-style:italic">Geldiniz</em></h2>
+  <p class="auth-subtitle">Siparişlerinizi takip etmek ve kolay alışveriş için giriş yapın.</p>
+  <div class="fg"><label>E-posta Adresi</label><input type="email" id="login-email" placeholder="ornek@email.com" autocomplete="email"></div>
+  <div class="fg"><label>Şifre</label><input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password"></div>
+  <div class="auth-error" id="loginError"></div>
+  <button class="auth-btn" id="loginBtn" onclick="doLogin()"><i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Giriş Yap</button>
 </div>
 
+<!-- Kayıt -->
+<div class="auth-body" id="registerForm" style="display:none">
+  <h2 class="auth-title">Hesap <em style="color:var(--gold);font-style:italic">Oluştur</em></h2>
+  <p class="auth-subtitle">Ücretsiz hesap açın, siparişlerinizi kolayca takip edin.</p>
+  <div class="fg"><label>Ad Soyad *</label><input type="text" id="reg-name" placeholder="Adınız Soyadınız"></div>
+  <div class="fg"><label>E-posta Adresi *</label><input type="email" id="reg-email" placeholder="ornek@email.com"></div>
+  <div class="fg"><label>Telefon</label><input type="tel" id="reg-phone" placeholder="05xx xxx xx xx"></div>
+  <div class="fg"><label>Şifre *</label><input type="password" id="reg-pass" placeholder="En az 6 karakter"></div>
+  <div class="auth-error" id="registerError"></div>
+  <button class="auth-btn" id="registerBtn" onclick="doRegister()"><i class="fas fa-user-plus" style="margin-right:8px"></i>Kayıt Ol</button>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- PANEL EKRANI -->
+
+<div id="panelScreen">
+
+  <!-- Mobile Nav -->
+
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-nav-item active" onclick="showPanel('dashboard')"><i class="fas fa-home"></i>Ana</button>
+    <button class="mobile-nav-item" onclick="showPanel('orders')"><i class="fas fa-bag-shopping"></i>Siparişler</button>
+    <button class="mobile-nav-item" onclick="showPanel('favorites')"><i class="fas fa-heart"></i>Favoriler</button>
+    <button class="mobile-nav-item" onclick="showPanel('addresses')"><i class="fas fa-map-marker-alt"></i>Adresler</button>
+    <button class="mobile-nav-item" onclick="showPanel('profile')"><i class="fas fa-user"></i>Profil</button>
+    <button class="mobile-nav-item" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i>Çıkış</button>
+  </div>
+
+  <div class="panel-layout">
+
+```
+<!-- Sidebar -->
+<aside class="panel-sidebar">
+  <div class="user-card">
+    <div class="user-avatar" id="sidebarAvatar">Z</div>
+    <div class="user-name" id="sidebarName">Yükleniyor...</div>
+    <div class="user-email" id="sidebarEmail">—</div>
+  </div>
+  <nav class="panel-nav">
+    <div class="panel-nav-item active" onclick="showPanel('dashboard')"><i class="fas fa-home"></i> Özet</div>
+    <div class="panel-nav-item" onclick="showPanel('orders')"><i class="fas fa-bag-shopping"></i> Siparişlerim</div>
+    <div class="panel-nav-item" onclick="showPanel('favorites')"><i class="fas fa-heart"></i> Favorilerim</div>
+    <div class="panel-nav-item" onclick="showPanel('addresses')"><i class="fas fa-map-marker-alt"></i> Adres Defteri</div>
+    <div class="panel-nav-item" onclick="showPanel('profile')"><i class="fas fa-user-edit"></i> Profil & Şifre</div>
+    <div class="panel-nav-item" onclick="window.location.href='/'"><i class="fas fa-store"></i> Alışverişe Devam</div>
+  </nav>
+  <div class="panel-sidebar-footer">
+    <button class="logout-link" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</button>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="panel-main">
+
+  <!-- Özet -->
+  <div class="panel-page active" id="page-dashboard">
+    <h1 class="panel-title">Merhaba, <em id="welcomeName">...</em> 👋</h1>
+    <p class="panel-subtitle">Hesap özetiniz aşağıda yer almaktadır.</p>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="dashOrders">—</div><div class="stat-lbl">Sipariş</div></div>
+      <div class="stat-box"><div class="stat-num" id="dashFavs">—</div><div class="stat-lbl">Favori</div></div>
+      <div class="stat-box"><div class="stat-num" id="dashAddrs">—</div><div class="stat-lbl">Adres</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-info-circle"></i> Son Sipariş</div>
+      <div id="dashLastOrder"><p style="color:var(--slate);font-size:0.84rem">Henüz sipariş vermediniz.</p></div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
+      <button class="form-btn" onclick="window.location.href='/'"><i class="fas fa-store" style="margin-right:8px"></i>Alışverişe Git</button>
+      <button class="form-btn form-btn-outline" onclick="showPanel('orders')"><i class="fas fa-bag-shopping" style="margin-right:8px"></i>Siparişlerimi Gör</button>
+    </div>
+  </div>
+
+  <!-- Siparişler -->
+  <div class="panel-page" id="page-orders">
+    <h1 class="panel-title">Sipariş <em>Geçmişim</em></h1>
+    <p class="panel-subtitle">Tüm siparişlerinizi buradan takip edebilirsiniz.</p>
+    <div id="ordersList"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div></div>
+  </div>
+
+  <!-- Favoriler -->
+  <div class="panel-page" id="page-favorites">
+    <h1 class="panel-title">Favori <em>Ürünlerim</em></h1>
+    <p class="panel-subtitle">Beğendiğiniz ürünleri kaydedin, kolayca bulun.</p>
+    <div id="favoritesList"></div>
+  </div>
+
+  <!-- Adresler -->
+  <div class="panel-page" id="page-addresses">
+    <h1 class="panel-title">Adres <em>Defterim</em></h1>
+    <p class="panel-subtitle">Kayıtlı teslimat adresleriniz.</p>
+    <div class="address-grid" id="addressGrid"></div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-plus-circle"></i> Yeni Adres Ekle</div>
+      <div class="fg"><label>Adres Başlığı</label><input type="text" id="addr-title" placeholder="Ev, İş..."></div>
+      <div class="fg"><label>Adres</label><textarea id="addr-text" rows="3" style="padding:13px 16px;border:1px solid var(--border);border-radius:8px;font-family:var(--fb);font-size:0.9rem;background:var(--cream);resize:vertical;width:100%" placeholder="Mahalle, Sokak, No, Daire..."></textarea></div>
+      <div class="success-msg" id="addrSuccess">Adres kaydedildi!</div>
+      <div class="error-msg" id="addrError"></div>
+      <button class="form-btn" style="margin-top:12px" onclick="addAddress()"><i class="fas fa-save" style="margin-right:8px"></i>Kaydet</button>
+    </div>
+  </div>
+
+  <!-- Profil -->
+  <div class="panel-page" id="page-profile">
+    <h1 class="panel-title">Profil & <em>Şifre</em></h1>
+    <p class="panel-subtitle">Hesap bilgilerinizi güncelleyin.</p>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-user"></i> Kişisel Bilgiler</div>
+      <div class="form-row">
+        <div class="fg"><label>Ad Soyad</label><input type="text" id="prof-name" placeholder="Adınız Soyadınız"></div>
+        <div class="fg"><label>Telefon</label><input type="tel" id="prof-phone" placeholder="05xx xxx xx xx"></div>
+      </div>
+      <div class="fg"><label>E-posta (değiştirilemez)</label><input type="email" id="prof-email" disabled style="opacity:0.6;cursor:not-allowed"></div>
+      <div class="success-msg" id="profSuccess">Bilgiler güncellendi!</div>
+      <div class="error-msg" id="profError"></div>
+      <button class="form-btn" style="margin-top:8px" onclick="updateProfile()"><i class="fas fa-save" style="margin-right:8px"></i>Güncelle</button>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-lock"></i> Şifre Değiştir</div>
+      <div class="fg"><label>Mevcut Şifre</label><input type="password" id="pass-old" placeholder="Mevcut şifreniz"></div>
+      <div class="fg"><label>Yeni Şifre</label><input type="password" id="pass-new" placeholder="En az 6 karakter"></div>
+      <div class="fg"><label>Yeni Şifre Tekrar</label><input type="password" id="pass-new2" placeholder="Tekrar girin"></div>
+      <div class="success-msg" id="passSuccess">Şifre değiştirildi!</div>
+      <div class="error-msg" id="passError"></div>
+      <button class="form-btn" style="margin-top:8px" onclick="changePassword()"><i class="fas fa-key" style="margin-right:8px"></i>Şifreyi Değiştir</button>
+    </div>
+  </div>
+
+</main>
+```
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-    // URL'den hangi sekmenin açılacağını anlar (mod=register gibi)
-    const urlParams = new URLSearchParams(window.location.search);
-    if(urlParams.get('mod') === 'register') showForm('register');
+const API = '';
+let currentUser = null;
+let userOrders  = [];
 
-    function showForm(type) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.form-group').forEach(f => f.classList.remove('active'));
-        document.getElementById(type + 'Tab').classList.add('active');
-        document.getElementById(type + 'Form').classList.add('active');
-    }
+// ── Token ──
+function getToken(){ return localStorage.getItem('gp_token'); }
+function setToken(t){ localStorage.setItem('gp_token', t); }
+function clearToken(){ localStorage.removeItem('gp_token'); }
 
-    async function submitForm(type) {
-        const btn = document.getElementById(type === 'login' ? 'lBtn' : 'rBtn');
-        const data = type === 'login' 
-            ? { action: 'login', email: document.getElementById('lEmail').value, sifre: document.getElementById('lPass').value }
-            : { action: 'register', ad_soyad: document.getElementById('rName').value, email: document.getElementById('rEmail').value, telefon: document.getElementById('rPhone').value, sifre: document.getElementById('rPass').value };
+// ── Favoriler (localStorage) ──
+function getFavorites(){ try{ return JSON.parse(localStorage.getItem('gpFav')||'[]'); }catch{ return []; } }
 
-        btn.disabled = true;
-        btn.innerText = 'Bekleyiniz...';
+// ── Auth Tab ──
+function switchAuthTab(tab){
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',['login','register'][i]===tab));
+  document.getElementById('loginForm').style.display    = tab==='login'    ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab==='register' ? 'block' : 'none';
+}
 
-        try {
-            const response = await fetch('/api/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const res = await response.json();
+// ── Giriş ──
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const sifre = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('loginError');
+  const btn   = document.getElementById('loginBtn');
+  errEl.classList.remove('show');
+  if(!email||!sifre){ errEl.textContent='Email ve şifre gerekli.'; errEl.classList.add('show'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Giriş yapılıyor...';
+  try{
+    const r = await fetch('/api/auth?action=login',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,sifre}) });
+    const d = await r.json();
+    if(!r.ok){ errEl.textContent=d.error; errEl.classList.add('show'); }
+    else { setToken(d.token); currentUser=d.user; showPanelScreen(); }
+  }catch(e){ errEl.textContent='Bağlantı hatası.'; errEl.classList.add('show'); }
+  btn.disabled=false; btn.innerHTML='<i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Giriş Yap';
+}
 
-            if(res.success) {
-                alert(type === 'login' ? 'Hoş geldiniz!' : 'Kaydınız başarıyla oluşturuldu!');
-                window.location.href = '/';
-            } else {
-                alert('Hata: ' + (res.error || 'Bilgiler yanlış.'));
-            }
-        } catch (err) {
-            alert('Bağlantı Hatası! Vercel Logs kısmını kontrol edin.');
-        } finally {
-            btn.disabled = false;
-            btn.innerText = type === 'login' ? 'GİRİŞ YAP' : 'HESAP OLUŞTUR';
-        }
-    }
+// ── Kayıt ──
+async function doRegister(){
+  const ad_soyad = document.getElementById('reg-name').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const telefon  = document.getElementById('reg-phone').value.trim();
+  const sifre    = document.getElementById('reg-pass').value;
+  const errEl    = document.getElementById('registerError');
+  const btn      = document.getElementById('registerBtn');
+  errEl.classList.remove('show');
+  if(!ad_soyad||!email||!sifre){ errEl.textContent='Ad soyad, email ve şifre zorunludur.'; errEl.classList.add('show'); return; }
+  if(sifre.length<6){ errEl.textContent='Şifre en az 6 karakter olmalı.'; errEl.classList.add('show'); return; }
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Kayıt yapılıyor...';
+  try{
+    const r = await fetch('/api/auth?action=register',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ad_soyad,email,telefon,sifre}) });
+    const d = await r.json();
+    if(!r.ok){ errEl.textContent=d.error; errEl.classList.add('show'); }
+    else { setToken(d.token); currentUser=d.user; showPanelScreen(); showToast('🎉 Hoş geldiniz, '+d.user.ad_soyad+'!'); }
+  }catch(e){ errEl.textContent='Bağlantı hatası.'; errEl.classList.add('show'); }
+  btn.disabled=false; btn.innerHTML='<i class="fas fa-user-plus" style="margin-right:8px"></i>Kayıt Ol';
+}
+
+// ── Çıkış ──
+function doLogout(){
+  clearToken(); currentUser=null; userOrders=[];
+  document.getElementById('panelScreen').classList.remove('show');
+  document.getElementById('panelScreen').style.display='none';
+  document.getElementById('authScreen').style.display='flex';
+}
+
+// ── Panel Göster ──
+function showPanelScreen(){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('panelScreen').classList.add('show');
+  document.getElementById('panelScreen').style.display='block';
+  fillUserUI();
+  loadOrders();
+  showPanel('dashboard');
+}
+
+function fillUserUI(){
+  if(!currentUser) return;
+  const initials = (currentUser.ad_soyad||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('sidebarAvatar').textContent  = initials;
+  document.getElementById('sidebarName').textContent    = currentUser.ad_soyad;
+  document.getElementById('sidebarEmail').textContent   = currentUser.email;
+  document.getElementById('welcomeName').textContent    = currentUser.ad_soyad.split(' ')[0];
+  document.getElementById('prof-name').value  = currentUser.ad_soyad;
+  document.getElementById('prof-phone').value = currentUser.telefon||'';
+  document.getElementById('prof-email').value = currentUser.email;
+}
+
+// ── Panel Sayfa Geçişi ──
+function showPanel(id){
+  document.querySelectorAll('.panel-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.panel-nav-item').forEach(n=>{
+    n.classList.toggle('active', n.getAttribute('onclick')?.includes("'"+id+"'"));
+  });
+  document.querySelectorAll('.mobile-nav-item').forEach(n=>{
+    n.classList.toggle('active', n.getAttribute('onclick')?.includes("'"+id+"'"));
+  });
+  if(id==='orders')    renderOrders();
+  if(id==='favorites') renderFavorites();
+  if(id==='addresses') loadAddresses();
+  if(id==='dashboard') renderDashboard();
+}
+
+// ── Siparişler ──
+async function loadOrders(){
+  try{
+    const r = await fetch('/api/orders?action=my-orders',{headers:{Authorization:'Bearer '+getToken()}});
+    const d = await r.json();
+    if(d.success) userOrders = d.orders;
+  }catch{}
+}
+
+function renderOrders(){
+  const el = document.getElementById('ordersList');
+  if(!userOrders.length){
+    el.innerHTML=`<div class="empty-state"><i class="fas fa-bag-shopping"></i><h3>Henüz siparişiniz yok</h3><p>Alışverişe başlamak için koleksiyonumuzu inceleyin.</p><br><button class="form-btn" onclick="window.location.href='/'">Alışverişe Başla</button></div>`;
+    return;
+  }
+  const statusMap={Beklemede:'beklemede',Hazırlanıyor:'hazirlaniyor','Teslim Edildi':'teslim',İptal:'iptal'};
+  el.innerHTML = userOrders.map(o=>{
+    const items = typeof o.urunler==='string' ? JSON.parse(o.urunler) : o.urunler;
+    const cls = statusMap[o.durum]||'beklemede';
+    const date = new Date(o.created_at).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+    return `<div class="order-card">
+      <div class="order-header">
+        <div><div class="order-id">Sipariş #${o.id}</div><div class="order-date">${date}</div></div>
+        <span class="order-badge badge-${cls}">${o.durum||'Beklemede'}</span>
+      </div>
+      <div class="order-body">
+        <div class="order-items">
+          ${items.map(i=>`<div class="order-item"><span>${i.name} × ${i.qty} ${i.isMeter?'mt':'adet'}</span><span style="font-weight:600">${i.sub.toLocaleString('tr-TR')} TL</span></div>`).join('')}
+        </div>
+        <div class="order-total">Toplam: <span>${parseFloat(o.toplam).toLocaleString('tr-TR')} TL</span></div>
+        ${o.siparis_notu?`<div style="margin-top:10px;font-size:0.78rem;color:var(--slate)">Not: ${o.siparis_notu}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Favoriler ──
+function renderFavorites(){
+  const favs = getFavorites();
+  const el   = document.getElementById('favoritesList');
+  document.getElementById('dashFavs').textContent = favs.length;
+  if(!favs.length){
+    el.innerHTML=`<div class="empty-state"><i class="fas fa-heart"></i><h3>Favori ürününüz yok</h3><p>Ürünlerin yanındaki kalp ikonuna tıklayarak favorilerinize ekleyebilirsiniz.</p></div>`;
+    return;
+  }
+  el.innerHTML=`<div class="fav-grid">${favs.map((f,i)=>`<div class="fav-card"><i class="fas fa-heart"></i><span class="fav-name">${f.name}</span><button class="fav-remove" onclick="removeFav(${i})" title="Kaldır"><i class="fas fa-xmark"></i></button></div>`).join('')}</div>`;
+}
+
+function removeFav(idx){
+  const favs = getFavorites(); favs.splice(idx,1);
+  localStorage.setItem('gpFav', JSON.stringify(favs));
+  renderFavorites(); showToast('Favorilerden çıkarıldı');
+}
+
+// ── Adresler ──
+async function loadAddresses(){
+  try{
+    const r = await fetch('/api/auth?action=addresses',{headers:{Authorization:'Bearer '+getToken()}});
+    const d = await r.json();
+    if(d.success) renderAddresses(d.addresses);
+  }catch{}
+}
+
+function renderAddresses(list){
+  const grid = document.getElementById('addressGrid');
+  document.getElementById('dashAddrs').textContent = list.length;
+  if(!list.length){ grid.innerHTML='<p style="color:var(--slate);font-size:0.84rem;margin-bottom:16px">Kayıtlı adresiniz yok.</p>'; return; }
+  grid.innerHTML = list.map(a=>`<div class="address-card">
+    <div class="address-title"><i class="fas fa-map-marker-alt"></i>${a.baslik}</div>
+    <div class="address-text">${a.adres}</div>
+    <button class="address-del" onclick="deleteAddress(${a.id})" title="Sil"><i class="fas fa-trash"></i></button>
+  </div>`).join('');
+}
+
+async function addAddress(){
+  const baslik = document.getElementById('addr-title').value.trim();
+  const adres  = document.getElementById('addr-text').value.trim();
+  const suc    = document.getElementById('addrSuccess');
+  const err    = document.getElementById('addrError');
+  suc.classList.remove('show'); err.classList.remove('show');
+  if(!baslik||!adres){ err.textContent='Başlık ve adres zorunludur.'; err.classList.add('show'); return; }
+  try{
+    const r = await fetch('/api/auth?action=add-address',{method:'POST',headers:{Authorization:'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({baslik,adres})});
+    const d = await r.json();
+    if(d.success){ suc.classList.add('show'); document.getElementById('addr-title').value=''; document.getElementById('addr-text').value=''; loadAddresses(); setTimeout(()=>suc.classList.remove('show'),3000); }
+    else { err.textContent=d.error; err.classList.add('show'); }
+  }catch(e){ err.textContent='Hata oluştu.'; err.classList.add('show'); }
+}
+
+async function deleteAddress(id){
+  if(!confirm('Bu adres silinsin mi?')) return;
+  try{
+    await fetch('/api/auth?action=delete-address',{method:'POST',headers:{Authorization:'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({id})});
+    loadAddresses(); showToast('Adres silindi');
+  }catch{}
+}
+
+// ── Profil ──
+async function updateProfile(){
+  const ad_soyad = document.getElementById('prof-name').value.trim();
+  const telefon  = document.getElementById('prof-phone').value.trim();
+  const suc = document.getElementById('profSuccess'), err = document.getElementById('profError');
+  suc.classList.remove('show'); err.classList.remove('show');
+  if(!ad_soyad){ err.textContent='Ad soyad zorunludur.'; err.classList.add('show'); return; }
+  try{
+    const r = await fetch('/api/auth?action=update',{method:'PUT',headers:{Authorization:'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({ad_soyad,telefon})});
+    const d = await r.json();
+    if(d.success){ suc.classList.add('show'); currentUser.ad_soyad=ad_soyad; fillUserUI(); setTimeout(()=>suc.classList.remove('show'),3000); }
+    else { err.textContent=d.error; err.classList.add('show'); }
+  }catch{ err.textContent='Hata oluştu.'; err.classList.add('show'); }
+}
+
+async function changePassword(){
+  const eski_sifre = document.getElementById('pass-old').value;
+  const yeni_sifre = document.getElementById('pass-new').value;
+  const yeni2      = document.getElementById('pass-new2').value;
+  const suc = document.getElementById('passSuccess'), err = document.getElementById('passError');
+  suc.classList.remove('show'); err.classList.remove('show');
+  if(yeni_sifre !== yeni2){ err.textContent='Yeni şifreler eşleşmiyor.'; err.classList.add('show'); return; }
+  try{
+    const r = await fetch('/api/auth?action=change-password',{method:'POST',headers:{Authorization:'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({eski_sifre,yeni_sifre})});
+    const d = await r.json();
+    if(d.success){ suc.classList.add('show'); ['pass-old','pass-new','pass-new2'].forEach(id=>document.getElementById(id).value=''); setTimeout(()=>suc.classList.remove('show'),3000); }
+    else { err.textContent=d.error; err.classList.add('show'); }
+  }catch{ err.textContent='Hata oluştu.'; err.classList.add('show'); }
+}
+
+// ── Dashboard ──
+function renderDashboard(){
+  document.getElementById('dashOrders').textContent = userOrders.length;
+  document.getElementById('dashFavs').textContent   = getFavorites().length;
+  if(userOrders.length){
+    const last = userOrders[0];
+    const date = new Date(last.created_at).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('dashLastOrder').innerHTML=`<p style="font-size:0.84rem;color:var(--slate)">Sipariş #${last.id} — ${date}</p><p style="font-family:var(--ff);font-size:1.3rem;font-weight:700;color:var(--gold);margin-top:4px">${parseFloat(last.toplam).toLocaleString('tr-TR')} TL</p><span style="display:inline-block;margin-top:8px;padding:4px 12px;border-radius:20px;font-size:0.65rem;font-weight:700;letter-spacing:1px;background:rgba(201,168,76,0.1);color:#8c6d2f">${last.durum||'Beklemede'}</span>`;
+  }
+}
+
+// ── Toast ──
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
+
+// ── Init ──
+async function init(){
+  const token = getToken();
+  if(token){
+    try{
+      const r = await fetch('/api/auth?action=profile',{headers:{Authorization:'Bearer '+token}});
+      const d = await r.json();
+      if(d.success){ currentUser=d.user; showPanelScreen(); return; }
+    }catch{}
+    clearToken();
+  }
+  // Token yoksa auth ekranı
+  document.getElementById('authScreen').style.display='flex';
+}
+
+// Enter ile giriş
+document.addEventListener('keydown', e => {
+  if(e.key==='Enter'){
+    const lf=document.getElementById('loginForm'), rf=document.getElementById('registerForm');
+    if(lf.style.display!=='none') doLogin();
+    else if(rf.style.display!=='none') doRegister();
+  }
+});
+
+init();
 </script>
+
 </body>
 </html>
