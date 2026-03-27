@@ -13,14 +13,13 @@ if (req.method === ‘OPTIONS’) return res.status(200).end();
 const { action } = req.query;
 
 try {
-// ── SİPARİŞ OLUŞTUR (giriş yapmış veya misafir) ──
+// ── SİPARİŞ OLUŞTUR ──
 if (action === ‘create’ && req.method === ‘POST’) {
 const { name, phone, address, note, payment, items, total } = req.body;
 if (!name || !phone || !address || !items || !total)
 return res.status(400).json({ error: ‘Eksik bilgi.’ });
 
 ```
-  // Token varsa musteri_id bağla
   let musteri_id = null;
   try {
     const auth = req.headers.authorization;
@@ -75,6 +74,7 @@ if (action === 'update-status' && req.method === 'POST') {
     return res.status(403).json({ error: 'Yetkisiz.' });
 
   const { id, durum } = req.body;
+  if (!id || !durum) return res.status(400).json({ error: 'ID ve durum zorunludur.' });
   await sql`UPDATE siparisler SET durum = ${durum} WHERE id = ${id}`;
   return res.status(200).json({ success: true });
 }
