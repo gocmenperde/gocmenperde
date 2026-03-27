@@ -379,7 +379,7 @@ async function doLogin(){
     const d = await r.json();
     if(!r.ok){ errEl.textContent=d.error; errEl.classList.add('show'); }
     else { setToken(d.token); currentUser=d.user; showPanelScreen(); }
-  }catch(e){ errEl.textContent='Bağlantı hatası.'; errEl.classList.add('show'); }
+  }catch(e){ errEl.textContent='Bağlantı hatası. Lütfen tekrar deneyin.'; errEl.classList.add('show'); }
   btn.disabled=false; btn.innerHTML='<i class="fas fa-sign-in-alt" style="margin-right:8px"></i>Giriş Yap';
 }
 
@@ -602,7 +602,6 @@ async function init(){
     }catch{}
     clearToken();
   }
-  // Token yoksa auth ekranı
   document.getElementById('authScreen').style.display='flex';
 }
 
