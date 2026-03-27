@@ -1,4 +1,10 @@
-const { neon } = require(’@neondatabase/serverless’);
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const sql = (strings, ...values) => {
+  let text = '';
+  strings.forEach((s, i) => { text += s + (values[i] !== undefined ? `$${i+1}` : ''); });
+  return pool.query(text, values).then(r => r.rows);
+};
 
 module.exports = async function handler(req, res) {
 res.setHeader(‘Access-Control-Allow-Origin’, ‘*’);
