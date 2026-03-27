@@ -142,6 +142,15 @@ tr:hover td{background:#fafdf5}
 .switch::after{content:’’;position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;transition:0.3s}
 .switch.on::after{left:23px}
 
+/* ── JSON Yardımcı Butonlar ── */
+.json-helper{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.json-helper-btn{padding:4px 10px;background:var(–cream);border:1px solid var(–border);border-radius:6px;font-size:0.72rem;cursor:pointer;font-family:var(–ff);color:var(–slate);transition:0.2s}
+.json-helper-btn:hover{border-color:var(–gold);color:var(–gold)}
+.json-hint{font-size:0.72rem;color:var(–slate);margin-top:4px;line-height:1.5}
+.json-valid{font-size:0.72rem;margin-top:4px;padding:4px 8px;border-radius:4px;display:none}
+.json-valid.ok{background:rgba(39,174,96,0.1);color:var(–green);display:block}
+.json-valid.err{background:rgba(192,57,43,0.1);color:var(–red);display:block}
+
 /* ── Bildirimler ── */
 .notif-list{display:flex;flex-direction:column;gap:12px}
 .notif-item{background:white;border-radius:var(–radius);padding:20px;border:1px solid var(–border);display:flex;align-items:flex-start;gap:16px}
@@ -176,33 +185,14 @@ tr:hover td{background:#fafdf5}
 
 /* ── Responsive ── */
 @media(max-width:768px){
-/* Mobile topbar göster */
 .mobile-topbar{display:flex}
-
-/* Sidebar: sayfanın soluna konumlandır, drawer gibi */
-.sidebar{
-position:fixed;
-top:0; left:0; bottom:0;
-z-index:400;
-transform:translateX(-100%);
-transition:transform 0.3s ease;
-height:100%;
-}
+.sidebar{position:fixed;top:0;left:0;bottom:0;z-index:400;transform:translateX(-100%);transition:transform 0.3s ease;height:100%}
 .sidebar.open{transform:translateX(0)}
-
-/* Ana içerik üstten başlasın */
 #adminApp.show{flex-direction:column}
 .main-content{padding:18px}
-
 .stats-grid{grid-template-columns:1fr 1fr}
 .form-row{grid-template-columns:1fr}
-
-/* Dashboard grid tek sütun */
-#page-dashboard > div[style*=“grid-template-columns:1fr 1fr”]{
-display:flex!important;
-flex-direction:column!important;
-}
-
+#page-dashboard > div[style*=“grid-template-columns:1fr 1fr”]{display:flex!important;flex-direction:column!important}
 .a-toast{right:12px;left:12px;bottom:16px;transform:translateY(120%)}
 .a-toast.show{transform:translateY(0)}
 }
@@ -434,7 +424,6 @@ flex-direction:column!important;
       <div class="fg">
         <label>Ürün Resmi</label>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <!-- Dosya seç butonu -->
           <div style="display:flex;gap:8px;align-items:center">
             <label for="f-imageFile" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:var(--ink);color:white;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;flex-shrink:0">
               <i class="fas fa-image"></i> Resim Seç
@@ -442,28 +431,56 @@ flex-direction:column!important;
             <input type="file" id="f-imageFile" accept="image/*" style="display:none" onchange="handleImageSelect(this)">
             <span id="f-imageFileName" style="font-size:0.8rem;color:var(--slate);font-style:italic">Dosya seçilmedi</span>
           </div>
-          <!-- Yükleniyor göstergesi -->
           <div id="imgUploadStatus" style="display:none;font-size:0.8rem;padding:8px 12px;background:#fff8e1;border-radius:6px;border:1px solid #f0c040;color:#7a5c00">
             <i class="fas fa-spinner fa-spin"></i> GitHub'a yükleniyor...
           </div>
-          <!-- Resim yolu (otomatik dolar, elle de girilebilir) -->
           <input type="text" id="f-image" placeholder="resimler/urun.jpg" oninput="previewImg()" style="padding:10px 16px;border:1px solid var(--border);border-radius:8px;font-family:var(--ff);font-size:0.85rem;background:var(--cream)">
           <img id="imgPreview" class="img-preview" src="" alt="">
         </div>
       </div>
       <div class="fg"><label>İndirim Etiketi (opsiyonel)</label><input type="text" id="f-badge" placeholder="%25 İNDİRİM"></div>
       <div class="fg"><label>Özellikler (virgülle ayırın)</label><input type="text" id="f-features" placeholder="karartma, ütü, premium"></div>
-      <div class="fg"><label>Stok Durumu</label>
-        <div class="switch-wrap">
-          <div class="switch on" id="activeSwitch" onclick="toggleSwitch()"></div>
-          <span id="activeSwitchLabel" style="font-size:0.85rem;font-weight:500;color:var(--green)">Aktif — Sitede görünüyor</span>
-        </div>
-      </div>
+
+```
+  <!-- ── YENİ: Ürün Özellikleri (specs) ── -->
+  <div class="fg">
+    <label><i class="fas fa-list-check" style="color:var(--gold);margin-right:6px"></i>Ürün Özellikleri — "Özellikler" Sekmesi</label>
+    <div class="json-helper" id="specsHelperBtns">
+      <button type="button" class="json-helper-btn" onclick="addSpecsTemplate('perde')"><i class="fas fa-plus"></i> Perde Şablonu</button>
+      <button type="button" class="json-helper-btn" onclick="addSpecsTemplate('carsaf')"><i class="fas fa-plus"></i> Çarşaf Şablonu</button>
+      <button type="button" class="json-helper-btn" onclick="addSpecsTemplate('koltuk')"><i class="fas fa-plus"></i> Koltuk Şablonu</button>
+      <button type="button" class="json-helper-btn" onclick="clearField('f-specs')"><i class="fas fa-trash"></i> Temizle</button>
     </div>
-    <div class="form-modal-footer">
-      <button class="btn btn-outline" onclick="closeProductModal()">İptal</button>
-      <button class="btn btn-success" onclick="saveProduct()"><i class="fas fa-save"></i> Kaydet</button>
+    <textarea id="f-specs" placeholder='{"En":"150-300 cm","Kumaş":"Polyester","Stil":"Modern"}' oninput="validateJSON('f-specs','specs-valid')" style="min-height:100px;font-family:monospace;font-size:0.82rem"></textarea>
+    <div class="json-valid" id="specs-valid"></div>
+    <div class="json-hint">Her satır bir özellik. Sitede "Özellikler" sekmesinde görünür.<br>Örnek: <code style="background:#f0f0f0;padding:2px 6px;border-radius:3px">{"En":"150-300 cm","Kumaş":"Polyester"}</code></div>
+  </div>
+
+  <!-- ── YENİ: Bakım Talimatları (care) ── -->
+  <div class="fg">
+    <label><i class="fas fa-heart" style="color:var(--gold);margin-right:6px"></i>Bakım Talimatları — "Bakım" Sekmesi</label>
+    <div class="json-helper">
+      <button type="button" class="json-helper-btn" onclick="addCareTemplate()"><i class="fas fa-plus"></i> Standart Şablon</button>
+      <button type="button" class="json-helper-btn" onclick="clearField('f-care')"><i class="fas fa-trash"></i> Temizle</button>
     </div>
+    <textarea id="f-care" placeholder='{"Yıkama":"30°C","Kuru Temizleme":"Uygun","Ütü":"Düşük ısı"}' oninput="validateJSON('f-care','care-valid')" style="min-height:100px;font-family:monospace;font-size:0.82rem"></textarea>
+    <div class="json-valid" id="care-valid"></div>
+    <div class="json-hint">Sitede "Bakım" sekmesinde görünür.<br>Örnek: <code style="background:#f0f0f0;padding:2px 6px;border-radius:3px">{"Yıkama":"30°C","Ütü":"Düşük ısı"}</code></div>
+  </div>
+
+  <div class="fg"><label>Stok Durumu</label>
+    <div class="switch-wrap">
+      <div class="switch on" id="activeSwitch" onclick="toggleSwitch()"></div>
+      <span id="activeSwitchLabel" style="font-size:0.85rem;font-weight:500;color:var(--green)">Aktif — Sitede görünüyor</span>
+    </div>
+  </div>
+</div>
+<div class="form-modal-footer">
+  <button class="btn btn-outline" onclick="closeProductModal()">İptal</button>
+  <button class="btn btn-success" onclick="saveProduct()"><i class="fas fa-save"></i> Kaydet</button>
+</div>
+```
+
   </div>
 </div>
 
@@ -605,17 +622,63 @@ function filterTable(){
   renderTable(filtered);
 }
 
+// ─── JSON Yardımcı ───
+const SPECS_TEMPLATES = {
+  perde: {"En":"150-300 cm","Kumaş":"Polyester / Karışık","Stil":"Modern","Astar":"Yok","Desen":"Düz"},
+  carsaf: {"Boyut":"160x220 cm","Kumaş":"Pamuk / Saten","Renk Seçeneği":"Çok Renkli","İplik Kalitesi":"Premium"},
+  koltuk: {"Uyumluluk":"3+2+1 Koltuk Takımı","Kumaş":"Likralı","Renk":"Krem / Kahve","Yıkama":"Makinede Yıkanabilir"}
+};
+const CARE_TEMPLATE = {"Yıkama":"30°C hassas yıkama","Sıkma":"Düşük devirde","Kurutma":"Gölgede kurutun","Ütü":"Düşük ısıda ütüleyin","Kuru Temizleme":"Önerilmez"};
+
+function addSpecsTemplate(cat){
+  const tpl = SPECS_TEMPLATES[cat] || SPECS_TEMPLATES.perde;
+  document.getElementById('f-specs').value = JSON.stringify(tpl, null, 2);
+  validateJSON('f-specs','specs-valid');
+}
+function addCareTemplate(){
+  document.getElementById('f-care').value = JSON.stringify(CARE_TEMPLATE, null, 2);
+  validateJSON('f-care','care-valid');
+}
+function clearField(id){
+  document.getElementById(id).value = '';
+  const validId = id === 'f-specs' ? 'specs-valid' : 'care-valid';
+  const el = document.getElementById(validId);
+  el.className = 'json-valid';
+  el.textContent = '';
+}
+function validateJSON(fieldId, validId){
+  const val = document.getElementById(fieldId).value.trim();
+  const el = document.getElementById(validId);
+  if(!val){ el.className='json-valid'; el.textContent=''; return true; }
+  try{
+    JSON.parse(val);
+    el.className='json-valid ok';
+    el.innerHTML='<i class="fas fa-check-circle"></i> Geçerli JSON';
+    return true;
+  } catch(e){
+    el.className='json-valid err';
+    el.innerHTML='<i class="fas fa-times-circle"></i> Hata: '+e.message;
+    return false;
+  }
+}
+function parseJSONField(fieldId){
+  const val = document.getElementById(fieldId).value.trim();
+  if(!val) return {};
+  try{ return JSON.parse(val); } catch(e){ return {}; }
+}
+
 // ─── Ürün Ekle/Düzenle ───
 function openAddModal(){
   document.getElementById('formModalTitle').innerText='Yeni Ürün Ekle';
   document.getElementById('editIndex').value='';
-  ['f-name','f-desc','f-price','f-oldprice','f-image','f-badge','f-features'].forEach(id=>document.getElementById(id).value='');
+  ['f-name','f-desc','f-price','f-oldprice','f-image','f-badge','f-features','f-specs','f-care'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-cat').value='carsaf';
   document.getElementById('f-unit').value='adet';
   document.getElementById('imgPreview').classList.remove('show');
   document.getElementById('f-imageFileName').textContent='Dosya seçilmedi';
   document.getElementById('imgUploadStatus').style.display='none';
   document.getElementById('f-imageFile').value='';
+  ['specs-valid','care-valid'].forEach(id=>{ const el=document.getElementById(id); el.className='json-valid'; el.textContent=''; });
   activeSwitchState=true; updateSwitch();
   document.getElementById('productModal').classList.add('open');
 }
@@ -633,6 +696,11 @@ function editProduct(idx){
   document.getElementById('f-image').value=p.image||'';
   document.getElementById('f-badge').value=p.badge||'';
   document.getElementById('f-features').value=p.features||'';
+  // specs ve care doldur
+  document.getElementById('f-specs').value = p.specs && Object.keys(p.specs).length ? JSON.stringify(p.specs, null, 2) : '';
+  document.getElementById('f-care').value  = p.care  && Object.keys(p.care).length  ? JSON.stringify(p.care,  null, 2) : '';
+  validateJSON('f-specs','specs-valid');
+  validateJSON('f-care','care-valid');
   previewImg();
   activeSwitchState=p.active; updateSwitch();
   document.getElementById('productModal').classList.add('open');
@@ -644,6 +712,9 @@ function saveProduct(){
   const price=parseFloat(document.getElementById('f-price').value);
   if(!name){ aToast('⚠️ Ürün adı zorunlu'); return; }
   if(!price){ aToast('⚠️ Fiyat zorunlu'); return; }
+  // JSON doğrula
+  if(!validateJSON('f-specs','specs-valid')){ aToast('⚠️ Özellikler alanında JSON hatası var'); return; }
+  if(!validateJSON('f-care','care-valid')){ aToast('⚠️ Bakım alanında JSON hatası var'); return; }
 
   const oldPriceVal=document.getElementById('f-oldprice').value;
   const unitVal=document.getElementById('f-unit').value;
@@ -659,15 +730,14 @@ function saveProduct(){
     features: document.getElementById('f-features').value.replace(/\s/g,''),
     badge: document.getElementById('f-badge').value||'',
     active: activeSwitchState,
-    specs:{}, care:{}
+    specs: parseJSONField('f-specs'),
+    care:  parseJSONField('f-care')
   };
 
   const idx=document.getElementById('editIndex').value;
   if(idx!==''){
     const i=parseInt(idx);
     obj.id=PRODUCTS[i].id;
-    obj.specs=PRODUCTS[i].specs||{};
-    obj.care=PRODUCTS[i].care||{};
     PRODUCTS[i]=obj;
     aToast('✓ Ürün güncellendi: '+name);
   } else {
@@ -712,11 +782,7 @@ function previewImg(){
 function handleImageSelect(input){
   const file = input.files[0];
   if(!file) return;
-
-  // Dosya adını göster
   document.getElementById('f-imageFileName').textContent = file.name;
-
-  // Önce önizleme göster
   const reader = new FileReader();
   reader.onload = function(e){
     const prev = document.getElementById('imgPreview');
@@ -724,8 +790,6 @@ function handleImageSelect(input){
     prev.classList.add('show');
   };
   reader.readAsDataURL(file);
-
-  // GitHub'a yükle
   uploadImageToGithub(file);
 }
 
@@ -736,22 +800,14 @@ async function uploadImageToGithub(file){
     if(!t){ aToast('⚠️ Token girilmedi'); return; }
     localStorage.setItem('gh_token', t);
   }
-
   const statusEl = document.getElementById('imgUploadStatus');
   statusEl.style.display = 'block';
-
-  // Dosyayı base64'e çevir
   const base64 = await new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      // data:image/jpeg;base64,XXXX → sadece XXXX kısmını al
-      resolve(reader.result.split(',')[1]);
-    };
+    reader.onload = () => { resolve(reader.result.split(',')[1]); };
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-
-  // Dosya adını temizle (Türkçe karakter vs.)
   const safeName = file.name
     .toLowerCase()
     .replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s')
@@ -760,29 +816,20 @@ async function uploadImageToGithub(file){
     .replace(/[^a-z0-9._-]/g,'');
   const imagePath = `resimler/${safeName}`;
   const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${imagePath}`;
-
   try{
-    // Dosya zaten varsa SHA al (üzerine yazabilmek için)
     let sha = null;
     try{
       const existing = await fetch(url, { headers:{ Authorization:`token ${getGithubToken()}` } });
       if(existing.ok){ const d = await existing.json(); sha = d.sha; }
     } catch(e){}
-
-    const body = {
-      message: `Resim eklendi: ${safeName}`,
-      content: base64,
-    };
+    const body = { message: `Resim eklendi: ${safeName}`, content: base64 };
     if(sha) body.sha = sha;
-
     const res = await fetch(url, {
       method: 'PUT',
       headers:{ Authorization:`token ${getGithubToken()}`, 'Content-Type':'application/json' },
       body: JSON.stringify(body)
     });
-
     if(res.ok){
-      // Resim yolunu forma yaz
       document.getElementById('f-image').value = imagePath;
       statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:#27ae60"></i> Resim yüklendi: ' + imagePath;
       statusEl.style.background = '#f0fff4';
@@ -809,9 +856,7 @@ const REPO_OWNER='gocmenperde';
 const REPO_NAME='gocmenperde';
 const FILE_PATH='products.json';
 
-function getGithubToken(){
-  return localStorage.getItem('gh_token');
-}
+function getGithubToken(){ return localStorage.getItem('gh_token'); }
 function resetGithubToken(){
   localStorage.removeItem('gh_token');
   const t=prompt('Yeni GitHub Token girin:');
@@ -838,7 +883,6 @@ async function updateGithubFile(newData){
     if(!getFile.ok) throw new Error('Dosya bilgisi alınamadı. Token hatalı olabilir.');
     const fileData=await getFile.json();
     const sha=fileData.sha;
-
     const response=await fetch(url,{
       method:'PUT',
       headers:{"Authorization":`token ${token}`,"Content-Type":"application/json"},
@@ -848,7 +892,6 @@ async function updateGithubFile(newData){
         sha
       })
     });
-
     if(response.ok){
       aToast('✅ Kaydedildi! Site 1-2 dk içinde güncellenecek.');
     } else {
@@ -904,7 +947,6 @@ function showPage(id){
   document.querySelectorAll('.nav-item').forEach(n=>{
     if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
   });
-  // Mobilde sayfaya geçince sidebar'ı kapat
   closeSidebar();
 }
 
