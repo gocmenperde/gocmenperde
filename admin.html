@@ -239,6 +239,7 @@ tr:hover td{background:#fafdf5}
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="showPage('dashboard')"><i class="fas fa-chart-line"></i> Dashboard</div>
       <div class="nav-item" onclick="showPage('products')"><i class="fas fa-boxes-stacked"></i> Ürün Yönetimi</div>
+      <div class="nav-item" onclick="showPage('categories')"><i class="fas fa-folder-open"></i> Kategoriler</div>
       <div class="nav-item" onclick="showPage('campaigns')"><i class="fas fa-tag"></i> Kampanyalar</div>
       <div class="nav-item" onclick="showPage('notifications')"><i class="fas fa-bell"></i> Bildirimler</div>
       <div class="nav-item" onclick="showPage('settings')"><i class="fas fa-gear"></i> Ayarlar</div>
@@ -322,6 +323,31 @@ tr:hover td{background:#fafdf5}
     </table>
   </div>
   <p style="font-size:0.78rem;color:var(--slate);margin-top:12px;text-align:right" id="tableCount"></p>
+</div>
+
+<!-- Kategoriler -->
+<div class="page" id="page-categories">
+  <div class="page-header">
+    <h1>Kategori <em>Yönetimi</em></h1>
+    <button class="btn btn-primary" onclick="openAddCatModal()"><i class="fas fa-plus"></i> Yeni Kategori</button>
+  </div>
+  <div class="table-wrap" style="margin-bottom:20px">
+    <table>
+      <thead>
+        <tr>
+          <th>Kategori Adı</th>
+          <th>Anahtar (key)</th>
+          <th>Ürün Sayısı</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody id="catTableBody"></tbody>
+    </table>
+  </div>
+  <div style="background:white;border-radius:var(--radius);padding:20px;border:1px solid var(--border)">
+    <div style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:12px;font-weight:600"><i class="fas fa-circle-info" style="color:var(--gold)"></i> Bilgi</div>
+    <p style="font-size:0.84rem;color:var(--slate);line-height:1.7">Kategoriler, ürün formundaki açılır menüyü ve filtre seçeneklerini otomatik günceller. Kategori silmek için önce o kategorideki ürünleri başka kategoriye taşıyın.</p>
+  </div>
 </div>
 
 <!-- Kampanyalar -->
@@ -484,6 +510,33 @@ tr:hover td{background:#fafdf5}
   </div>
 </div>
 
+<!-- Kategori Ekle/Düzenle Modal -->
+
+<div class="modal-bg" id="catModal">
+  <div class="form-modal" style="max-width:440px">
+    <div class="form-modal-header">
+      <h3 id="catModalTitle">Yeni Kategori</h3>
+      <button class="close-modal-btn" onclick="closeCatModal()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="form-modal-body">
+      <input type="hidden" id="editCatKey">
+      <div class="fg">
+        <label>Kategori Adı *</label>
+        <input type="text" id="c-label" placeholder="örn: Stor Perdeler">
+      </div>
+      <div class="fg">
+        <label>Anahtar (key) *</label>
+        <input type="text" id="c-key" placeholder="örn: stor" oninput="slugifyCatKey()">
+        <div class="json-hint">Küçük harf, boşluksuz. Ürünlerin <code style="background:#f0f0f0;padding:2px 5px;border-radius:3px">cat</code> alanıyla eşleşmeli. Sonradan değiştirmeyin.</div>
+      </div>
+    </div>
+    <div class="form-modal-footer">
+      <button class="btn btn-outline" onclick="closeCatModal()">İptal</button>
+      <button class="btn btn-success" onclick="saveCat()"><i class="fas fa-save"></i> Kaydet</button>
+    </div>
+  </div>
+</div>
+
 <!-- Şifre Değiştir Modal -->
 
 <div class="modal-bg" id="passModal">
@@ -504,6 +557,148 @@ tr:hover td{background:#fafdf5}
 <div class="a-toast" id="aToast"></div>
 
 <script>
+// ─── Kategoriler ───
+const CAT_KEY = 'gp_categories';
+let CATEGORIES = [];
+
+function loadCategories(){
+  const saved = localStorage.getItem(CAT_KEY);
+  if(saved){
+    try{ CATEGORIES = JSON.parse(saved); } catch(e){ CATEGORIES = getDefaultCats(); }
+  } else {
+    CATEGORIES = getDefaultCats();
+  }
+}
+function getDefaultCats(){
+  return [
+    {key:'carsaf', label:'Çarşaflar'},
+    {key:'perde',  label:'Perdeler'},
+    {key:'koltuk', label:'Koltuk Örtüleri'}
+  ];
+}
+function saveCategories(){
+  localStorage.setItem(CAT_KEY, JSON.stringify(CATEGORIES));
+}
+
+function renderCatTable(){
+  const tbody = document.getElementById('catTableBody');
+  if(!tbody) return;
+  tbody.innerHTML = CATEGORIES.map((c, i) => {
+    const count = PRODUCTS.filter(p => p.cat === c.key).length;
+    const isDefault = ['carsaf','perde','koltuk'].includes(c.key);
+    return `<tr>
+      <td><strong>${c.label}</strong></td>
+      <td><code style="background:#f0f2f5;padding:3px 8px;border-radius:5px;font-size:0.82rem">${c.key}</code></td>
+      <td><span style="font-weight:600">${count}</span> ürün</td>
+      <td><div class="action-btns">
+        <button class="icon-btn edit" onclick="editCat(${i})" title="Düzenle"><i class="fas fa-pen"></i></button>
+        ${isDefault
+          ? `<button class="icon-btn" style="background:rgba(0,0,0,0.05);color:#ccc;cursor:not-allowed" title="Varsayılan kategori silinemez"><i class="fas fa-lock"></i></button>`
+          : `<button class="icon-btn del" onclick="deleteCat(${i})" title="Sil"><i class="fas fa-trash"></i></button>`
+        }
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddCatModal(){
+  document.getElementById('catModalTitle').innerText = 'Yeni Kategori Ekle';
+  document.getElementById('editCatKey').value = '';
+  document.getElementById('c-label').value = '';
+  document.getElementById('c-key').value = '';
+  document.getElementById('catModal').classList.add('open');
+}
+function editCat(i){
+  const c = CATEGORIES[i];
+  document.getElementById('catModalTitle').innerText = 'Kategori Düzenle';
+  document.getElementById('editCatKey').value = c.key;
+  document.getElementById('c-label').value = c.label;
+  document.getElementById('c-key').value = c.key;
+  document.getElementById('catModal').classList.add('open');
+}
+function closeCatModal(){ document.getElementById('catModal').classList.remove('open'); }
+
+function slugifyCatKey(){
+  const val = document.getElementById('c-label').value;
+  // Auto-fill key only if key field is empty or matches auto pattern
+  const keyEl = document.getElementById('c-key');
+  if(!document.getElementById('editCatKey').value){ // only on new
+    keyEl.value = val.toLowerCase()
+      .replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s')
+      .replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c')
+      .replace(/\s+/g,'').replace(/[^a-z0-9]/g,'');
+  }
+}
+
+// Auto-slug when typing label in add mode
+document.addEventListener('DOMContentLoaded', () => {
+  const labelEl = document.getElementById('c-label');
+  if(labelEl) labelEl.addEventListener('input', () => {
+    if(!document.getElementById('editCatKey').value) slugifyCatKey();
+  });
+});
+
+function saveCat(){
+  const label = document.getElementById('c-label').value.trim();
+  const key   = document.getElementById('c-key').value.trim().toLowerCase();
+  const origKey = document.getElementById('editCatKey').value;
+  if(!label){ aToast('⚠️ Kategori adı zorunlu'); return; }
+  if(!key)  { aToast('⚠️ Anahtar zorunlu'); return; }
+  if(!/^[a-z0-9]+$/.test(key)){ aToast('⚠️ Anahtar sadece küçük harf ve rakam içerebilir'); return; }
+
+  if(origKey){
+    // edit
+    const idx = CATEGORIES.findIndex(c => c.key === origKey);
+    if(idx === -1){ aToast('⚠️ Kategori bulunamadı'); return; }
+    if(key !== origKey && CATEGORIES.find(c => c.key === key)){ aToast('⚠️ Bu anahtar zaten kullanılıyor'); return; }
+    // if key changed, update all products
+    if(key !== origKey){
+      PRODUCTS.forEach(p => { if(p.cat === origKey) p.cat = key; });
+      renderTable();
+    }
+    CATEGORIES[idx] = {key, label};
+    aToast('✓ Kategori güncellendi: ' + label);
+  } else {
+    // add
+    if(CATEGORIES.find(c => c.key === key)){ aToast('⚠️ Bu anahtar zaten mevcut'); return; }
+    CATEGORIES.push({key, label});
+    aToast('✓ Kategori eklendi: ' + label);
+  }
+  saveCategories();
+  closeCatModal();
+  renderCatTable();
+  rebuildCatDropdowns();
+}
+
+function deleteCat(i){
+  const c = CATEGORIES[i];
+  const count = PRODUCTS.filter(p => p.cat === c.key).length;
+  if(count > 0){
+    aToast(`⚠️ "${c.label}" kategorisinde ${count} ürün var. Önce ürünleri taşıyın.`);
+    return;
+  }
+  if(!confirm(`"${c.label}" kategorisi silinsin mi?`)) return;
+  CATEGORIES.splice(i, 1);
+  saveCategories();
+  renderCatTable();
+  rebuildCatDropdowns();
+  aToast('✓ Kategori silindi');
+}
+
+function rebuildCatDropdowns(){
+  // Ürün formu kategori select
+  const fCat = document.getElementById('f-cat');
+  if(fCat){
+    fCat.innerHTML = CATEGORIES.map(c => `<option value="${c.key}">${c.label}</option>`).join('');
+  }
+  // Filtre select
+  const catFilter = document.getElementById('catFilter');
+  if(catFilter){
+    catFilter.innerHTML = '<option value="">Tüm Kategoriler</option>' +
+      CATEGORIES.map(c => `<option value="${c.key}">${c.label}</option>`).join('');
+  }
+}
+
 // ─── Şifre ───
 const ADMIN_PASS_KEY = 'gp_admin_pass';
 function getPass(){ return localStorage.getItem(ADMIN_PASS_KEY) || 'gocmen1993'; }
@@ -556,8 +751,9 @@ async function fetchProducts(){
 }
 
 function initAdmin(){
+  loadCategories();
   document.getElementById('dashDate').innerText = new Date().toLocaleDateString('tr-TR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  fetchProducts().then(()=>{ renderDashboard(); renderTable(); renderNotifs(); });
+  fetchProducts().then(()=>{ renderDashboard(); renderTable(); renderNotifs(); rebuildCatDropdowns(); renderCatTable(); });
 }
 
 // ─── Dashboard ───
@@ -568,12 +764,13 @@ function renderDashboard(){
   document.getElementById('statDiscount').innerText=disc;
   document.getElementById('statInactive').innerText=inactive;
 
-  const cats={carsaf:{label:'Çarşaflar',color:'#c9a84c'},perde:{label:'Perdeler',color:'#2980b9'},koltuk:{label:'Koltuk Örtüleri',color:'#27ae60'}};
+  const CHART_COLORS = ['#c9a84c','#2980b9','#27ae60','#8e44ad','#e67e22','#16a085'];
   const chart=document.getElementById('catChart');
-  chart.innerHTML=Object.entries(cats).map(([k,v])=>{
-    const count=PRODUCTS.filter(p=>p.cat===k&&p.active).length;
+  chart.innerHTML=CATEGORIES.map((c, ci)=>{
+    const count=PRODUCTS.filter(p=>p.cat===c.key&&p.active).length;
     const pct=total?Math.round(count/total*100):0;
-    return `<div><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px"><span>${v.label}</span><span style="font-weight:600">${count}</span></div><div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${v.color};border-radius:4px;transition:width 0.6s"></div></div></div>`;
+    const color = CHART_COLORS[ci % CHART_COLORS.length];
+    return `<div><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px"><span>${c.label}</span><span style="font-weight:600">${count}</span></div><div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:width 0.6s"></div></div></div>`;
   }).join('');
 
   const rem=document.getElementById('reminders');
@@ -586,7 +783,7 @@ function renderDashboard(){
 }
 
 // ─── Tablo ───
-const catLabels={carsaf:'Çarşaf',perde:'Perde',koltuk:'Koltuk Örtüsü'};
+function getCatLabels(){ return Object.fromEntries(CATEGORIES.map(c=>[c.key,c.label])); }
 function renderTable(list){
   const data=list||PRODUCTS;
   const tbody=document.getElementById('productTableBody');
@@ -595,7 +792,7 @@ function renderTable(list){
     const realIdx=PRODUCTS.indexOf(p);
     return `<tr>
       <td><div style="display:flex;align-items:center;gap:12px"><img src="${p.image}" alt="${p.name}" class="product-thumb" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect fill=%22%23f0f0f0%22 width=%2248%22 height=%2248%22/><text x=%2224%22 y=%2228%22 text-anchor=%22middle%22 font-size=%2218%22>📦</text></svg>'"><div class="product-name-cell">${p.name}<small>${p.id}</small></div></div></td>
-      <td><span class="badge-tag badge-cat">${catLabels[p.cat]||p.cat}</span></td>
+      <td><span class="badge-tag badge-cat">${getCatLabels()[p.cat]||p.cat}</span></td>
       <td><div class="price-cell">${p.price.toLocaleString('tr-TR')} TL${p.unit&&p.unit!=='adet'?' / '+p.unit:''}<span class="price-old">${p.oldPrice?p.oldPrice.toLocaleString('tr-TR')+' TL':''}</span></div></td>
       <td><span class="badge-tag ${p.active?'badge-active':'badge-inactive'}">${p.active?'Aktif':'Pasif'}</span></td>
       <td><div class="action-btns">
