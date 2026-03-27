@@ -2,7 +2,7 @@ const { Pool } = require('pg');
 
 // Neon bağlantı dizesini buraya ekle (Çevre değişkeni kullanman daha güvenli olur)
 const pool = new Pool({
-  connectionString: 'POSTGRES_URL_BURAYA',
+  connectionString: 'postgresql://neondb_owner:npg_RLwX8EZr0egy@ep-frosty-firefly-aluiy29f-pooler.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
   ssl: {
     rejectUnauthorized: false
   }
