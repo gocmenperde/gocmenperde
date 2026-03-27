@@ -18,7 +18,7 @@ const { name, phone, address, note, payment, items, total } = req.body;
 if (!name || !phone || !address || !items || !total)
 return res.status(400).json({ error: ‘Eksik bilgi.’ });
 
-```
+
   let musteri_id = null;
   try {
     const auth = req.headers.authorization;
@@ -47,7 +47,7 @@ if (action === 'my-orders' && req.method === 'GET') {
 }
 
 return res.status(400).json({ error: 'Geçersiz işlem.' });
-```
+
 
 } catch (err) {
 console.error(‘Orders error:’, err.message);
