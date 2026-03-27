@@ -71,5 +71,16 @@ if (mod === 'login') {
     document.querySelectorAll('input')[2].style.display = 'none'; // Telefon
 }
 </script>
+<script>
+const params = new URLSearchParams(window.location.search);
+if (params.get('mod') === 'login') {
+    document.querySelector('h3').innerText = 'Giriş Yap';
+    document.querySelector('button').innerText = 'Giriş Yap';
+    // Kayıt için gereken gereksiz alanları gizle
+    document.getElementById('kayitAd').style.display = 'none';
+    document.getElementById('kayitTel').style.display = 'none';
+}
+</script>
+
 </body>
 </html>
