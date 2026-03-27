@@ -3,83 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Müşteri Paneli - Göçmen Perde</title>
+    <title>Giriş / Kayıt - Göçmen Perde</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .form-box { max-width: 300px; margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
-        input { display: block; width: 100%; margin-bottom: 10px; padding: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        body { font-family: sans-serif; background: #f4f4f4; display: flex; justify-content: center; padding: 50px; }
+        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .tabs { display: flex; margin-bottom: 20px; cursor: pointer; border-bottom: 2px solid #ddd; }
+        .tab { flex: 1; text-align: center; padding: 10px; font-weight: bold; color: #777; }
+        .tab.active { color: #007bff; border-bottom: 2px solid #007bff; }
+        .form-group { display: none; }
+        .form-group.active { display: block; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:disabled { background: #ccc; }
     </style>
 </head>
 <body>
 
-    <div id="kayitBolumu" class="form-box">
-        <h3>Yeni Kayıt</h3>
-        <input type="text" id="kayitAd" placeholder="Ad Soyad">
-        <input type="email" id="kayitEmail" placeholder="E-posta">
-        <input type="text" id="kayitTel" placeholder="Telefon (05xx)">
-        <input type="password" id="kayitSifre" placeholder="Şifre">
-        <button onclick="kayitOl()">Kayıt Ol</button>
+<div class="form-container">
+    <div class="tabs">
+        <div id="loginTab" class="tab active" onclick="switchTab('login')">Giriş Yap</div>
+        <div id="registerTab" class="tab" onclick="switchTab('register')">Kayıt Ol</div>
     </div>
 
-    <script>
-        async function kayitOl() {
-    const buton = document.querySelector('button');
-    buton.innerText = 'İşleniyor...';
-    
-    try {
-        const veri = {
-            action: 'register',
-            ad_soyad: document.getElementById('kayitAd').value,
-            email: document.getElementById('kayitEmail').value,
-            telefon: document.getElementById('kayitTel').value,
-            sifre: document.getElementById('kayitSifre').value
-        };
+    <div id="loginForm" class="form-group active">
+        <input type="email" id="loginEmail" placeholder="E-posta Adresi">
+        <input type="password" id="loginPass" placeholder="Şifre">
+        <button onclick="handleAuth('login')" id="loginBtn">Giriş Yap</button>
+    </div>
 
-        const cevap = await fetch('/api/auth', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(veri)
-        });
+    <div id="registerForm" class="form-group">
+        <input type="text" id="regName" placeholder="Ad Soyad">
+        <input type="email" id="regEmail" placeholder="E-posta">
+        <input type="text" id="regPhone" placeholder="Telefon (05...)">
+        <input type="password" id="regPass" placeholder="Şifre">
+        <button onclick="handleAuth('register')" id="regBtn">Hesap Oluştur</button>
+    </div>
+</div>
 
-        const sonuc = await cevap.json();
-        
-        if (sonuc.success) {
-            alert('Hoş geldin ' + sonuc.user.ad_soyad + '! Kaydın tamamlandı.');
-            location.reload(); // Sayfayı yenile
-        } else {
-            alert('Hata: ' + sonuc.error);
-        }
-    } catch (err) {
-        alert('Bağlantı hatası: API sunucusuna ulaşılamadı.');
-    } finally {
-        buton.innerText = 'Kayıt Ol';
-    }
-}
-
-    </script>
-    <script>
-// Sayfa açıldığında URL'ye bak (login mi register mı?)
-const urlParams = new URLSearchParams(window.location.search);
-const mod = urlParams.get('mod');
-
-if (mod === 'login') {
-    document.querySelector('h2').innerText = 'Giriş Yap';
-    document.querySelector('button').innerText = 'Giriş Yap';
-    // Ad Soyad ve Telefon alanlarını gizle (Sadece Email ve Şifre kalsın)
-    document.querySelectorAll('input')[0].style.display = 'none'; // Ad Soyad
-    document.querySelectorAll('input')[2].style.display = 'none'; // Telefon
-}
-</script>
 <script>
-const params = new URLSearchParams(window.location.search);
-if (params.get('mod') === 'login') {
-    document.querySelector('h3').innerText = 'Giriş Yap';
-    document.querySelector('button').innerText = 'Giriş Yap';
-    // Kayıt için gereken gereksiz alanları gizle
-    document.getElementById('kayitAd').style.display = 'none';
-    document.getElementById('kayitTel').style.display = 'none';
-}
+    function switchTab(type) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.form-group').forEach(f => f.classList.remove('active'));
+        if(type === 'login') {
+            document.getElementById('loginTab').classList.add('active');
+            document.getElementById('loginForm').classList.add('active');
+        } else {
+            document.getElementById('registerTab').classList.add('active');
+            document.getElementById('registerForm').classList.add('active');
+        }
+    }
+
+    async function handleAuth(type) {
+        const btn = type === 'login' ? document.getElementById('loginBtn') : document.getElementById('regBtn');
+        const data = type === 'login' 
+            ? { action: 'login', email: document.getElementById('loginEmail').value, sifre: document.getElementById('loginPass').value }
+            : { action: 'register', ad_soyad: document.getElementById('regName').value, email: document.getElementById('regEmail').value, telefon: document.getElementById('regPhone').value, sifre: document.getElementById('regPass').value };
+
+        btn.disabled = true;
+        btn.innerText = 'İşleniyor...';
+
+        try {
+            // DİKKAT: Başına site adı yazma, sadece /api/auth kalsın
+            const res = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                alert(type === 'login' ? 'Giriş Başarılı!' : 'Kayıt Tamamlandı!');
+                window.location.href = '/'; // Ana sayfaya gönder
+            } else {
+                alert('Hata: ' + (result.error || 'İşlem başarısız'));
+            }
+        } catch (e) {
+            alert('Bağlantı Hatası: Sunucuya ulaşılamadı. Lütfen Vercel ayarlarını kontrol et.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = type === 'login' ? 'Giriş Yap' : 'Hesap Oluştur';
+        }
+    }
 </script>
 
 </body>
