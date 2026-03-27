@@ -3,88 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş / Kayıt - Göçmen Perde</title>
+    <title>Giriş & Kayıt - Göçmen Perde</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; display: flex; justify-content: center; padding: 50px; }
-        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        .tabs { display: flex; margin-bottom: 20px; cursor: pointer; border-bottom: 2px solid #ddd; }
-        .tab { flex: 1; text-align: center; padding: 10px; font-weight: bold; color: #777; }
-        .tab.active { color: #007bff; border-bottom: 2px solid #007bff; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .auth-card { background: white; width: 90%; max-width: 400px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .tabs { display: flex; background: #eee; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.3s; color: #666; }
+        .tab.active { background: white; color: #b08d57; border-bottom: 3px solid #b08d57; }
+        .form-area { padding: 30px; }
         .form-group { display: none; }
         .form-group.active { display: block; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:disabled { background: #ccc; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; background: #b08d57; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .btn:disabled { background: #ccc; }
+        .logo-area { text-align: center; padding: 20px; background: #1a1a1a; color: white; }
     </style>
 </head>
 <body>
 
-<div class="form-container">
+<div class="auth-card">
+    <div class="logo-area">
+        <h2 style="margin:0; letter-spacing: 2px;">GÖÇMEN PERDE</h2>
+    </div>
     <div class="tabs">
-        <div id="loginTab" class="tab active" onclick="switchTab('login')">Giriş Yap</div>
-        <div id="registerTab" class="tab" onclick="switchTab('register')">Kayıt Ol</div>
+        <div id="loginTab" class="tab active" onclick="showForm('login')">GİRİŞ YAP</div>
+        <div id="registerTab" class="tab" onclick="showForm('register')">KAYIT OL</div>
     </div>
 
-    <div id="loginForm" class="form-group active">
-        <input type="email" id="loginEmail" placeholder="E-posta Adresi">
-        <input type="password" id="loginPass" placeholder="Şifre">
-        <button onclick="handleAuth('login')" id="loginBtn">Giriş Yap</button>
-    </div>
+    <div class="form-area">
+        <div id="loginForm" class="form-group active">
+            <input type="email" id="lEmail" placeholder="E-posta Adresi">
+            <input type="password" id="lPass" placeholder="Şifre">
+            <button class="btn" onclick="submitForm('login')" id="lBtn">GİRİŞ YAP</button>
+        </div>
 
-    <div id="registerForm" class="form-group">
-        <input type="text" id="regName" placeholder="Ad Soyad">
-        <input type="email" id="regEmail" placeholder="E-posta">
-        <input type="text" id="regPhone" placeholder="Telefon (05...)">
-        <input type="password" id="regPass" placeholder="Şifre">
-        <button onclick="handleAuth('register')" id="regBtn">Hesap Oluştur</button>
+        <div id="registerForm" class="form-group">
+            <input type="text" id="rName" placeholder="Ad Soyad">
+            <input type="email" id="rEmail" placeholder="E-posta">
+            <input type="text" id="rPhone" placeholder="Telefon (05xx...)">
+            <input type="password" id="rPass" placeholder="Şifre">
+            <button class="btn" onclick="submitForm('register')" id="rBtn">HESAP OLUŞTUR</button>
+        </div>
     </div>
 </div>
 
 <script>
-    function switchTab(type) {
+    // URL'den hangi sekmenin açılacağını anlar (mod=register gibi)
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.get('mod') === 'register') showForm('register');
+
+    function showForm(type) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.form-group').forEach(f => f.classList.remove('active'));
-        if(type === 'login') {
-            document.getElementById('loginTab').classList.add('active');
-            document.getElementById('loginForm').classList.add('active');
-        } else {
-            document.getElementById('registerTab').classList.add('active');
-            document.getElementById('registerForm').classList.add('active');
-        }
+        document.getElementById(type + 'Tab').classList.add('active');
+        document.getElementById(type + 'Form').classList.add('active');
     }
 
-    async function handleAuth(type) {
-        const btn = type === 'login' ? document.getElementById('loginBtn') : document.getElementById('regBtn');
+    async function submitForm(type) {
+        const btn = document.getElementById(type === 'login' ? 'lBtn' : 'rBtn');
         const data = type === 'login' 
-            ? { action: 'login', email: document.getElementById('loginEmail').value, sifre: document.getElementById('loginPass').value }
-            : { action: 'register', ad_soyad: document.getElementById('regName').value, email: document.getElementById('regEmail').value, telefon: document.getElementById('regPhone').value, sifre: document.getElementById('regPass').value };
+            ? { action: 'login', email: document.getElementById('lEmail').value, sifre: document.getElementById('lPass').value }
+            : { action: 'register', ad_soyad: document.getElementById('rName').value, email: document.getElementById('rEmail').value, telefon: document.getElementById('rPhone').value, sifre: document.getElementById('rPass').value };
 
         btn.disabled = true;
-        btn.innerText = 'İşleniyor...';
+        btn.innerText = 'Bekleyiniz...';
 
         try {
-            // DİKKAT: Başına site adı yazma, sadece /api/auth kalsın
-            const res = await fetch('/api/auth', {
+            const response = await fetch('/api/auth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            const result = await res.json();
+            const res = await response.json();
 
-            if (result.success) {
-                alert(type === 'login' ? 'Giriş Başarılı!' : 'Kayıt Tamamlandı!');
-                window.location.href = '/'; // Ana sayfaya gönder
+            if(res.success) {
+                alert(type === 'login' ? 'Hoş geldiniz!' : 'Kaydınız başarıyla oluşturuldu!');
+                window.location.href = '/';
             } else {
-                alert('Hata: ' + (result.error || 'İşlem başarısız'));
+                alert('Hata: ' + (res.error || 'Bilgiler yanlış.'));
             }
-        } catch (e) {
-            alert('Bağlantı Hatası: Sunucuya ulaşılamadı. Lütfen Vercel ayarlarını kontrol et.');
+        } catch (err) {
+            alert('Bağlantı Hatası! Vercel Logs kısmını kontrol edin.');
         } finally {
             btn.disabled = false;
-            btn.innerText = type === 'login' ? 'Giriş Yap' : 'Hesap Oluştur';
+            btn.innerText = type === 'login' ? 'GİRİŞ YAP' : 'HESAP OLUŞTUR';
         }
     }
 </script>
-
 </body>
 </html>
