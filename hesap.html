@@ -58,5 +58,18 @@
 }
 
     </script>
+    <script>
+// Sayfa açıldığında URL'ye bak (login mi register mı?)
+const urlParams = new URLSearchParams(window.location.search);
+const mod = urlParams.get('mod');
+
+if (mod === 'login') {
+    document.querySelector('h2').innerText = 'Giriş Yap';
+    document.querySelector('button').innerText = 'Giriş Yap';
+    // Ad Soyad ve Telefon alanlarını gizle (Sadece Email ve Şifre kalsın)
+    document.querySelectorAll('input')[0].style.display = 'none'; // Ad Soyad
+    document.querySelectorAll('input')[2].style.display = 'none'; // Telefon
+}
+</script>
 </body>
 </html>
