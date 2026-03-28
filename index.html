@@ -49,7 +49,7 @@ body{background:var(--cream);color:var(--ink);font-family:var(--ff-body);font-we
 #mobileMenu button{background:none;border:none;color:rgba(255,255,255,0.7);text-align:left;font-size:0.9rem;letter-spacing:3px;text-transform:uppercase;padding:14px 0;cursor:pointer;transition:color 0.3s;border-bottom:1px solid rgba(255,255,255,0.06);font-family:var(--ff-body);font-weight:400}
 #mobileMenu button:hover{color:var(--gold)}
 #menuOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1500;display:none}
-@media(max-width:640px){#mobileMenu{width:min(82vw,320px);height:calc(100dvh - 86px - env(safe-area-inset-bottom));max-height:calc(100dvh - 86px - env(safe-area-inset-bottom));padding:28px 22px 18px;border-bottom-right-radius:22px}}
+@media(max-width:640px){#mobileMenu{width:min(82vw,320px);top:0;bottom:calc(8px + env(safe-area-inset-bottom) + 72px);height:auto;max-height:none;padding:28px 22px 18px;border-bottom-right-radius:22px}}
 header{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 5%;background:rgba(247,244,239,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:var(--transition)}
 .header-inner{max-width:100%;margin:auto;height:75px;display:flex;align-items:center;justify-content:space-between}
 .logo-mark{display:flex;align-items:center;gap:14px;text-decoration:none;cursor:pointer}
