@@ -426,6 +426,17 @@ tbody tr:hover td{background:#fdfcf8}
 }
 </style>
 
+<style>
+  /* Butonun her zaman tıklanabilir olması için bu lazım */
+  .login-btn {
+      pointer-events: all !important;
+      cursor: pointer !important;
+      z-index: 9999 !important;
+      background-color: #000 !important; /* Buton siyah görünsün diye */
+      color: #fff !important;           /* Yazı beyaz olsun diye */
+  }
+</style>
+
 </head>
 <body>
 
@@ -446,7 +457,7 @@ tbody tr:hover td{background:#fdfcf8}
       <h2>Giriş Yap</h2>
       <p>Admin hesabınızla devam edin</p>
       <input type="password" class="login-input" id="loginPass" placeholder="Şifrenizi girin">
-      <button class="login-btn" onclick="doLogin()"><i class="fas fa-lock"></i>&nbsp;&nbsp;Giriş Yap</button>
+      <button class="login-btn" onclick="doLogin()">GİRİŞ YAP</button>
       <p class="login-error" id="loginError"><i class="fas fa-exclamation-triangle"></i> &nbsp;Yanlış şifre!</p>
     </div>
   </div>
@@ -942,6 +953,7 @@ tbody tr:hover td{background:#fdfcf8}
 <div class="a-toast" id="aToast"></div>
 
 <script>
+
 // ════════════════════════════════════
 //  AUTH
 // ════════════════════════════════════
