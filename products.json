@@ -1,5 +1,32 @@
 [
   {
+    "id": "zebra-perde-1774657341307",
+    "name": "Zebra Perde",
+    "desc": "Modern tasarımı ve pratik kullanımıyla öne çıkan zebra perdeler, ışık kontrolünü zahmetsizce ayarlamanızı sağlar.",
+    "image": "resimler/placeholder.jpg",
+    "price": 1000,
+    "oldPrice": 1500,
+    "cat": "perde",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "Premium",
+    "badge": "500 TL İNDİRİM",
+    "active": true,
+    "specs": {
+      "En": "150-300 cm",
+      "Kumaş": "Polyester",
+      "Stil": "Modern",
+      "Astar": "Yok"
+    },
+    "care": {
+      "Yıkama": "30°C",
+      "Sıkma": "Düşük devirde",
+      "Kurutma": "Gölgede kurutun",
+      "Ütü": "Düşük ısıda",
+      "Kuru Temizleme": "Önerilmez"
+    }
+  },
+  {
     "id": "stor-perde-1774593801587",
     "name": "Stor Perde",
     "desc": "Modern tasarımı ve pratik kullanımıyla ışığı dilediğinizce yönlendiren, leke tutmayan şık stor perde.",
