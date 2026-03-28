@@ -1,5 +1,27 @@
 [
   {
+    "id": "zebra-perde-1774687629565",
+    "name": "Zebra Perde",
+    "desc": "160 X 200 Hazır Ölçü",
+    "image": "resimler/1774687325299-IMG_1471.jpeg",
+    "price": 2000,
+    "oldPrice": 2500,
+    "cat": "carsaf",
+    "unit": "adet",
+    "isMeter": false,
+    "features": "Premium Kalite",
+    "badge": "500 TL İNDİRİM",
+    "stock": null,
+    "active": true,
+    "specs": {
+      "En": "160 cm",
+      "Boy": "200 cm",
+      "Kumaş": "Zebra",
+      "Stil": "Modern"
+    },
+    "care": {}
+  },
+  {
     "id": "zebra-perde-1774657341307",
     "name": "Zebra Perde",
     "desc": "Modern tasarımı ve pratik kullanımıyla öne çıkan zebra perdeler, ışık kontrolünü zahmetsizce ayarlamanızı sağlar.",
