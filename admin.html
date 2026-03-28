@@ -951,6 +951,7 @@ tbody tr:hover td{background:#fdfcf8}
 // ════════════════════════════════════
 const ADMIN_PASS_KEY = 'gp_admin_pass';
 function getPass(){ return localStorage.getItem(ADMIN_PASS_KEY) || 'Emin.016'; }
+function getAdminApiKey(){ return 'gocmen1993'; }
 
 function doLogin(){
   const p = document.getElementById('loginPass').value;
@@ -1098,7 +1099,7 @@ async function loadAdminOrders(){
   tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--slate-light)"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</td></tr>`;
   try{
     const r = await fetch('/api/orders?action=all', {
-      headers:{'Content-Type':'application/json','x-admin-key':'Emin.016'}
+      headers:{'Content-Type':'application/json','x-admin-key':getAdminApiKey()}
     });
     if(!r.ok) throw new Error('HTTP '+r.status);
     const data = await r.json();
@@ -1237,7 +1238,7 @@ async function updateOrderStatus(){
   const durum = document.getElementById('orderStatusSelect').value;
   try{
     const r = await fetch('/api/orders?action=update-status',{
-      method:'POST',headers:{'Content-Type':'application/json','x-admin-key':'Emin.016'},
+      method:'POST',headers:{'Content-Type':'application/json','x-admin-key':getAdminApiKey()},
       body:JSON.stringify({id:currentOrderId,durum})
     });
     const data = await r.json();
@@ -1273,7 +1274,7 @@ async function loadCustomers(){
   const grid = document.getElementById('customerGrid');
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--slate-light)"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem"></i></div>`;
   try{
-    const r = await fetch('/api/customers?action=all',{headers:{'x-admin-key':'Emin.016'}});
+    const r = await fetch('/api/customers?action=all',{headers:{'x-admin-key':getAdminApiKey()}});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const data = await r.json();
     ALL_CUSTOMERS = data.customers||[];
