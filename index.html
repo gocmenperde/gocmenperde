@@ -963,8 +963,7 @@ let CATEGORIES = [
 
 async function loadProducts(){
   try{
-    const res = await fetch('products.json?v=' + Date.now());
-    const res = await fetch('products.json', { cache:'force-cache' });
+    const res = await fetch('products.json?v=' + Date.now(), { cache:'no-store' });
     PRODUCTS = await res.json();
     syncCategoriesFromAdmin();
     renderProducts(PRODUCTS);
