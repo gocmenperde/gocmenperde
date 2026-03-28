@@ -1218,7 +1218,7 @@ function openGalleryModal(src,title,desc){
   document.getElementById('mSpecs').innerHTML = '';
   document.getElementById('mCare').innerHTML = '';
   document.getElementById('mAddWrap').innerHTML = '<button class="modal-add-btn" onclick="closeProductModal();go(\'contact\')"><i class="fas fa-map-marker-alt" style="margin-right:8px"></i>Mağazamıza Gel</button>';
-  switchTab('desc');
+   switchTab('desc');
   resetImgZoom();
   document.getElementById('productModal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1243,6 +1243,7 @@ function resetImgZoom(){ const img=document.getElementById('mImg'); img.style.tr
 function toggleMenu(){
   const m=document.getElementById('mobileMenu'),o=document.getElementById('menuOverlay'),open=m.style.left==='0px';
   m.style.left=open?'-100%':'0px'; o.style.display=open?'none':'block';
+  if(!open) closeAllPopups();
   if(!open){ closeAllPopups(); hideToast(); }
 }
 function closeMobileMenuWrapper(){ document.getElementById('mobileMenu').style.left='-100%'; document.getElementById('menuOverlay').style.display='none'; }
@@ -1729,6 +1730,8 @@ function hideToast(){
 
 function showToast(msg){
   const t=document.getElementById('toast');
+  t.innerText=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
   if(!t) return;
   if(!msg || !String(msg).trim()){
     hideToast();
