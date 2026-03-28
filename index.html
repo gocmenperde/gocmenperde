@@ -498,8 +498,8 @@ body.cart-sheet-open .mobile-bottom-nav{opacity:0;pointer-events:none;transform:
   <div id="miniCartList"></div>
   <button class="btn-primary" style="width:100%;margin-top:20px" onclick="go('cart');closeAllPopups()">Siparişi Tamamla</button>
 </div>
-<div class="cart-sheet-overlay" id="cartSheetOverlay" onclick="closeCartSheet()"></div>
-<div class="cart-sheet" id="cartSheet">
+<div class="cart-sheet-overlay" id="cartSheetOverlay" onclick="closeCartSheet()" hidden></div>
+<div class="cart-sheet" id="cartSheet" hidden>
   <div class="cart-sheet-handle"></div>
   <div class="cart-sheet-title"><i class="fas fa-check-circle"></i> Ürün sepete eklendi</div>
   <div class="cart-sheet-body">
@@ -1025,9 +1025,11 @@ function needsDimensions(product){
 }
 function isTulPerdeProduct(product){
   const cat = String(product?.cat || '').toLowerCase();
-  if(cat === 'tul-perde') return true;
-  const haystack = `${product?.name || ''} ${product?.desc || ''}`.toLocaleLowerCase('tr');
-  return isMeterProduct(product) && (haystack.includes('tül perde') || haystack.includes('tul perde'));
+  if(['tul-perde','tulperde'].includes(cat)) return true;
+  const haystack = `${product?.name || ''} ${product?.desc || ''} ${product?.features || ''}`.toLocaleLowerCase('tr');
+  const hasTulKeyword = haystack.includes('tül perde') || haystack.includes('tul perde') || haystack.includes('tül') || haystack.includes('pile');
+  const inPerdeCategory = cat === 'perde' || cat === 'perdeler';
+  return isMeterProduct(product) && (hasTulKeyword || inPerdeCategory);
 }
 function getPileMultiplier(pileType){
   if(pileType === 'seyrek') return 2;
@@ -1573,19 +1575,8 @@ let basket = [], total = 0;
 let cartSheetTimer = null;
 
 function openCartSheet(item){
-  const sheet = document.getElementById('cartSheet');
-  const overlay = document.getElementById('cartSheetOverlay');
-  if(!sheet || !overlay || !item) return;
-  const product = PRODUCTS.find(p => p.id === item.id);
-  const imgSrc = getPrimaryImage(product) || '';
-  document.getElementById('cartSheetImg').src = imgSrc;
-  document.getElementById('cartSheetName').innerText = item.name;
-  document.getElementById('cartSheetMeta').innerText = `${formatQty(item.qty)} ${item.unitLabel||'adet'} • ${item.sub.toLocaleString('tr-TR')} TL`;
-  overlay.classList.add('open');
-  sheet.classList.add('open');
-  document.body.classList.add('cart-sheet-open');
-  clearTimeout(cartSheetTimer);
-  cartSheetTimer = setTimeout(closeCartSheet, 4200);
+  // Mobilde alttan çıkan sabit panel kullanıcı talebiyle kapalı tutuluyor.
+  return;
 }
 function closeCartSheet(){
   document.getElementById('cartSheet')?.classList.remove('open');

@@ -822,6 +822,10 @@ tbody tr:hover td{background:#fdfcf8}
         <textarea id="f-images" placeholder="Ürün fotoğrafları (her satıra bir URL/yol):&#10;resimler/urun-1.jpg&#10;resimler/urun-2.jpg" oninput="previewImg()" style="margin-top:8px;min-height:90px;font-family:monospace;font-size:0.8rem"></textarea>
         <img id="imgPreview" style="width:100%;height:130px;border-radius:10px;object-fit:cover;border:1px solid var(--border);margin-top:8px;display:none" src="" alt="">
         <div id="imgPreviewGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin-top:8px"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button type="button" class="btn btn-outline btn-sm" onclick="clearImageFields()"><i class="fas fa-image"></i> Resim Alanını Temizle</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="clearSelectedUploadFiles()"><i class="fas fa-xmark"></i> Seçili Dosyaları Kaldır</button>
+        </div>
       </div>
       <div class="fg"><label>Özellikler (virgülle)</label><input type="text" id="f-features" placeholder="karartma, ütü, premium, astarlı"></div>
       <div class="fg">
@@ -832,8 +836,8 @@ tbody tr:hover td{background:#fdfcf8}
           <button type="button" class="json-helper-btn" onclick="addSpecsTemplate('koltuk')"><i class="fas fa-plus"></i> Koltuk</button>
           <button type="button" class="json-helper-btn" onclick="clearField('f-specs','specs-valid')"><i class="fas fa-trash"></i></button>
         </div>
-        <textarea id="f-specs" placeholder="En: 150-300 cm&#10;Kumaş: Polyester&#10;Stil: Modern" oninput="validateStructuredField('f-specs','specs-valid')" style="min-height:80px;font-family:monospace;font-size:0.8rem"></textarea>
-        <p style="font-size:0.72rem;color:var(--slate-light)">Kolay giriş: satır satır <code style="background:#f5f5f5;padding:2px 6px;border-radius:5px">Anahtar: Değer</code> yazın (JSON veya süslü parantez gerekmez).</p>
+        <textarea id="f-specs" placeholder="En: 150-300 cm&#10;Kumaş: Polyester&#10;Stil: Modern&#10;veya sadece satır satır yazın:&#10;Polyester kumaş&#10;Karartma özellikli" oninput="validateStructuredField('f-specs','specs-valid')" style="min-height:80px;font-family:monospace;font-size:0.8rem"></textarea>
+        <p style="font-size:0.72rem;color:var(--slate-light)">Kolay giriş: JSON/parantez zorunlu değil. İsterseniz <code style="background:#f5f5f5;padding:2px 6px;border-radius:5px">Anahtar: Değer</code>, isterseniz sadece satır satır serbest metin yazın.</p>
         <div class="json-valid" id="specs-valid"></div>
       </div>
       <div class="fg">
@@ -842,8 +846,8 @@ tbody tr:hover td{background:#fdfcf8}
           <button type="button" class="json-helper-btn" onclick="addCareTemplate()"><i class="fas fa-plus"></i> Standart</button>
           <button type="button" class="json-helper-btn" onclick="clearField('f-care','care-valid')"><i class="fas fa-trash"></i></button>
         </div>
-        <textarea id="f-care" placeholder="Yıkama: 30°C&#10;Ütü: Düşük ısı&#10;Kurutma: Gölgede kurutun" oninput="validateStructuredField('f-care','care-valid')" style="min-height:80px;font-family:monospace;font-size:0.8rem"></textarea>
-        <p style="font-size:0.72rem;color:var(--slate-light)">Örn: <code style="background:#f5f5f5;padding:2px 6px;border-radius:5px">Yıkama: 30°C</code>, <code style="background:#f5f5f5;padding:2px 6px;border-radius:5px">Ütü: Düşük ısı</code>.</p>
+        <textarea id="f-care" placeholder="Yıkama: 30°C&#10;Ütü: Düşük ısı&#10;Kurutma: Gölgede kurutun&#10;veya sadece satır satır yazın:&#10;30 derecede yıkayın&#10;Düşük ısıda ütüleyin" oninput="validateStructuredField('f-care','care-valid')" style="min-height:80px;font-family:monospace;font-size:0.8rem"></textarea>
+        <p style="font-size:0.72rem;color:var(--slate-light)">Örn: <code style="background:#f5f5f5;padding:2px 6px;border-radius:5px">Yıkama: 30°C</code> ya da direkt <code style="background:#f5f5f5;padding:2px 6px;border-radius:5px">30 derecede yıkayın</code> yazabilirsiniz.</p>
         <div class="json-valid" id="care-valid"></div>
       </div>
       <div class="fg"><label>Durum</label>
@@ -1826,14 +1830,19 @@ function objectToLinePairs(obj){return Object.entries(obj||{}).map(([k,v])=>`${k
 function linePairsToObject(raw){
   const out={};
   const lines=(raw||'').split('\n').map(l=>l.trim()).filter(Boolean);
+  let plainIndex=1;
   for(const line of lines){
     const sep = line.indexOf(':')>-1 ? ':' : (line.indexOf('=')>-1 ? '=' : null);
-    if(!sep) throw new Error(`"${line}" satırında ":" veya "=" yok`);
-    const [key,...rest]=line.split(sep);
-    const k=(key||'').trim();
-    const v=rest.join(sep).trim();
-    if(!k || !v) throw new Error(`"${line}" satırı eksik`);
-    out[k]=v;
+    if(sep){
+      const [key,...rest]=line.split(sep);
+      const k=(key||'').trim();
+      const v=rest.join(sep).trim();
+      if(!k || !v) throw new Error(`"${line}" satırı eksik`);
+      out[k]=v;
+      continue;
+    }
+    out[`Madde ${plainIndex}`]=line;
+    plainIndex += 1;
   }
   return out;
 }
@@ -1957,6 +1966,22 @@ function removeSelectedUploadFile(index){
   input.files=dt.files;
   document.getElementById('f-imageFileName').textContent = files.length ? (files.length===1 ? files[0].name : `${files.length} dosya seçildi`) : 'JPG, PNG, WEBP — max 5MB';
   renderSelectedImages();
+}
+function clearSelectedUploadFiles(){
+  const input=getImageFileInput();
+  if(!input) return;
+  input.value='';
+  document.getElementById('f-imageFileName').textContent='JPG, PNG, WEBP — max 5MB';
+  renderSelectedImages();
+  const status=document.getElementById('imgUploadStatus');
+  if(status){ status.style.display='none'; status.innerHTML=''; }
+}
+function clearImageFields(){
+  document.getElementById('f-image').value='';
+  document.getElementById('f-images').value='';
+  clearSelectedUploadFiles();
+  previewImg();
+  aToast('✓ Ürün görselleri temizlendi','success');
 }
 
 // ════════════════════════════════════
