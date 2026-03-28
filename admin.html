@@ -806,14 +806,16 @@ tbody tr:hover td{background:#fdfcf8}
       <div class="fg">
         <label>Ürün Resmi</label>
         <div class="upload-zone" id="uploadZone">
-          <input type="file" id="f-imageFile" accept="image/*" onchange="handleImageSelect(this)">
+          <input type="file" id="f-imageFile" accept="image/*" multiple onchange="handleImageSelect(this)">
           <i class="fas fa-cloud-upload-alt"></i>
-          <p>Resim sürükleyin veya <span class="highlight">seçin</span></p>
-          <p style="font-size:0.72rem;margin-top:4px" id="f-imageFileName">JPG, PNG, WEBP — max 5MB</p>
+          <p>Resim(ler)i sürükleyin veya <span class="highlight">seçin</span></p>
+          <p style="font-size:0.72rem;margin-top:4px" id="f-imageFileName">JPG, PNG, WEBP — çoklu yükleme destekli</p>
         </div>
         <div class="img-status" id="imgUploadStatus"></div>
-        <input type="text" id="f-image" placeholder="resimler/urun.jpg veya https://..." oninput="previewImg()" style="margin-top:8px;padding:10px 14px;border:1.5px solid var(--border-2);border-radius:9px;font-size:0.85rem;background:var(--cream);outline:none;transition:0.2s">
+        <input type="text" id="f-image" placeholder="Ana görsel (otomatik ilk fotoğraf)" oninput="syncImagesFromSingleInput()" style="margin-top:8px;padding:10px 14px;border:1.5px solid var(--border-2);border-radius:9px;font-size:0.85rem;background:var(--cream);outline:none;transition:0.2s">
+        <textarea id="f-images" placeholder="Ürün fotoğrafları (her satıra bir URL/yol):&#10;resimler/urun-1.jpg&#10;resimler/urun-2.jpg" oninput="previewImg()" style="margin-top:8px;min-height:90px;font-family:monospace;font-size:0.8rem"></textarea>
         <img id="imgPreview" style="width:100%;height:130px;border-radius:10px;object-fit:cover;border:1px solid var(--border);margin-top:8px;display:none" src="" alt="">
+        <div id="imgPreviewGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin-top:8px"></div>
       </div>
       <div class="fg"><label>Özellikler (virgülle)</label><input type="text" id="f-features" placeholder="karartma, ütü, premium, astarlı"></div>
       <div class="fg">
@@ -1375,6 +1377,25 @@ function filterFavorites(){ renderFavorites(); }
 // ════════════════════════════════════
 //  PRODUCT TABLE
 // ════════════════════════════════════
+function getProductImages(product){
+  if(!product) return [];
+  if(Array.isArray(product.images) && product.images.length){
+    return product.images.filter(Boolean);
+  }
+  return product.image ? [product.image] : [];
+}
+function getImagesFromField(){
+  const raw = document.getElementById('f-images')?.value || '';
+  return raw.split('\n').map(x=>x.trim()).filter(Boolean);
+}
+function syncImagesFromSingleInput(){
+  const single = document.getElementById('f-image').value.trim();
+  const imgs = getImagesFromField();
+  if(single && !imgs.includes(single)){ imgs.unshift(single); }
+  document.getElementById('f-images').value = imgs.join('\n');
+  previewImg();
+}
+
 function renderTable(list){
   const data = list||PRODUCTS;
   const tbody = document.getElementById('productTableBody');
@@ -1385,10 +1406,12 @@ function renderTable(list){
   tbody.innerHTML = data.map(p=>{
     const realIdx = PRODUCTS.indexOf(p);
     const placeholder = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='46' height='46'><rect fill='%23f0f0f0' width='46' height='46'/><text x='23' y='30' text-anchor='middle' font-size='20'>📦</text></svg>`;
+    const images = getProductImages(p);
+    const mainImage = images[0] || p.image || placeholder;
     const stockLabel = p.stock!=null ? `<span style="font-size:0.75rem;color:var(--slate-light)">${p.stock} adet</span>` : `<span style="font-size:0.72rem;color:var(--green)">Sınırsız</span>`;
     return `<tr>
       <td><div style="display:flex;align-items:center;gap:12px">
-        <img src="${p.image||placeholder}" class="product-thumb" onerror="this.src='${placeholder}'" alt="${p.name}">
+        <img src="${mainImage}" class="product-thumb" onerror="this.src='${placeholder}'" alt="${p.name}">
         <div class="product-name-cell">${p.name}<small>${p.id}</small></div>
       </div></td>
       <td><span class="badge badge-cat">${getCatLabel(p.cat)}</span></td>
@@ -1433,10 +1456,11 @@ function addFavFromProduct(idx){
 function openAddModal(){
   document.getElementById('formModalTitle').innerText='Yeni Ürün Ekle';
   document.getElementById('editIndex').value='';
-  ['f-name','f-desc','f-price','f-oldprice','f-image','f-badge','f-features','f-specs','f-care','f-stock'].forEach(id=>document.getElementById(id).value='');
+  ['f-name','f-desc','f-price','f-oldprice','f-image','f-images','f-badge','f-features','f-specs','f-care','f-stock'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-cat').value=CATEGORIES[0]?.key||'carsaf';
   document.getElementById('f-unit').value='adet';
   document.getElementById('imgPreview').style.display='none';
+  document.getElementById('imgPreviewGrid').style.display='none';
   document.getElementById('f-imageFileName').textContent='JPG, PNG, WEBP — max 5MB';
   document.getElementById('imgUploadStatus').style.display='none';
   document.getElementById('f-imageFile').value='';
@@ -1456,7 +1480,9 @@ function editProduct(idx){
   document.getElementById('f-oldprice').value=p.oldPrice||'';
   document.getElementById('f-cat').value=p.cat;
   document.getElementById('f-unit').value=p.unit||'adet';
-  document.getElementById('f-image').value=p.image||'';
+  const imageList = getProductImages(p);
+  document.getElementById('f-image').value=imageList[0]||p.image||'';
+  document.getElementById('f-images').value=imageList.join('\n');
   document.getElementById('f-badge').value=p.badge||'';
   document.getElementById('f-features').value=p.features||'';
   document.getElementById('f-stock').value=p.stock!=null?p.stock:'';
@@ -1479,9 +1505,14 @@ function saveProduct(){
   if(!validateJSON('f-care','care-valid')){aToast('⚠️ Bakım JSON hatası','error');return;}
   const stockVal = document.getElementById('f-stock').value;
   const unitVal=document.getElementById('f-unit').value;
+  let images = getImagesFromField();
+  const singleImage = document.getElementById('f-image').value.trim();
+  if(singleImage && !images.includes(singleImage)) images.unshift(singleImage);
+  images = images.filter(Boolean);
   const obj={
     id:'',name,desc:document.getElementById('f-desc').value.trim(),
-    image:document.getElementById('f-image').value||'',
+    image:images[0]||'',
+    images,
     price,oldPrice:document.getElementById('f-oldprice').value?parseFloat(document.getElementById('f-oldprice').value):null,
     cat:document.getElementById('f-cat').value,unit:unitVal,isMeter:unitVal==='mt',
     features:document.getElementById('f-features').value.replace(/\s*,\s*/g,',').trim(),
@@ -1522,9 +1553,23 @@ function updateSwitch(){
   lbl.style.color=activeSwitchState?'var(--green)':'var(--red)';
 }
 function previewImg(){
-  const val=document.getElementById('f-image').value.trim(),prev=document.getElementById('imgPreview');
-  if(val){prev.src=val;prev.style.display='block';prev.onerror=()=>{prev.style.display='none';}}
-  else prev.style.display='none';
+  const prev=document.getElementById('imgPreview');
+  const grid=document.getElementById('imgPreviewGrid');
+  let images = getImagesFromField();
+  const single = document.getElementById('f-image').value.trim();
+  if(single && !images.includes(single)) images.unshift(single);
+  images = images.filter(Boolean);
+  if(images.length){
+    prev.src=images[0];
+    prev.style.display='block';
+    prev.onerror=()=>{prev.style.display='none';};
+    grid.style.display='grid';
+    grid.innerHTML = images.map((src,idx)=>`<div style="position:relative"><img src="${src}" alt="Görsel ${idx+1}" style="width:100%;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"><span style="position:absolute;top:4px;left:4px;background:rgba(0,0,0,0.65);color:white;font-size:0.62rem;padding:2px 6px;border-radius:999px">${idx+1}</span></div>`).join('');
+  } else {
+    prev.style.display='none';
+    grid.style.display='none';
+    grid.innerHTML='';
+  }
 }
 
 // ════════════════════════════════════
@@ -1767,38 +1812,51 @@ function updateTokenStatus(){
 }
 
 async function handleImageSelect(input){
-  const file=input.files[0];
-  if(!file) return;
-  document.getElementById('f-imageFileName').textContent=file.name;
+  const files=Array.from(input.files||[]);
+  if(!files.length) return;
+  document.getElementById('f-imageFileName').textContent = files.length===1 ? files[0].name : `${files.length} dosya seçildi`;
   const token=getGithubToken();
   if(!token){
-    const reader=new FileReader();
-    reader.onload=e=>{document.getElementById('f-image').value='(lokal önizleme)';document.getElementById('imgPreview').src=e.target.result;document.getElementById('imgPreview').style.display='block';};
-    reader.readAsDataURL(file);
+    const previews = await Promise.all(files.map(file => new Promise(resolve=>{
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    })));
+    document.getElementById('f-image').value = previews[0] || '';
+    document.getElementById('f-images').value = previews.join('\n');
+    previewImg();
     aToast('⚠️ GitHub Token yok — yalnızca önizleme','error');
     return;
   }
   const status=document.getElementById('imgUploadStatus');
   status.className='img-status loading';status.innerHTML='<i class="fas fa-spinner fa-spin"></i> GitHub\'a yükleniyor...';status.style.display='flex';
   try{
-    const reader=new FileReader();
-    reader.onload=async e=>{
-      const content=e.target.result.split(',')[1];
-      const sanitize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[ğ]/g,'g').replace(/[ü]/g,'u').replace(/[ş]/g,'s').replace(/[ı]/g,'i').replace(/[ö]/g,'o').replace(/[ç]/g,'c').replace(/\s+/g,'-').replace(/[^a-zA-Z0-9._-]/g,'');
+    const sanitize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[ğ]/g,'g').replace(/[ü]/g,'u').replace(/[ş]/g,'s').replace(/[ı]/g,'i').replace(/[ö]/g,'o').replace(/[ç]/g,'c').replace(/\s+/g,'-').replace(/[^a-zA-Z0-9._-]/g,'');
+    const uploaded = [];
+    for(const file of files){
+      const content = await new Promise(resolve=>{
+        const reader=new FileReader();
+        reader.onload=e=>resolve(e.target.result.split(',')[1]);
+        reader.readAsDataURL(file);
+      });
       const fileName=`resimler/${Date.now()}-${sanitize(file.name)}`;
       const url=`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`;
       const res=await fetch(url,{method:'PUT',headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify({message:'Admin: Ürün resmi yüklendi',content})});
-      if(res.ok){
-        document.getElementById('f-image').value=fileName;previewImg();
-        status.className='img-status done';status.innerHTML='<i class="fas fa-check-circle"></i> Yüklendi: '+fileName;
-        aToast('✅ Resim yüklendi','success');
-      } else {
+      if(!res.ok){
         const err=await res.json();
         status.className='img-status error';status.innerHTML='<i class="fas fa-times-circle"></i> Hata: '+err.message;
         aToast('❌ Yükleme hatası: '+err.message,'error');
+        return;
       }
-    };
-    reader.readAsDataURL(file);
+      uploaded.push(fileName);
+    }
+    if(uploaded.length){
+      document.getElementById('f-image').value=uploaded[0];
+      document.getElementById('f-images').value=uploaded.join('\n');
+      previewImg();
+    }
+    status.className='img-status done';status.innerHTML=`<i class="fas fa-check-circle"></i> ${uploaded.length} resim yüklendi`;
+    aToast('✅ Resimler yüklendi','success');
   } catch(err){status.className='img-status error';status.innerHTML='<i class="fas fa-times-circle"></i> '+err.message;aToast('❌ '+err.message,'error');}
 }
 
@@ -1912,7 +1970,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(zone){
     zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag');});
     zone.addEventListener('dragleave',()=>zone.classList.remove('drag'));
-    zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');const f=e.dataTransfer.files[0];if(f){const input=document.getElementById('f-imageFile');const dt=new DataTransfer();dt.items.add(f);input.files=dt.files;handleImageSelect(input);}});
+    zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');const files=Array.from(e.dataTransfer.files||[]);if(files.length){const input=document.getElementById('f-imageFile');const dt=new DataTransfer();files.forEach(f=>dt.items.add(f));input.files=dt.files;handleImageSelect(input);}});
   }
 });
 </script>
