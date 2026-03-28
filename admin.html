@@ -932,19 +932,63 @@ function parseJSONField(id){ const val=document.getElementById(id).value.trim();
 // ════════════════════════════════════════════════════════
 //  RESİM YÜKLE
 // ════════════════════════════════════════════════════════
-function handleImageSelect(input){
-  const file=input.files[0]; if(!file)return;
-  document.getElementById('f-imageFileName').textContent=file.name;
-  const reader=new FileReader();
-  reader.onload=e=>{const prev=document.getElementById('imgPreview');prev.src=e.target.result;prev.style.display='block';};
-  reader.readAsDataURL(file);
-  aToast('⚠️ GitHub ayarlarınızı yapılandırarak resim yükleyebilirsiniz');
+async function handleImageSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const token = getGithubToken();
+  if (!token) {
+    aToast('⚠️ Önce ayarlardan GitHub Token girmelisiniz!');
+    return;
+  }
+
+  const status = document.getElementById('imgUploadStatus');
+  status.style.display = 'block'; // Yükleniyor yazısını göster
+
+  try {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const content = e.target.result.split(',')[1]; // Base64 içeriği al
+      const fileName = `resimler/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`;
+
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Admin: Yeni ürün resmi yüklendi',
+          content: content
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById('f-image').value = fileName; // Yol bilgisini inputa yaz
+        previewImg(); // Önizlemeyi güncelle
+        aToast('✅ Resim başarıyla yüklendi');
+      } else {
+        const err = await res.json();
+        aToast('❌ Hata: ' + err.message);
+      }
+      status.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  } catch (err) {
+    aToast('❌ Sistemsel hata oluştu');
+    status.style.display = 'none';
+  }
 }
+
 
 // ════════════════════════════════════════════════════════
 //  GITHUB
 // ════════════════════════════════════════════════════════
-const REPO_OWNER='gocmenperde', REPO_NAME='gocmenperde', FILE_PATH='products.json';
+const REPO_OWNER = 'zeynel-turkoglu'; 
+const REPO_NAME = 'gocmenperde';      
+const FILE_PATH = 'products.json';
 function getGithubToken(){ return localStorage.getItem('gh_token'); }
 function resetGithubToken(){ localStorage.removeItem('gh_token'); const t=prompt('Yeni GitHub Token girin:'); if(t){localStorage.setItem('gh_token',t);aToast('✓ Token güncellendi');} }
 async function saveProductsJSON(){
