@@ -1086,7 +1086,8 @@ let CATEGORIES = [
 ];
 
 const AREA_PRICE_CATEGORIES = ['stor-perde','zebra-perde','plise-perde'];
-const REVIEW_NAMES = ['Ayşe','Fatma','Merve','İrem','Can','Emre','Mehmet','Selin','Özlem','Yasemin','Ali','Derya'];
+const REVIEW_FIRST_NAMES = ['Ayşe','Fatma','Merve','İrem','Can','Emre','Mehmet','Selin','Özlem','Yasemin','Ali','Derya','Burak','Zehra','Ece','Hakan','Sibel','Gizem','Kerem','Buse'];
+const REVIEW_LAST_NAMES = ['Yılmaz','Kaya','Demir','Çelik','Şahin','Yıldız','Aydın','Arslan','Doğan','Kurt','Koç','Polat','Öztürk','Aslan','Kılıç','Karaca','Şimşek','Erdoğan','Aksoy','Bulut'];
 const REVIEW_TEXTS = [
   'Kumaş kalitesi beklediğimden iyi çıktı, teşekkürler.',
   'Renk tonu fotoğraftakine çok yakın geldi, memnun kaldım.',
@@ -1134,16 +1135,67 @@ function loadUserReviews(productId){
     return [];
   }
 }
+function buildReviewFullName(rand, usedNames = new Set()){
+  const maxCombinations = REVIEW_FIRST_NAMES.length * REVIEW_LAST_NAMES.length;
+  const tryCount = Math.max(24, maxCombinations);
+  for(let i=0;i<tryCount;i++){
+    const first = REVIEW_FIRST_NAMES[Math.floor(rand() * REVIEW_FIRST_NAMES.length)];
+    const last = REVIEW_LAST_NAMES[Math.floor(rand() * REVIEW_LAST_NAMES.length)];
+    const candidate = `${first} ${last}`;
+    if(!usedNames.has(candidate)){
+      usedNames.add(candidate);
+      return candidate;
+    }
+  }
+  let suffix = 2;
+  while(usedNames.has(`Müşteri ${suffix}`)) suffix++;
+  const fallback = `Müşteri ${suffix}`;
+  usedNames.add(fallback);
+  return fallback;
+}
+function makeUniqueName(name, usedNames = new Set()){
+  const normalized = String(name || '').trim();
+  if(!normalized) return '';
+  if(!usedNames.has(normalized)) return normalized;
+  let suffix = 2;
+  while(usedNames.has(`${normalized} ${suffix}`)) suffix++;
+  return `${normalized} ${suffix}`;
+}
+function getAutoReviewName(productId){
+  const user = getCurrentUser();
+  if(user?.id && user?.ad_soyad){
+    return user.ad_soyad;
+  }
+  const social = getProductSocial(productId);
+  const usedNames = new Set((social?.reviews || []).map(r=>String(r?.name || '').trim()).filter(Boolean));
+  const randomizer = createSeededRandom(`${productId}-${Date.now()}-${Math.random()}`);
+  return buildReviewFullName(randomizer, usedNames);
+}
+function syncReviewNameField(productId){
+  const nameEl = document.getElementById('reviewNameInput');
+  if(!nameEl) return;
+  const user = getCurrentUser();
+  if(user?.id && user?.ad_soyad){
+    nameEl.value = user.ad_soyad;
+    nameEl.placeholder = 'Ad Soyad (hesabınızdan otomatik)';
+    nameEl.readOnly = true;
+    return;
+  }
+  nameEl.value = '';
+  nameEl.placeholder = 'Ad Soyad (otomatik eklenir)';
+  nameEl.readOnly = false;
+}
 function hydrateProductSocialData(){
   PRODUCT_SOCIAL = {};
   PRODUCTS.forEach((p, index)=>{
     const rand = createSeededRandom(`${p.id || p.name || 'urun'}-${index}`);
     const baseCount = 6 + Math.floor(rand() * 7);
+    const usedNames = new Set();
     const generatedReviews = Array.from({length:baseCount}, (_,i)=>{
       const rSeed = rand();
       const rating = rSeed > 0.6 ? 5 : rSeed > 0.18 ? 4 : 3;
       return {
-        name: REVIEW_NAMES[Math.floor(rand()*REVIEW_NAMES.length)],
+        name: buildReviewFullName(rand, usedNames),
         text: REVIEW_TEXTS[Math.floor(rand()*REVIEW_TEXTS.length)],
         rating,
         date: `2026-0${1 + Math.floor(rand()*3)}-${String(10 + i).padStart(2,'0')}`,
@@ -1174,8 +1226,12 @@ function submitProductReview(){
     showToast('Yorum en az 6 karakter olmalı.');
     return;
   }
+  const social = getProductSocial(currentModalProductId);
+  const usedNames = new Set((social.reviews || []).map(r=>String(r?.name || '').trim()).filter(Boolean));
+  const typedName = (nameEl?.value || '').trim();
+  const selectedName = typedName || getAutoReviewName(currentModalProductId);
   const nextReview = {
-    name: (nameEl?.value || '').trim() || 'Misafir',
+    name: makeUniqueName(selectedName, usedNames),
     text,
     rating: Number(ratingEl?.value || 5),
     date: new Date().toISOString().slice(0,10),
@@ -1188,7 +1244,7 @@ function submitProductReview(){
   applyFilters();
   renderModalReviews(currentModalProductId);
   if(textEl) textEl.value = '';
-  if(nameEl) nameEl.value = '';
+  syncReviewNameField(currentModalProductId);
   if(ratingEl) ratingEl.value = '5';
   showToast('Yorumunuz eklendi. Teşekkür ederiz!');
 }
@@ -1655,7 +1711,7 @@ function openModalFromProduct(id){
     bindTulPerdeAutoCalc(p, qid, wid, hid, `modal-pile-${p.id}`, pid);
   }
   renderModalReviews(id);
-  document.getElementById('reviewNameInput').value = '';
+  syncReviewNameField(id);
   document.getElementById('reviewTextInput').value = '';
   document.getElementById('reviewRatingInput').value = '5';
 
