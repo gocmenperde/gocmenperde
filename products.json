@@ -1,5 +1,45 @@
 [
   {
+    "id": "kursunlu-desensiz-modern-duz-perde-1774694118154",
+    "name": "Kurşunlu Desensiz Modern Düz Perde",
+    "desc": "Yaşam alanlarında kalabalıktan uzak, ferah ve modern bir görünüm arayanlar için özel olarak tasarlanan Kurşunlu Desensiz Düz Perde, zarafeti sadelikle birleştiriyor.",
+    "image": "resimler/1774694031283-IMG_9912.jpeg",
+    "images": [
+      "resimler/1774694031283-IMG_9912.jpeg",
+      "resimler/1774694034891-IMG_9911.jpeg",
+      "resimler/1774694037279-IMG_9910.jpeg",
+      "resimler/1774694040286-IMG_9909.jpeg",
+      "resimler/1774694043250-IMG_9906.jpeg",
+      "resimler/1774694045163-IMG_9907.jpeg",
+      "resimler/1774694047175-IMG_9904.jpeg",
+      "resimler/1774694049011-IMG_9905.jpeg",
+      "resimler/1774694051002-IMG_9893.jpeg",
+      "resimler/1774694053053-IMG_9891.jpeg"
+    ],
+    "price": 299.99,
+    "oldPrice": 499.99,
+    "cat": "perde",
+    "unit": "mt",
+    "isMeter": true,
+    "features": "Ütü istemez",
+    "badge": "200 TL İNDİRİM",
+    "stock": null,
+    "active": true,
+    "specs": {
+      "En": "150-300 cm",
+      "Kumaş": "Polyester",
+      "Stil": "Modern",
+      "Astar": "Yok"
+    },
+    "care": {
+      "Yıkama": "30°C",
+      "Sıkma": "Düşük devir",
+      "Kurutma": "Gölgede kurutun",
+      "Ütü": "Düşük ısı",
+      "Kuru Temizleme": "Önerilmez"
+    }
+  },
+  {
     "id": "zebra-perde-1774687629565",
     "name": "Zebra Perde",
     "desc": "160 X 200 Hazır Ölçü",
