@@ -203,14 +203,26 @@ nav{display:flex;align-items:center;gap:8px}
 @media(max-width:600px){.product-name{font-size:1rem}}
 .product-desc{font-size:0.78rem;color:var(--slate);margin-bottom:14px;line-height:1.7}
 @media(max-width:600px){.product-desc{display:none}}
+.product-rating{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--slate);margin-bottom:10px}
+.product-rating .stars{color:var(--gold);letter-spacing:1px;font-size:0.74rem}
+.product-rating b{color:var(--ink);font-size:0.78rem}
 .product-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .product-price{display:flex;flex-direction:column;gap:2px}
 .old-price{text-decoration:line-through;color:#a0a0a0;font-size:0.82rem}
 .current-price{color:#c0392b;font-weight:700;font-size:1.1rem;font-family:var(--ff-display)}
 .price-unit{font-size:0.72rem;color:var(--slate);font-family:var(--ff-body)}
-.qty-wrap{display:flex;align-items:center;gap:6px}
+.qty-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .qty-input{width:48px;height:36px;text-align:center;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;color:var(--ink);background:var(--cream);font-family:var(--ff-body)}
 @media(max-width:600px){.qty-input{width:40px;height:32px;font-size:0.8rem}}
+.qty-input.dimension-input{width:72px}
+.qty-input.pile-select{width:auto;min-width:112px;padding:0 8px;font-size:0.7rem}
+.qty-help-text{font-size:0.66rem;color:var(--slate);display:block;min-width:150px}
+@media(max-width:600px){
+  .qty-wrap{gap:5px}
+  .qty-input.dimension-input{width:86px;font-size:0.75rem}
+  .qty-input.pile-select{min-width:100%;height:34px}
+  .qty-help-text{flex:1 1 100%;font-size:0.62rem;line-height:1.45}
+}
 .add-btn{background:var(--ink);color:white;border:none;cursor:pointer;padding:9px 16px;border-radius:8px;font-size:0.68rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);white-space:nowrap;font-family:var(--ff-body)}
 .add-btn:hover{background:var(--gold);color:var(--ink)}
 @media(max-width:600px){.add-btn{padding:7px 10px;font-size:0.6rem;letter-spacing:1px}}
@@ -413,6 +425,27 @@ nav{display:flex;align-items:center;gap:8px}
 .modal-spec-key{color:var(--slate)}.modal-spec-val{color:var(--ink);font-weight:600;text-align:right}
 .modal-add-wrap{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .modal-qty-input{width:58px;height:42px;text-align:center;border:1px solid var(--border);border-radius:8px;font-size:1rem;font-family:var(--ff-body);background:var(--cream)}
+.modal-qty-input.dimension-input{width:95px}
+.modal-qty-input.pile-select{width:auto;min-width:190px;padding:0 10px;font-size:0.8rem}
+.modal-inline-help{font-size:0.72rem;color:var(--slate);display:block;flex:1 1 100%}
+.modal-rating-line{display:flex;align-items:center;gap:8px;margin:-4px 0 12px;color:var(--slate);font-size:0.82rem}
+.modal-rating-line .stars{color:var(--gold);letter-spacing:1px}
+.modal-reviews-wrap{margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--cream)}
+.modal-reviews-title{font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:10px}
+.modal-review-list{display:flex;flex-direction:column;gap:10px;max-height:170px;overflow-y:auto;padding-right:4px}
+.modal-review-item{background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 10px}
+.modal-review-head{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:var(--slate);margin-bottom:4px;gap:10px}
+.modal-review-stars{color:var(--gold);letter-spacing:1px}
+.modal-review-text{font-size:0.78rem;color:var(--ink);line-height:1.45}
+.modal-review-form{margin-top:12px;display:grid;grid-template-columns:1fr 120px auto;gap:8px}
+.modal-review-form input,.modal-review-form select{height:38px;border:1px solid var(--border);border-radius:8px;padding:0 10px;background:#fff;font-family:var(--ff-body);font-size:0.82rem}
+.modal-review-form button{height:38px;border:none;border-radius:8px;background:var(--ink);color:#fff;padding:0 12px;font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.modal-review-form button:hover{background:var(--gold);color:var(--ink)}
+@media(max-width:700px){
+  .modal-review-form{grid-template-columns:1fr}
+  .modal-qty-input.dimension-input{width:110px}
+  .modal-qty-input.pile-select{min-width:100%}
+}
 .modal-add-btn{flex:1;background:var(--ink);color:white;border:none;cursor:pointer;padding:12px 20px;border-radius:10px;font-size:0.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body)}
 .modal-add-btn:hover{background:var(--gold);color:var(--ink)}
 
@@ -691,6 +724,12 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
         <div class="filter-option"><input type="checkbox" id="feat-utu" onchange="applyFilters()"><label for="feat-utu">Ütü İstemez</label></div>
         <div class="filter-option"><input type="checkbox" id="feat-premium" onchange="applyFilters()"><label for="feat-premium">Premium Seri</label></div>
       </div>
+      <div class="filter-group">
+        <h4 class="filter-title">Puan & Popülerlik</h4>
+        <div class="filter-option"><input type="checkbox" id="topRatedOnly" onchange="applyFilters()"><label for="topRatedOnly">En çok yıldız alanlar (4.7+)</label></div>
+        <div class="filter-option"><input type="checkbox" id="mostReviewedOnly" onchange="applyFilters()"><label for="mostReviewedOnly">Çok yorumlananlar (10+)</label></div>
+        <div class="filter-option"><input type="checkbox" id="bestSellerOnly" onchange="applyFilters()"><label for="bestSellerOnly">Çok satanlar</label></div>
+      </div>
     </div>
     <div class="products-content">
       <div class="first-order-banner">
@@ -715,6 +754,9 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
           <option value="popular">En Çok Satan</option>
           <option value="price-asc">Fiyat (Artan)</option>
           <option value="price-desc">Fiyat (Azalan)</option>
+          <option value="rating-desc">Yıldıza Göre</option>
+          <option value="reviews-desc">Yoruma Göre</option>
+          <option value="bestseller-desc">Çok Satanlar</option>
         </select>
       </div>
       <div class="category-label" id="categoryLabel">Tüm Ürünler</div>
@@ -956,6 +998,20 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
       </div>
       <div class="modal-tab-content" id="tab-specs"><div class="modal-specs" id="mSpecs"></div></div>
       <div class="modal-tab-content" id="tab-care"><div class="modal-specs" id="mCare"></div></div>
+      <div class="modal-reviews-wrap">
+        <div class="modal-reviews-title">Ürün Yorumları</div>
+        <div class="modal-review-list" id="mReviews"></div>
+        <div class="modal-review-form">
+          <input type="text" id="reviewNameInput" placeholder="Adınız (opsiyonel)">
+          <select id="reviewRatingInput">
+            <option value="5">5 ★</option>
+            <option value="4">4 ★</option>
+            <option value="3">3 ★</option>
+          </select>
+          <button type="button" onclick="submitProductReview()">Yorum Ekle</button>
+          <input type="text" id="reviewTextInput" placeholder="Bu ürün için kısa yorum yazın...">
+        </div>
+      </div>
       <div class="modal-thumbs" id="mThumbs"></div>
       <div class="modal-add-wrap" id="mAddWrap"></div>
     </div>
@@ -1017,6 +1073,8 @@ const WA_NUMBER = '905012110958';
 
 // ── Ürün verisi ──
 let PRODUCTS = [];
+let PRODUCT_SOCIAL = {};
+let currentModalProductId = null;
 // Kategoriler (admin'den senkronize edilir)
 let CATEGORIES = [
   {key:'carsaf',label:'Çarşaflar'},
@@ -1028,11 +1086,23 @@ let CATEGORIES = [
 ];
 
 const AREA_PRICE_CATEGORIES = ['stor-perde','zebra-perde','plise-perde'];
+const REVIEW_NAMES = ['Ayşe','Fatma','Merve','İrem','Can','Emre','Mehmet','Selin','Özlem','Yasemin','Ali','Derya'];
+const REVIEW_TEXTS = [
+  'Kumaş kalitesi beklediğimden iyi çıktı, teşekkürler.',
+  'Renk tonu fotoğraftakine çok yakın geldi, memnun kaldım.',
+  'Dikiş ve ölçü oldukça başarılı, tavsiye ederim.',
+  'Kargo hızlıydı, montaj sonrası görünüm çok şık oldu.',
+  'Fiyat/performans olarak gerçekten iyi bir ürün.',
+  'Evimde çok zarif durdu, tekrar sipariş verebilirim.',
+  'Satıcı sorularımı hızlı cevapladı, süreç rahattı.',
+  'Beklediğimden kaliteli ve kullanışlı bir ürün oldu.'
+];
 
 async function loadProducts(){
   try{
     const res = await fetch('products.json?v=' + Date.now(), { cache:'no-store' });
     PRODUCTS = (await res.json()).map(normalizeProductCatalog);
+    hydrateProductSocialData();
     syncCategoriesFromAdmin();
     renderProducts(PRODUCTS);
     renderRecentlyViewed();
@@ -1040,6 +1110,105 @@ async function loadProducts(){
   } catch(e){
     document.getElementById('productsGrid').innerHTML = '<div class="products-loading">Ürünler yüklenemedi. Sayfayı yenileyin.</div>';
   }
+}
+
+function createSeededRandom(seedStr){
+  let seed = 0;
+  for(let i=0;i<seedStr.length;i++) seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0;
+  return function(){
+    seed = (1664525 * seed + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+}
+function renderStarText(rating){
+  const rounded = Math.max(1, Math.min(5, Math.round(Number(rating)||0)));
+  return '★'.repeat(rounded) + '☆'.repeat(5-rounded);
+}
+function reviewStorageKey(productId){
+  return `gp_reviews_${productId}`;
+}
+function loadUserReviews(productId){
+  try{
+    return JSON.parse(localStorage.getItem(reviewStorageKey(productId)) || '[]');
+  } catch(e){
+    return [];
+  }
+}
+function hydrateProductSocialData(){
+  PRODUCT_SOCIAL = {};
+  PRODUCTS.forEach((p, index)=>{
+    const rand = createSeededRandom(`${p.id || p.name || 'urun'}-${index}`);
+    const baseCount = 6 + Math.floor(rand() * 7);
+    const generatedReviews = Array.from({length:baseCount}, (_,i)=>{
+      const rSeed = rand();
+      const rating = rSeed > 0.6 ? 5 : rSeed > 0.18 ? 4 : 3;
+      return {
+        name: REVIEW_NAMES[Math.floor(rand()*REVIEW_NAMES.length)],
+        text: REVIEW_TEXTS[Math.floor(rand()*REVIEW_TEXTS.length)],
+        rating,
+        date: `2026-0${1 + Math.floor(rand()*3)}-${String(10 + i).padStart(2,'0')}`,
+        source: 'seed'
+      };
+    });
+    const allReviews = [...generatedReviews, ...loadUserReviews(p.id)];
+    const reviewCount = allReviews.length;
+    const avgRating = reviewCount ? allReviews.reduce((sum,r)=>sum + (Number(r.rating)||0),0) / reviewCount : 0;
+    PRODUCT_SOCIAL[p.id] = {
+      salesCount: 70 + Math.floor(rand()*460),
+      reviews: allReviews,
+      reviewCount,
+      avgRating: Math.round(avgRating * 10) / 10
+    };
+  });
+}
+function getProductSocial(productId){
+  return PRODUCT_SOCIAL[productId] || {salesCount:0,reviews:[],reviewCount:0,avgRating:0};
+}
+function submitProductReview(){
+  if(!currentModalProductId) return;
+  const textEl = document.getElementById('reviewTextInput');
+  const ratingEl = document.getElementById('reviewRatingInput');
+  const nameEl = document.getElementById('reviewNameInput');
+  const text = (textEl?.value || '').trim();
+  if(text.length < 6){
+    showToast('Yorum en az 6 karakter olmalı.');
+    return;
+  }
+  const nextReview = {
+    name: (nameEl?.value || '').trim() || 'Misafir',
+    text,
+    rating: Number(ratingEl?.value || 5),
+    date: new Date().toISOString().slice(0,10),
+    source: 'user'
+  };
+  const currentUserReviews = loadUserReviews(currentModalProductId);
+  currentUserReviews.push(nextReview);
+  localStorage.setItem(reviewStorageKey(currentModalProductId), JSON.stringify(currentUserReviews));
+  hydrateProductSocialData();
+  applyFilters();
+  renderModalReviews(currentModalProductId);
+  if(textEl) textEl.value = '';
+  if(nameEl) nameEl.value = '';
+  if(ratingEl) ratingEl.value = '5';
+  showToast('Yorumunuz eklendi. Teşekkür ederiz!');
+}
+function renderModalReviews(productId){
+  const listEl = document.getElementById('mReviews');
+  if(!listEl) return;
+  const social = getProductSocial(productId);
+  if(!social.reviewCount){
+    listEl.innerHTML = '<div class="modal-review-item"><div class="modal-review-text">Henüz yorum yok. İlk yorumu siz bırakın.</div></div>';
+    return;
+  }
+  const sortedReviews = [...social.reviews]
+    .sort((a,b)=>(b.rating-a.rating) || String(b.date).localeCompare(String(a.date)))
+    .slice(0, 12);
+  listEl.innerHTML = sortedReviews.map(r=>`
+    <div class="modal-review-item">
+      <div class="modal-review-head"><strong>${r.name}</strong><span class="modal-review-stars">${renderStarText(r.rating)}</span></div>
+      <div class="modal-review-text">${r.text}</div>
+    </div>
+  `).join('');
 }
 
 // Admin'deki kategorileri senkronize et
@@ -1221,6 +1390,7 @@ function buildCard(p, index=0){
   const pleatedMeterProduct = isPleatedMeterProduct(p);
   const requireSize = needsDimensions(p);
   const requireHeight = squareProduct || pleatedMeterProduct;
+  const social = getProductSocial(p.id);
   const priceHTML = p.oldPrice
     ? `<span class="old-price">${p.oldPrice.toLocaleString('tr-TR')} TL</span>
        <span class="current-price">${p.price.toLocaleString('tr-TR')} TL <span class="price-unit">/ ${p.unit}</span></span>`
@@ -1228,11 +1398,11 @@ function buildCard(p, index=0){
 
   const addBtn = `<div class="qty-wrap">
     ${squareProduct || pleatedMeterProduct ? `<input type="text" class="qty-input" id="${qid}" value="0" readonly>` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="qty-input" id="${qid}" value="1" ${meterProduct ? `title="Virgüllü değer girebilirsiniz"` : ''}>`}
-    ${requireSize ? `<input type="text" inputmode="decimal" class="qty-input" id="${wid}" placeholder="En (m)">` : ''}
-    ${requireHeight ? `<input type="text" inputmode="decimal" class="qty-input" id="${hid}" placeholder="Boy (m)">` : ''}
-    ${pleatedMeterProduct ? `<select class="qty-input" id="pile-${p.id}" style="min-width:108px"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select>` : ''}
-    ${squareProduct ? `<span id="${pid}" style="font-size:0.66rem;color:var(--slate);display:block;min-width:150px">En ve boy girildiğinde m² ve fiyat otomatik hesaplanır</span>` : ''}
-    ${pleatedMeterProduct ? `<span id="${pid}" style="font-size:0.66rem;color:var(--slate);display:block;min-width:150px">En/boy ve pile seçimine göre (1:2 / 1:2.5 / 1:3) metre ve fiyat otomatik hesaplanır</span>` : ''}
+    ${requireSize ? `<input type="text" inputmode="decimal" class="qty-input dimension-input" id="${wid}" placeholder="En (m)">` : ''}
+    ${requireHeight ? `<input type="text" inputmode="decimal" class="qty-input dimension-input" id="${hid}" placeholder="Boy (m)">` : ''}
+    ${pleatedMeterProduct ? `<select class="qty-input pile-select" id="pile-${p.id}"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select>` : ''}
+    ${squareProduct ? `<span id="${pid}" class="qty-help-text">En ve boy girildiğinde m² ve fiyat otomatik hesaplanır</span>` : ''}
+    ${pleatedMeterProduct ? `<span id="${pid}" class="qty-help-text">En/boy ve pile seçimine göre (1:2 / 1:2.5 / 1:3) metre ve fiyat otomatik hesaplanır</span>` : ''}
     <button class="add-btn" onclick="event.stopPropagation();addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','pile-${p.id}')">+ Ekle</button>
   </div>`;
 
@@ -1252,6 +1422,7 @@ function buildCard(p, index=0){
     <div class="product-info">
       <div class="product-name">${p.name}</div>
       <div class="product-desc">${p.desc}</div>
+      <div class="product-rating"><span class="stars">${renderStarText(social.avgRating)}</span><b>${social.avgRating.toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1})}</b><span>(${social.reviewCount} yorum)</span></div>
       <div class="product-bottom">
         <div class="product-price">${priceHTML}</div>
         ${addBtn}
@@ -1340,8 +1511,12 @@ function applyFilters(){
   const featKar  = document.getElementById('feat-karartma')?.checked;
   const featUtu  = document.getElementById('feat-utu')?.checked;
   const featPrem = document.getElementById('feat-premium')?.checked;
+  const topRatedOnly = document.getElementById('topRatedOnly')?.checked;
+  const mostReviewedOnly = document.getElementById('mostReviewedOnly')?.checked;
+  const bestSellerOnly = document.getElementById('bestSellerOnly')?.checked;
 
   let filtered = PRODUCTS.filter(p => {
+    const social = getProductSocial(p.id);
     if(!p.active) return false;
     if(search && !p.name.toLowerCase().includes(search) && !(p.desc||'').toLowerCase().includes(search)) return false;
     if(p.price < minP || p.price > maxP) return false;
@@ -1350,11 +1525,22 @@ function applyFilters(){
     if(featKar && !f.includes('karartma')) return false;
     if(featUtu && !f.includes('utu')) return false;
     if(featPrem && !f.includes('premium')) return false;
+    if(topRatedOnly && social.avgRating < 4.7) return false;
+    if(mostReviewedOnly && social.reviewCount < 10) return false;
+    if(bestSellerOnly && social.salesCount < 260) return false;
     return true;
   });
 
-  if(sort==='price-asc')  filtered.sort((a,b)=>a.price-b.price);
-  if(sort==='price-desc') filtered.sort((a,b)=>b.price-a.price);
+  filtered.sort((a,b)=>{
+    const socialA = getProductSocial(a.id);
+    const socialB = getProductSocial(b.id);
+    if(sort==='price-asc') return a.price-b.price;
+    if(sort==='price-desc') return b.price-a.price;
+    if(sort==='rating-desc') return socialB.avgRating-socialA.avgRating || socialB.reviewCount-socialA.reviewCount;
+    if(sort==='reviews-desc') return socialB.reviewCount-socialA.reviewCount || socialB.avgRating-socialA.avgRating;
+    if(sort==='bestseller-desc' || sort==='popular') return socialB.salesCount-socialA.salesCount || socialB.avgRating-socialA.avgRating;
+    return 0;
+  });
 
   const label = (!catAll && activeCats.length===1)
     ? (CATEGORIES.find(c=>c.key===activeCats[0])?.label || 'Ürünler')
@@ -1401,11 +1587,15 @@ function openModalFromProduct(id){
   if(window.innerWidth>767) document.body.classList.add('native-cursor-mode');
   const p = PRODUCTS.find(x => x.id === id);
   if(!p) return;
+  currentModalProductId = id;
   trackRecentlyViewed(id);
+  const social = getProductSocial(id);
   currentModalImages = getProductImages(p);
   currentModalImageIndex = 0;
 
   document.getElementById('mTitle').innerText = p.name;
+  document.querySelector('.modal-rating-line')?.remove();
+  document.getElementById('mTitle').insertAdjacentHTML('afterend', `<div class="modal-rating-line"><span class="stars">${renderStarText(social.avgRating)}</span><strong>${social.avgRating.toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1})}</strong><span>${social.reviewCount} yorum</span></div>`);
   document.getElementById('mImg').src = currentModalImages[0] || '';
   const catMap = Object.fromEntries(CATEGORIES.map(c=>[c.key,c.label]));
   document.getElementById('mTag').innerText = catMap[p.cat]||p.cat;
@@ -1448,11 +1638,11 @@ function openModalFromProduct(id){
   const requireHeight = squareProduct || pleatedMeterProduct;
   document.getElementById('mAddWrap').innerHTML = `
     ${squareProduct || pleatedMeterProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly>` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1">`}
-    ${requireSize ? `<input type="text" inputmode="decimal" class="modal-qty-input" id="${wid}" placeholder="En (m)">` : ''}
-    ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-qty-input" id="${hid}" placeholder="Boy (m)">` : ''}
-    ${pleatedMeterProduct ? `<select class="modal-qty-input" id="modal-pile-${p.id}" style="min-width:130px"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select>` : ''}
-    ${squareProduct ? `<span id="${pid}" style="font-size:0.72rem;color:var(--slate);display:block;flex:1 1 100%">En ve boy girildiğinde m² ve fiyat otomatik hesaplanır</span>` : ''}
-    ${pleatedMeterProduct ? `<span id="${pid}" style="font-size:0.72rem;color:var(--slate);display:block;flex:1 1 100%">En/boy ve pile seçimine göre (1:2 / 1:2.5 / 1:3) metre ve fiyat otomatik hesaplanır</span>` : ''}
+    ${requireSize ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${wid}" placeholder="En (m)">` : ''}
+    ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${hid}" placeholder="Boy (m)">` : ''}
+    ${pleatedMeterProduct ? `<select class="modal-qty-input pile-select" id="modal-pile-${p.id}"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select>` : ''}
+    ${squareProduct ? `<span id="${pid}" class="modal-inline-help">En ve boy girildiğinde m² ve fiyat otomatik hesaplanır</span>` : ''}
+    ${pleatedMeterProduct ? `<span id="${pid}" class="modal-inline-help">En/boy ve pile seçimine göre (1:2 / 1:2.5 / 1:3) metre ve fiyat otomatik hesaplanır</span>` : ''}
     <button class="modal-add-btn" onclick="addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','modal-pile-${p.id}')">
       <i class="fas fa-bag-shopping" style="margin-right:8px"></i>Sepete Ekle
     </button>
@@ -1464,6 +1654,10 @@ function openModalFromProduct(id){
   } else if(pleatedMeterProduct){
     bindTulPerdeAutoCalc(p, qid, wid, hid, `modal-pile-${p.id}`, pid);
   }
+  renderModalReviews(id);
+  document.getElementById('reviewNameInput').value = '';
+  document.getElementById('reviewTextInput').value = '';
+  document.getElementById('reviewRatingInput').value = '5';
 
   switchTab('desc');
   resetImgZoom();
@@ -1475,6 +1669,8 @@ function openModalFromProduct(id){
 function openGalleryModal(src,title,desc){
   if(window.innerWidth>767) document.body.classList.add('native-cursor-mode');
   document.getElementById('mTitle').innerText = title;
+  currentModalProductId = null;
+  document.querySelector('.modal-rating-line')?.remove();
   document.getElementById('mImg').src = src;
   document.getElementById('mTag').innerText = 'Dükkanımız';
   currentModalImages = [src];
@@ -1488,6 +1684,7 @@ function openGalleryModal(src,title,desc){
   document.getElementById('mSpecs').innerHTML = '';
   document.getElementById('mCare').innerHTML = '';
   document.getElementById('mAddWrap').innerHTML = '<button class="modal-add-btn" onclick="closeProductModal();go(\'contact\')"><i class="fas fa-map-marker-alt" style="margin-right:8px"></i>Mağazamıza Gel</button>';
+  document.getElementById('mReviews').innerHTML = '<div class="modal-review-item"><div class="modal-review-text">Ürün yorumu sadece ürün detay ekranında görünür.</div></div>';
    switchTab('desc');
   resetImgZoom();
   document.getElementById('productModal').classList.add('open');
@@ -1500,7 +1697,7 @@ function switchTab(tabId){
   document.querySelectorAll('.modal-tab-content').forEach(c=>c.classList.remove('active'));
   document.getElementById('tab-'+tabId).classList.add('active');
 }
-function closeProductModal(){ document.getElementById('productModal').classList.remove('open'); document.body.style.overflow=''; document.body.classList.remove('native-cursor-mode'); document.body.classList.remove('product-modal-open'); resetImgZoom(); }
+function closeProductModal(){ document.getElementById('productModal').classList.remove('open'); document.body.style.overflow=''; document.body.classList.remove('native-cursor-mode'); document.body.classList.remove('product-modal-open'); currentModalProductId = null; resetImgZoom(); }
 function closeModalOverlay(e){ if(e.target===document.getElementById('productModal')) closeProductModal(); }
 function zoomImg(e){
   if(window.innerWidth<=700) return;
