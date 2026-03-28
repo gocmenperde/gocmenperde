@@ -1036,6 +1036,28 @@ function parseLocaleNumber(value){
 function roundTo2(value){
   return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 }
+function bindSquareMeterAutoCalc(product, qtyInputId, widthInputId, heightInputId, priceInfoId){
+  const qtyEl = document.getElementById(qtyInputId);
+  const wEl = document.getElementById(widthInputId);
+  const hEl = document.getElementById(heightInputId);
+  const infoEl = document.getElementById(priceInfoId);
+  if(!qtyEl || !wEl || !hEl) return;
+  const recalc = ()=>{
+    const w = parseLocaleNumber(wEl.value);
+    const h = parseLocaleNumber(hEl.value);
+    if(Number.isFinite(w) && w > 0 && Number.isFinite(h) && h > 0){
+      const area = roundTo2(w * h);
+      const total = roundTo2(area * (Number(product?.price) || 0));
+      qtyEl.value = String(area).replace('.', ',');
+      if(infoEl) infoEl.textContent = `≈ ${area.toLocaleString('tr-TR')} m² • ${total.toLocaleString('tr-TR')} TL`;
+    } else if(infoEl){
+      infoEl.textContent = 'En ve boy girildiğinde m² ve fiyat otomatik hesaplanır';
+    }
+  };
+  wEl.addEventListener('input', recalc);
+  hEl.addEventListener('input', recalc);
+  recalc();
+}
 function formatQty(value){
   const n = Number(value) || 0;
   if(Number.isInteger(n)) return n.toString();
@@ -1049,6 +1071,7 @@ function buildCard(p){
   const qid = 'q-' + p.id;
   const wid = 'w-' + p.id;
   const hid = 'h-' + p.id;
+  const pid = 'price-info-' + p.id;
   const isFav = favorites.some(f => f.id === p.id);
   const productImages = getProductImages(p);
   const primaryImage = getPrimaryImage(p);
@@ -1063,6 +1086,7 @@ function buildCard(p){
   const addBtn = `<div class="qty-wrap">
     ${squareProduct ? `<input type="text" class="qty-input" id="${qid}" value="0" readonly title="En × Boy ile otomatik hesaplanır">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="qty-input" id="${qid}" value="1" ${meterProduct ? `title="Virgüllü değer girebilirsiniz"` : ''}>`}
     ${requireSize ? `<input type="text" inputmode="decimal" class="qty-input" id="${wid}" placeholder="En (m)"><input type="text" inputmode="decimal" class="qty-input" id="${hid}" placeholder="Boy (m)">` : ''}
+    ${squareProduct ? `<span id="${pid}" style="font-size:0.66rem;color:var(--slate);display:block;min-width:150px">En ve boy girildiğinde m² ve fiyat otomatik hesaplanır</span>` : ''}
     <button class="add-btn" onclick="event.stopPropagation();addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}')">+ Ekle</button>
   </div>`;
 
@@ -1095,6 +1119,10 @@ function renderProducts(list){
     return;
   }
   grid.innerHTML = active.map(buildCard).join('');
+  active.forEach(p=>{
+    if(!isSquareMeterProduct(p)) return;
+    bindSquareMeterAutoCalc(p, 'q-' + p.id, 'w-' + p.id, 'h-' + p.id, 'price-info-' + p.id);
+  });
 }
 
 // ── Son Görüntülenenler ──
@@ -1258,18 +1286,23 @@ function openModalFromProduct(id){
   const qid = 'modal-qty-'+Date.now();
   const wid = 'modal-width-'+Date.now();
   const hid = 'modal-height-'+Date.now();
+  const pid = 'modal-price-info-'+Date.now();
   const meterProduct = isMeterProduct(p);
   const squareProduct = isSquareMeterProduct(p);
   const requireSize = needsDimensions(p);
   document.getElementById('mAddWrap').innerHTML = `
     ${squareProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly title="En × Boy ile otomatik hesaplanır">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1">`}
     ${requireSize ? `<input type="text" inputmode="decimal" class="modal-qty-input" id="${wid}" placeholder="En (m)"><input type="text" inputmode="decimal" class="modal-qty-input" id="${hid}" placeholder="Boy (m)">` : ''}
+    ${squareProduct ? `<span id="${pid}" style="font-size:0.72rem;color:var(--slate);display:block;flex:1 1 100%">En ve boy girildiğinde m² ve fiyat otomatik hesaplanır</span>` : ''}
     <button class="modal-add-btn" onclick="addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}')">
       <i class="fas fa-bag-shopping" style="margin-right:8px"></i>Sepete Ekle
     </button>
     <button onclick="toggleFavoriteById('${p.id}')" id="modal-fav-btn" style="width:42px;height:42px;border-radius:10px;border:1px solid var(--border);background:${isFav?'#fff0f0':'white'};cursor:pointer;color:${isFav?'#c0392b':'var(--slate)'};display:flex;align-items:center;justify-content:center;font-size:1rem;transition:0.2s;flex-shrink:0">
       <i class="${isFav?'fas':'far'} fa-heart"></i>
     </button>`;
+  if(squareProduct){
+    bindSquareMeterAutoCalc(p, qid, wid, hid, pid);
+  }
 
   switchTab('desc');
   resetImgZoom();
