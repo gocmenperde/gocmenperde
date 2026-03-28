@@ -128,7 +128,7 @@
 </div>
 
 <script>
-const token = localStorage.getItem('token');
+const token = localStorage.getItem('token') || localStorage.getItem('gp_token');
 const user = JSON.parse(localStorage.getItem('user') || 'null');
 
 if (!token || !user) {
@@ -150,6 +150,13 @@ function showTab(tab) {
     if (tab === 'addresses') loadAddresses();
     if (tab === 'favorites') loadFavorites();
     if (tab === 'profile') loadProfile();
+}
+
+function activateTabFromQuery() {
+    const tab = new URLSearchParams(window.location.search).get('tab');
+    if (!tab) return;
+    const tabBtn = document.querySelector(`.tab[onclick*="${tab}"]`);
+    if (tabBtn) tabBtn.click();
 }
 
 // SİPARİŞLER
@@ -270,7 +277,15 @@ async function removeFav(urun_id) {
         body: JSON.stringify({ urun_id })
     });
     const data = await r.json();
-    if (data.success) loadFavorites();
+    if (data.success) {
+        try {
+            const current = JSON.parse(localStorage.getItem('gpFav') || '[]');
+            const next = current.filter(f => String(f.id) !== String(urun_id));
+            localStorage.setItem('gpFav', JSON.stringify(next));
+            localStorage.setItem('gp_user_favorites', JSON.stringify(next));
+        } catch(e) {}
+        loadFavorites();
+    }
 }
 
 // PROFİL
@@ -318,6 +333,7 @@ async function changePassword() {
 
 function logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('gp_token');
     localStorage.removeItem('user');
     window.location.href = '/';
 }
@@ -325,6 +341,7 @@ function logout() {
 // Sayfa açılınca siparişleri yükle
 loadOrders();
 loadProfile();
+activateTabFromQuery();
 </script>
 </body>
 </html>

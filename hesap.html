@@ -78,6 +78,7 @@
 
             if(res.success) {
                 localStorage.setItem('token', res.token);
+                localStorage.setItem('gp_token', res.token);
                 localStorage.setItem('user', JSON.stringify(res.user));
                 alert(type === 'login' ? 'Hoş geldiniz!' : 'Kaydınız başarıyla oluşturuldu!');
                 window.location.href = '/';
