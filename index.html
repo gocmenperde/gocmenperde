@@ -442,14 +442,17 @@ html, body {
     overflow-x: hidden;
 }
 
-/* Alt menüyü (navbar) ekrana yapıştıran sihirli dokunuş */
-nav, footer, .bottom-nav, [class*="nav"], [class*="footer"] {
-    bottom: 0 !important;
-    position: fixed !important;
+/* Alt menüyü ve sayfayı en dibe çivileyen sihirli kod */
+.bottom-nav, footer, nav[class*="menu"] {
+    bottom: 0 !important; /* En dibe yapış */
+    position: fixed !important; /* Ekranda sabit kalsın */
     left: 0 !important;
     right: 0 !important;
-    padding-bottom: env(safe-area-inset-bottom) !important; /* iPhone çentiği için */
+    padding-bottom: env(safe-area-inset-bottom) !important; /* iPhone'un o boşluğunu doldur */
+    background-color: #0f0e0d !important; /* Rengi siyah yap ki boşluk sırıtmasın */
 }
+
+
 
 </style>
 </head>
