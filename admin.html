@@ -1096,7 +1096,12 @@ function renderOrdersTable(orders){
   }
   tbody.innerHTML = orders.map(o=>{
     const items = typeof o.urunler==='string'?JSON.parse(o.urunler):(o.urunler||[]);
-    const itemStr = items.slice(0,2).map(i=>(i.name||i.ad||'?')+' ×'+(i.quantity||i.adet||1)).join(', ')+(items.length>2?'…':'');
+    const itemStr = items.slice(0,2).map(i=>{
+      const qty = i.quantity || i.adet || 1;
+      const pileText = i.pileType ? ` • ${i.pileType==='sik'?'Sık':i.pileType==='seyrek'?'Seyrek':'Orta'} pile` : '';
+      const sizeText = (i.width && i.height) ? ` • ${Number(i.width).toLocaleString('tr-TR')}x${Number(i.height).toLocaleString('tr-TR')} m` : '';
+      return `${i.name||i.ad||'?'} ×${qty}${sizeText}${pileText}`;
+    }).join(', ')+(items.length>2?'…':'');
     const durum = o.durum||'Beklemede';
     const ss = ORDER_STATUS_STYLES[durum]||{bg:'#eee',color:'#333'};
     const date = new Date(o.created_at).toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'2-digit'});
@@ -1131,7 +1136,13 @@ function openOrderModal(id){
     </div>
     <div class="info-row"><label>Teslimat Adresi</label><span>${o.adres}</span></div>
     <div class="info-row"><label>Ödeme Yöntemi</label><span>${o.odeme_yontemi||'—'}</span></div>
-    <div class="info-row"><label>Ürünler</label><span style="line-height:1.8">${items.map(i=>`<span style="display:block">${i.name||i.ad} <strong>×${i.quantity||i.adet||1}</strong> — <strong>${Number((i.price||i.fiyat||0)*(i.quantity||i.adet||1)).toLocaleString('tr-TR')} ₺</strong></span>`).join('')}</span></div>
+    <div class="info-row"><label>Ürünler</label><span style="line-height:1.8">${items.map(i=>{
+      const qty = i.quantity || i.adet || 1;
+      const lineTotal = Number((i.price||i.fiyat||0) * qty).toLocaleString('tr-TR');
+      const sizeText = (i.width && i.height) ? ` • Ölçü: ${Number(i.width).toLocaleString('tr-TR')}m × ${Number(i.height).toLocaleString('tr-TR')}m` : '';
+      const pileText = i.pileType ? ` • Pile: ${i.pileType==='sik'?'Sık':i.pileType==='seyrek'?'Seyrek':'Orta'}` : '';
+      return `<span style="display:block">${i.name||i.ad} <strong>×${qty}</strong>${sizeText}${pileText} — <strong>${lineTotal} ₺</strong></span>`;
+    }).join('')}</span></div>
     ${o.siparis_notu?`<div class="info-row" style="background:#fff8e1;border:1px solid rgba(201,168,76,0.3)"><label>Sipariş Notu</label><span>${o.siparis_notu}</span></div>`:''}
     <div class="info-row highlight"><label>Toplam Tutar</label><span>${Number(o.toplam).toLocaleString('tr-TR')} ₺</span></div>
     <div style="margin-top:8px"><span style="padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:700;background:${ss.bg};color:${ss.color}">Mevcut Durum: ${o.durum||'Beklemede'}</span></div>`;
@@ -1144,7 +1155,12 @@ function waOrder(id){
   const o = ALL_ORDERS.find(x=>x.id===id);
   if(!o) return;
   const items = typeof o.urunler==='string'?JSON.parse(o.urunler):(o.urunler||[]);
-  const itemStr = items.map(i=>`• ${i.name||i.ad} ×${i.quantity||i.adet||1}`).join('\n');
+  const itemStr = items.map(i=>{
+    const qty = i.quantity || i.adet || 1;
+    const sizeText = (i.width && i.height) ? ` | Ölçü: ${Number(i.width).toLocaleString('tr-TR')}m x ${Number(i.height).toLocaleString('tr-TR')}m` : '';
+    const pileText = i.pileType ? ` | Pile: ${i.pileType==='sik'?'Sık':i.pileType==='seyrek'?'Seyrek':'Orta'}` : '';
+    return `• ${i.name||i.ad} ×${qty}${sizeText}${pileText}`;
+  }).join('\n');
   const msg = `Merhaba ${o.musteri_adi} Hanım/Bey 👋\n\nSipariş #${id} durumunuz: *${o.durum||'Beklemede'}*\n\nSiparişiniz:\n${itemStr}\n\nToplam: ${Number(o.toplam).toLocaleString('tr-TR')} ₺\n\nGöçmen Perde`;
   window.open(`https://wa.me/9${o.telefon.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
 }
