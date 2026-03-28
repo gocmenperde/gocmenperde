@@ -1,24 +1,24 @@
 [
   {
-    "id": "plise-perde-krem-1774720979918",
+    "id": "plise-perde-acik-sari-1774721605255",
     "name": "Plise Perde Açık Sarı",
-    "desc": "",
-    "image": "resimler/1774720721626-IMG_1538.png",
+    "desc": "Plise perdelerin en büyük avantajı, leke tutmaya karşı dirençli olmaları ve kolay temizlenebilmeleridir.",
+    "image": "resimler/1774721558650-IMG_1538.png",
     "images": [
-      "resimler/1774720721626-IMG_1538.png"
+      "resimler/1774721558650-IMG_1538.png"
     ],
     "price": 600,
-    "oldPrice": 850,
+    "oldPrice": 860,
     "cat": "plise-perde",
-    "unit": "m2",
+    "unit": "adet",
     "isMeter": false,
-    "isSquareMeter": true,
+    "isSquareMeter": false,
     "features": "",
     "badge": "250 TL İNDİRİM",
     "stock": null,
     "active": true,
     "specs": {
-      "• Kumaş Yapısı": "Genellikle %100 polyesterden üretilir. 1,5 - 2 cm genişliğindeki pileli yapısı sayesinde katlandığında çok az yer kaplar.",
+      "Kumaş Yapısı": "Genellikle %100 polyesterden üretilir. 1,5 - 2 cm genişliğindeki pileli yapısı sayesinde katlandığında çok az yer kaplar.",
       "• Ray Sistemi": "Paslanmaya karşı dayanıklı eloksallı alüminyum profiller kullanılır. Bu, özellikle balkon gibi dış etkilere açık alanlarda dayanıklılık sağlar.",
       "• Hareket Kabiliyeti": "İpli veya manuel (tutamaklı) sistemlerle aşağıdan yukarıya veya yukarıdan aşağıya doğru hareket ettirilebilir. \"Gece-Gündüz\" modellerinde iki farklı kumaş (tül ve güneşlik) aynı sistemde birleştirilebilir.",
       "• Isı ve Işık Kontrolü": "Bazı modellerde bulunan \"Blackout\" veya \"Alüminyum Folyo Kaplı\" arka yüzeyler, güneş ışığını %90’a kadar yansıtır ve ısı yalıtımına katkı sağlar.",
