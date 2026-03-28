@@ -35,6 +35,7 @@ body{background:var(--cream);color:var(--ink);font-family:var(--ff-body);font-we
 @keyframes lineGrow{to{width:200px}}
 .toast{position:fixed;bottom:30px;right:30px;z-index:3000;background:var(--ink);color:white;padding:16px 24px;border-radius:10px;font-size:0.8rem;font-weight:500;letter-spacing:1px;border-left:3px solid var(--gold);transform:translateX(120%);transition:transform 0.4s var(--transition);pointer-events:none;max-width:320px}
 .toast{position:fixed;bottom:30px;right:30px;z-index:12000;background:var(--ink);color:white;padding:16px 24px;border-radius:10px;font-size:0.8rem;font-weight:500;letter-spacing:1px;border-left:3px solid var(--gold);transform:translateX(120%);transition:transform 0.4s var(--transition);pointer-events:none;max-width:320px}
+.toast{position:fixed;bottom:30px;right:30px;z-index:12200;background:var(--ink);color:white;padding:16px 24px;border-radius:10px;font-size:0.8rem;font-weight:500;letter-spacing:1px;border-left:3px solid var(--gold);transform:translateX(120%);transition:transform 0.4s var(--transition);pointer-events:none;max-width:320px}
 .toast.show{transform:translateX(0)}
 @media(max-width:480px){.toast{right:12px;left:12px;bottom:80px;transform:translateY(120%)}.toast.show{transform:translateY(0)}}
 body.cart-sheet-open .toast{bottom:calc(240px + env(safe-area-inset-bottom))}
@@ -488,6 +489,7 @@ body.cart-sheet-open .mobile-bottom-nav{opacity:0;pointer-events:none;transform:
 
 <div class="search-bar" id="searchBar">
   <input type="text" id="headerSearchInput" placeholder="Ürün ara..." style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-family:var(--ff-body)" oninput="liveSearch(this.value)">
+
   <div id="searchResults"></div>
 </div>
 
