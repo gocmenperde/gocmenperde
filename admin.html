@@ -797,7 +797,7 @@ tbody tr:hover td{background:#fdfcf8}
       </div>
       <div class="form-row">
         <div class="fg"><label>Kategori *</label><select id="f-cat"></select></div>
-        <div class="fg"><label>Birim</label><select id="f-unit"><option value="adet">Adet</option><option value="mt">Metre (mt)</option></select></div>
+        <div class="fg"><label>Birim</label><select id="f-unit"><option value="adet">Adet</option><option value="mt">Metre (mt)</option><option value="m2">Metrekare (m²)</option></select></div>
       </div>
       <div class="form-row">
         <div class="fg"><label>Stok Miktarı</label><input type="number" id="f-stock" placeholder="Sınırsız = boş bırak"></div>
@@ -826,7 +826,7 @@ tbody tr:hover td{background:#fdfcf8}
           <button type="button" class="json-helper-btn" onclick="addSpecsTemplate('koltuk')"><i class="fas fa-plus"></i> Koltuk</button>
           <button type="button" class="json-helper-btn" onclick="clearField('f-specs','specs-valid')"><i class="fas fa-trash"></i></button>
         </div>
-        <textarea id="f-specs" placeholder='{"En":"150-300 cm","Kumaş":"Polyester"}' oninput="validateJSON('f-specs','specs-valid')" style="min-height:80px;font-family:monospace;font-size:0.8rem"></textarea>
+        <textarea id="f-specs" placeholder="En: 150-300 cm&#10;Kumaş: Polyester&#10;Stil: Modern" oninput="validateStructuredField('f-specs','specs-valid')" style="min-height:80px;font-family:monospace;font-size:0.8rem"></textarea>
         <div class="json-valid" id="specs-valid"></div>
       </div>
       <div class="fg">
@@ -835,7 +835,7 @@ tbody tr:hover td{background:#fdfcf8}
           <button type="button" class="json-helper-btn" onclick="addCareTemplate()"><i class="fas fa-plus"></i> Standart</button>
           <button type="button" class="json-helper-btn" onclick="clearField('f-care','care-valid')"><i class="fas fa-trash"></i></button>
         </div>
-        <textarea id="f-care" placeholder='{"Yıkama":"30°C","Ütü":"Düşük ısı"}' oninput="validateJSON('f-care','care-valid')" style="min-height:80px;font-family:monospace;font-size:0.8rem"></textarea>
+        <textarea id="f-care" placeholder="Yıkama: 30°C&#10;Ütü: Düşük ısı&#10;Kurutma: Gölgede kurutun" oninput="validateStructuredField('f-care','care-valid')" style="min-height:80px;font-family:monospace;font-size:0.8rem"></textarea>
         <div class="json-valid" id="care-valid"></div>
       </div>
       <div class="fg"><label>Durum</label>
@@ -1396,6 +1396,23 @@ function syncImagesFromSingleInput(){
   document.getElementById('f-images').value = imgs.join('\n');
   previewImg();
 }
+function removeImageAt(index){
+  const images = getImagesFromField();
+  if(index < 0 || index >= images.length) return;
+  images.splice(index,1);
+  document.getElementById('f-images').value = images.join('\n');
+  document.getElementById('f-image').value = images[0] || '';
+  previewImg();
+}
+function setMainImage(index){
+  const images = getImagesFromField();
+  if(index < 0 || index >= images.length) return;
+  const [picked] = images.splice(index,1);
+  images.unshift(picked);
+  document.getElementById('f-images').value = images.join('\n');
+  document.getElementById('f-image').value = images[0] || '';
+  previewImg();
+}
 
 function renderTable(list){
   const data = list||PRODUCTS;
@@ -1489,8 +1506,8 @@ function editProduct(idx){
   document.getElementById('f-stock').value=p.stock!=null?p.stock:'';
   document.getElementById('f-specs').value=p.specs&&Object.keys(p.specs).length?JSON.stringify(p.specs,null,2):'';
   document.getElementById('f-care').value=p.care&&Object.keys(p.care).length?JSON.stringify(p.care,null,2):'';
-  validateJSON('f-specs','specs-valid');
-  validateJSON('f-care','care-valid');
+  validateStructuredField('f-specs','specs-valid');
+  validateStructuredField('f-care','care-valid');
   previewImg();
   activeSwitchState=!!p.active;
   updateSwitch();
@@ -1502,8 +1519,8 @@ function saveProduct(){
   const price=parseFloat(document.getElementById('f-price').value);
   if(!name){aToast('⚠️ Ürün adı zorunlu','error');return;}
   if(!price){aToast('⚠️ Fiyat zorunlu','error');return;}
-  if(!validateJSON('f-specs','specs-valid')){aToast('⚠️ Özellikler JSON hatası','error');return;}
-  if(!validateJSON('f-care','care-valid')){aToast('⚠️ Bakım JSON hatası','error');return;}
+  if(!validateStructuredField('f-specs','specs-valid')){aToast('⚠️ Teknik özellik formatı hatalı','error');return;}
+  if(!validateStructuredField('f-care','care-valid')){aToast('⚠️ Bakım talimatı formatı hatalı','error');return;}
   const stockVal = document.getElementById('f-stock').value;
   const unitVal=document.getElementById('f-unit').value;
   let images = getImagesFromField();
@@ -1515,12 +1532,12 @@ function saveProduct(){
     image:images[0]||'',
     images,
     price,oldPrice:document.getElementById('f-oldprice').value?parseFloat(document.getElementById('f-oldprice').value):null,
-    cat:document.getElementById('f-cat').value,unit:unitVal,isMeter:unitVal==='mt',
+    cat:document.getElementById('f-cat').value,unit:unitVal,isMeter:unitVal==='mt',isSquareMeter:unitVal==='m2',
     features:document.getElementById('f-features').value.replace(/\s*,\s*/g,',').trim(),
     badge:document.getElementById('f-badge').value||'',
     stock:stockVal!==''?parseInt(stockVal):null,
     active:activeSwitchState,
-    specs:parseJSONField('f-specs'),care:parseJSONField('f-care')
+    specs:parseStructuredField('f-specs'),care:parseStructuredField('f-care')
   };
   const idx=document.getElementById('editIndex').value;
   if(idx!==''){obj.id=PRODUCTS[parseInt(idx)].id;PRODUCTS[parseInt(idx)]=obj;aToast('✓ Güncellendi: '+name,'success');}
@@ -1565,7 +1582,14 @@ function previewImg(){
     prev.style.display='block';
     prev.onerror=()=>{prev.style.display='none';};
     grid.style.display='grid';
-    grid.innerHTML = images.map((src,idx)=>`<div style="position:relative"><img src="${src}" alt="Görsel ${idx+1}" style="width:100%;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"><span style="position:absolute;top:4px;left:4px;background:rgba(0,0,0,0.65);color:white;font-size:0.62rem;padding:2px 6px;border-radius:999px">${idx+1}</span></div>`).join('');
+    grid.innerHTML = images.map((src,idx)=>`<div style="position:relative">
+      <img src="${src}" alt="Görsel ${idx+1}" style="width:100%;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+      <span style="position:absolute;top:4px;left:4px;background:rgba(0,0,0,0.65);color:white;font-size:0.62rem;padding:2px 6px;border-radius:999px">${idx+1}</span>
+      <div style="position:absolute;right:4px;bottom:4px;display:flex;gap:4px">
+        ${idx>0?`<button type="button" onclick="setMainImage(${idx})" title="Ana görsel yap" style="width:24px;height:24px;border:none;border-radius:6px;background:rgba(36,113,163,0.9);color:#fff;cursor:pointer"><i class="fas fa-star" style="font-size:0.6rem"></i></button>`:''}
+        <button type="button" onclick="removeImageAt(${idx})" title="Resmi kaldır" style="width:24px;height:24px;border:none;border-radius:6px;background:rgba(192,57,43,0.9);color:#fff;cursor:pointer"><i class="fas fa-trash" style="font-size:0.6rem"></i></button>
+      </div>
+    </div>`).join('');
   } else {
     prev.style.display='none';
     grid.style.display='none';
@@ -1789,16 +1813,47 @@ function refreshDashboard(){
 // ════════════════════════════════════
 const SPECS={perde:{"En":"150-300 cm","Kumaş":"Polyester","Stil":"Modern","Astar":"Yok"},carsaf:{"Boyut":"160x220 cm","Kumaş":"Pamuk","Renk":"Çok Renkli"},koltuk:{"Uyumluluk":"3+2+1 Takım","Kumaş":"Likralı","Renk":"Krem/Kahve"}};
 const CARE={"Yıkama":"30°C","Sıkma":"Düşük devir","Kurutma":"Gölgede kurutun","Ütü":"Düşük ısı","Kuru Temizleme":"Önerilmez"};
-function addSpecsTemplate(cat){document.getElementById('f-specs').value=JSON.stringify(SPECS[cat]||SPECS.perde,null,2);validateJSON('f-specs','specs-valid');}
-function addCareTemplate(){document.getElementById('f-care').value=JSON.stringify(CARE,null,2);validateJSON('f-care','care-valid');}
-function clearField(fid,vid){document.getElementById(fid).value='';const el=document.getElementById(vid);el.className='json-valid';el.textContent='';}
-function validateJSON(fid,vid){
+function objectToLinePairs(obj){return Object.entries(obj||{}).map(([k,v])=>`${k}: ${v}`).join('\n');}
+function linePairsToObject(raw){
+  const out={};
+  const lines=(raw||'').split('\n').map(l=>l.trim()).filter(Boolean);
+  for(const line of lines){
+    const sep = line.indexOf(':')>-1 ? ':' : (line.indexOf('=')>-1 ? '=' : null);
+    if(!sep) throw new Error(`"${line}" satırında ":" veya "=" yok`);
+    const [key,...rest]=line.split(sep);
+    const k=(key||'').trim();
+    const v=rest.join(sep).trim();
+    if(!k || !v) throw new Error(`"${line}" satırı eksik`);
+    out[k]=v;
+  }
+  return out;
+}
+function validateStructuredField(fid,vid){
   const val=document.getElementById(fid).value.trim(),el=document.getElementById(vid);
   if(!val){el.className='json-valid';el.textContent='';return true;}
-  try{JSON.parse(val);el.className='json-valid ok';el.innerHTML='<i class="fas fa-check-circle"></i> Geçerli JSON';return true;}
-  catch(e){el.className='json-valid err';el.innerHTML='<i class="fas fa-times-circle"></i> '+e.message;return false;}
+  try{
+    JSON.parse(val);
+    el.className='json-valid ok';el.innerHTML='<i class="fas fa-check-circle"></i> Geçerli format';
+    return true;
+  }catch(_){
+    try{
+      linePairsToObject(val);
+      el.className='json-valid ok';el.innerHTML='<i class="fas fa-check-circle"></i> Satır formatı geçerli';
+      return true;
+    }catch(e){
+      el.className='json-valid err';el.innerHTML='<i class="fas fa-times-circle"></i> '+e.message;
+      return false;
+    }
+  }
 }
-function parseJSONField(id){const v=document.getElementById(id).value.trim();if(!v)return{};try{return JSON.parse(v);}catch(e){return{};}}
+function parseStructuredField(id){
+  const v=document.getElementById(id).value.trim();
+  if(!v) return {};
+  try{return JSON.parse(v);}catch(_){try{return linePairsToObject(v);}catch(e){return {};}}
+}
+function addSpecsTemplate(cat){document.getElementById('f-specs').value=objectToLinePairs(SPECS[cat]||SPECS.perde);validateStructuredField('f-specs','specs-valid');}
+function addCareTemplate(){document.getElementById('f-care').value=objectToLinePairs(CARE);validateStructuredField('f-care','care-valid');}
+function clearField(fid,vid){document.getElementById(fid).value='';const el=document.getElementById(vid);el.className='json-valid';el.textContent='';}
 
 // ════════════════════════════════════
 //  IMAGE UPLOAD
