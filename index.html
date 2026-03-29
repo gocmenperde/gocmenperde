@@ -397,6 +397,9 @@ nav{display:flex;align-items:center;gap:8px}
 @media(max-width:700px){.modal-overlay{padding:10px}.modal-box{grid-template-columns:1fr;max-height:none;overflow:visible;margin:0}}
 .modal-close{position:absolute;top:16px;right:16px;z-index:20;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.95);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--ink);box-shadow:0 4px 16px rgba(0,0,0,0.2);transition:var(--transition)}
 .modal-close:hover{background:var(--gold);color:white;transform:scale(1.1)}
+.modal-mobile-header{display:none}
+.modal-mobile-header .mh-btn{width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,0.5);background:rgba(15,14,13,0.45);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-mobile-header .mh-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--ink)}
 .modal-img-col{position:relative;display:flex;flex-direction:column;background:var(--cream);border-right:1px solid var(--border)}
 @media(max-width:700px){.modal-img-col{border-right:none}}
 .modal-img-stage{position:relative;overflow:hidden;height:500px;cursor:zoom-in}
@@ -446,12 +449,30 @@ nav{display:flex;align-items:center;gap:8px}
 .modal-review-form button{height:38px;border:none;border-radius:8px;background:var(--ink);color:#fff;padding:0 12px;font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 .modal-review-form button:hover{background:var(--gold);color:var(--ink)}
 @media(max-width:700px){
+  .modal-overlay{padding:0;background:#fff;backdrop-filter:none}
+  .modal-box{max-width:none;width:100%;min-height:100dvh;border-radius:0;max-height:none;box-shadow:none;background:#fff;display:flex;flex-direction:column}
+  .modal-close{display:none}
+  .modal-mobile-header{display:flex;position:absolute;left:0;right:0;top:0;z-index:30;padding:calc(env(safe-area-inset-top) + 10px) 10px 10px;justify-content:space-between;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 100%)}
+  .modal-mobile-header .mh-left,.modal-mobile-header .mh-right{display:flex;align-items:center;gap:7px}
+  .modal-img-stage{height:38dvh;min-height:250px;max-height:340px}
+  .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(120px + env(safe-area-inset-bottom))}
+  .modal-add-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;margin:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--border);box-shadow:0 -8px 30px rgba(0,0,0,0.08)}
+  .modal-add-wrap .modal-add-btn{font-size:0.78rem}
   .modal-review-form{grid-template-columns:1fr}
   .modal-qty-input.dimension-input{width:110px}
   .modal-qty-input.pile-select{min-width:100%}
 }
 .modal-add-btn{flex:1;background:var(--ink);color:white;border:none;cursor:pointer;padding:12px 20px;border-radius:10px;font-size:0.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body)}
 .modal-add-btn:hover{background:var(--gold);color:var(--ink)}
+.modal-search-panel{position:absolute;top:0;right:0;bottom:0;width:min(92vw,420px);background:#fff;z-index:50;transform:translateX(110%);transition:transform .25s ease;display:flex;flex-direction:column;border-left:1px solid var(--border)}
+.modal-search-panel.open{transform:translateX(0)}
+.modal-search-head{display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--border)}
+.modal-search-input{flex:1;height:40px;border-radius:10px;border:1px solid var(--border);padding:0 10px;font-family:var(--ff-body)}
+.modal-search-list{padding:8px 12px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.modal-search-item{display:flex;gap:10px;align-items:center;border:1px solid var(--border);border-radius:10px;padding:8px;cursor:pointer}
+.modal-search-item img{width:52px;height:52px;border-radius:8px;object-fit:cover}
+.modal-search-item-name{font-size:0.85rem;font-weight:600}
+.modal-search-item-price{font-size:0.78rem;color:var(--gold);font-weight:600}
 
 /* ── Success Modal ── */
 .success-modal{position:fixed;inset:0;background:rgba(15,14,13,0.95);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
@@ -1020,6 +1041,18 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
 <div class="modal-overlay" id="productModal" onclick="closeModalOverlay(event)">
   <div class="modal-box">
     <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-xmark"></i></button>
+    <div class="modal-mobile-header">
+      <div class="mh-left">
+        <button class="mh-btn" type="button" onclick="closeProductModal()" title="Kapat"><i class="fas fa-xmark"></i></button>
+        <button class="mh-btn" type="button" onclick="go('products');closeProductModal()" title="Geri"><i class="fas fa-chevron-left"></i></button>
+      </div>
+      <div class="mh-right">
+        <button class="mh-btn" type="button" onclick="openModalSearchPanel()" title="Ara"><i class="fas fa-search"></i></button>
+        <button class="mh-btn" type="button" onclick="window.location.href='/hesabim.html'" title="Hesabım"><i class="fas fa-user"></i></button>
+        <button class="mh-btn" type="button" onclick="togglePopup('favoriteBar')" title="Favorilerim"><i class="far fa-heart"></i></button>
+        <button class="mh-btn" type="button" onclick="go('cart');closeProductModal()" title="Sepetim"><i class="fas fa-bag-shopping"></i></button>
+      </div>
+    </div>
     <div class="modal-img-col">
       <div class="modal-img-stage" id="modalImgCol" onmousemove="zoomImg(event)" onmouseleave="resetImgZoom()" onclick="openImageViewer()">
         <img id="mImg" src="" alt="">
@@ -1065,6 +1098,15 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
         </div>
       </div>
       <div class="modal-add-wrap" id="mAddWrap"></div>
+    </div>
+    <div class="modal-search-panel" id="modalSearchPanel">
+      <div class="modal-search-head">
+        <input type="text" id="modalSearchInput" class="modal-search-input" placeholder="Ürün ara..." oninput="searchProductsFromModal(this.value)">
+        <button class="mh-btn" type="button" onclick="closeModalSearchPanel()" title="Kapat"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-search-list" id="modalSearchResults">
+        <p style="font-size:0.8rem;color:var(--slate)">Arama yaparak ürün adı, açıklama ve kategoriye göre sonuçları görebilirsiniz.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -1663,6 +1705,52 @@ function liveSearch(q){
     </div>`
   ).join('');
 }
+function searchProductsFromModal(q){
+  const res = document.getElementById('modalSearchResults');
+  if(!res) return;
+  const query = String(q || '').trim().toLocaleLowerCase('tr');
+  if(!query){
+    res.innerHTML = '<p style="font-size:0.8rem;color:var(--slate)">Arama yaparak ürün adı, açıklama ve kategoriye göre sonuçları görebilirsiniz.</p>';
+    return;
+  }
+  const hits = PRODUCTS.filter(p => {
+    if(!p?.active) return false;
+    const haystack = `${p.name || ''} ${(p.desc || '')} ${(p.cat || '')} ${(p.features || '')}`.toLocaleLowerCase('tr');
+    return haystack.includes(query);
+  }).slice(0, 12);
+  if(!hits.length){
+    res.innerHTML = '<p style="font-size:0.82rem;color:var(--slate)">Aramaya uygun ürün bulunamadı.</p>';
+    return;
+  }
+  res.innerHTML = hits.map(p => `
+    <div class="modal-search-item" onclick="openModalSearchResult('${p.id}')">
+      <img src="${getPrimaryImage(p)}" alt="${p.name}" loading="lazy" decoding="async">
+      <div style="min-width:0">
+        <div class="modal-search-item-name">${p.name}</div>
+        <div class="modal-search-item-price">${(Number(p.price) || 0).toLocaleString('tr-TR')} TL</div>
+      </div>
+    </div>
+  `).join('');
+}
+function openModalSearchPanel(){
+  const panel = document.getElementById('modalSearchPanel');
+  if(!panel) return;
+  panel.classList.add('open');
+  const input = document.getElementById('modalSearchInput');
+  if(input){
+    input.value = '';
+    searchProductsFromModal('');
+    setTimeout(()=>input.focus(), 60);
+  }
+}
+function closeModalSearchPanel(){
+  document.getElementById('modalSearchPanel')?.classList.remove('open');
+}
+function openModalSearchResult(productId){
+  closeModalSearchPanel();
+  openModalFromProduct(productId);
+  trackRecentlyViewed(productId);
+}
 
 let spotlightProductId='';
 function updateDiscountSpotlight(list){
@@ -1881,6 +1969,7 @@ function openModalFromProduct(id){
 
   switchTab('desc');
   resetImgZoom();
+  closeModalSearchPanel();
   document.getElementById('productModal').classList.add('open');
   document.body.classList.add('product-modal-open');
   document.body.style.overflow = 'hidden';
@@ -1907,6 +1996,7 @@ function openGalleryModal(src,title,desc){
   document.getElementById('mReviews').innerHTML = '<div class="modal-review-item"><div class="modal-review-text">Ürün yorumu sadece ürün detay ekranında görünür.</div></div>';
    switchTab('desc');
   resetImgZoom();
+  closeModalSearchPanel();
   document.getElementById('productModal').classList.add('open');
   document.body.classList.add('product-modal-open');
   document.body.style.overflow = 'hidden';
@@ -1950,7 +2040,16 @@ function updateViewerImage(){
   document.getElementById('imageViewerTitle').innerText = `Fotoğraf ${currentModalImageIndex+1} / ${currentModalImages.length}`;
   resetViewerScale();
 }
-function closeProductModal(){ document.getElementById('productModal').classList.remove('open'); closeImageViewer(); document.body.style.overflow=''; document.body.classList.remove('native-cursor-mode'); document.body.classList.remove('product-modal-open'); currentModalProductId = null; resetImgZoom(); }
+function closeProductModal(){
+  document.getElementById('productModal').classList.remove('open');
+  closeModalSearchPanel();
+  closeImageViewer();
+  document.body.style.overflow='';
+  document.body.classList.remove('native-cursor-mode');
+  document.body.classList.remove('product-modal-open');
+  currentModalProductId = null;
+  resetImgZoom();
+}
 function closeModalOverlay(e){ if(e.target===document.getElementById('productModal')) closeProductModal(); }
 function zoomImg(e){
   if(window.innerWidth<=700) return;
@@ -1964,6 +2063,7 @@ document.addEventListener('keydown', (e)=>{
   if(!modalOpen) return;
   if(e.key === 'Escape'){
     if(imageViewerOpen) closeImageViewer();
+    else if(document.getElementById('modalSearchPanel')?.classList.contains('open')) closeModalSearchPanel();
     else closeProductModal();
     return;
   }
