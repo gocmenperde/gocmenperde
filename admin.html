@@ -446,9 +446,10 @@ tbody tr:hover td{background:#fdfcf8}
     <div class="login-right">
       <h2>Giriş Yap</h2>
       <p>Admin hesabınızla devam edin</p>
+      <input type="email" class="login-input" id="loginEmail" placeholder="E-posta adresinizi girin">
       <input type="password" class="login-input" id="loginPass" placeholder="Şifrenizi girin">
       <button class="login-btn" onclick="doLogin()"><i class="fas fa-lock"></i>&nbsp;&nbsp;Giriş Yap</button>
-      <p class="login-error" id="loginError"><i class="fas fa-exclamation-triangle"></i> &nbsp;Yanlış şifre!</p>
+      <p class="login-error" id="loginError"><i class="fas fa-exclamation-triangle"></i> &nbsp;E-posta veya şifre hatalı!</p>
     </div>
   </div>
 </div>
@@ -991,30 +992,35 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
 //  AUTH
 // ════════════════════════════════════
 const ADMIN_PASS_KEY = 'gp_admin_pass';
+const ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
 function getPass(){ return localStorage.getItem(ADMIN_PASS_KEY) || 'Emin.016'; }
 function getAdminApiKey(){ return 'gocmen1993'; }
 
 function doLogin(){
+  const e = (document.getElementById('loginEmail').value || '').trim().toLowerCase();
   const p = document.getElementById('loginPass').value;
-  if(p === getPass()){
+  if(e === ADMIN_EMAIL && p === getPass()){
     document.getElementById('loginScreen').classList.add('hide');
     document.getElementById('adminApp').classList.add('show');
     initAdmin();
   } else {
     const err = document.getElementById('loginError');
     err.style.display = 'block';
+    document.getElementById('loginEmail').value = '';
     document.getElementById('loginPass').value = '';
+    document.getElementById('loginEmail').classList.add('shake');
     document.getElementById('loginPass').classList.add('shake');
-    setTimeout(()=>{ err.style.display='none'; document.getElementById('loginPass').classList.remove('shake'); }, 3000);
+    setTimeout(()=>{ err.style.display='none'; document.getElementById('loginEmail').classList.remove('shake'); document.getElementById('loginPass').classList.remove('shake'); }, 3000);
   }
 }
 function logout(){
   document.getElementById('loginScreen').classList.remove('hide');
   document.getElementById('adminApp').classList.remove('show');
+  document.getElementById('loginEmail').value = '';
   document.getElementById('loginPass').value = '';
   closeSidebar();
 }
-document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+['loginPass','loginEmail'].forEach(id=>document.getElementById(id).addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); }));
 ['f-price','f-oldprice'].forEach(id=>document.getElementById(id)?.addEventListener('input',updateDiscountBadgeFromInputs));
 
 // ════════════════════════════════════
