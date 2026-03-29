@@ -298,12 +298,13 @@ nav{display:flex;align-items:center;gap:8px}
 .payment-sent-btn:hover{background:var(--gold-dark);color:white;transform:translateY(-2px)}
 .clear-btn{background:none;border:1px solid rgba(192,57,43,0.2);cursor:pointer;color:#c0392b;padding:12px 24px;border-radius:8px;font-size:0.7rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body)}
 .clear-btn:hover{background:#c0392b;color:white}
-.cart-action-panel{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 10px);z-index:12120;background:#fff;border:1px solid #e9e9e9;border-radius:14px;box-shadow:0 16px 42px rgba(0,0,0,0.16);display:none;overflow:hidden;max-width:980px;margin:0 auto}
-.cart-action-total{min-width:168px;padding:11px 14px;background:#fff7ec;border-right:1px solid #f0e3d1}
-.cart-action-total b{display:block;font-size:1.55rem;line-height:1.05;color:var(--ink);font-family:var(--ff-display)}
-.cart-action-total span{display:block;font-size:0.75rem;color:#16a34a;font-weight:700;margin-top:2px}
-.cart-action-btn{flex:1;border:none;background:#f07f18;color:#fff;font-size:1.25rem;font-weight:700;cursor:pointer;padding:12px 14px}
-@media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(var(--mobile-nav-offset, 0px) + env(safe-area-inset-bottom) + 10px)}.cart-action-btn{font-size:1.38rem}}
+.cart-action-panel{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 10px);z-index:12120;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 48px rgba(0,0,0,0.15);display:none;overflow:hidden;max-width:980px;margin:0 auto}
+.cart-action-total{min-width:168px;padding:12px 15px;background:linear-gradient(135deg,#fdfcf9,#f6efe0);border-right:1px solid rgba(201,168,76,0.25)}
+.cart-action-total b{display:block;font-size:1.5rem;line-height:1.05;color:var(--ink);font-family:var(--ff-display)}
+.cart-action-total span{display:block;font-size:0.74rem;color:var(--gold-dark);font-weight:700;margin-top:3px;letter-spacing:.5px}
+.cart-action-btn{flex:1;border:none;background:var(--ink);color:#fff;font-size:1.02rem;font-weight:600;cursor:pointer;padding:14px 16px;letter-spacing:1.8px;text-transform:uppercase;font-family:var(--ff-body);transition:var(--transition)}
+.cart-action-btn:hover{background:var(--gold);color:var(--ink)}
+@media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(var(--mobile-nav-offset, 0px) + env(safe-area-inset-bottom) + 10px)}.cart-action-btn{font-size:0.9rem;padding:13px 10px}}
 .contracts-scroll-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .contract-box{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px}
 .contract-box h4{font-size:0.8rem;letter-spacing:1px;margin-bottom:8px}
@@ -1241,7 +1242,8 @@ const REVIEW_TEXTS = [
 
 async function loadProducts(){
   try{
-    const res = await fetch('products.json', { cache:'force-cache' });
+    const res = await fetch(`/products.json?v=${Date.now()}`, { cache:'no-store' });
+    if(!res.ok) throw new Error('Ürünler alınamadı');
     PRODUCTS = (await res.json()).map(normalizeProductCatalog);
     hydrateProductSocialData();
     syncCategoriesFromAdmin();
@@ -2829,13 +2831,14 @@ function sendWhatsApp(name,phone,method,addr,note,items,totalTL){
 }
 
 // Sipariş localStorage'a kaydet (Admin paneline bağlama)
-function saveOrderToLocalStorage(name,phone,method,addr,note,items,totalTL){
+function saveOrderToLocalStorage(name,phone,email,method,addr,note,items,totalTL){
   try{
     const orders = JSON.parse(localStorage.getItem('gp_orders')||'[]');
     const newOrder = {
       id: Date.now(),
       musteri_adi: name,
       telefon: phone,
+      email: email || '',
       adres: addr,
       siparis_notu: note,
       odeme_yontemi: {kapida:'Kapıda Ödeme',havale:'Havale/EFT',kredikarti:'Kredi Kartı'}[method]||method,
@@ -2870,13 +2873,13 @@ async function submitOrder(){
   const savedBasket=[...basket], savedTotal=finalTotal;
 
  // LocalStorage'a kaydet (admin paneli buradan okur)
-  saveOrderToLocalStorage(name,phone,method,addr,note,savedBasket,savedTotal);
+  saveOrderToLocalStorage(name,phone,email,method,addr,note,savedBasket,savedTotal);
 
   try{
     await fetch('/api/orders?action=create',{
       method:'POST',
       headers:{'Content-Type':'application/json',...(getAuthToken()?{'Authorization':'Bearer '+getAuthToken()}:{})},
-      body:JSON.stringify({name,phone,address:addr,note,payment:method,items:savedBasket,total:savedTotal})
+      body:JSON.stringify({name,phone,email,address:addr,note,payment:method,items:savedBasket,total:savedTotal})
     });
   } catch(e){ console.warn('API hatası, devam ediyor'); }
 
@@ -2932,25 +2935,8 @@ function validateCheckoutForm(){
 }
 
 async function sendOrderEmailNotification({name,phone,email,addr,note,method,items,total}){
-  if(!(window.emailjs && typeof window.emailjs.send === 'function')) return;
-  const labels={kapida:'Kapıda Ödeme',havale:'Havale / EFT',kredikarti:'Kredi Kartı'};
-  const summary = items.map(i=>`${i.name} (${formatQty(i.qty)} ${i.unitLabel||'adet'})`).join(', ');
-  const payload = {
-    customer_name: name,
-    customer_phone: phone,
-    customer_email: email,
-    order_address: addr,
-    payment_method: labels[method] || method,
-    order_note: note || '-',
-    order_summary: summary,
-    order_total: `${Number(total || 0).toLocaleString('tr-TR')} TL`,
-    order_date: new Date().toLocaleString('tr-TR')
-  };
-  try{
-    await emailjs.send('service_gocmenperde','template_order_info',payload);
-  } catch(e){
-    console.warn('Email bildirim gönderilemedi', e);
-  }
+  void name; void phone; void email; void addr; void note; void method; void items; void total;
+  // Mail gönderimleri sunucu tarafında /api/orders endpoint'i üzerinden yönetiliyor.
 }
 
 // ── Kullanıcı Oturumu ──
