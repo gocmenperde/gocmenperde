@@ -12,12 +12,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-<style id="perf-fix">
-/* Beyaz ekran / flash önleme */
-html { background: #f7f4ef; }
-.section { content-visibility: auto; contain-intrinsic-size: 0 500px; }
-#home.section, #products.section, #cart.section { content-visibility: visible; }
-</style>
 :root{
   --gold:#c9a84c;--gold-light:#e8d5a3;--gold-dark:#8c6d2f;
   --ink:#0f0e0d;--cream:#f7f4ef;--warm-white:#fdfcf9;
@@ -395,31 +389,9 @@ nav{display:flex;align-items:center;gap:8px}
 .portrait-caption p{font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
 
 /* ── Product Modal ── */
-<style>
-/* Ürün modal scroll fix — arka plan kaymasını engelle */
-body.product-modal-open { overflow: hidden !important; position: fixed; width: 100%; }
-.modal-overlay.open { overflow-y: scroll; }
-
-/* Modal bilgi kolonunu yalnızca kendi içinde scroll yap */
-.modal-info-col {
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-}
-
-/* Modal resim kolonu - scroll yok */
-.modal-img-col {
-    overflow: hidden;
-    position: sticky;
-    top: 0;
-    align-self: flex-start;
-}
-
-@media (max-width: 700px) {
-    .modal-img-col { position: relative; }
-    body.product-modal-open { position: relative; }
-}
-</style>
+.modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.88);display:none;align-items:flex-start;justify-content:center;padding:20px;backdrop-filter:blur(8px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-overlay.open{display:flex}
+.modal-box{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:900px;max-height:calc(100dvh - 40px);margin:auto 0;border-radius:16px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,0.5);background:white;position:relative}
 @media(max-width:700px){.modal-overlay{padding:10px}.modal-box{grid-template-columns:1fr;max-height:none;overflow:visible;margin:0}}
 .modal-close{position:absolute;top:16px;right:16px;z-index:20;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.95);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--ink);box-shadow:0 4px 16px rgba(0,0,0,0.2);transition:var(--transition)}
 .modal-close:hover{background:var(--gold);color:white;transform:scale(1.1)}
@@ -548,46 +520,7 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
 .promo-banner span{font-size:0.74rem;color:var(--slate);line-height:1.45}
 .first-order-banner{position:relative;border-radius:18px;overflow:hidden;min-height:220px;margin-bottom:20px;border:1px solid rgba(201,168,76,0.35);box-shadow:0 18px 40px rgba(15,14,13,0.16);display:flex;align-items:flex-end}
 .first-order-banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.02)}
-<style>
-.first-order-banner::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(110deg, rgba(15,14,13,0.95) 0%, rgba(15,14,13,0.82) 45%, rgba(15,14,13,0.5) 75%, rgba(15,14,13,0.2) 100%);
-}
-.first-order-banner-text h3 {
-    font-family: var(--ff-display);
-    font-size: clamp(1.25rem, 2.4vw, 1.9rem);
-    line-height: 1.15;
-    color: white !important;
-    margin-bottom: 8px;
-    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
-}
-.first-order-banner-eyebrow {
-    font-size: 0.65rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.9) !important;
-    margin-bottom: 8px;
-    display: block;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.5);
-}
-.first-order-banner-text p {
-    color: rgba(255,255,255,0.9) !important;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.4);
-}
-/* Kupon chip daha görünür */
-.coupon-chip {
-    background: white !important;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.coupon-chip:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-}
-</style>
+.first-order-banner::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,rgba(15,14,13,0.88) 12%,rgba(15,14,13,0.48) 55%,rgba(15,14,13,0.12) 100%)}
 .first-order-banner-content{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;width:100%;padding:20px;align-items:flex-end}
 .first-order-banner-text{max-width:500px}
 .first-order-banner-eyebrow{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.72);margin-bottom:8px;display:block}
@@ -838,10 +771,7 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
             <h3>İlk Siparişte Anında %10 İndirim Fırsatı</h3>
             <p>Sepet adımında kupon alanına kodunuzu yazın, ilk siparişinizde kampanya otomatik olarak fiyatınıza uygulansın.</p>
           </div>
-          <div class="coupon-chip" onclick="applyBannerCoupon('ILKSIPARIS10')" title="Tıkla, sepete uygula" style="cursor:pointer">
-    <span>Kupon Kodu</span><b>ILKSIPARIS10</b>
-    <span style="font-size:0.58rem;display:block;color:var(--slate);letter-spacing:0.5px;margin-top:2px">Tıkla, sepete uygula</span>
-</div>
+          <div class="coupon-chip"><span>Kupon Kodu</span><b>ILKSIPARIS10</b></div>
         </div>
       </div>
       <div class="promo-banner-row">
@@ -1127,9 +1057,6 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
   <button onclick="openCategoryFromMenu('tul-perde')"><i class="fas fa-window-maximize" style="margin-right:10px;color:var(--gold)"></i>TÜL PERDELER</button>
   <button onclick="openCategoryFromMenu('carsaf')"><i class="fas fa-bed" style="margin-right:10px;color:var(--gold)"></i>ÇARŞAFLAR</button>
   <button onclick="openCategoryFromMenu('koltuk')"><i class="fas fa-couch" style="margin-right:10px;color:var(--gold)"></i>KOLTUK ÖRTÜLERİ</button>
-  <button onclick="openCategoryFromMenu('plise-perde')"><i class="fas fa-border-all" style="margin-right:10px;color:var(--gold)"></i>PLİSE PERDELER</button>
-<button onclick="openCategoryFromMenu('stor-perde')"><i class="fas fa-up-down" style="margin-right:10px;color:var(--gold)"></i>STOR PERDELER</button>
-<button onclick="openCategoryFromMenu('zebra-perde')"><i class="fas fa-grip-lines" style="margin-right:10px;color:var(--gold)"></i>ZEBRA PERDELER</button>
   <button onclick="go('about');toggleMenu()"><i class="fas fa-info-circle" style="margin-right:10px;color:var(--gold)"></i>HİKAYEMİZ</button>
   <button onclick="go('contact');toggleMenu()"><i class="fas fa-envelope" style="margin-right:10px;color:var(--gold)"></i>İLETİŞİM</button>
   <button onclick="togglePopup('miniCart');toggleMenu()">
@@ -1894,17 +1821,14 @@ function switchTab(tabId){
   document.querySelectorAll('.modal-tab-content').forEach(c=>c.classList.remove('active'));
   document.getElementById('tab-'+tabId).classList.add('active');
 }
-function closeProductModal() {
-    document.getElementById('productModal').classList.remove('open');
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.width = '';
-    document.body.classList.remove('native-cursor-mode');
-    document.body.classList.remove('product-modal-open');
-    currentModalProductId = null;
-    resetImgZoom();
+function closeProductModal(){ document.getElementById('productModal').classList.remove('open'); document.body.style.overflow=''; document.body.classList.remove('native-cursor-mode'); document.body.classList.remove('product-modal-open'); currentModalProductId = null; resetImgZoom(); }
+function closeModalOverlay(e){ if(e.target===document.getElementById('productModal')) closeProductModal(); }
+function zoomImg(e){
+  if(window.innerWidth<=700) return;
+  const img=document.getElementById('mImg'),col=document.getElementById('modalImgCol'),rect=col.getBoundingClientRect();
+  img.style.transformOrigin=((e.clientX-rect.left)/rect.width*100)+'% '+((e.clientY-rect.top)/rect.height*100)+'%';
+  img.style.transform='scale(2.4)';
 }
-
 function resetImgZoom(){ const img=document.getElementById('mImg'); img.style.transform='scale(1)'; img.style.transformOrigin='center center'; }
 
 // ── Menü & Popuplar ──
@@ -2084,71 +2008,11 @@ let basket = [], total = 0;
 let cartSheetTimer = null;
 let guestCheckoutSelected = false;
 
-const _origOpenCartSheet = openCartSheet;
-function openCartSheet(item) {
-    // Eğer ürün modalı açıksa, kapat
-    const modal = document.getElementById('productModal');
-    if (modal && modal.classList.contains('open')) {
-        closeProductModal();
-    }
-    _origOpenCartSheet(item);
-}
-// Kupon banner'dan sepete uygula
-function applyBannerCoupon(code) {
-    // Önce sepet sayfasına git
-    go('cart');
-    setTimeout(() => {
-        const input = document.getElementById('couponInput');
-        if (input) {
-            input.value = code;
-            input.focus();
-            input.style.borderColor = 'var(--gold)';
-            input.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.15)';
-            setTimeout(() => {
-                input.style.borderColor = '';
-                input.style.boxShadow = '';
-            }, 2000);
-        }
-        applyCoupon();
-        showToast('🎁 ' + code + ' kuponu sepete uygulandı!');
-    }, 300);
-}
-// Yeni kupon kodları — campaigns
-const ACTIVE_COUPONS = [
-    { code: 'ILKSIPARIS10', desc: '%10 indirim — İlk siparişe özel', discount: 0.10 },
-    { code: 'GOCMEN15',     desc: '%15 indirim — Sadık müşteri fırsatı', discount: 0.15 },
-    { code: 'PERDE20',      desc: '%20 indirim — Hafta sonu kampanyası', discount: 0.20 },
-    { code: 'YAZ25',        desc: '%25 indirim — Sezon sonu büyük indirim', discount: 0.25 },
-];
+function openCartSheet(item){
+  const sheet = document.getElementById('cartSheet');
+  const overlay = document.getElementById('cartSheetOverlay');
+  if(!sheet || !overlay || !item) return;
 
-// Geliştirilmiş applyCoupon — birden fazla kodu destekler
-function applyCoupon() {
-    const c = (document.getElementById('couponInput')?.value || '').trim().toUpperCase();
-    const found = ACTIVE_COUPONS.find(x => x.code === c);
-    if (!found) {
-        showToast('❌ Geçersiz kupon kodu');
-        return;
-    }
-    const disc = found.discount;
-    total = Math.round(total * (1 - disc));
-    const pct = Math.round(disc * 100);
-    document.getElementById('totalAmount').innerHTML = total.toLocaleString('tr-TR') + ' <span>TL</span>';
-    
-    // Kupon uygulandı bilgi kutucuğu
-    const couponArea = document.querySelector('.coupon-area');
-    if (couponArea) {
-        let badge = couponArea.querySelector('.coupon-applied-badge');
-        if (!badge) {
-            badge = document.createElement('div');
-            badge.className = 'coupon-applied-badge';
-            badge.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;margin-top:8px;font-size:0.82rem;color:#155724;';
-            couponArea.appendChild(badge);
-        }
-        badge.innerHTML = `<i class="fas fa-tag" style="color:#27ae60"></i> <strong>${c}</strong> uygulandı — %${pct} indirim kazandınız! <span style="font-size:0.75rem;color:var(--slate)">${found.desc}</span>`;
-    }
-    
-    showToast(`🎉 %${pct} indirim uygulandı!`);
-}
   const product = PRODUCTS.find(p => p.id === item.id);
   const image = product ? getPrimaryImage(product) : '';
   const qtyText = `${formatQty(item.qty)} ${item.unitLabel || 'adet'}`;
@@ -2705,319 +2569,5 @@ function setMobileNavPadding(){
 window.addEventListener('resize', setMobileNavPadding);
 document.addEventListener('DOMContentLoaded', setMobileNavPadding);
 </script>
-<script src="index_patch.js"></script>
-/**
-
-- GÖÇMEN PERDE — index.html PATCH DOSYASI
-- Bu dosyayı index.html’in </body> kapanış etiketinden ÖNCE ekleyin.
-- Tüm düzeltmeleri otomatik uygular.
-  */
-
-(function() {
-‘use strict’;
-
-```
-/* ═══════════════════════════════════════════
-   1. BEYAZ EKRAN FİXİ — CSS Enjeksiyonu
-═══════════════════════════════════════════ */
-const perfStyle = document.createElement('style');
-perfStyle.textContent = `
-    html { background: #f7f4ef; }
-    /* Sayfa değişiminde beyaz flash önle */
-    .section { 
-        background: var(--cream, #f7f4ef); 
-        will-change: auto;
-    }
-    /* Mobil — arka plan yeniden yüklemede kaybolmasın */
-    @media (max-width: 767px) {
-        body { background: var(--cream, #f7f4ef) !important; }
-    }
-`;
-document.head.appendChild(perfStyle);
-
-/* ═══════════════════════════════════════════
-   2. ÜRÜN MODAL SCROLL FİXİ
-═══════════════════════════════════════════ */
-const modalStyle = document.createElement('style');
-modalStyle.textContent = `
-    /* Ürün modal açıkken arka plan KAYMAZ */
-    body.product-modal-open {
-        overflow: hidden !important;
-    }
-    /* Modal içi yalnızca bilgi kolonu scroll yapar */
-    .modal-overlay.open {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    .modal-info-col {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
-    }
-    /* Resim kolonu sabit kalır */
-    @media (min-width: 701px) {
-        .modal-img-col {
-            overflow: hidden;
-            height: 500px;
-        }
-    }
-    /* Mobil — modal tam ekran, bilgi aşağı scroll */
-    @media (max-width: 700px) {
-        .modal-box {
-            height: auto;
-            max-height: 95dvh;
-            overflow-y: auto;
-        }
-        .modal-info-col {
-            overflow-y: visible;
-            max-height: none;
-        }
-    }
-`;
-document.head.appendChild(modalStyle);
-
-/* ═══════════════════════════════════════════
-   3. PERDE BANNER YAZISI OKUNURLUĞU
-═══════════════════════════════════════════ */
-const bannerStyle = document.createElement('style');
-bannerStyle.textContent = `
-    .first-order-banner::before {
-        background: linear-gradient(
-            110deg,
-            rgba(15,14,13,0.96) 0%,
-            rgba(15,14,13,0.85) 40%,
-            rgba(15,14,13,0.52) 70%,
-            rgba(15,14,13,0.18) 100%
-        ) !important;
-    }
-    .first-order-banner-eyebrow {
-        color: rgba(255,255,255,0.92) !important;
-        text-shadow: 0 1px 8px rgba(0,0,0,0.5) !important;
-    }
-    .first-order-banner-text h3 {
-        color: white !important;
-        text-shadow: 0 2px 14px rgba(0,0,0,0.55) !important;
-    }
-    .first-order-banner-text p {
-        color: rgba(255,255,255,0.9) !important;
-        text-shadow: 0 1px 6px rgba(0,0,0,0.4) !important;
-    }
-    /* Kupon chip hover efekti */
-    .coupon-chip {
-        cursor: pointer !important;
-        transition: transform 0.2s, box-shadow 0.2s !important;
-    }
-    .coupon-chip:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
-    }
-    /* Kupon uygulandı badge */
-    .coupon-applied-info {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 14px;
-        background: rgba(39,174,96,0.1);
-        border: 1px solid rgba(39,174,96,0.3);
-        border-radius: 8px;
-        margin-top: 8px;
-        font-size: 0.82rem;
-        color: #155724;
-        animation: fadeUpIn 0.3s ease;
-    }
-    @keyframes fadeUpIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-`;
-document.head.appendChild(bannerStyle);
-
-/* ═══════════════════════════════════════════
-   4. SEPET SHEET — MODAL İÇİNDEN ÇALIŞMA FİXİ
-═══════════════════════════════════════════ */
-// Orijinal addToCart fonksiyonunu wrap et
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(patchFunctions, 800);
-});
-
-function patchFunctions() {
-    /* 4a. closeProductModal patch */
-    if (typeof window.closeProductModal === 'function') {
-        const _orig = window.closeProductModal;
-        window.closeProductModal = function() {
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
-            _orig.call(this);
-        };
-    }
-
-    /* 4b. openCartSheet — önce modalı kapat */
-    if (typeof window.openCartSheet === 'function') {
-        const _origCS = window.openCartSheet;
-        window.openCartSheet = function(item) {
-            const modal = document.getElementById('productModal');
-            if (modal && modal.classList.contains('open')) {
-                window.closeProductModal();
-                setTimeout(() => _origCS(item), 150);
-            } else {
-                _origCS(item);
-            }
-        };
-    }
-
-    /* 5. applyCoupon — çoklu kupon desteği */
-    const ACTIVE_COUPONS = [
-        { code: 'ILKSIPARIS10', desc: 'İlk siparişe özel', discount: 0.10 },
-        { code: 'GOCMEN15',     desc: 'Sadık müşteri fırsatı', discount: 0.15 },
-        { code: 'PERDE20',      desc: 'Hafta sonu kampanyası', discount: 0.20 },
-        { code: 'YAZ25',        desc: 'Sezon sonu mega indirim', discount: 0.25 },
-        { code: 'KISH10',       desc: 'Kış koleksiyonu özel', discount: 0.10 },
-    ];
-
-    window.applyCoupon = function() {
-        const input = document.getElementById('couponInput');
-        const c = (input?.value || '').trim().toUpperCase();
-        const found = ACTIVE_COUPONS.find(x => x.code === c);
-
-        if (!found) {
-            window.showToast('❌ Geçersiz kupon kodu');
-            if (input) { input.style.borderColor = '#c0392b'; setTimeout(() => input.style.borderColor = '', 1500); }
-            return;
-        }
-
-        const pct = Math.round(found.discount * 100);
-        window.total = Math.round(window.total * (1 - found.discount));
-        const totalEl = document.getElementById('totalAmount');
-        if (totalEl) totalEl.innerHTML = window.total.toLocaleString('tr-TR') + ' <span>TL</span>';
-
-        // Kupon uygulandı bilgi kutusu
-        const couponArea = document.querySelector('.coupon-area');
-        if (couponArea) {
-            let badge = document.getElementById('couponAppliedBadge');
-            if (!badge) {
-                badge = document.createElement('div');
-                badge.id = 'couponAppliedBadge';
-                badge.className = 'coupon-applied-info';
-                couponArea.appendChild(badge);
-            }
-            badge.innerHTML = `<i class="fas fa-tag" style="color:#27ae60;font-size:1rem"></i>
-                <div>
-                    <strong style="font-size:0.85rem">${c}</strong> kuponu uygulandı — 
-                    <span style="color:#27ae60;font-weight:700">%${pct} indirim</span> kazandınız!
-                    <div style="font-size:0.75rem;color:#555;margin-top:2px">${found.desc}</div>
-                </div>`;
-        }
-
-        if (input) { input.value = ''; input.style.borderColor = '#27ae60'; setTimeout(() => input.style.borderColor = '', 1500); }
-        window.showToast(`🎉 %${pct} indirim uygulandı! ${found.desc}`);
-    };
-
-    /* 6. Kupon banner tıklama */
-    window.applyBannerCoupon = function(code) {
-        go('cart');
-        setTimeout(() => {
-            renderCart();
-            setTimeout(() => {
-                const input = document.getElementById('couponInput');
-                if (input) {
-                    input.value = code;
-                    input.style.borderColor = 'var(--gold)';
-                    input.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.15)';
-                    // Animasyonla dikkat çek
-                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    setTimeout(() => {
-                        input.style.borderColor = '';
-                        input.style.boxShadow = '';
-                    }, 2000);
-                }
-                window.applyCoupon();
-            }, 350);
-        }, 200);
-    };
-
-    /* 7. Mobil menü kategorileri — dinamik ekle */
-    addMobileMenuCategories();
-    addDesktopDropdownCategories();
-}
-
-/* ═══════════════════════════════════════════
-   7. MOBİL MENÜ KATEGORİLERİ
-═══════════════════════════════════════════ */
-function addMobileMenuCategories() {
-    const menu = document.getElementById('mobileMenu');
-    if (!menu) return;
-
-    const koltukBtn = menu.querySelector('[onclick*="koltuk"]');
-    if (!koltukBtn) return;
-
-    // Zaten eklendi mi?
-    if (menu.querySelector('[onclick*="plise-perde"]')) return;
-
-    const newCats = [
-        { key: 'plise-perde', icon: 'fas fa-border-all', label: 'PLİSE PERDELER' },
-        { key: 'stor-perde',  icon: 'fas fa-up-down',    label: 'STOR PERDELER' },
-        { key: 'zebra-perde', icon: 'fas fa-grip-lines', label: 'ZEBRA PERDELER' },
-    ];
-
-    newCats.reverse().forEach(cat => {
-        const btn = document.createElement('button');
-        btn.setAttribute('onclick', `openCategoryFromMenu('${cat.key}')`);
-        btn.innerHTML = `<i class="${cat.icon}" style="margin-right:10px;color:var(--gold)"></i>${cat.label}`;
-        koltukBtn.insertAdjacentElement('afterend', btn);
-    });
-}
-
-function addDesktopDropdownCategories() {
-    const dropdown = document.querySelector('.collection-dropdown');
-    if (!dropdown) return;
-    if (dropdown.querySelector('[onclick*="plise-perde"]')) return;
-<button onclick="openCategoryFromMenu('plise-perde')"><i class="fas fa-border-all" style="margin-right:8px;color:var(--gold)"></i>Plise Perdeler</button>
-<button onclick="openCategoryFromMenu('stor-perde')"><i class="fas fa-up-down" style="margin-right:8px;color:var(--gold)"></i>Stor Perdeler</button>
-<button onclick="openCategoryFromMenu('zebra-perde')"><i class="fas fa-grip-lines" style="margin-right:8px;color:var(--gold)"></i>Zebra Perdeler</button>
-
-    const newCats = [
-        { key: 'plise-perde', icon: 'fas fa-border-all', label: 'Plise Perdeler' },
-        { key: 'stor-perde',  icon: 'fas fa-up-down',    label: 'Stor Perdeler' },
-        { key: 'zebra-perde', icon: 'fas fa-grip-lines', label: 'Zebra Perdeler' },
-    ];
-    newCats.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.setAttribute('onclick', `openCategoryFromMenu('${cat.key}')`);
-        btn.innerHTML = `<i class="${cat.icon}" style="margin-right:8px;color:var(--gold)"></i>${cat.label}`;
-        dropdown.appendChild(btn);
-    });
-}
-
-/* ═══════════════════════════════════════════
-   8. KUPON BANNER — Tıklanabilir Yap
-═══════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        const chip = document.querySelector('.coupon-chip');
-        if (chip && !chip.getAttribute('data-patched')) {
-            chip.setAttribute('data-patched', '1');
-            chip.style.cursor = 'pointer';
-            chip.title = 'Tıkla, sepete uygula!';
-
-            // "Tıkla uygula" etiketi ekle
-            const hint = document.createElement('span');
-            hint.style.cssText = 'font-size:0.58rem;display:block;color:rgba(15,14,13,0.55);letter-spacing:0.5px;margin-top:3px;text-align:center;';
-            hint.textContent = '👆 Tıkla, anında uygula';
-            chip.appendChild(hint);
-
-            chip.addEventListener('click', () => {
-                const code = chip.querySelector('b')?.textContent?.trim() || 'ILKSIPARIS10';
-                window.applyBannerCoupon(code);
-            });
-        }
-    }, 1500);
-});
-
-console.log('✓ Göçmen Perde patch loaded');
-```
-
-})();
-
 </body>
 </html>
