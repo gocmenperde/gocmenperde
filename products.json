@@ -3,10 +3,10 @@
     "id": "zebra-perde-beyaz-bej-gecisli-1774892324844-482",
     "name": "Zebra Perde Beyaz Bej Geçişli",
     "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
-    "image": "resimler/1774892300411-0-f7098422-c15f-478e-9948-bbffba7d7404-IMG_1764.jpeg",
+    "image": "resimler/1774892305811-1-d1b794a2-594d-48d6-8474-1add1e213222-IMG_1811.png",
     "images": [
-      "resimler/1774892300411-0-f7098422-c15f-478e-9948-bbffba7d7404-IMG_1764.jpeg",
-      "resimler/1774892305811-1-d1b794a2-594d-48d6-8474-1add1e213222-IMG_1811.png"
+      "resimler/1774892305811-1-d1b794a2-594d-48d6-8474-1add1e213222-IMG_1811.png",
+      "resimler/1774892300411-0-f7098422-c15f-478e-9948-bbffba7d7404-IMG_1764.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -16,7 +16,7 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": null,
     "serialNumber": "Adidas V-01",
