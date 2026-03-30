@@ -176,6 +176,11 @@ select.filter-sel:focus{border-color:var(--gold)}
 .bulk-add-panel.open{display:block;animation:fadeIn 0.2s ease}
 .bulk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .bulk-note{font-size:0.75rem;color:var(--slate-light);line-height:1.55;margin-top:8px}
+.bulk-items-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
+.bulk-item-card{border:1px solid var(--border);border-radius:10px;padding:14px;background:#fcfbf8}
+.bulk-item-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.bulk-item-title{font-size:0.82rem;font-weight:600;color:var(--ink)}
+.bulk-item-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 
 /* ──────────── TABLE ──────────── */
 .table-wrap{background:white;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;overflow-x:auto;box-shadow:var(--shadow-sm)}
@@ -683,16 +688,17 @@ tbody tr:hover td{background:#fdfcf8}
       </div>
     </div>
     <div class="fg">
-      <label>Ürün satırları *</label>
-      <textarea id="bulkItems" style="min-height:150px;font-family:monospace;font-size:0.82rem" placeholder="Her satır: Ürün Adı | Fiyat | Açıklama | Resim(ler)
-Resimlerde birden fazla görsel için virgül kullanabilirsiniz.
-Örnek:
-Plise Perde Krem 160x200 | 1450 | Krem tonlarda plise perde açıklaması | resimler/plise-krem-1.jpg,resimler/plise-krem-2.jpg"></textarea>
-      <p class="bulk-note">Her satırda sadece açıklama ve resimleri farklı girip diğer alanları aşağıdaki <strong>ortak varsayılanlardan</strong> yönetebilirsiniz.</p>
+      <label>Ürünler *</label>
+      <div class="bulk-items-wrap" id="bulkItemsWrap"></div>
+      <div style="display:flex;justify-content:flex-start">
+        <button class="btn btn-outline btn-sm" type="button" onclick="addBulkItemCard()"><i class="fas fa-plus"></i> 2. Toplu Ürün Ekle</button>
+      </div>
+      <p class="bulk-note">Her ürün için ad, fiyat ve resim alanlarını ayrı panelde doldurun. Açıklama ve diğer alanlar aşağıdaki ortak varsayılanlardan otomatik uygulanır.</p>
     </div>
     <div class="bulk-grid">
       <div class="fg"><label>Kategori</label><select id="bulkCat"></select></div>
       <div class="fg"><label>Birim</label><select id="bulkUnit"><option value="adet">Adet</option><option value="mt">Metre (mt)</option><option value="m2">Metrekare (m²)</option></select></div>
+      <div class="fg"><label>Ortak Açıklama</label><input type="text" id="bulkDesc" placeholder="Tüm ürünler için aynı açıklama"></div>
       <div class="fg"><label>Eski Fiyat (ops.)</label><input type="number" id="bulkOldPrice" placeholder="örn: 1800"></div>
       <div class="fg"><label>İndirim Etiketi</label><input type="text" id="bulkBadge" placeholder="örn: %20 İNDİRİM"></div>
       <div class="fg"><label>Özellikler (virgül)</label><input type="text" id="bulkFeatures" placeholder="karartma, premium"></div>
@@ -1799,20 +1805,65 @@ function toggleBulkAddPanel(){
   if(panel.classList.contains('open')){
     copyCategoryOptionsTo('bulkCat');
     document.getElementById('bulkCat').value=document.getElementById('f-cat').value||CATEGORIES[0]?.key||'';
-    document.getElementById('bulkItems').focus();
+    const wrap=document.getElementById('bulkItemsWrap');
+    if(wrap && !wrap.children.length) addBulkItemCard();
+    const firstName=document.querySelector('.bulk-name');
+    if(firstName) firstName.focus();
   }
 }
+function addBulkItemCard(initialData={}){
+  const wrap=document.getElementById('bulkItemsWrap');
+  if(!wrap) return;
+  const idx=wrap.children.length+1;
+  const card=document.createElement('div');
+  card.className='bulk-item-card';
+  card.innerHTML=`
+    <div class="bulk-item-head">
+      <span class="bulk-item-title">${idx}. Ürün</span>
+      <button class="btn btn-danger btn-sm" type="button" onclick="removeBulkItemCard(this)" ${idx===1?'style="display:none"':''}><i class="fas fa-trash"></i> Sil</button>
+    </div>
+    <div class="bulk-item-grid">
+      <div class="fg"><label>Ürün Adı *</label><input type="text" class="bulk-name" placeholder="Örn: Plise Perde Krem" value="${(initialData.name||'').replace(/"/g,'&quot;')}"></div>
+      <div class="fg"><label>Fiyat *</label><input type="number" class="bulk-price" placeholder="Örn: 1450" value="${initialData.price||''}"></div>
+      <div class="fg"><label>Resim Yolu *</label><input type="text" class="bulk-image" placeholder="resimler/ornek.jpg" value="${(initialData.image||'').replace(/"/g,'&quot;')}"></div>
+    </div>
+  `;
+  wrap.appendChild(card);
+  updateBulkCardOrder();
+}
+function removeBulkItemCard(btn){
+  const card=btn?.closest('.bulk-item-card');
+  const wrap=document.getElementById('bulkItemsWrap');
+  if(!card||!wrap) return;
+  card.remove();
+  if(!wrap.children.length) addBulkItemCard();
+  updateBulkCardOrder();
+}
+function updateBulkCardOrder(){
+  const cards=[...document.querySelectorAll('#bulkItemsWrap .bulk-item-card')];
+  cards.forEach((card,i)=>{
+    const title=card.querySelector('.bulk-item-title');
+    if(title) title.textContent=`${i+1}. Ürün`;
+    const delBtn=card.querySelector('.btn-danger');
+    if(delBtn) delBtn.style.display=(cards.length===1&&i===0)?'none':'inline-flex';
+  });
+}
 function clearBulkForm(){
-  ['bulkItems','bulkOldPrice','bulkBadge','bulkFeatures','bulkStock','bulkSerialPrefix','bulkSpecs','bulkCare'].forEach(id=>{const el=document.getElementById(id);if(el) el.value='';});
+  ['bulkDesc','bulkOldPrice','bulkBadge','bulkFeatures','bulkStock','bulkSerialPrefix','bulkSpecs','bulkCare'].forEach(id=>{const el=document.getElementById(id);if(el) el.value='';});
   const unit=document.getElementById('bulkUnit'); if(unit) unit.value='adet';
   const active=document.getElementById('bulkActive'); if(active) active.value='true';
   if(document.getElementById('bulkCat') && CATEGORIES.length){document.getElementById('bulkCat').value=CATEGORIES[0].key;}
+  const wrap=document.getElementById('bulkItemsWrap');
+  if(wrap) wrap.innerHTML='';
+  addBulkItemCard();
 }
 function fillBulkSample(){
-  document.getElementById('bulkItems').value=[
-    'Plise Perde Krem 160x200 | 1450 | Krem tonlu plise perde, modern ve şık görünüm sağlar. | resimler/plise-krem-1.jpg,resimler/plise-krem-2.jpg',
-    'Plise Perde Gri 160x200 | 1490 | Gri tonlu plise perde, ışık kontrolü ve mahremiyet sunar. | resimler/plise-gri-1.jpg,resimler/plise-gri-2.jpg'
-  ].join('\n');
+  clearBulkForm();
+  const wrap=document.getElementById('bulkItemsWrap');
+  if(wrap) wrap.innerHTML='';
+  addBulkItemCard({name:'Plise Perde Krem 160x200',price:1450,image:'resimler/plise-krem-1.jpg'});
+  addBulkItemCard({name:'Plise Perde Gri 160x200',price:1490,image:'resimler/plise-gri-1.jpg'});
+  document.getElementById('bulkDesc').value='Modern görünüm sağlayan şık perde modeli.';
 }
 function parseBulkStructured(raw){
   const val=(raw||'').trim();
@@ -1820,14 +1871,15 @@ function parseBulkStructured(raw){
   try{return JSON.parse(val);}catch(_){try{return linePairsToObject(val);}catch(e){throw e;}}
 }
 function saveBulkProducts(){
-  const raw=document.getElementById('bulkItems').value.trim();
-  if(!raw){aToast('⚠️ Toplu ürün satırlarını doldurun','error');return;}
+  const cards=[...document.querySelectorAll('#bulkItemsWrap .bulk-item-card')];
+  if(!cards.length){aToast('⚠️ En az bir ürün ekleyin','error');return;}
   let sharedSpecs={},sharedCare={};
   try{sharedSpecs=parseBulkStructured(document.getElementById('bulkSpecs').value);}catch(e){aToast('⚠️ Teknik özellik formatı hatalı: '+e.message,'error');return;}
   try{sharedCare=parseBulkStructured(document.getElementById('bulkCare').value);}catch(e){aToast('⚠️ Bakım talimatı formatı hatalı: '+e.message,'error');return;}
 
   const sharedCat=document.getElementById('bulkCat').value||CATEGORIES[0]?.key||'carsaf';
   const sharedUnit=document.getElementById('bulkUnit').value||'adet';
+  const sharedDesc=document.getElementById('bulkDesc').value.trim()||'Ürün açıklaması yakında güncellenecektir.';
   const sharedOldPrice=document.getElementById('bulkOldPrice').value;
   const sharedBadge=document.getElementById('bulkBadge').value.trim();
   const sharedFeatures=document.getElementById('bulkFeatures').value.replace(/\s*,\s*/g,',').trim();
@@ -1835,17 +1887,16 @@ function saveBulkProducts(){
   const serialPrefix=document.getElementById('bulkSerialPrefix').value.trim();
   const sharedActive=document.getElementById('bulkActive').value==='true';
 
-  const lines=raw.split('\n').map(x=>x.trim()).filter(Boolean);
   const incoming=[];
-  for(let i=0;i<lines.length;i++){
-    const cols=lines[i].split('|').map(x=>x.trim());
-    if(cols.length<4){aToast(`⚠️ ${i+1}. satır eksik. Format: Ad | Fiyat | Açıklama | Resim`, 'error');return;}
-    const [name,priceRaw,desc,imageRaw]=cols;
+  for(let i=0;i<cards.length;i++){
+    const name=cards[i].querySelector('.bulk-name')?.value.trim()||'';
+    const priceRaw=cards[i].querySelector('.bulk-price')?.value||'';
+    const imageRaw=cards[i].querySelector('.bulk-image')?.value.trim()||'';
     const price=parseFloat(String(priceRaw).replace(',','.'));
-    if(!name || !(price>0) || !desc || !imageRaw){aToast(`⚠️ ${i+1}. satırda ad/fiyat/açıklama/resim zorunlu`, 'error');return;}
+    if(!name || !(price>0) || !imageRaw){aToast(`⚠️ ${i+1}. ürün panelinde ad/fiyat/resim zorunlu`, 'error');return;}
     const images=imageRaw.split(',').map(x=>x.trim()).filter(Boolean);
     incoming.push({
-      id:createProductId(name),name,desc,image:images[0]||'',images,
+      id:createProductId(name),name,desc:sharedDesc,image:images[0]||'',images,
       price,oldPrice:sharedOldPrice?parseFloat(sharedOldPrice):null,
       cat:sharedCat,unit:sharedUnit,isMeter:sharedUnit==='mt',isSquareMeter:sharedUnit==='m2',
       features:sharedFeatures,badge:sharedBadge,discountType:'manual',discountValue:null,
