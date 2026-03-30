@@ -348,9 +348,13 @@ function resolveSiteUrl() {
     process.env.SITE_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.PUBLIC_SITE_URL ||
-    'https://www.gocmenperde.com'
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_URL ||
+    'https://gocmenperde.com'
   ).trim();
-  return raw.replace(/\/$/, '');
+  if (!raw) return 'https://gocmenperde.com';
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  return withProtocol.replace(/\/$/, '');
 }
 
 function normalizeAssetUrl(value, siteUrl) {
