@@ -1061,6 +1061,7 @@ const ORDER_SUGGESTIONS = [
     { id: "sug3", name: "Zebra Perde", price: 1000, image: "resimler/1774658872713-IMG_1444.jpeg" },
     { id: "sug4", name: "Stor Perde", price: 600, image: "resimler/img_1364.webp" }
 ];
+const GITHUB_RAW_PRODUCTS_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/products.json';
 
 // Kupon kodları
 const COUPON_CODES = ['ILKSIPARIS10', 'GOCMEN15', 'PERDE20', 'YAZ25', 'KISH10'];
@@ -1106,8 +1107,18 @@ function goToProductDetail(item = {}) {
 async function loadProductCatalog() {
     if (productCatalog.length) return productCatalog;
     try {
-        const r = await fetch('/products.json?v=' + Date.now(), { cache: 'no-store' });
-        productCatalog = await r.json();
+        const remote = await fetch(GITHUB_RAW_PRODUCTS_URL + '?v=' + Date.now(), { cache: 'no-store' });
+        if (remote.ok) {
+            const remoteProducts = await remote.json();
+            if (Array.isArray(remoteProducts) && remoteProducts.length) {
+                productCatalog = remoteProducts;
+                return productCatalog;
+            }
+        }
+    } catch (e) {}
+    try {
+        const local = await fetch('/products.json?v=' + Date.now(), { cache: 'no-store' });
+        productCatalog = await local.json();
     } catch (e) {
         productCatalog = [];
     }
