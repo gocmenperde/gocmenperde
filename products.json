@@ -1,5 +1,39 @@
 [
   {
+    "id": "zebra-perde-lila-mor-gecisli-1774899632707-132",
+    "name": "Zebra Perde Lila Mor Geçişli",
+    "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
+    "image": "resimler/1774899432010-0-222f6c30-3bb6-440a-b26e-02904cc199d0-IMG_1770.jpeg",
+    "images": [
+      "resimler/1774899432010-0-222f6c30-3bb6-440a-b26e-02904cc199d0-IMG_1770.jpeg"
+    ],
+    "price": 650,
+    "oldPrice": 850,
+    "cat": "zebra-perde",
+    "unit": "m2",
+    "isMeter": false,
+    "isSquareMeter": true,
+    "features": "",
+    "badge": "%24 İNDİRİM",
+    "discountType": "percent",
+    "discountValue": null,
+    "stock": null,
+    "serialNumber": "Adidas V-04",
+    "active": true,
+    "specs": {
+      "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
+      "• Mekanizma": "Kolay kullanım sağlayan plastik veya metal zincirli manuel/motorlu kontrol seçeneği."
+    },
+    "care": {
+      "• Düzenli Toz Alma": "Perdenizin rengini koruması için haftada bir kez yumuşak bir toz fırçası veya elektrikli süpürgenin düşük emiş gücüyle tozunu alın.",
+      "• Yerinde Temizlik": "Hafif lekeler için perdenizi yerinden çıkarmadan, nemli ve yumuşak bir bez yardımıyla silin.",
+      "• Kimyasal Kullanımı": "Temizlik sırasında ağır kimyasallar veya çamaşır suyu yerine, ılık su ve az miktarda beyaz sabun/yumuşak deterjan tercih edin.",
+      "• Kurutma Yöntemi": "Sildikten sonra perdenizi tamamen aşağıya indirin ve nemi geçene kadar açık konumda kurumasını bekleyin.",
+      "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
+      "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
+    }
+  },
+  {
     "id": "zebra-perde-mor-pembe-gecisli-1774893507393-282",
     "name": "Zebra Perde Mor Pembe Geçişli",
     "desc": "Teknik özellikler: Kumaş: Çift katmanlı zebra, Işık Ayarı: Şerit geçişli, Mekanizma: Zincirli, Stil: Modern.Bakım önerileri: Temizlik: Kuru/nemli bez, Ütü: Uygulanmaz, Bakım: Mekanizmayı zorlamayın.",
