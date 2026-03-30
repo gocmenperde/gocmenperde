@@ -1240,22 +1240,74 @@ const REVIEW_TEXTS = [
   'Satıcı sorularımı hızlı cevapladı, süreç rahattı.',
   'Beklediğimden kaliteli ve kullanışlı bir ürün oldu.'
 ];
+const PRODUCTS_CACHE_KEY = 'gp_products_cache_v2';
+const PRODUCTS_CACHE_TTL_MS = 1000 * 60 * 15;
+let productsLoadedOnce = false;
+let productRequestInFlight = null;
 
-async function loadProducts(){
+function readProductsFromCache(){
   try{
-    const res = await fetch(`/products.json?v=${Date.now()}`, { cache:'no-store' });
-    if(!res.ok) throw new Error('Ürünler alınamadı');
-    PRODUCTS = (await res.json()).map(normalizeProductCatalog);
-    hydrateProductSocialData();
-    syncCategoriesFromAdmin();
-    renderProducts(PRODUCTS);
-    updateDiscountSpotlight(PRODUCTS);
-    renderRecentlyViewed();
-    initObserver();
-    handleInitialProductDeepLink();
+    const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
+    if(!raw) return [];
+    const parsed = JSON.parse(raw);
+    if(!Array.isArray(parsed?.products) || !parsed.products.length) return [];
+    if(Date.now() - Number(parsed?.savedAt || 0) > PRODUCTS_CACHE_TTL_MS) return [];
+    return parsed.products.map(normalizeProductCatalog);
   } catch(e){
-    document.getElementById('productsGrid').innerHTML = '<div class="products-loading">Ürünler yüklenemedi. Sayfayı yenileyin.</div>';
+    return [];
   }
+}
+
+function writeProductsToCache(products){
+  try{
+    localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify({
+      savedAt: Date.now(),
+      products: Array.isArray(products) ? products : []
+    }));
+  } catch(e){}
+}
+
+function renderProductState(list, {withObserver=true} = {}){
+  PRODUCTS = (Array.isArray(list) ? list : []).map(normalizeProductCatalog);
+  hydrateProductSocialData();
+  syncCategoriesFromAdmin();
+  renderProducts(PRODUCTS);
+  updateDiscountSpotlight(PRODUCTS);
+  renderRecentlyViewed();
+  if(withObserver) initObserver();
+}
+
+async function loadProducts({forceRefresh=false} = {}){
+  const shouldUseCache = !forceRefresh;
+  if(shouldUseCache && !productsLoadedOnce){
+    const cached = readProductsFromCache();
+    if(cached.length){
+      renderProductState(cached, {withObserver:false});
+      productsLoadedOnce = true;
+      handleInitialProductDeepLink();
+    }
+  }
+  if(productRequestInFlight) return productRequestInFlight;
+
+  productRequestInFlight = (async ()=>{
+    try{
+      const res = await fetch('/products.json', { cache:'no-cache' });
+      if(!res.ok) throw new Error('Ürünler alınamadı');
+      const fresh = await res.json();
+      writeProductsToCache(fresh);
+      renderProductState(fresh, {withObserver:true});
+      productsLoadedOnce = true;
+      handleInitialProductDeepLink();
+    } catch(e){
+      if(!productsLoadedOnce){
+        document.getElementById('productsGrid').innerHTML = '<div class="products-loading">Ürünler yüklenemedi. Sayfayı yenileyin.</div>';
+      }
+    } finally {
+      productRequestInFlight = null;
+    }
+  })();
+
+  return productRequestInFlight;
 }
 
 function handleInitialProductDeepLink(){
@@ -2168,17 +2220,33 @@ document.addEventListener('keydown', (e)=>{
 });
 
 // ── Menü & Popuplar ──
-function toggleMenu(){
-  const m=document.getElementById('mobileMenu'),o=document.getElementById('menuOverlay'),open=m.style.left==='0px';
-  m.style.left=open?'-100%':'0px'; o.style.display=open?'none':'block';
-  if(!open) closeAllPopups();
-  if(!open){ closeAllPopups(); hideToast(); }
+function isMobileMenuOpen(){
+  const m = document.getElementById('mobileMenu');
+  return !!m && (m.style.left === '0px' || m.classList.contains('open'));
 }
-function closeMobileMenuWrapper(){ document.getElementById('mobileMenu').style.left='-100%'; document.getElementById('menuOverlay').style.display='none'; }
+function setMobileMenuState(open){
+  const m = document.getElementById('mobileMenu');
+  const o = document.getElementById('menuOverlay');
+  if(!m || !o) return;
+  m.style.left = open ? '0px' : '-100%';
+  m.classList.toggle('open', open);
+  o.style.display = open ? 'block' : 'none';
+  document.body.classList.toggle('menu-open', open);
+}
+function toggleMenu(){
+  const open = isMobileMenuOpen();
+  if(!open){
+    closeAllPopups();
+    hideToast();
+  }
+  setMobileMenuState(!open);
+}
+function closeMobileMenuWrapper(){ setMobileMenuState(false); }
 function closeAllPopups(){
   document.querySelectorAll('.mini-cart,.search-bar,.favorite-bar').forEach(el=>el.classList.remove('open'));
   document.getElementById('globalOverlay').classList.remove('open');
   closeCartSheet();
+  closeMobileMenuWrapper();
   hideToast();
 }
 function togglePopup(id){
@@ -2213,6 +2281,23 @@ function hideLoader(forceImmediate=false){
   setTimeout(()=>l.remove(),380);
 }
 
+function recoverUIAfterResume(){
+  hideLoader(true);
+  if(document.body.classList.contains('product-modal-open') && !document.getElementById('productModal')?.classList.contains('open')){
+    unlockPageScrollForModal();
+    document.body.classList.remove('product-modal-open');
+  }
+  if(!document.getElementById('productModal')?.classList.contains('open')){
+    unlockPageScrollForModal();
+    closeImageViewer();
+  }
+  closeMobileMenuWrapper();
+  const activeSection = document.querySelector('.section.active');
+  if(!activeSection){
+    applySectionState(getSectionFromLocation(), {scroll:false});
+  }
+}
+
 window.addEventListener('load',()=>{
   const fromBackForward = sessionStorage.getItem('gp_fast_resume') === '1';
   if(fromBackForward) hideLoader(true);
@@ -2224,7 +2309,18 @@ window.addEventListener('load',()=>{
   initUserSession();
 });
 window.addEventListener('pagehide',()=>{ sessionStorage.setItem('gp_fast_resume','1'); });
-window.addEventListener('pageshow',(ev)=>{ if(ev.persisted) hideLoader(true); });
+window.addEventListener('pageshow',(ev)=>{
+  if(ev.persisted) hideLoader(true);
+  recoverUIAfterResume();
+  if(document.visibilityState === 'visible') loadProducts();
+});
+window.addEventListener('focus', recoverUIAfterResume);
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState === 'visible'){
+    recoverUIAfterResume();
+    loadProducts();
+  }
+});
 
 // ── Navigasyon ──
 function applySectionState(id, {scroll=true} = {}){
