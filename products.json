@@ -1,5 +1,40 @@
 [
   {
+    "id": "zebra-perde-gumus-gri-gecisli-1774888513068-307",
+    "name": "Zebra Perde Gümüş Gri Geçişli",
+    "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
+    "image": "resimler/1774888489667-0-184a4874-d8e9-4ec7-9dac-b02a6af3ca46-IMG_1751.jpeg",
+    "images": [
+      "resimler/1774888489667-0-184a4874-d8e9-4ec7-9dac-b02a6af3ca46-IMG_1751.jpeg",
+      "resimler/1774888503757-1-a5a45780-3172-439a-8d0e-828c98926c77-IMG_1752.png"
+    ],
+    "price": 650,
+    "oldPrice": 850,
+    "cat": "zebra-perde",
+    "unit": "m2",
+    "isMeter": false,
+    "isSquareMeter": true,
+    "features": "",
+    "badge": "%24 İNDİRİM",
+    "discountType": "percent",
+    "discountValue": null,
+    "stock": null,
+    "serialNumber": "Chico V-06",
+    "active": true,
+    "specs": {
+      "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
+      "• Mekanizma": "Kolay kullanım sağlayan plastik veya metal zincirli manuel/motorlu kontrol seçeneği."
+    },
+    "care": {
+      "• Düzenli Toz Alma": "Perdenizin rengini koruması için haftada bir kez yumuşak bir toz fırçası veya elektrikli süpürgenin düşük emiş gücüyle tozunu alın.",
+      "• Yerinde Temizlik": "Hafif lekeler için perdenizi yerinden çıkarmadan, nemli ve yumuşak bir bez yardımıyla silin.",
+      "• Kimyasal Kullanımı": "Temizlik sırasında ağır kimyasallar veya çamaşır suyu yerine, ılık su ve az miktarda beyaz sabun/yumuşak deterjan tercih edin.",
+      "• Kurutma Yöntemi": "Sildikten sonra perdenizi tamamen aşağıya indirin ve nemi geçene kadar açık konumda kurumasını bekleyin.",
+      "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
+      "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
+    }
+  },
+  {
     "id": "zebra-perde-gumus-yesil-gecisli-1774888350093-777",
     "name": "Zebra Perde Gümüş Yeşil Geçişli",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
