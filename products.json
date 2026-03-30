@@ -186,12 +186,15 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": null,
     "serialNumber": "Classic-02",
     "active": true,
-    "specs": {},
+    "specs": {
+      "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
+      "• Mekanizma": "Kolay kullanım sağlayan plastik veya metal zincirli manuel/motorlu kontrol seçeneği."
+    },
     "care": {
       "• Düzenli Toz Alma": "Perdenizin rengini koruması için haftada bir kez yumuşak bir toz fırçası veya elektrikli süpürgenin düşük emiş gücüyle tozunu alın.",
       "• Yerinde Temizlik": "Hafif lekeler için perdenizi yerinden çıkarmadan, nemli ve yumuşak bir bez yardımıyla silin.",
