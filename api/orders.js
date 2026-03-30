@@ -3,6 +3,13 @@ const { Pool } = require('pg');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const ADMIN_API_KEY = 'gocmen1993';
 const ORDER_STATUSES = ['Beklemede', 'Hazırlanıyor', 'Kargoda', 'Teslim Edildi', 'İptal'];
+const ORDER_STATUS_ALIASES = {
+  beklemede: 'Beklemede',
+  hazirlaniyor: 'Hazırlanıyor',
+  kargoda: 'Kargoda',
+  teslimedildi: 'Teslim Edildi',
+  iptal: 'İptal',
+};
 const DEFAULT_ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
 
 let cachedEmailColumn = null;
@@ -83,7 +90,8 @@ module.exports = async function handler(req, res) {
         return res.status(403).json({ error: 'Yetkisiz.' });
       }
       const { id, durum } = req.body || {};
-      if (!id || !ORDER_STATUSES.includes(durum)) {
+      const normalizedStatus = normalizeOrderStatus(durum);
+      if (!id || !normalizedStatus || !ORDER_STATUSES.includes(normalizedStatus)) {
         return res.status(400).json({ error: 'Geçersiz veri.' });
       }
 
@@ -94,13 +102,13 @@ module.exports = async function handler(req, res) {
       const order = beforeResult.rows[0];
       const oldStatus = order.durum || 'Beklemede';
 
-      await pool.query('UPDATE siparisler SET durum = $1 WHERE id = $2', [durum, id]);
+      await pool.query('UPDATE siparisler SET durum = $1 WHERE id = $2', [normalizedStatus, id]);
 
-      if (oldStatus !== durum) {
+      if (oldStatus !== normalizedStatus) {
         await sendOrderStatusEmail({
           order,
           previousStatus: oldStatus,
-          newStatus: durum,
+          newStatus: normalizedStatus,
         });
       }
 
@@ -205,8 +213,11 @@ async function sendOrderCreatedEmails({ orderId, customer, note, payment, items,
 }
 
 async function sendOrderStatusEmail({ order, previousStatus, newStatus }) {
-  const customerEmail = extractOrderEmail(order);
-  if (!customerEmail) return;
+  const customerEmail = await resolveOrderCustomerEmail(order);
+  if (!customerEmail) {
+    console.warn(`Sipariş #${order?.id || '-'} için durum maili atlandı: müşteri e-postası bulunamadı.`);
+    return;
+  }
 
   const items = parseOrderItems(order.urunler);
   const html = buildOrderEmailHtml({
@@ -248,6 +259,42 @@ function parseOrderItems(value) {
 
 function extractOrderEmail(order) {
   return normalizeEmail(order?.email || order?.musteri_email || order?.eposta || '');
+}
+
+async function resolveOrderCustomerEmail(order) {
+  const fromOrder = extractOrderEmail(order);
+  if (fromOrder) return fromOrder;
+
+  const customerId = Number(order?.musteri_id || 0);
+  if (!customerId) return '';
+
+  try {
+    const result = await pool.query(
+      'SELECT email, eposta FROM musteriler WHERE id = $1 LIMIT 1',
+      [customerId]
+    );
+    if (!result.rows.length) return '';
+    const row = result.rows[0] || {};
+    return normalizeEmail(row.email || row.eposta || '');
+  } catch (err) {
+    console.warn('Müşteri e-posta sorgusu başarısız:', err.message);
+    return '';
+  }
+}
+
+function normalizeStatusKey(value) {
+  return String(value || '')
+    .toLocaleLowerCase('tr-TR')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function normalizeOrderStatus(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (ORDER_STATUSES.includes(raw)) return raw;
+  return ORDER_STATUS_ALIASES[normalizeStatusKey(raw)] || '';
 }
 
 function normalizeEmail(value) {
