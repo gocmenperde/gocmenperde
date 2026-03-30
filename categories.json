@@ -32,8 +32,9 @@
   {
     "key": "koltuk",
     "label": "Koltuk Örtüleri",
+    "desc": "Koltuk ve kanepe örtüleri",
     "icon": "fas fa-couch",
-    "desc": "Koltuk ve kanepe örtüleri"
+    "image": "resimler/1774901208389-cat-b795dcb6-124f-48f7-ad3d-46f7afb6f46a-IMG_1819.jpeg"
   },
   {
     "key": "ormetulperde",
