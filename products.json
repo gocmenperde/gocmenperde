@@ -3,8 +3,11 @@
     "id": "zebra-perde-gumus-pembe-gecisli-1774887486300",
     "name": "Zebra Perde Gümüş Pembe Geçişli",
     "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
-    "image": "",
-    "images": [],
+    "image": "resimler/1774887653149-0-8af65f67-d668-4c5a-86e0-a7cb42fdd85a-IMG_1747.png",
+    "images": [
+      "resimler/1774887653149-0-8af65f67-d668-4c5a-86e0-a7cb42fdd85a-IMG_1747.png",
+      "resimler/1774887667013-1-0b0fa82c-d098-4da2-b1eb-03ccdd446884-IMG_1746.jpeg"
+    ],
     "price": 650,
     "oldPrice": 850,
     "cat": "zebra-perde",
