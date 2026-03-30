@@ -51,9 +51,10 @@
     "isSquareMeter": true,
     "features": "Chico V-03",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": null,
+    "serialNumber": "Chico V-03",
     "active": true,
     "specs": {
       "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
@@ -88,6 +89,7 @@
     "discountType": "manual",
     "discountValue": null,
     "stock": null,
+    "serialNumber": "Chico V-02",
     "active": true,
     "specs": {
       "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
