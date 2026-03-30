@@ -3002,6 +3002,35 @@ function syncAddressFromParts(){
 
 function syncPartsFromAddress(addressText=''){
   const raw = String(addressText || '').trim();
+  const districtEl = document.getElementById('f-district');
+  const cityEl = document.getElementById('f-city');
+  const neighborhoodEl = document.getElementById('f-neighborhood');
+  const streetEl = document.getElementById('f-street');
+  if(!neighborhoodEl || !streetEl || !districtEl || !cityEl) return;
+
+  const labeledParts = {};
+  raw.split(/\n+/).map(line=>line.trim()).filter(Boolean).forEach(line=>{
+    const m = line.match(/^([^:]+)\s*:\s*(.+)$/);
+    if(!m) return;
+    const label = m[1].toLowerCase().trim();
+    const value = m[2].trim();
+    if(!value) return;
+    if(label.includes('mahalle')) labeledParts.neighborhood = value;
+    else if(label.includes('sokak') || label.includes('cadde')) labeledParts.street = value;
+    else if(label.includes('kapı') && label.includes('no')) labeledParts.doorNo = value;
+    else if(label.includes('ilçe')) labeledParts.district = value;
+    else if(label === 'il') labeledParts.city = value;
+  });
+
+  if(Object.keys(labeledParts).length){
+    const streetWithDoorNo = [labeledParts.street, labeledParts.doorNo ? `Kapı No: ${labeledParts.doorNo}` : ''].filter(Boolean).join(', ');
+    neighborhoodEl.value = labeledParts.neighborhood || '';
+    streetEl.value = streetWithDoorNo;
+    districtEl.value = labeledParts.district || '';
+    cityEl.value = labeledParts.city || '';
+    return;
+  }
+
   const normalized = raw
     .replace(/\n+/g, ' — ')
     .replace(/\s*\|\s*/g, ' — ')
@@ -3031,14 +3060,10 @@ function syncPartsFromAddress(addressText=''){
   }
 
   const districtCity = cityLine.split('/').map(s=>s.trim()).filter(Boolean);
-  const districtEl = document.getElementById('f-district');
-  const cityEl = document.getElementById('f-city');
-  const neighborhoodEl = document.getElementById('f-neighborhood');
-  const streetEl = document.getElementById('f-street');
-  if(neighborhoodEl) neighborhoodEl.value = neighborhood;
-  if(streetEl) streetEl.value = street;
-  if(districtEl) districtEl.value = districtCity[0] || '';
-  if(cityEl) cityEl.value = districtCity[1] || '';
+  neighborhoodEl.value = neighborhood;
+  streetEl.value = street;
+  districtEl.value = districtCity[0] || '';
+  cityEl.value = districtCity[1] || '';
 }
 
 async function loadSavedAddressesForCart(){
