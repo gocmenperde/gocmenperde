@@ -205,10 +205,10 @@
     "id": "zebra-perde-siyah-1774890314822-147",
     "name": "Zebra Perde Siyah",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
-    "image": "resimler/1774890294030-0-5a0e434c-d43c-4e55-a91c-f08240937887-IMG_1757.jpeg",
+    "image": "resimler/1774890307339-1-164f10e2-9d26-4466-b04b-078f3413094f-IMG_1803.png",
     "images": [
-      "resimler/1774890294030-0-5a0e434c-d43c-4e55-a91c-f08240937887-IMG_1757.jpeg",
-      "resimler/1774890307339-1-164f10e2-9d26-4466-b04b-078f3413094f-IMG_1803.png"
+      "resimler/1774890307339-1-164f10e2-9d26-4466-b04b-078f3413094f-IMG_1803.png",
+      "resimler/1774890294030-0-5a0e434c-d43c-4e55-a91c-f08240937887-IMG_1757.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -218,7 +218,7 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": null,
     "serialNumber": "Classic-01",
