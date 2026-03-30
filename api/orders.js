@@ -184,7 +184,11 @@ async function sendOrderCreatedEmails({ orderId, customer, note, payment, items,
     html: adminHtml,
   }));
 
-  await Promise.allSettled(jobs);
+  const results = await Promise.allSettled(jobs);
+  const failed = results.filter((result) => result.status === 'rejected');
+  if (failed.length) {
+    console.warn(`Sipariş #${orderId} için ${failed.length} e-posta görevi başarısız oldu.`);
+  }
 }
 
 async function sendOrderStatusEmail({ order, previousStatus, newStatus }) {
@@ -314,10 +318,16 @@ function escapeHtml(value) {
 
 async function sendTransactionalEmail({ to, subject, html }) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.ORDER_FROM_EMAIL || 'Göçmen Perde <onboarding@resend.dev>';
-  if (!apiKey || !to) return;
+  const from = resolveFromAddress();
+  if (!apiKey || !to || !from) return;
 
   try {
+    if (from.includes('onboarding@resend.dev')) {
+      console.warn(
+        'ORDER_FROM_EMAIL onboarding@resend.dev olarak ayarlı. Bu adres test amaçlıdır; üretimde doğrulanmış domain adresi kullanın.'
+      );
+    }
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -339,6 +349,20 @@ async function sendTransactionalEmail({ to, subject, html }) {
   } catch (err) {
     console.warn('Mail servisi hatası:', err.message);
   }
+}
+
+function resolveFromAddress() {
+  const configuredFrom = String(process.env.ORDER_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || '').trim();
+  const from = configuredFrom || 'Göçmen Perde <onboarding@resend.dev>';
+  const emailMatch = from.match(/<?([^<>\s]+@[^<>\s]+)>?$/);
+  const email = emailMatch ? emailMatch[1].toLowerCase() : '';
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    console.warn('ORDER_FROM_EMAIL geçersiz. Örn: "Göçmen Perde <bilgi@gocmenperde.com.tr>"');
+    return '';
+  }
+
+  return from;
 }
 
 function verifyToken(req) {
