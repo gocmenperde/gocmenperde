@@ -3,8 +3,11 @@
     "id": "zebra-perde-krem---kahve-1774886500388",
     "name": "Zebra Perde Krem - Kahve",
     "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
-    "image": "",
-    "images": [],
+    "image": "resimler/1774886995440-0-989c312f-6b22-405b-b8b9-7d4986781313-IMG_1741.png",
+    "images": [
+      "resimler/1774886995440-0-989c312f-6b22-405b-b8b9-7d4986781313-IMG_1741.png",
+      "resimler/1774887013502-1-1eb12b34-b510-4325-bb53-c69a7801227a-IMG_1740.jpeg"
+    ],
     "price": 650,
     "oldPrice": 850,
     "cat": "zebra-perde",
@@ -13,7 +16,7 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": null,
     "active": true,
