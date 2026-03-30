@@ -2255,18 +2255,34 @@ async function handleImageSelect(input){
   status.className='img-status loading';status.innerHTML='<i class="fas fa-spinner fa-spin"></i> GitHub\'a yükleniyor...';status.style.display='flex';
   try{
     const sanitize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[ğ]/g,'g').replace(/[ü]/g,'u').replace(/[ş]/g,'s').replace(/[ı]/g,'i').replace(/[ö]/g,'o').replace(/[ç]/g,'c').replace(/\s+/g,'-').replace(/[^a-zA-Z0-9._-]/g,'');
+    const uniqueSuffix=()=>{
+      if(window.crypto?.randomUUID) return window.crypto.randomUUID();
+      return `${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
+    };
     const uploaded = [];
-    for(const file of files){
+    for(let idx=0; idx<files.length; idx++){
+      const file=files[idx];
       const content = await new Promise(resolve=>{
         const reader=new FileReader();
         reader.onload=e=>resolve(e.target.result.split(',')[1]);
         reader.readAsDataURL(file);
       });
-      const fileName=`resimler/${Date.now()}-${sanitize(file.name)}`;
+      const fileName=`resimler/${Date.now()}-${idx}-${uniqueSuffix()}-${sanitize(file.name)}`;
       const url=`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`;
-      const res=await fetch(url,{method:'PUT',headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify({message:'Admin: Ürün resmi yüklendi',content})});
+      let sha;
+      const currentFileRes=await fetch(url,{headers:githubHeaders(token)});
+      if(currentFileRes.ok){
+        const currentFileData=await currentFileRes.json();
+        sha=currentFileData.sha;
+      } else if(currentFileRes.status!==404){
+        const err=await currentFileRes.json().catch(()=>({message:'GitHub dosya kontrolü başarısız'}));
+        throw new Error(err.message||'GitHub dosya kontrolü başarısız');
+      }
+      const payload={message:'Admin: Ürün resmi yüklendi',content};
+      if(sha) payload.sha=sha;
+      const res=await fetch(url,{method:'PUT',headers:githubHeaders(token),body:JSON.stringify(payload)});
       if(!res.ok){
-        const err=await res.json();
+        const err=await res.json().catch(()=>({message:'GitHub yükleme hatası'}));
         status.className='img-status error';status.innerHTML='<i class="fas fa-times-circle"></i> Hata: '+err.message;
         aToast('❌ Yükleme hatası: '+err.message,'error');
         return;
