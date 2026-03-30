@@ -1,5 +1,175 @@
 [
   {
+    "id": "zebra-perde-lacivert-1774891080220-517",
+    "name": "Zebra Perde Lacivert",
+    "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
+    "image": "resimler/1774890669279-bulk-c6ce355b-5d19-488d-86a2-1f437e677188-IMG_1805.png",
+    "images": [
+      "resimler/1774890669279-bulk-c6ce355b-5d19-488d-86a2-1f437e677188-IMG_1805.png"
+    ],
+    "price": 650,
+    "oldPrice": 850,
+    "cat": "zebra-perde",
+    "unit": "m2",
+    "isMeter": false,
+    "isSquareMeter": true,
+    "features": "",
+    "badge": "%24 İNDİRİM",
+    "discountType": "manual",
+    "discountValue": null,
+    "stock": null,
+    "serialNumber": "Classic-001",
+    "active": true,
+    "specs": {
+      "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
+      "• Mekanizma": "Kolay kullanım sağlayan plastik veya metal zincirli manuel/motorlu kontrol seçeneği."
+    },
+    "care": {
+      "• Düzenli Toz Alma": "Perdenizin rengini koruması için haftada bir kez yumuşak bir toz fırçası veya elektrikli süpürgenin düşük emiş gücüyle tozunu alın.",
+      "• Yerinde Temizlik": "Hafif lekeler için perdenizi yerinden çıkarmadan, nemli ve yumuşak bir bez yardımıyla silin.",
+      "• Kimyasal Kullanımı": "Temizlik sırasında ağır kimyasallar veya çamaşır suyu yerine, ılık su ve az miktarda beyaz sabun/yumuşak deterjan tercih edin.",
+      "• Kurutma Yöntemi": "Sildikten sonra perdenizi tamamen aşağıya indirin ve nemi geçene kadar açık konumda kurumasını bekleyin.",
+      "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
+      "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
+    }
+  },
+  {
+    "id": "zebra-perde-koyu-gri-1774891080220-467",
+    "name": "Zebra Perde Koyu Gri",
+    "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
+    "image": "resimler/1774890759865-bulk-5270fff0-69b4-4b1c-95f4-1ec9e7a6306c-IMG_1806.png",
+    "images": [
+      "resimler/1774890759865-bulk-5270fff0-69b4-4b1c-95f4-1ec9e7a6306c-IMG_1806.png"
+    ],
+    "price": 650,
+    "oldPrice": 850,
+    "cat": "zebra-perde",
+    "unit": "m2",
+    "isMeter": false,
+    "isSquareMeter": true,
+    "features": "",
+    "badge": "%24 İNDİRİM",
+    "discountType": "manual",
+    "discountValue": null,
+    "stock": null,
+    "serialNumber": "Classic-002",
+    "active": true,
+    "specs": {
+      "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
+      "• Mekanizma": "Kolay kullanım sağlayan plastik veya metal zincirli manuel/motorlu kontrol seçeneği."
+    },
+    "care": {
+      "• Düzenli Toz Alma": "Perdenizin rengini koruması için haftada bir kez yumuşak bir toz fırçası veya elektrikli süpürgenin düşük emiş gücüyle tozunu alın.",
+      "• Yerinde Temizlik": "Hafif lekeler için perdenizi yerinden çıkarmadan, nemli ve yumuşak bir bez yardımıyla silin.",
+      "• Kimyasal Kullanımı": "Temizlik sırasında ağır kimyasallar veya çamaşır suyu yerine, ılık su ve az miktarda beyaz sabun/yumuşak deterjan tercih edin.",
+      "• Kurutma Yöntemi": "Sildikten sonra perdenizi tamamen aşağıya indirin ve nemi geçene kadar açık konumda kurumasını bekleyin.",
+      "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
+      "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
+    }
+  },
+  {
+    "id": "zebra-perde-acik-mavi-1774891080220-889",
+    "name": "Zebra Perde Açık Mavi",
+    "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
+    "image": "resimler/1774890860008-bulk-34e3cfd2-a2e6-4aaf-8791-d97a58568b35-IMG_1807.png",
+    "images": [
+      "resimler/1774890860008-bulk-34e3cfd2-a2e6-4aaf-8791-d97a58568b35-IMG_1807.png"
+    ],
+    "price": 650,
+    "oldPrice": 850,
+    "cat": "zebra-perde",
+    "unit": "m2",
+    "isMeter": false,
+    "isSquareMeter": true,
+    "features": "",
+    "badge": "%24 İNDİRİM",
+    "discountType": "manual",
+    "discountValue": null,
+    "stock": null,
+    "serialNumber": "Classic-003",
+    "active": true,
+    "specs": {
+      "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
+      "• Mekanizma": "Kolay kullanım sağlayan plastik veya metal zincirli manuel/motorlu kontrol seçeneği."
+    },
+    "care": {
+      "• Düzenli Toz Alma": "Perdenizin rengini koruması için haftada bir kez yumuşak bir toz fırçası veya elektrikli süpürgenin düşük emiş gücüyle tozunu alın.",
+      "• Yerinde Temizlik": "Hafif lekeler için perdenizi yerinden çıkarmadan, nemli ve yumuşak bir bez yardımıyla silin.",
+      "• Kimyasal Kullanımı": "Temizlik sırasında ağır kimyasallar veya çamaşır suyu yerine, ılık su ve az miktarda beyaz sabun/yumuşak deterjan tercih edin.",
+      "• Kurutma Yöntemi": "Sildikten sonra perdenizi tamamen aşağıya indirin ve nemi geçene kadar açık konumda kurumasını bekleyin.",
+      "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
+      "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
+    }
+  },
+  {
+    "id": "zebra-perde-acik-siyah-1774891080220-890",
+    "name": "Zebra Perde Açık Siyah",
+    "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
+    "image": "resimler/1774890963284-bulk-139a7fb1-6edd-4b61-a299-4a30dc5f0611-IMG_1808.png",
+    "images": [
+      "resimler/1774890963284-bulk-139a7fb1-6edd-4b61-a299-4a30dc5f0611-IMG_1808.png"
+    ],
+    "price": 650,
+    "oldPrice": 850,
+    "cat": "zebra-perde",
+    "unit": "m2",
+    "isMeter": false,
+    "isSquareMeter": true,
+    "features": "",
+    "badge": "%24 İNDİRİM",
+    "discountType": "manual",
+    "discountValue": null,
+    "stock": null,
+    "serialNumber": "Classic-004",
+    "active": true,
+    "specs": {
+      "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
+      "• Mekanizma": "Kolay kullanım sağlayan plastik veya metal zincirli manuel/motorlu kontrol seçeneği."
+    },
+    "care": {
+      "• Düzenli Toz Alma": "Perdenizin rengini koruması için haftada bir kez yumuşak bir toz fırçası veya elektrikli süpürgenin düşük emiş gücüyle tozunu alın.",
+      "• Yerinde Temizlik": "Hafif lekeler için perdenizi yerinden çıkarmadan, nemli ve yumuşak bir bez yardımıyla silin.",
+      "• Kimyasal Kullanımı": "Temizlik sırasında ağır kimyasallar veya çamaşır suyu yerine, ılık su ve az miktarda beyaz sabun/yumuşak deterjan tercih edin.",
+      "• Kurutma Yöntemi": "Sildikten sonra perdenizi tamamen aşağıya indirin ve nemi geçene kadar açık konumda kurumasını bekleyin.",
+      "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
+      "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
+    }
+  },
+  {
+    "id": "zebra-perde-koyu-siyah-1774891080220-757",
+    "name": "Zebra Perde Koyu Siyah",
+    "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
+    "image": "resimler/1774891074400-bulk-c6a2ff37-efb2-4fb7-bb6f-372dfb49141b-IMG_1809.png",
+    "images": [
+      "resimler/1774891074400-bulk-c6a2ff37-efb2-4fb7-bb6f-372dfb49141b-IMG_1809.png"
+    ],
+    "price": 650,
+    "oldPrice": 850,
+    "cat": "zebra-perde",
+    "unit": "m2",
+    "isMeter": false,
+    "isSquareMeter": true,
+    "features": "",
+    "badge": "%24 İNDİRİM",
+    "discountType": "manual",
+    "discountValue": null,
+    "stock": null,
+    "serialNumber": "Classic-005",
+    "active": true,
+    "specs": {
+      "• Malzeme": "%100 yüksek kalite polyester kumaş ve dayanıklı alüminyum kasa sistemi.",
+      "• Mekanizma": "Kolay kullanım sağlayan plastik veya metal zincirli manuel/motorlu kontrol seçeneği."
+    },
+    "care": {
+      "• Düzenli Toz Alma": "Perdenizin rengini koruması için haftada bir kez yumuşak bir toz fırçası veya elektrikli süpürgenin düşük emiş gücüyle tozunu alın.",
+      "• Yerinde Temizlik": "Hafif lekeler için perdenizi yerinden çıkarmadan, nemli ve yumuşak bir bez yardımıyla silin.",
+      "• Kimyasal Kullanımı": "Temizlik sırasında ağır kimyasallar veya çamaşır suyu yerine, ılık su ve az miktarda beyaz sabun/yumuşak deterjan tercih edin.",
+      "• Kurutma Yöntemi": "Sildikten sonra perdenizi tamamen aşağıya indirin ve nemi geçene kadar açık konumda kurumasını bekleyin.",
+      "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
+      "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
+    }
+  },
+  {
     "id": "zebra-perde-antrasit-1774890439325-437",
     "name": "Zebra Perde Antrasit",
     "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
