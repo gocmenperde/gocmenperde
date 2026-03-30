@@ -40,5 +40,11 @@
     "label": "Örme Tül Perde",
     "desc": "",
     "icon": "fas fa-border-all"
+  },
+  {
+    "key": "guneslik",
+    "label": "Güneşlik",
+    "desc": "",
+    "icon": "fas fa-border-all"
   }
 ]
