@@ -1102,6 +1102,8 @@ function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 let PRODUCTS = [];
 let activeSwitchState = true;
 const AREA_PRICE_CATEGORIES = ['stor-perde','zebra-perde','plise-perde'];
+const GITHUB_RAW_PRODUCTS_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/products.json';
+const GITHUB_RAW_CATEGORIES_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/categories.json';
 
 function detectCurtainCategory(product){
   const text = `${product?.name || ''} ${product?.desc || ''} ${product?.features || ''}`.toLocaleLowerCase('tr');
@@ -1141,9 +1143,17 @@ function getOrderItemSizeText(item){
 
 async function fetchProducts(){
   try{
-    const r = await fetch('/products.json?v='+Date.now());
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    PRODUCTS = (await r.json()).map(normalizeProductCatalog);
+    let sourceData = null;
+    try{
+      const remote = await fetch(`${GITHUB_RAW_PRODUCTS_URL}?v=${Date.now()}`, { cache:'no-store' });
+      if(remote.ok) sourceData = await remote.json();
+    }catch(_){}
+    if(!Array.isArray(sourceData) || !sourceData.length){
+      const local = await fetch('/products.json?v='+Date.now(), { cache:'no-store' });
+      if(!local.ok) throw new Error('HTTP '+local.status);
+      sourceData = await local.json();
+    }
+    PRODUCTS = sourceData.map(normalizeProductCatalog);
   } catch(e){
     PRODUCTS = [
       {id:'ornek-perde-1',name:'Blackout Perde',desc:'Karartma özellikli modern perde',price:450,oldPrice:600,cat:'perde',unit:'adet',image:'',badge:'%25 İndirim',features:'karartma,ütü,astarlı',active:true,stock:null},
@@ -1834,11 +1844,14 @@ async function loadCategories(){
   CATEGORIES=saved?JSON.parse(saved):defaults;
   if(!saved){
     try{
-      const res=await fetch(`/${CATEGORY_FILE_PATH}?v=${Date.now()}`,{cache:'no-cache'});
-      if(res.ok){
-        const remote=await res.json();
-        if(Array.isArray(remote) && remote.length) CATEGORIES=remote;
+      let remote = null;
+      const cloudRes = await fetch(`${GITHUB_RAW_CATEGORIES_URL}?v=${Date.now()}`, {cache:'no-store'});
+      if(cloudRes.ok) remote = await cloudRes.json();
+      if((!Array.isArray(remote) || !remote.length)){
+        const localRes=await fetch(`/${CATEGORY_FILE_PATH}?v=${Date.now()}`,{cache:'no-cache'});
+        if(localRes.ok) remote=await localRes.json();
       }
+      if(Array.isArray(remote) && remote.length) CATEGORIES=remote;
     }catch(err){}
   }
   CATEGORIES = CATEGORIES.filter(c=>c?.key && c?.label && c.key!=='perde');

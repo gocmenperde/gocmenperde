@@ -1242,6 +1242,8 @@ const REVIEW_TEXTS = [
 ];
 const PRODUCTS_CACHE_KEY = 'gp_products_cache_v2';
 const PRODUCTS_CACHE_TTL_MS = 1000 * 60 * 15;
+const GITHUB_RAW_PRODUCTS_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/products.json';
+const GITHUB_RAW_CATEGORIES_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/categories.json';
 let productsLoadedOnce = false;
 let productRequestInFlight = null;
 let categoryRequestInFlight = null;
@@ -1292,9 +1294,16 @@ async function loadProducts({forceRefresh=false} = {}){
 
   productRequestInFlight = (async ()=>{
     try{
-      const res = await fetch(`/products.json?v=${Date.now()}`, { cache:'no-store' });
-      if(!res.ok) throw new Error('Ürünler alınamadı');
-      const fresh = await res.json();
+      let fresh = null;
+      try{
+        const remoteRes = await fetch(`${GITHUB_RAW_PRODUCTS_URL}?v=${Date.now()}`, { cache:'no-store' });
+        if(remoteRes.ok) fresh = await remoteRes.json();
+      }catch(_){}
+      if(!Array.isArray(fresh) || !fresh.length){
+        const localRes = await fetch(`/products.json?v=${Date.now()}`, { cache:'no-store' });
+        if(!localRes.ok) throw new Error('Ürünler alınamadı');
+        fresh = await localRes.json();
+      }
       writeProductsToCache(fresh);
       renderProductState(fresh, {withObserver:true});
       productsLoadedOnce = true;
@@ -1494,11 +1503,15 @@ function syncCategoriesFromAdmin(){
   } catch(e){}
 
   if(!categoryRequestInFlight){
-    categoryRequestInFlight = fetch(`/categories.json?v=${Date.now()}`, { cache:'no-store' })
-      .then(res => {
-        if(!res.ok) throw new Error('Kategoriler alınamadı');
-        return res.json();
-      })
+    categoryRequestInFlight = (async ()=>{
+      try{
+        const remoteRes = await fetch(`${GITHUB_RAW_CATEGORIES_URL}?v=${Date.now()}`, { cache:'no-store' });
+        if(remoteRes.ok) return await remoteRes.json();
+      } catch(_){}
+      const localRes = await fetch(`/categories.json?v=${Date.now()}`, { cache:'no-store' });
+      if(!localRes.ok) throw new Error('Kategoriler alınamadı');
+      return localRes.json();
+    })()
       .then(remoteCategories => {
         if(Array.isArray(remoteCategories) && remoteCategories.length){
           CATEGORIES = remoteCategories.filter(c=>c && c.key && c.label);
