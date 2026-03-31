@@ -3181,6 +3181,7 @@ function clearField(fid,vid){
 // ════════════════════════════════════
 const REPO_OWNER='gocmenperde',REPO_NAME='gocmenperde',FILE_PATH='products.json';
 const GITHUB_CDN_BASE=`https://cdn.jsdelivr.net/gh/${REPO_OWNER}/${REPO_NAME}@main`;
+const GITHUB_RAW_BASE=`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main`;
 const IMAGE_MAX_WIDTH=1800;
 const IMAGE_QUALITY=0.82;
 function resolveAssetUrl(path){
@@ -3189,7 +3190,10 @@ function resolveAssetUrl(path){
   if(raw.startsWith('data:')) return raw;
   if(/^https?:\/\//i.test(raw)) return raw;
   const normalized=raw.replace(/^\/+/, '');
-  if(normalized.startsWith('resimler/')) return `${GITHUB_CDN_BASE}/${normalized}`;
+  if(normalized.startsWith('resimler/')){
+    const encoded = encodeURI(normalized);
+    return `${GITHUB_RAW_BASE}/${encoded}`;
+  }
   return raw;
 }
 function isInlineImageData(value){
@@ -3206,7 +3210,9 @@ async function fileToBase64(file){
 }
 async function optimizeImageFile(file,{maxWidth=IMAGE_MAX_WIDTH,quality=IMAGE_QUALITY}={}){
   if(!file || !file.type || !file.type.startsWith('image/')) return file;
-  if(file.type==='image/gif' || file.size<250*1024) return file;
+  if(file.type==='image/gif') return file;
+  const lowerName = String(file.name || '').toLowerCase();
+  const isHeicLike = file.type.includes('heic') || file.type.includes('heif') || /\.(heic|heif)$/i.test(lowerName);
   const source=await new Promise((resolve,reject)=>{
     const u=URL.createObjectURL(file);
     const img=new Image();
@@ -3221,7 +3227,11 @@ async function optimizeImageFile(file,{maxWidth=IMAGE_MAX_WIDTH,quality=IMAGE_QU
   const ctx=c.getContext('2d'); if(!ctx) return file;
   ctx.drawImage(source,0,0,w,h);
   const blob=await new Promise(resolve=>c.toBlob(resolve,'image/webp',quality));
-  if(!blob || blob.size>=file.size*0.95) return file;
+  if(!blob){
+    if(isHeicLike) throw new Error('HEIC/HEIF görsel dönüştürülemedi. Lütfen dosyayı JPG/PNG olarak tekrar seçin.');
+    return file;
+  }
+  if(blob.size>=file.size*0.95 && !isHeicLike) return file;
   const base=file.name.replace(/\.[^.]+$/,'')||'image';
   return new File([blob], `${base}.webp`, {type:'image/webp'});
 }

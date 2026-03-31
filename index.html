@@ -1351,8 +1351,8 @@ function renderInstallationShowcase(){
   if(!grid) return;
   const items = parseShowcaseJSON(INSTALLATION_SHOWCASE_KEY, DEFAULT_INSTALLATION_SHOWCASE).slice(0,8);
   grid.innerHTML = items.map((item, idx)=>`
-    <div class="gallery-item" onclick="openGalleryModal('${escapeInline(item.src)}','${escapeInline(item.title)}','${escapeInline(item.desc)}')">
-      <img src="${item.src}" alt="${item.title || ('Montaj görseli ' + (idx+1))}" loading="lazy">
+    <div class="gallery-item" onclick="openGalleryModal('${escapeInline(resolveAssetUrl(item.src))}','${escapeInline(item.title)}','${escapeInline(item.desc)}')">
+      <img src="${resolveAssetUrl(item.src)}" alt="${item.title || ('Montaj görseli ' + (idx+1))}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22400%22%3E%3Crect fill=%22%23f3f3f3%22 width=%22600%22 height=%22400%22/%3E%3Ctext x=%22300%22 y=%22210%22 text-anchor=%22middle%22 font-size=%2232%22 fill=%22%23999%22%3EG%C3%B6rsel%20Y%C3%BCklenemedi%3C/text%3E%3C/svg%3E'">
       <div class="gallery-overlay"><span class="gallery-label">${item.label || item.title || 'Montaj'}</span></div>
     </div>
   `).join('');
@@ -1384,7 +1384,7 @@ function renderFromYouShowcase(targetId='fromYouPageGrid', limit=12){
   }
   grid.innerHTML = list.map((item, idx)=>`
     <article class="from-you-card">
-      <img src="${item.src}" alt="${item.title || ('Müşteri evi ' + (idx+1))}" loading="lazy">
+      <img src="${resolveAssetUrl(item.src)}" alt="${item.title || ('Müşteri evi ' + (idx+1))}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22400%22%3E%3Crect fill=%22%231d1a18%22 width=%22600%22 height=%22400%22/%3E%3Ctext x=%22300%22 y=%22210%22 text-anchor=%22middle%22 font-size=%2232%22 fill=%22%23c9a84c%22%3EG%C3%B6rsel%20Y%C3%BCklenemedi%3C/text%3E%3C/svg%3E'">
       <div class="from-you-card-overlay">
         <span class="from-you-card-badge">${item.location || 'Doğrulanmış Müşteri'}</span>
         <h4>${item.title || 'Müşteri evi uygulaması'}</h4>
@@ -1426,14 +1426,15 @@ const PRODUCTS_CACHE_TTL_MS = 1000 * 30;
 const GITHUB_RAW_PRODUCTS_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/products.json';
 const GITHUB_RAW_CATEGORIES_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/categories.json';
 const GITHUB_CDN_BASE = 'https://cdn.jsdelivr.net/gh/gocmenperde/gocmenperde@main';
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main';
 function resolveAssetUrl(path){
   const raw = String(path || '').trim();
   if(!raw) return '';
-  if(raw.startsWith('data:')) return raw;
+  if(raw.startsWith('data:') || raw.startsWith('blob:')) return raw;
   if(/^https?:\/\//i.test(raw)) return raw;
   const normalized = raw.replace(/^\/+/, '');
-  if(normalized.startsWith('resimler/')) return `${GITHUB_CDN_BASE}/${normalized}`;
-  return raw;
+  if(normalized.startsWith('resimler/')) return `${GITHUB_RAW_BASE}/${encodeURI(normalized)}`;
+  return raw.startsWith('/') ? raw : `/${raw}`;
 }
 const GITHUB_CONTENTS_BASE_URL = 'https://api.github.com/repos/gocmenperde/gocmenperde/contents';
 let productsLoadedOnce = false;
