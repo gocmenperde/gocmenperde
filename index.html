@@ -476,7 +476,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-mobile-header{display:none}
 .modal-mobile-header .mh-btn{width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,0.5);background:rgba(15,14,13,0.45);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
 .modal-mobile-header .mh-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--ink)}
-.modal-img-col{position:relative;display:flex;flex-direction:column;background:var(--cream);border-right:1px solid var(--border)}
+.modal-img-col{position:relative;display:flex;flex-direction:column;align-self:start;background:var(--cream);border-right:1px solid var(--border)}
 @media(max-width:700px){.modal-img-col{border-right:none}}
 .modal-img-stage{position:relative;overflow:hidden;height:500px;cursor:zoom-in}
 @media(max-width:700px){.modal-img-stage{height:260px;cursor:default}}
@@ -520,10 +520,16 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-review-head{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:var(--slate);margin-bottom:4px;gap:10px}
 .modal-review-stars{color:var(--gold);letter-spacing:1px}
 .modal-review-text{font-size:0.78rem;color:var(--ink);line-height:1.45}
-.modal-review-form{margin-top:12px;display:grid;grid-template-columns:1fr 120px auto;gap:8px}
+.modal-review-form{margin-top:12px;display:grid;grid-template-columns:minmax(0,1fr) 120px auto;gap:8px}
 .modal-review-form input,.modal-review-form select{height:38px;border:1px solid var(--border);border-radius:8px;padding:0 10px;background:#fff;font-family:var(--ff-body);font-size:0.82rem}
 .modal-review-form button{height:38px;border:none;border-radius:8px;background:var(--ink);color:#fff;padding:0 12px;font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 .modal-review-form button:hover{background:var(--gold);color:var(--ink)}
+.modal-review-form input:last-child{grid-column:1/-1}
+@media(min-width:701px){
+  .modal-info-col{padding-bottom:18px}
+  .modal-add-wrap{position:sticky;bottom:0;z-index:5;margin-top:14px;padding-top:12px;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#fff 28%)}
+  .modal-add-btn{min-width:180px}
+}
 @media(max-width:700px){
   .modal-overlay{padding:0;background:#fff;backdrop-filter:none}
   .modal-box{max-width:none;width:100%;min-height:100dvh;border-radius:0;max-height:none;box-shadow:none;background:#fff;display:flex;flex-direction:column}
