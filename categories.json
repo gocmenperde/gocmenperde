@@ -2,8 +2,9 @@
   {
     "key": "carsaf",
     "label": "Çarşaflar",
+    "desc": "Uyku çarşafları",
     "icon": "fas fa-bed",
-    "desc": "Uyku çarşafları"
+    "image": "resimler/1774941769022-cat-0c205a66-96b0-47ce-845c-527320655af1-IMG_1826.webp"
   },
   {
     "key": "tul-perde",
