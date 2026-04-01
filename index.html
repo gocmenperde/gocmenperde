@@ -2251,6 +2251,10 @@ function preloadModalBatch(images, count=4){
     preloadImage(src, idx===0 ? 'high' : 'auto');
   });
 }
+function getThumbFetchPriority(idx){
+  const distance = Math.abs(idx - currentModalImageIndex);
+  return distance <= 1 ? 'high' : (distance <= 3 ? 'auto' : 'low');
+}
 
 function lockPageScrollForModal(){
   modalLockedScrollY = window.scrollY || window.pageYOffset || 0;
@@ -2319,7 +2323,7 @@ function renderModalThumbs(){
   if(cacheKey !== modalThumbsCacheKey){
     const html = currentModalImages.map((img,idx)=>`
       <button class="modal-thumb ${idx===currentModalImageIndex?'active':''}" type="button" data-idx="${idx}" onclick="selectModalImage(${idx})">
-        <img src="${img}" alt="Ürün görseli ${idx+1}" loading="eager" decoding="async" fetchpriority="${idx===0?'high':'low'}">
+        <img src="${img}" alt="Ürün görseli ${idx+1}" loading="${idx<=5?'eager':'lazy'}" decoding="async" fetchpriority="${getThumbFetchPriority(idx)}">
       </button>
     `).join('');
     thumbs.innerHTML = html;
@@ -2353,13 +2357,18 @@ function setModalImage(idx){
   img.loading = 'eager';
   img.fetchPriority = 'high';
   img.dataset.index = String(currentModalImageIndex);
-  preloadImage(nextSrc, 'high').finally(()=>{
+  img.alt = `Ürün görseli ${currentModalImageIndex+1}`;
+  img.onload = ()=>{
     if(requestToken !== modalImageRequestToken) return;
-    img.src = nextSrc;
-    img.alt = `Ürün görseli ${currentModalImageIndex+1}`;
     setModalStageLoading(false);
     resetImgZoom();
-  });
+  };
+  img.onerror = ()=>{
+    if(requestToken !== modalImageRequestToken) return;
+    setModalStageLoading(false);
+  };
+  img.src = nextSrc;
+  preloadImage(nextSrc, 'high');
   warmModalImages(currentModalImages, currentModalImageIndex);
   updateViewerImage();
   renderModalThumbs();
