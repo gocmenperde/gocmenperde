@@ -164,6 +164,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .hero-scroll{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(255,255,255,0.3);font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;animation:fadeUp 0.8s ease both 1.4s}
 .scroll-line{width:1px;height:50px;background:linear-gradient(to bottom,rgba(201,168,76,0.8),transparent);animation:scrollAnim 2s ease-in-out infinite}
 @keyframes scrollAnim{0%,100%{transform:scaleY(0.5);opacity:0.3}50%{transform:scaleY(1);opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── Features Strip ── */
 .features-strip{background:white;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:30px 5%}
@@ -494,6 +495,8 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-img-col{position:relative;display:flex;flex-direction:column;align-self:start;background:var(--cream);border-right:1px solid var(--border)}
 @media(max-width:700px){.modal-img-col{border-right:none}}
 .modal-img-stage{position:relative;overflow:hidden;height:500px;cursor:zoom-in}
+.modal-img-stage.is-loading::before{content:'';position:absolute;inset:0;background:rgba(15,14,13,0.22);z-index:5}
+.modal-img-stage.is-loading::after{content:'';position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid rgba(255,255,255,0.35);border-top-color:var(--gold);border-radius:50%;animation:spin 0.9s linear infinite;z-index:6}
 @media(max-width:700px){.modal-img-stage{height:260px;cursor:default}}
 .modal-img-col img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.08s ease-out;transform-origin:center center;will-change:transform}
 .modal-discount-badge{position:absolute;top:16px;left:16px;z-index:10;background:#c0392b;color:white;font-size:0.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 16px;border-radius:50px}
@@ -2238,6 +2241,7 @@ let modalSwipeStartX = 0;
 let modalSwipeStartY = 0;
 let modalSwipeTouchActive = false;
 let modalSwipePreventOpenUntil = 0;
+let modalImageRequestToken = 0;
 const modalImagePreloadCache = new Map();
 let modalBrokenImageMap = new Set();
 
@@ -2291,6 +2295,10 @@ function warmModalImages(images, activeIndex=0){
   preloadImage(images[(activeIndex + 1) % images.length]);
   preloadImage(images[(activeIndex - 1 + images.length) % images.length]);
 }
+function setModalStageLoading(loading){
+  const stage = document.getElementById('modalImgCol');
+  if(stage) stage.classList.toggle('is-loading', !!loading);
+}
 
 function renderModalThumbs(){
   const thumbs = document.getElementById('mThumbs');
@@ -2311,7 +2319,7 @@ function renderModalThumbs(){
   if(cacheKey !== modalThumbsCacheKey){
     const html = currentModalImages.map((img,idx)=>`
       <button class="modal-thumb ${idx===currentModalImageIndex?'active':''}" type="button" data-idx="${idx}" onclick="selectModalImage(${idx})">
-        <img src="${img}" alt="Ürün görseli ${idx+1}" loading="lazy" decoding="async">
+        <img src="${img}" alt="Ürün görseli ${idx+1}" loading="eager" decoding="async" fetchpriority="${idx===0?'high':'low'}">
       </button>
     `).join('');
     thumbs.innerHTML = html;
@@ -2339,15 +2347,21 @@ function setModalImage(idx){
   const img = document.getElementById('mImg');
   const nextSrc = currentModalImages[currentModalImageIndex];
   if(!img) return;
+  const requestToken = ++modalImageRequestToken;
+  setModalStageLoading(true);
   img.decoding = 'async';
   img.loading = 'eager';
   img.fetchPriority = 'high';
   img.dataset.index = String(currentModalImageIndex);
-  img.src = nextSrc;
-  img.alt = `Ürün görseli ${currentModalImageIndex+1}`;
+  preloadImage(nextSrc, 'high').finally(()=>{
+    if(requestToken !== modalImageRequestToken) return;
+    img.src = nextSrc;
+    img.alt = `Ürün görseli ${currentModalImageIndex+1}`;
+    setModalStageLoading(false);
+    resetImgZoom();
+  });
   warmModalImages(currentModalImages, currentModalImageIndex);
   updateViewerImage();
-  resetImgZoom();
   renderModalThumbs();
 }
 function showModalImage(step){ setModalImage(currentModalImageIndex + step); }
@@ -2560,6 +2574,7 @@ function updateViewerImage(){
 }
 function closeProductModal(){
   document.getElementById('productModal').classList.remove('open');
+  setModalStageLoading(false);
   clearModalSearch();
   closeImageViewer();
   unlockPageScrollForModal();
@@ -2572,6 +2587,7 @@ function closeProductModal(){
 }
 function closeModalOverlay(e){ if(e.target===document.getElementById('productModal')) closeProductModal(); }
 function handleModalImageLoadError(){
+  setModalStageLoading(false);
   const img = document.getElementById('mImg');
   if(!img || !currentModalImages.length) return;
   const failedIndex = Number(img.dataset.index || currentModalImageIndex || 0);
