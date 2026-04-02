@@ -548,9 +548,10 @@
     "id": "zebra-perde-siyah-beyaz-golgeli-1774957913388-1",
     "name": "Zebra Perde Siyah Beyaz Gölgeli",
     "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
-    "image": "resimler/1774957241081-bulk-f342b495-5b70-4eb7-ba0a-b55111ec3184-IMG_1777.jpeg",
+    "image": "resimler/1775113108175-0-a223bd07-45d3-4071-9d82-21a22aea0666-IMG_1957.png",
     "images": [
-      "resimler/1774957241081-bulk-f342b495-5b70-4eb7-ba0a-b55111ec3184-IMG_1777.jpeg"
+      "resimler/1775113108175-0-a223bd07-45d3-4071-9d82-21a22aea0666-IMG_1957.png",
+      "resimler/1775113111958-1-80473977-889f-4944-9f45-59bafb4b38ff-IMG_1777.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -560,7 +561,7 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": null,
     "serialNumber": "Gölge V-06",
