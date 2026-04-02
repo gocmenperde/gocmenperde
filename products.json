@@ -820,9 +820,10 @@
     "id": "zebra-perde-beyaz-bej-golgeli-1774901437610-318",
     "name": "Zebra Perde Beyaz Bej Gölgeli",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
-    "image": "resimler/1774901393920-0-be1dd237-d402-4b89-baf6-61dfe874bcfa-IMG_1772.jpeg",
+    "image": "resimler/1775109672767-0-a3f4c1fc-453a-4ea6-9467-3cfeab82eb4d-IMG_1947.webp",
     "images": [
-      "resimler/1774901393920-0-be1dd237-d402-4b89-baf6-61dfe874bcfa-IMG_1772.jpeg"
+      "resimler/1775109672767-0-a3f4c1fc-453a-4ea6-9467-3cfeab82eb4d-IMG_1947.webp",
+      "resimler/1775109677687-1-1163631f-a1a4-4fec-9cdd-34e619866638-IMG_1772.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -832,7 +833,7 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": null,
     "serialNumber": "Gölge V-01",
