@@ -786,9 +786,10 @@
     "id": "zebra-perde-kahverengi-bej-golgeli-1774901585620-69",
     "name": "Zebra Perde Kahverengi Bej Gölgeli",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
-    "image": "resimler/1774901572850-0-769389b5-c47a-4fe3-9b81-1944675d0e83-IMG_1774.jpeg",
+    "image": "resimler/1775112237363-0-60ead3cc-2b8c-4992-93ba-518600cab194-IMG_1948.webp",
     "images": [
-      "resimler/1774901572850-0-769389b5-c47a-4fe3-9b81-1944675d0e83-IMG_1774.jpeg"
+      "resimler/1775112237363-0-60ead3cc-2b8c-4992-93ba-518600cab194-IMG_1948.webp",
+      "resimler/1775112244647-1-87fed9cc-47e6-48ed-bce9-e79f7dc12cfe-IMG_1774.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -798,7 +799,7 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": null,
     "serialNumber": "Gölge V-02",
