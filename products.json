@@ -888,9 +888,10 @@
     "id": "zebra-perde-lila-mor-gecisli-1774899632707-132",
     "name": "Zebra Perde Lila Mor Geçişli",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
-    "image": "resimler/1774899432010-0-222f6c30-3bb6-440a-b26e-02904cc199d0-IMG_1770.jpeg",
+    "image": "resimler/1775109289729-0-bb7b2a3e-575e-4e9c-8092-863ddf34454d-IMG_1945.webp",
     "images": [
-      "resimler/1774899432010-0-222f6c30-3bb6-440a-b26e-02904cc199d0-IMG_1770.jpeg"
+      "resimler/1775109289729-0-bb7b2a3e-575e-4e9c-8092-863ddf34454d-IMG_1945.webp",
+      "resimler/1775109293052-1-387fd3bf-cbad-44fb-bd28-c7a0dffc0b31-IMG_1770.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -900,7 +901,7 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": null,
     "serialNumber": "Adidas V-04",
