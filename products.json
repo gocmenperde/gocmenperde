@@ -1658,14 +1658,14 @@
     "id": "orme-tul-perde-cam-kirigi-desen-1774817208064",
     "name": "Örme Tül Perde Cam Kırığı Desen",
     "desc": "Bursa Osmangazi'de 30 yılı aşkın tecrübeyle üretilen, şık tasarımıyla evinize zarafet katacak dayanıklı ve estetik tül perde.",
-    "image": "resimler/1774817119283-IMG_1649.png",
+    "image": "/resimler/1774817119283-IMG_1649.png",
     "images": [
-      "resimler/1774817119283-IMG_1649.png",
-      "resimler/1774817122112-IMG_1648.png"
+      "/resimler/1774817119283-IMG_1649.png",
+      "/resimler/1774817122112-IMG_1648.png"
     ],
     "price": 300,
     "oldPrice": 400,
-    "cat": "tul-perde",
+    "cat": "ormetulperde",
     "unit": "mt",
     "isMeter": true,
     "isSquareMeter": false,
