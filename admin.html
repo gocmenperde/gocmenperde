@@ -604,7 +604,9 @@ tbody tr:hover td{background:#fdfcf8}
         <div class="metric-item"><div class="label">Toplam Ciro</div><div class="value" id="metricTotalRevenue">—</div><div class="sub">Tüm siparişler</div></div>
         <div class="metric-item"><div class="label">Ortalama Sepet</div><div class="value" id="metricAov">—</div><div class="sub">Sipariş başına</div></div>
         <div class="metric-item"><div class="label">Aylık Ziyaret</div><div class="value" id="metricMonthVisits">—</div><div class="sub" id="metricDailyVisits">—</div></div>
+        <div class="metric-item"><div class="label">Canlı Ziyaretçi</div><div class="value" id="metricLiveVisitors">—</div><div class="sub" id="metricTodayUnique">—</div></div>
         <div class="metric-item"><div class="label">Dönüşüm Oranı</div><div class="value" id="metricConversion">—</div><div class="sub">Sipariş / Ziyaret</div></div>
+        <div class="metric-item"><div class="label">En Yoğun Gün (14G)</div><div class="value" id="metricPeakDay">—</div><div class="sub" id="metricTopPage">—</div></div>
       </div>
     </div>
     <div class="analytics-card">
@@ -2955,6 +2957,9 @@ function updateCampaignSwitch(){
 // ════════════════════════════════════
 //  DASHBOARD
 // ════════════════════════════════════
+let VISIT_ANALYTICS = null;
+let visitAutoRefreshTimer = null;
+
 function normalizePaymentMethod(value=''){
   const txt = String(value || '').toLocaleLowerCase('tr');
   if(txt.includes('kapıda')) return 'cod';
@@ -2966,20 +2971,71 @@ function isSameDay(dateA, dateB){
   return dateA.getFullYear()===dateB.getFullYear() && dateA.getMonth()===dateB.getMonth() && dateA.getDate()===dateB.getDate();
 }
 function getVisitStats(){
+  if(VISIT_ANALYTICS){
+    return {
+      monthVisits: Number(VISIT_ANALYTICS.month?.pageViews || 0),
+      todayVisits: Number(VISIT_ANALYTICS.today?.pageViews || 0),
+      todayUniqueVisitors: Number(VISIT_ANALYTICS.today?.uniqueVisitors || 0),
+      yesterdayUniqueVisitors: Number(VISIT_ANALYTICS.yesterday?.uniqueVisitors || 0),
+      activeVisitors: Number(VISIT_ANALYTICS.activeVisitors || 0),
+      peakDayLabel: getPeakDayLabel(VISIT_ANALYTICS.daily || []),
+      topPageLabel: getTopPageLabel(VISIT_ANALYTICS.topPagesToday || [])
+    };
+  }
   const raw = JSON.parse(localStorage.getItem('gp_visit_stats') || 'null');
   if(raw && Number.isFinite(raw.monthVisits) && Number.isFinite(raw.todayVisits)){
     return {
       monthVisits: Math.max(0, Math.floor(raw.monthVisits)),
-      todayVisits: Math.max(0, Math.floor(raw.todayVisits))
+      todayVisits: Math.max(0, Math.floor(raw.todayVisits)),
+      todayUniqueVisitors: Math.max(0, Math.floor(raw.todayUniqueVisitors || raw.todayVisits || 0)),
+      yesterdayUniqueVisitors: Math.max(0, Math.floor(raw.yesterdayUniqueVisitors || 0)),
+      activeVisitors: Math.max(0, Math.floor(raw.activeVisitors || 0)),
+      peakDayLabel: '—',
+      topPageLabel: '—'
     };
   }
   const favs = getFavs().length;
   const syntheticMonth = Math.max((ALL_ORDERS.length*22) + (ALL_CUSTOMERS.length*9) + (favs*4), 180);
   return {
     monthVisits: syntheticMonth,
-    todayVisits: Math.max(Math.round(syntheticMonth/30), 8)
+    todayVisits: Math.max(Math.round(syntheticMonth/30), 8),
+    todayUniqueVisitors: Math.max(Math.round(syntheticMonth/40), 6),
+    yesterdayUniqueVisitors: Math.max(Math.round(syntheticMonth/42), 5),
+    activeVisitors: Math.max(Math.round(syntheticMonth/500), 1),
+    peakDayLabel: '—',
+    topPageLabel: '/'
   };
 }
+
+function getPeakDayLabel(dailyRows=[]){
+  if(!Array.isArray(dailyRows) || !dailyRows.length) return '—';
+  const top = [...dailyRows].sort((a,b)=>Number(b.page_views||0)-Number(a.page_views||0))[0];
+  if(!top) return '—';
+  const date = new Date(`${top.day}T00:00:00`);
+  if(Number.isNaN(date.getTime())) return '—';
+  return `${date.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'})}`;
+}
+
+function getTopPageLabel(topPages=[]){
+  if(!Array.isArray(topPages) || !topPages.length) return 'Bugün trafik yok';
+  const top = topPages[0];
+  const path = String(top.path || '/').replace(/\/$/, '') || '/';
+  return `${path} • ${Number(top.page_views||0).toLocaleString('tr-TR')} PV`;
+}
+
+async function loadVisitAnalytics(){
+  try{
+    const r = await fetch('/api/visits?action=stats', {
+      headers:{'x-admin-key':getAdminApiKey()}
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const data = await r.json();
+    VISIT_ANALYTICS = data?.stats || null;
+  } catch(_){
+    VISIT_ANALYTICS = null;
+  }
+}
+
 function setBar(id, value, total){
   const el = document.getElementById(id);
   if(!el) return;
@@ -3034,8 +3090,19 @@ function renderDashboard(){
   const visits = getVisitStats();
   const conversion = visits.monthVisits ? (monthOrders.length/visits.monthVisits)*100 : 0;
   setText('metricMonthVisits', visits.monthVisits.toLocaleString('tr-TR'));
-  setText('metricDailyVisits', `Bugün: ${visits.todayVisits.toLocaleString('tr-TR')} ziyaret`);
+  setText('metricDailyVisits', `Bugün: ${visits.todayVisits.toLocaleString('tr-TR')} sayfa görüntüleme`);
   setText('metricConversion', `%${conversion.toLocaleString('tr-TR',{maximumFractionDigits:2})}`);
+  const uniqueTrend = visits.yesterdayUniqueVisitors
+    ? (((visits.todayUniqueVisitors - visits.yesterdayUniqueVisitors) / visits.yesterdayUniqueVisitors) * 100)
+    : 0;
+  const trendLabel = visits.yesterdayUniqueVisitors
+    ? `Düne göre ${uniqueTrend >= 0 ? '+' : ''}${uniqueTrend.toLocaleString('tr-TR',{maximumFractionDigits:1})}%`
+    : 'Dün verisi yok';
+  setText('metricLiveVisitors', visits.activeVisitors.toLocaleString('tr-TR'));
+  setText('metricTodayUnique', `Bugün tekil: ${visits.todayUniqueVisitors.toLocaleString('tr-TR')} • ${trendLabel}`);
+  setText('metricPeakDay', visits.peakDayLabel || '—');
+  setText('metricTopPage', visits.topPageLabel || 'Bugün trafik yok');
+
 
   setText('metricCodCount', `${paymentBuckets.cod} (${((paymentBuckets.cod/orderCount)*100).toLocaleString('tr-TR',{maximumFractionDigits:1})}%)`);
   setText('metricCardCount', `${paymentBuckets.card} (${((paymentBuckets.card/orderCount)*100).toLocaleString('tr-TR',{maximumFractionDigits:1})}%)`);
@@ -3067,9 +3134,20 @@ function renderDashboard(){
   }).join('');
 }
 
-function refreshDashboard(){
+async function refreshDashboard(){
+  await loadVisitAnalytics();
   renderDashboard();
   aToast('✓ Dashboard güncellendi','success');
+}
+
+
+function startVisitAutoRefresh(){
+  if(visitAutoRefreshTimer) clearInterval(visitAutoRefreshTimer);
+  visitAutoRefreshTimer = setInterval(async ()=>{
+    if(document.visibilityState !== 'visible') return;
+    await loadVisitAnalytics();
+    renderDashboard();
+  }, 15000);
 }
 
 // ════════════════════════════════════
@@ -3679,6 +3757,7 @@ async function initAdmin(){
   await fetchProducts();
   await loadAdminOrders();
   await loadCustomers();
+  await loadVisitAnalytics();
   renderDashboard();
   renderTable();
   rebuildCatDropdowns();
@@ -3698,6 +3777,7 @@ async function initAdmin(){
   });
   document.getElementById('bulkDiscountType')?.addEventListener('change',updateBulkDiscountPreview);
   updateBulkDiscountPreview();
+  startVisitAutoRefresh();
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
