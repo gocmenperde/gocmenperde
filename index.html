@@ -2832,6 +2832,48 @@ function recoverUIAfterResume(){
   }
 }
 
+
+const VISIT_SESSION_KEY = 'gp_visit_session_id';
+let visitHeartbeatTimer = null;
+
+function getVisitSessionId(){
+  try{
+    const existing = localStorage.getItem(VISIT_SESSION_KEY);
+    if(existing) return existing;
+    const generated = (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}-${Math.random().toString(16).slice(2)}`);
+    localStorage.setItem(VISIT_SESSION_KEY, generated);
+    return generated;
+  }catch(_){
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+}
+
+function sendVisitEvent({heartbeat=false}={}){
+  const sessionId = getVisitSessionId();
+  if(!sessionId) return;
+  const payload = {
+    sessionId,
+    path: `${location.pathname}${location.hash || ''}`,
+    referrer: document.referrer || '',
+    heartbeat
+  };
+  fetch('/api/visits?action=track',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    keepalive:true,
+    body: JSON.stringify(payload)
+  }).catch(()=>{});
+}
+
+function startVisitTracking(){
+  sendVisitEvent({heartbeat:false});
+  if(visitHeartbeatTimer) clearInterval(visitHeartbeatTimer);
+  visitHeartbeatTimer = setInterval(()=>{
+    if(document.visibilityState !== 'visible') return;
+    sendVisitEvent({heartbeat:true});
+  }, 30000);
+}
+
 window.addEventListener('load',()=>{
   const fromBackForward = sessionStorage.getItem('gp_fast_resume') === '1';
   if(fromBackForward) hideLoader(true);
@@ -2843,6 +2885,7 @@ window.addEventListener('load',()=>{
   loadCartFromStorage();
   loadProducts();
   initUserSession();
+  startVisitTracking();
 });
 window.addEventListener('pagehide',()=>{ sessionStorage.setItem('gp_fast_resume','1'); });
 window.addEventListener('pageshow',(ev)=>{
@@ -2855,6 +2898,7 @@ document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState === 'visible'){
     recoverUIAfterResume();
     loadProducts();
+    sendVisitEvent({heartbeat:true});
   }
 });
 window.addEventListener('storage',(event)=>{
@@ -2914,6 +2958,7 @@ function resetCategorySelectionToAll(){
 
 window.addEventListener('hashchange',()=>{
   applySectionState(getSectionFromLocation(), {scroll:false});
+  sendVisitEvent({heartbeat:false});
 });
 
 document.querySelectorAll('.section').forEach(s=>{ if(!s.classList.contains('active')) s.style.display='none'; });

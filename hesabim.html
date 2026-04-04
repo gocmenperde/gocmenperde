@@ -2100,7 +2100,39 @@ function logout() {
     window.location.href = '/';
 }
 
+
+const VISIT_SESSION_KEY = 'gp_visit_session_id';
+
+function getVisitSessionId(){
+    try {
+        const existing = localStorage.getItem(VISIT_SESSION_KEY);
+        if (existing) return existing;
+        const generated = (crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+        localStorage.setItem(VISIT_SESSION_KEY, generated);
+        return generated;
+    } catch(_) {
+        return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+}
+
+function trackAccountVisit(){
+    const sessionId = getVisitSessionId();
+    if(!sessionId) return;
+    fetch('/api/visits?action=track', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        keepalive:true,
+        body: JSON.stringify({
+            sessionId,
+            path: '/hesabim',
+            referrer: document.referrer || '',
+            heartbeat: false
+        })
+    }).catch(()=>{});
+}
+
 /* ── INIT ── */
+trackAccountVisit();
 loadOrders();
 loadProfile();
 activateTabFromQuery();
