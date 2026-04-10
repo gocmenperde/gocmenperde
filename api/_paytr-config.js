@@ -8,6 +8,12 @@ function resolveEnvValue(...keys) {
   return '';
 }
 
+const DEFAULT_PAYTR_TEST_CREDENTIALS = {
+  merchantId: '690414',
+  merchantKey: 'qiyTzuAETF2mB8pk',
+  merchantSalt: '4o3qjuMhFhc7DpQH'
+};
+
 function getPaytrCredentials() {
   const merchantId = resolveEnvValue(
     'PAYTR_MERCHANT_ID',
@@ -34,11 +40,15 @@ function getPaytrCredentials() {
     'merchant_salt'
   );
 
+  const resolvedMerchantId = merchantId || DEFAULT_PAYTR_TEST_CREDENTIALS.merchantId;
+  const resolvedMerchantKey = merchantKey || DEFAULT_PAYTR_TEST_CREDENTIALS.merchantKey;
+  const resolvedMerchantSalt = merchantSalt || DEFAULT_PAYTR_TEST_CREDENTIALS.merchantSalt;
+
   return {
-    merchantId,
-    merchantKey,
-    merchantSalt,
-    hasRequiredCredentials: Boolean(merchantId && merchantKey && merchantSalt)
+    merchantId: resolvedMerchantId,
+    merchantKey: resolvedMerchantKey,
+    merchantSalt: resolvedMerchantSalt,
+    hasRequiredCredentials: Boolean(resolvedMerchantId && resolvedMerchantKey && resolvedMerchantSalt)
   };
 }
 
