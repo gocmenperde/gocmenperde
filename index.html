@@ -724,6 +724,13 @@ footer span{color:var(--gold)}
 .footer-links{margin-top:14px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;text-transform:none;letter-spacing:0}
 .footer-links a{color:rgba(201,168,76,0.7);text-decoration:none;font-size:0.72rem;transition:color 0.3s}
 .footer-links a:hover{color:var(--gold)}
+.footer-security-strip{margin-top:18px;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px 12px;text-transform:none;letter-spacing:0}
+.footer-security-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;border:1px solid rgba(201,168,76,0.35);background:rgba(255,255,255,0.04);color:rgba(247,244,239,0.92);font-size:0.68rem;font-weight:600;line-height:1.1}
+.footer-security-badge i{color:var(--gold)}
+@media(max-width:640px){
+  .footer-security-strip{gap:8px}
+  .footer-security-badge{font-size:0.62rem;padding:6px 10px}
+}
 
 .mobile-bottom-nav{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:11990;background:rgba(255,255,255,0.82);border:1px solid rgba(255,255,255,0.72);border-radius:18px;padding:8px 6px;display:none;align-items:center;justify-content:space-between;gap:2px;box-shadow:0 12px 28px rgba(20,20,20,0.14);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .mbn-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 8px;border-radius:8px;background:none;border:none;color:var(--ink);font-family:var(--ff-body);font-size:0.55rem;letter-spacing:1px;text-transform:uppercase;transition:0.2s;position:relative;min-width:48px}
@@ -4140,6 +4147,22 @@ document.addEventListener('DOMContentLoaded', ()=>{
   });
   mo.observe(document.body, {childList:true, subtree:true});
 });
+
+function injectFooterSecurityBadges(){
+  document.querySelectorAll('footer').forEach((footer)=>{
+    if(footer.querySelector('.footer-security-strip')) return;
+    const strip = document.createElement('div');
+    strip.className = 'footer-security-strip';
+    strip.setAttribute('aria-label', 'Güvenli alışveriş logoları');
+    strip.innerHTML = `
+      <span class="footer-security-badge"><i class="fas fa-shield-halved" aria-hidden="true"></i> PAYTR Güvenli Ödeme</span>
+      <span class="footer-security-badge"><i class="fas fa-lock" aria-hidden="true"></i> 3D Secure</span>
+      <span class="footer-security-badge"><i class="fas fa-certificate" aria-hidden="true"></i> SSL Korumalı</span>
+    `;
+    footer.appendChild(strip);
+  });
+}
+document.addEventListener('DOMContentLoaded', injectFooterSecurityBadges);
 </script>
 </body>
 </html>
