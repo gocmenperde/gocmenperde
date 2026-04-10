@@ -486,7 +486,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .trust-badges{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
 .payment-redirect-note{margin-top:12px;padding:10px 12px;border-radius:10px;border:1px solid rgba(201,168,76,0.34);background:rgba(201,168,76,0.1);font-size:0.8rem;color:var(--ink)}
 .payment-logo-strip{margin-top:14px;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
-.payment-logo-img{height:32px;width:auto;max-width:112px;display:block;border:1px solid rgba(201,168,76,0.34);border-radius:10px;background:#fff;padding:4px 8px}
+.payment-logo-img{height:32px;width:auto;max-width:none;display:block;border:1px solid rgba(201,168,76,0.34);border-radius:10px;background:#fff;padding:4px 8px}
 
 /* ── Contact ── */
 #contact{background:var(--ink)}
@@ -4200,7 +4200,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 function injectFooterSecurityBadges(){
   document.querySelectorAll('footer').forEach((footer)=>{
-    if(footer.querySelector('.footer-security-strip')) return;
+    if(footer.querySelector('.footer-security-strip, .payment-logo-strip')) return;
     const strip = document.createElement('div');
     strip.className = 'footer-security-strip';
     strip.setAttribute('aria-label', 'Güvenli alışveriş logoları');
