@@ -65,3 +65,42 @@ Eğer Stripe yerine iyzico / PayTR kullanacaksan mantık aynıdır:
 ---
 
 İstersen bir sonraki adımda `index.html` içindeki `submitOrder()` fonksiyonunu doğrudan bu endpoint’e bağlayıp, “kartla ödeme”yi uçtan uca çalışır hale getirebilirim.
+
+## 7) PayTR İşlem Dökümü (API)
+
+Bu repoda PayTR işlem dökümü için örnek bir endpoint de mevcut:
+
+- `POST /api/paytr-report?action=transaction-report`
+
+### Gerekli ortam değişkenleri
+
+- `PAYTR_MERCHANT_ID`
+- `PAYTR_MERCHANT_KEY`
+- `PAYTR_MERCHANT_SALT`
+
+### İstek body örneği
+
+```json
+{
+  "start_date": "2026-04-01 00:00:00",
+  "end_date": "2026-04-03 23:59:59",
+  "dummy": 0
+}
+```
+
+> Notlar:
+> - Tarih formatı `YYYY-MM-DD hh:mm:ss` olmalıdır.
+> - Aralık en fazla 3 gün olabilir.
+> - `dummy: 1` test amaçlı (simülasyon) cevap döndürmek için kullanılabilir.
+
+### Örnek cURL
+
+```bash
+curl -X POST 'https://senindomainin.com/api/paytr-report?action=transaction-report' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "start_date": "2026-04-01 00:00:00",
+    "end_date": "2026-04-03 23:59:59",
+    "dummy": 0
+  }'
+```
