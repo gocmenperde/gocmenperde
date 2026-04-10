@@ -41,11 +41,11 @@ Bu repo artık kartla ödemeyi **PayTR iFrame v2 token akışı** ile başlataca
 ## 3) Gerekli ortam değişkenleri (Vercel)
 
 - `PAYTR_MERCHANT_ID` (önerilen)
-  - Geriye dönük uyum: `PAYTR_MERCHANT_NO`, `PAYTR_MERCHANTID`, `PAYTR_ID`, `MERCHANT_ID`, `merchant_id`
+  - Geriye dönük uyum: `PAYTR_MERCHANT_NO`, `MERCHANT_NO`, `PAYTR_MERCHANTID`, `PAYTR_ID`, `MERCHANT_ID`, `merchant_id`
 - `PAYTR_MERCHANT_KEY` (önerilen)
-  - Geriye dönük uyum: `PAYTR_API_KEY`, `PAYTR_KEY`, `MERCHANT_KEY`, `merchant_key`
+  - Geriye dönük uyum: `PAYTR_MERCHANT_PASSWORD`, `MERCHANT_PASSWORD`, `PAYTR_API_KEY`, `PAYTR_KEY`, `MERCHANT_KEY`, `merchant_key`
 - `PAYTR_MERCHANT_SALT` (önerilen)
-  - Geriye dönük uyum: `PAYTR_API_SALT`, `PAYTR_SALT`, `MERCHANT_SALT`, `merchant_salt`
+  - Geriye dönük uyum: `PAYTR_MERCHANT_SECRET`, `MERCHANT_SECRET`, `PAYTR_API_SALT`, `PAYTR_SALT`, `MERCHANT_SALT`, `merchant_salt`
 - `PAYTR_TEST_MODE` (`1` test, `0` canlı)
 - `PAYTR_DEBUG_ON` (`1` debug, `0` kapalı)
 
@@ -60,4 +60,3 @@ Bu repo artık kartla ödemeyi **PayTR iFrame v2 token akışı** ile başlataca
 - Callback endpoint (hash doğrulama): `POST /api/paytr-callback`
 - İşlem dökümü: `POST /api/paytr-report?action=transaction-report`
 - İade: `POST /api/paytr-refund?action=refund`
-

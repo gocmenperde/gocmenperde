@@ -11,6 +11,7 @@ function getPaytrCredentials() {
   const merchantId = resolveEnvValue(
     'PAYTR_MERCHANT_ID',
     'PAYTR_MERCHANT_NO',
+    'MERCHANT_NO',
     'PAYTR_MERCHANTID',
     'PAYTR_ID',
     'MERCHANT_ID',
@@ -19,6 +20,8 @@ function getPaytrCredentials() {
 
   const merchantKey = resolveEnvValue(
     'PAYTR_MERCHANT_KEY',
+    'PAYTR_MERCHANT_PASSWORD',
+    'MERCHANT_PASSWORD',
     'PAYTR_API_KEY',
     'PAYTR_KEY',
     'MERCHANT_KEY',
@@ -27,6 +30,8 @@ function getPaytrCredentials() {
 
   const merchantSalt = resolveEnvValue(
     'PAYTR_MERCHANT_SALT',
+    'PAYTR_MERCHANT_SECRET',
+    'MERCHANT_SECRET',
     'PAYTR_API_SALT',
     'PAYTR_SALT',
     'MERCHANT_SALT',
