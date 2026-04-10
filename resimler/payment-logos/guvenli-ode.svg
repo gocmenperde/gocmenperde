@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="620" height="220" viewBox="0 0 620 220" role="img" aria-label="Güvenli Öde">
-  <rect x="12" y="12" width="596" height="196" rx="28" fill="#f4f4f5" stroke="#c7c9cc" stroke-width="6"/>
-  <g transform="translate(118 66)">
-    <path d="M36 22c-22 0-40 18-40 40s18 40 40 40c16 0 29-6 38-18l-18-13c-5 6-12 10-20 10-11 0-20-9-20-19s9-19 20-19c8 0 15 3 20 9l18-14C65 28 52 22 36 22z" fill="#12aebd"/>
-    <circle cx="117" cy="62" r="34" fill="#12aebd"/>
-    <path d="M118 28h112c16 0 30 13 30 30v8c0 16-14 30-30 30H118" fill="none" stroke="#12aebd" stroke-width="34" stroke-linecap="round"/>
-    <text x="72" y="84" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700" fill="#12aebd">GÜVENLİ ÖDE</text>
+  <rect x="10" y="10" width="600" height="200" rx="24" fill="#ffffff" stroke="#cfd3d8" stroke-width="4"/>
+  <g transform="translate(86 64)">
+    <path d="M34 20c-21 0-38 16-38 36 0 19 17 36 38 36 15 0 28-6 36-16l-13-10c-5 6-13 10-22 10-12 0-22-9-22-20 0-12 10-20 22-20 8 0 15 3 20 8l13-11c-9-9-21-13-34-13z" fill="#15b6c6"/>
+    <rect x="90" y="26" width="140" height="56" rx="28" fill="#15b6c6"/>
+    <text x="100" y="66" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" fill="#fff">TV</text>
+    <text x="250" y="66" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" fill="#15b6c6" letter-spacing="1">GÜVENLİ ÖDE</text>
   </g>
 </svg>
