@@ -884,13 +884,24 @@ header{background:rgba(255,255,255,.95);border-bottom:1px solid rgba(34,45,78,.0
 .sort-bar{border:1px solid rgba(34,45,78,.13);background:linear-gradient(135deg,#fff,#f8f9fc)}
 footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255,.74)}
 
-.pulse-announcement{position:relative;overflow:hidden;background:linear-gradient(110deg,#f5f1e7,#f0eadc,#ece9f5);background-size:200% 100%;animation:pulseShift 16s linear infinite;padding:16px 5%;color:#202737;border-top:1px solid rgba(34,45,78,.08);border-bottom:1px solid rgba(34,45,78,.08)}
-.pulse-announcement-inner{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
-.pulse-copy{display:flex;flex-direction:column;gap:6px;min-width:0}
-.pulse-announcement b{font-size:.78rem;letter-spacing:1.4px;text-transform:uppercase;display:flex;align-items:center;gap:8px;color:#3a4254}
-.pulse-announcement span{font-size:.9rem;opacity:.96;line-height:1.45;max-width:820px;color:#535c70}
-.pulse-announcement button{border:1px solid rgba(34,45,78,.14);background:#fff;color:#2a3656;padding:12px 18px;border-radius:12px;font-size:.72rem;font-weight:800;letter-spacing:.8px;cursor:pointer;box-shadow:0 8px 20px rgba(17,28,58,.08)}
-.pulse-announcement button:hover{background:#f8f9fc}
+.pulse-announcement{position:relative;overflow:hidden;background:linear-gradient(122deg,#f5f1e7,#efe8da,#e9ebf6);background-size:200% 100%;animation:pulseShift 16s linear infinite;padding:20px 5%;color:#202737;border-top:1px solid rgba(34,45,78,.08);border-bottom:1px solid rgba(34,45,78,.08)}
+.pulse-announcement-inner{max-width:1300px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.campaign-stream-header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.campaign-stream-title{font-size:.78rem;letter-spacing:1.4px;text-transform:uppercase;display:flex;align-items:center;gap:8px;color:#3a4254;font-weight:800}
+.campaign-stream-sub{font-size:.82rem;color:#586078}
+.campaign-stream-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.campaign-stream-card{position:relative;background:linear-gradient(160deg,#fff 0%,#f8f7f3 100%);border:1px solid rgba(34,45,78,.11);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 22px rgba(17,28,58,.08)}
+.campaign-stream-media{position:relative;height:140px;border-radius:12px;overflow:hidden;background:#f0f2f7}
+.campaign-stream-media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease}
+.campaign-stream-card:hover .campaign-stream-media img{transform:scale(1.04)}
+.campaign-stream-badge{position:absolute;top:10px;left:10px;background:rgba(19,18,26,.76);color:#fff;padding:5px 9px;border-radius:999px;font-size:.58rem;letter-spacing:1px;border:1px solid rgba(213,163,63,.35)}
+.campaign-stream-name{font-size:.88rem;font-weight:700;color:#242c3e}
+.campaign-stream-price{display:flex;align-items:flex-end;gap:8px}
+.campaign-stream-price .new{font-size:1rem;font-weight:800;color:#1f2941}
+.campaign-stream-price .old{text-decoration:line-through;font-size:.74rem;color:#8e96aa}
+.campaign-stream-price .unit{font-size:.68rem;color:#6f778b}
+.campaign-stream-btn{border:1px solid rgba(34,45,78,.16);background:#fff;color:#2a3656;padding:10px 12px;border-radius:10px;font-size:.66rem;font-weight:800;letter-spacing:.8px;cursor:pointer;box-shadow:0 8px 20px rgba(17,28,58,.08)}
+.campaign-stream-empty{border:1px dashed rgba(34,45,78,.25);border-radius:12px;padding:14px;background:rgba(255,255,255,.6);font-size:.82rem;color:#586078}
 @keyframes pulseShift{0%{background-position:0 0}100%{background-position:200% 0}}
 
 .live-categories{padding:28px 5% 10px;background:linear-gradient(180deg,#fbfbfa,transparent)}
@@ -906,8 +917,8 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 @media(max-width:900px){.live-categories-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){
   .pulse-announcement{padding:14px}
-  .pulse-announcement-inner{grid-template-columns:1fr}
-  .pulse-announcement button{width:100%}
+  .campaign-stream-grid{grid-template-columns:1fr}
+  .campaign-stream-media{height:180px}
   .gallery-section .section-header{padding:20px;border-radius:16px}
 }
 @media(max-width:640px){.live-categories-grid{grid-template-columns:1fr}}
@@ -951,6 +962,7 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 @media(max-width:760px){
   .pulse-announcement{margin-top:72px}
   .pulse-announcement-inner{padding:12px}
+  .campaign-stream-header{align-items:flex-start;flex-direction:column}
 }
 
 </style>
@@ -1039,11 +1051,14 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 </header>
 <div class="pulse-announcement" role="status" aria-live="polite">
   <div class="pulse-announcement-inner">
-    <div class="pulse-copy">
-      <b><i class="fas fa-bolt"></i> Canlı Kampanya Akışı</b>
-      <span>Yeni sezon koleksiyonları yayında · Aynı gün keşif planı · Bursa içi hızlı teslimat ve montaj desteği</span>
+    <div class="campaign-stream-header">
+      <div>
+        <div class="campaign-stream-title"><i class="fas fa-bolt"></i> Premium Fırsatlar</div>
+        <div class="campaign-stream-sub">Canlı ürün vitrininde kampanyalı ürünleri inceleyin.</div>
+      </div>
+      <button class="campaign-stream-btn" onclick="go('products')">Tüm Ürünleri Gör</button>
     </div>
-    <button onclick="go('products')">Fırsatları Keşfet</button>
+    <div class="campaign-stream-grid" id="campaignStreamGrid"></div>
   </div>
 </div>
 
@@ -1631,6 +1646,7 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 
 <script>
 const WA_NUMBER = '905012110958';
+const LIVE_CAMPAIGN_STREAM_KEY = 'gp_live_campaign_stream_v1';
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
 const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
@@ -1655,6 +1671,11 @@ const DEFAULT_FROM_YOU_SHOWCASE = [
   {src:'resimler/foto11.jpg',images:['resimler/foto11.jpg','resimler/foto10.jpg'],title:'Yatak Odası Dönüşümü',location:'Yıldırım',comment:'Işık dengesi harika oldu, işçilik gerçekten çok özenliydi.'}
 ];
 const FROM_YOU_RENDERED_MAP = {};
+const DEFAULT_LIVE_CAMPAIGN_STREAM = [
+  {id:'premium-zebra',productId:'zebra-premium-gri',title:'Premium Zebra Perde',label:'Yeni',price:2390,oldPrice:2790,image:'resimler/foto9.jpg',buttonText:'Ürüne Git'},
+  {id:'plise-kampanya',productId:'plise-krem-160x200',title:'Plise Perde Krem 160x200',label:'Kampanya',price:1450,oldPrice:1690,image:'resimler/foto7.jpg',buttonText:'İncele'},
+  {id:'stor-salon',productId:'stor-salon-antrasit',title:'Stor Perde Antrasit Seri',label:'Çok Satan',price:1890,oldPrice:2190,image:'resimler/foto8.jpg',buttonText:'Detaylar'}
+];
 
 const FOOTER_PAYMENT_LOGOS_KEY = 'gp_footer_payment_logos_v1';
 const DEFAULT_FOOTER_PAYMENT_LOGOS = [
@@ -1757,6 +1778,47 @@ function renderHomeShowcaseSections(){
   renderInstallationShowcase();
   renderCustomerShowcaseReviews();
   renderFromYouShowcase('fromYouPreviewGrid', 3);
+}
+function getLiveCampaignStreamItems(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(LIVE_CAMPAIGN_STREAM_KEY) || 'null');
+    if(Array.isArray(parsed) && parsed.length) return parsed;
+  }catch(_){}
+  return DEFAULT_LIVE_CAMPAIGN_STREAM;
+}
+function formatTl(value){
+  return `${(Number(value)||0).toLocaleString('tr-TR')} TL`;
+}
+function renderLiveCampaignStream(){
+  const grid = document.getElementById('campaignStreamGrid');
+  if(!grid) return;
+  const list = getLiveCampaignStreamItems().filter(item=>item && item.active!==false).slice(0,6);
+  if(!list.length){
+    grid.innerHTML = '<div class="campaign-stream-empty">Canlı fırsat kartı bulunmuyor. Admin panelinden ekleyebilirsiniz.</div>';
+    return;
+  }
+  grid.innerHTML = list.map((item,idx)=>{
+    const linked = PRODUCTS.find(p=>String(p.id)===String(item.productId));
+    const image = resolveAssetUrl(item.image || linked?.image || linked?.images?.[0] || 'resimler/foto6.jpg');
+    const name = item.title || linked?.name || 'Kampanyalı Ürün';
+    const price = Number(item.price || linked?.price || 0);
+    const oldPrice = Number(item.oldPrice || linked?.oldPrice || 0);
+    const unit = item.unit || linked?.unit || '';
+    const action = linked ? `openModalFromProduct('${escapeInline(linked.id)}')` : `go('products')`;
+    return `<article class="campaign-stream-card">
+      <div class="campaign-stream-media">
+        <img src="${image}" ${imageFallbackAttr(image)} alt="${name}" loading="${idx<2?'eager':'lazy'}" decoding="async">
+        <span class="campaign-stream-badge">${item.label || 'Özel Fiyat'}</span>
+      </div>
+      <div class="campaign-stream-name">${name}</div>
+      <div class="campaign-stream-price">
+        <span class="new">${formatTl(price)}</span>
+        ${oldPrice>price?`<span class="old">${formatTl(oldPrice)}</span>`:''}
+        ${unit?`<span class="unit">/ ${unit}</span>`:''}
+      </div>
+      <button class="campaign-stream-btn" onclick="${action}">${item.buttonText || 'Ürünü İncele'}</button>
+    </article>`;
+  }).join('');
 }
 function renderFromYouShowcase(targetId='fromYouPageGrid', limit=12){
   const grid = document.getElementById(targetId);
@@ -1899,6 +1961,7 @@ function renderProductState(list, {withObserver=true} = {}){
   syncCategoriesFromAdmin();
   renderProducts(PRODUCTS);
   updateDiscountSpotlight(PRODUCTS);
+  renderLiveCampaignStream();
   renderRecentlyViewed();
   if(withObserver) initObserver();
 }
@@ -3196,7 +3259,8 @@ window.addEventListener('load',()=>{
   if(fromBackForward) hideLoader(true);
   else setTimeout(()=>hideLoader(false),320);
   renderHomeShowcaseSections();
-renderFooterPaymentLogos();
+  renderFooterPaymentLogos();
+  renderLiveCampaignStream();
   renderFromYouShowcase('fromYouPageGrid', 12);
   loadFavoritesFromStorage();
   loadFavoritesFromServer();
@@ -3226,6 +3290,7 @@ window.addEventListener('storage',(event)=>{
     renderFromYouShowcase('fromYouPageGrid', 12);
     initObserver();
   }
+  if(event.key===LIVE_CAMPAIGN_STREAM_KEY) renderLiveCampaignStream();
 });
 
 // ── Navigasyon ──

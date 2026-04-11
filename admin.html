@@ -368,6 +368,11 @@ tbody tr:hover td{background:#fdfcf8}
 .campaign-badge.active{background:var(--green-light);color:var(--green)}
 .campaign-badge.paused{background:rgba(201,168,76,0.12);color:#8a6c1e}
 .campaign-desc{font-size:0.85rem;color:var(--slate);margin-bottom:16px;line-height:1.7}
+.live-feed-admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.live-feed-admin-card{border:1px solid var(--border);border-radius:12px;padding:10px;background:#fff}
+.live-feed-admin-card img{width:100%;height:130px;object-fit:cover;border-radius:10px;border:1px solid var(--border);background:#f8f8f8}
+.live-feed-admin-card h4{font-size:0.9rem;margin:8px 0 4px;font-weight:700;color:#1f2740}
+.live-feed-admin-meta{font-size:0.76rem;color:var(--slate-light);display:flex;justify-content:space-between;gap:8px}
 
 /* ──────────── SETTINGS ──────────── */
 .settings-section{background:white;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:20px;overflow:hidden;box-shadow:var(--shadow-sm)}
@@ -897,6 +902,46 @@ Işık: Yarı Geçirgen"></textarea></div>
   <div class="page-header">
     <div><h1>Kampanya <em>Yönetimi</em></h1><p>İndirimler ve promosyonlar</p></div>
     <button class="btn btn-primary" onclick="openAddCampaignModal()"><i class="fas fa-plus"></i> Yeni Kampanya</button>
+  </div>
+  <div class="dash-panel" style="margin-bottom:16px">
+    <div class="dash-panel-header"><h3><i class="fas fa-display"></i> Ana Sayfa Canlı Fırsat Vitrini</h3></div>
+    <div class="dash-panel-body">
+      <div class="form-row">
+        <div class="fg">
+          <label>Ürün Bağlantısı (opsiyonel)</label>
+          <select id="liveFeedProduct"></select>
+        </div>
+        <div class="fg">
+          <label>Başlık</label>
+          <input id="liveFeedTitle" type="text" placeholder="Örn: Premium Zebra Perde">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Etiket</label><input id="liveFeedLabel" type="text" placeholder="Örn: Kampanya"></div>
+        <div class="fg"><label>Buton Metni</label><input id="liveFeedBtnText" type="text" value="Ürünü İncele"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Yeni Fiyat (TL)</label><input id="liveFeedPrice" type="number" min="0" step="0.01"></div>
+        <div class="fg"><label>Eski Fiyat (TL)</label><input id="liveFeedOldPrice" type="number" min="0" step="0.01"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label>Görsel Yükle</label>
+          <label class="upload-zone" style="padding:12px;border-radius:10px">
+            <i class="fas fa-image" style="font-size:1.2rem;margin-bottom:6px"></i>
+            <p><span class="highlight">PC veya mobilden görsel seç</span> (otomatik yüklenir)</p>
+            <input type="file" accept="image/*" onchange="handleLiveFeedImageSelect(this)">
+          </label>
+          <input id="liveFeedImage" type="text" readonly placeholder="resimler/... veya preview://" style="margin-top:8px;background:#f7f7f7">
+          <p id="liveFeedImageName" style="font-size:0.72rem;margin-top:4px;color:var(--slate-light)">JPG, PNG, WEBP</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="saveLiveFeedItem()"><i class="fas fa-plus"></i> Vitrine Ekle</button>
+        <button class="btn btn-outline btn-sm" onclick="seedLiveFeedFromProducts()"><i class="fas fa-wand-magic-sparkles"></i> Ürünlerden Otomatik Doldur</button>
+      </div>
+      <div id="liveFeedList" class="live-feed-admin-grid" style="margin-top:14px"></div>
+    </div>
   </div>
   <div id="campaignList"></div>
 </div>
@@ -3001,8 +3046,24 @@ function getCatLabel(key){return(CATEGORIES.find(c=>c.key===key)||{label:key}).l
 //  CAMPAIGNS
 // ════════════════════════════════════
 const CAMP_KEY='gp_campaigns';
+const LIVE_CAMPAIGN_STREAM_KEY='gp_live_campaign_stream_v1';
+const DEFAULT_LIVE_CAMPAIGN_STREAM=[
+  {id:'premium-zebra',productId:'zebra-premium-gri',title:'Premium Zebra Perde',label:'Yeni',price:2390,oldPrice:2790,image:'resimler/foto9.jpg',buttonText:'Ürüne Git',active:true},
+  {id:'plise-kampanya',productId:'plise-krem-160x200',title:'Plise Perde Krem 160x200',label:'Kampanya',price:1450,oldPrice:1690,image:'resimler/foto7.jpg',buttonText:'İncele',active:true},
+  {id:'stor-salon',productId:'stor-salon-antrasit',title:'Stor Perde Antrasit Seri',label:'Çok Satan',price:1890,oldPrice:2190,image:'resimler/foto8.jpg',buttonText:'Detaylar',active:true}
+];
 function getCampaigns(){return JSON.parse(localStorage.getItem(CAMP_KEY)||'null')||defaultCampaigns();}
 function saveCampaignsList(arr){localStorage.setItem(CAMP_KEY,JSON.stringify(arr));}
+function getLiveCampaignStreamItems(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(LIVE_CAMPAIGN_STREAM_KEY)||'null');
+    if(Array.isArray(parsed) && parsed.length) return parsed;
+  }catch(_){}
+  return DEFAULT_LIVE_CAMPAIGN_STREAM;
+}
+function saveLiveCampaignStreamItems(list){
+  localStorage.setItem(LIVE_CAMPAIGN_STREAM_KEY, JSON.stringify(Array.isArray(list)?list:[]));
+}
 function defaultCampaigns(){
   return [
     {id:1,name:'Sezon Sonu %25 İndirim',desc:'Tüm ürünlerde geçerli sezon sonu kampanyası.',discount:25,discountType:'percent',code:'',start:'2025-01-01',end:'2025-12-31',active:true},
@@ -3012,6 +3073,13 @@ function defaultCampaigns(){
 
 function renderCampaigns(){
   const list = getCampaigns();
+  const productSelect = document.getElementById('liveFeedProduct');
+  if(productSelect){
+    productSelect.innerHTML = `<option value="">Ürün seçmeden manuel vitrin kartı</option>${
+      PRODUCTS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')
+    }`;
+  }
+  renderLiveFeedAdminList();
   document.getElementById('campaignList').innerHTML = list.map((c,i)=>`
     <div class="campaign-card">
       <div class="campaign-card-header">
@@ -3032,6 +3100,106 @@ function renderCampaigns(){
         ${c.code?`<button class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText('${c.code}').then(()=>aToast('Kopyalandı: ${c.code}','success'))"><i class="fas fa-copy"></i> Kodu Kopyala</button>`:''}
       </div>
     </div>`).join('');
+}
+function renderLiveFeedAdminList(){
+  const box = document.getElementById('liveFeedList');
+  if(!box) return;
+  const list = getLiveCampaignStreamItems();
+  if(!list.length){
+    box.innerHTML = `<div class="campaign-card" style="padding:14px">Henüz vitrin kartı yok.</div>`;
+    return;
+  }
+  box.innerHTML = list.map((item,idx)=>`
+    <div class="live-feed-admin-card">
+      <img src="${item.image || 'resimler/foto6.jpg'}" alt="${item.title || 'Vitrin kartı'}" loading="lazy">
+      <h4>${item.title || 'Vitrin Kartı'}</h4>
+      <div class="live-feed-admin-meta"><span>${Number(item.price||0).toLocaleString('tr-TR')} TL</span><span>${item.label || 'Etiket yok'}</span></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn btn-sm btn-outline" onclick="editLiveFeedItem(${idx})"><i class="fas fa-pen"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="removeLiveFeedItem(${idx})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+function saveLiveFeedItem(){
+  const productId = document.getElementById('liveFeedProduct')?.value || '';
+  const linkedProduct = PRODUCTS.find(p=>String(p.id)===String(productId));
+  const title = document.getElementById('liveFeedTitle')?.value.trim() || linkedProduct?.name || '';
+  const image = document.getElementById('liveFeedImage')?.value.trim() || linkedProduct?.image || linkedProduct?.images?.[0] || '';
+  if(!title || !image){ aToast('⚠️ Başlık ve görsel zorunlu','error'); return; }
+  const obj = {
+    id: Date.now().toString(),
+    productId: productId || '',
+    title,
+    label: document.getElementById('liveFeedLabel')?.value.trim() || 'Özel Fiyat',
+    buttonText: document.getElementById('liveFeedBtnText')?.value.trim() || 'Ürünü İncele',
+    price: Number(document.getElementById('liveFeedPrice')?.value || linkedProduct?.price || 0),
+    oldPrice: Number(document.getElementById('liveFeedOldPrice')?.value || linkedProduct?.oldPrice || 0),
+    image,
+    unit: linkedProduct?.unit || '',
+    active: true
+  };
+  const editIdxRaw = document.getElementById('liveFeedList')?.dataset.editIdx;
+  const list = getLiveCampaignStreamItems();
+  if(editIdxRaw!==undefined && editIdxRaw!==''){
+    list[Number(editIdxRaw)] = {...list[Number(editIdxRaw)], ...obj};
+    delete document.getElementById('liveFeedList').dataset.editIdx;
+    aToast('✓ Vitrin kartı güncellendi','success');
+  }else{
+    list.unshift(obj);
+    aToast('✓ Vitrin kartı eklendi','success');
+  }
+  saveLiveCampaignStreamItems(list.slice(0,12));
+  clearLiveFeedForm();
+  renderLiveFeedAdminList();
+}
+function clearLiveFeedForm(){
+  ['liveFeedTitle','liveFeedLabel','liveFeedPrice','liveFeedOldPrice','liveFeedImage'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value='';
+  });
+  const btn = document.getElementById('liveFeedBtnText'); if(btn) btn.value='Ürünü İncele';
+  const p = document.getElementById('liveFeedProduct'); if(p) p.value='';
+  const name = document.getElementById('liveFeedImageName'); if(name) name.textContent='JPG, PNG, WEBP';
+}
+function editLiveFeedItem(idx){
+  const item = getLiveCampaignStreamItems()[idx];
+  if(!item) return;
+  document.getElementById('liveFeedProduct').value = item.productId || '';
+  document.getElementById('liveFeedTitle').value = item.title || '';
+  document.getElementById('liveFeedLabel').value = item.label || '';
+  document.getElementById('liveFeedBtnText').value = item.buttonText || 'Ürünü İncele';
+  document.getElementById('liveFeedPrice').value = item.price || '';
+  document.getElementById('liveFeedOldPrice').value = item.oldPrice || '';
+  document.getElementById('liveFeedImage').value = item.image || '';
+  const list = document.getElementById('liveFeedList');
+  if(list) list.dataset.editIdx = String(idx);
+  aToast('Kart düzenleme modunda','success');
+}
+function removeLiveFeedItem(idx){
+  const list = getLiveCampaignStreamItems();
+  list.splice(idx,1);
+  saveLiveCampaignStreamItems(list);
+  renderLiveFeedAdminList();
+  aToast('✓ Vitrin kartı silindi','success');
+}
+function seedLiveFeedFromProducts(){
+  const seeds = PRODUCTS.filter(p=>p.active).slice(0,4).map((p,idx)=>({
+    id:`seed-${Date.now()}-${idx}`,
+    productId:p.id,
+    title:p.name,
+    label:idx===0?'Yeni Sezon':'Kampanya',
+    buttonText:'Ürünü İncele',
+    price:Number(p.price)||0,
+    oldPrice:Number(p.oldPrice)||0,
+    image:p.image || p.images?.[0] || 'resimler/foto6.jpg',
+    unit:p.unit || '',
+    active:true
+  }));
+  if(!seeds.length){ aToast('⚠️ Aktif ürün bulunamadı','error'); return; }
+  saveLiveCampaignStreamItems(seeds);
+  renderLiveFeedAdminList();
+  aToast('✓ Ürünlerden canlı vitrin hazırlandı','success');
 }
 
 function openAddCampaignModal(){
@@ -3736,6 +3904,31 @@ async function handleShowcaseImageSelect(input){
     if(pathEl) pathEl.value = uploaded;
     if(fileNameEl) fileNameEl.textContent = `✓ ${uploaded}`;
     aToast('✅ Montaj görseli yüklendi','success');
+  }catch(err){
+    if(fileNameEl) fileNameEl.textContent = 'Yükleme başarısız';
+    aToast('❌ '+err.message,'error');
+  }finally{
+    input.value='';
+  }
+}
+async function handleLiveFeedImageSelect(input){
+  const file = Array.from(input?.files||[])[0];
+  const fileNameEl = document.getElementById('liveFeedImageName');
+  if(fileNameEl) fileNameEl.textContent = file ? file.name : 'JPG, PNG, WEBP';
+  if(!file) return;
+  const pathEl = document.getElementById('liveFeedImage');
+  const token = getGithubToken();
+  if(!token){
+    if(pathEl) pathEl.value = URL.createObjectURL(file);
+    aToast('⚠️ GitHub Token yok — sadece önizleme yolu atandı','error');
+    return;
+  }
+  try{
+    if(fileNameEl) fileNameEl.textContent = 'Yükleniyor...';
+    const uploaded = await uploadImageWithRetry(token, file, {prefix:'live-feed'});
+    if(pathEl) pathEl.value = uploaded;
+    if(fileNameEl) fileNameEl.textContent = `✓ ${uploaded}`;
+    aToast('✅ Vitrin görseli yüklendi','success');
   }catch(err){
     if(fileNameEl) fileNameEl.textContent = 'Yükleme başarısız';
     aToast('❌ '+err.message,'error');
