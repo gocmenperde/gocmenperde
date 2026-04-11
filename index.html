@@ -829,6 +829,58 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
 .address-parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px}
 @media(max-width:640px){.address-parts{grid-template-columns:1fr}}
 .address-part-input{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:8px;font-family:var(--ff-body);font-size:0.82rem;background:#fff}
+
+/* === 2026 Modern E-Ticaret Refresh === */
+:root{
+  --gold:#ffbe3d;
+  --gold-light:#ffe2a3;
+  --gold-dark:#d28a00;
+  --ink:#13121a;
+  --cream:#f5f7ff;
+  --warm-white:#ffffff;
+  --slate:#5f6475;
+  --border:rgba(122,88,255,0.18);
+}
+body::before{background:
+  radial-gradient(circle at 5% 12%, rgba(122,88,255,0.22), transparent 35%),
+  radial-gradient(circle at 90% 10%, rgba(0,208,255,0.16), transparent 35%),
+  radial-gradient(circle at 50% 105%, rgba(255,190,61,0.15), transparent 45%)}
+header{background:rgba(255,255,255,.82);border-bottom:1px solid rgba(122,88,255,.15)}
+.nav-cart{background:linear-gradient(135deg,#7a58ff,#19b8ff);color:#fff}
+.nav-cart:hover{background:linear-gradient(135deg,#8d6aff,#35c2ff)}
+.hero{background:linear-gradient(135deg,#0f1022 0%,#23164f 45%,#2d0d47 100%)}
+.hero-bg{background:
+  radial-gradient(ellipse at 18% 25%,rgba(122,88,255,.35),transparent 55%),
+  radial-gradient(ellipse at 90% 12%,rgba(0,208,255,.24),transparent 55%),
+  linear-gradient(140deg,rgba(255,255,255,.06),rgba(255,190,61,.08))}
+.hero-pattern{opacity:.12;background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.16) 1px, transparent 0);background-size:22px 22px}
+.hero-subtitle{background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(122,88,255,.26));border-color:rgba(255,255,255,.45)}
+.btn-primary,.btn-outline{background:#fff;color:#251b45}
+.features-strip{background:linear-gradient(120deg,#ffffff,#f3f6ff)}
+.feature-item{padding:14px 12px;border:1px solid rgba(122,88,255,.12);border-radius:14px;background:rgba(255,255,255,.85)}
+.feature-icon{background:linear-gradient(135deg,rgba(122,88,255,.14),rgba(0,208,255,.14));border:1px solid rgba(122,88,255,.22)}
+.local-seo-box,.trust-card,.trust-kpi-item,.process-step,.promo-banner,.first-order-banner,.discount-spotlight{border-color:rgba(122,88,255,.2)!important}
+.section-tag{background:rgba(122,88,255,.1);color:#4c32b6;border:1px solid rgba(122,88,255,.24)}
+.product-card{border:1px solid rgba(122,88,255,.18);box-shadow:0 16px 34px rgba(27,24,66,.09)}
+.product-card:hover{transform:translateY(-8px);box-shadow:0 24px 45px rgba(27,24,66,.17)}
+.sort-bar{border:1px solid rgba(122,88,255,.2);background:linear-gradient(135deg,#fff,rgba(243,247,255,.95))}
+footer{background:linear-gradient(140deg,#0f1022,#23164f);color:rgba(255,255,255,.68)}
+
+.pulse-announcement{position:relative;overflow:hidden;background:linear-gradient(90deg,#7a58ff,#19b8ff,#ffbe3d);background-size:200% 100%;animation:pulseShift 9s linear infinite;padding:12px 5%;color:#fff}
+.pulse-announcement-inner{max-width:1300px;margin:0 auto;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.pulse-announcement b{font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase}
+.pulse-announcement span{font-size:.8rem;opacity:.95}
+.pulse-announcement button{border:none;background:#fff;color:#33265d;padding:10px 16px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.8px;cursor:pointer}
+@keyframes pulseShift{0%{background-position:0 0}100%{background-position:200% 0}}
+
+.live-categories{padding:28px 5% 10px;background:linear-gradient(180deg,#f8f9ff,transparent)}
+.live-categories-grid{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.live-pill{border:none;background:#fff;border:1px solid rgba(122,88,255,.22);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.78rem;font-weight:700;color:#28243a;cursor:pointer;transition:.25s ease}
+.live-pill:hover{transform:translateY(-3px);background:linear-gradient(135deg,#fff,rgba(122,88,255,.08))}
+.live-pill i{color:#7a58ff}
+@media(max-width:900px){.live-categories-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.pulse-announcement{padding:11px 14px}.live-categories-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 
@@ -913,6 +965,13 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
     <button class="mobile-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></button>
   </div>
 </header>
+<div class="pulse-announcement" role="status" aria-live="polite">
+  <div class="pulse-announcement-inner">
+    <b><i class="fas fa-bolt"></i> Canlı Kampanya Akışı</b>
+    <span>Yeni sezon koleksiyonları yayında · İlk siparişe %10 indirim · Bursa içi hızlı teslimat</span>
+    <button onclick="go('products')">Fırsatları Keşfet</button>
+  </div>
+</div>
 
 <!-- ANASAYFA -->
 <section id="home" class="section active">
@@ -940,6 +999,14 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
       <div class="feature-item"><div class="feature-icon"><i class="fas fa-truck"></i></div><div class="feature-text"><h4>Bursa İçi Teslimat</h4><p>Kapınıza kadar</p></div></div>
       <div class="feature-item"><div class="feature-icon"><i class="fas fa-award"></i></div><div class="feature-text"><h4>Zeynel Bey Güvencesi</h4><p>30 yıllık ustadan</p></div></div>
       <div class="feature-item"><div class="feature-icon"><i class="fas fa-rotate-left"></i></div><div class="feature-text"><h4>Memnuniyet Garantisi</h4><p>Kaliteli hizmet</p></div></div>
+    </div>
+  </div>
+  <div class="live-categories" aria-label="Hızlı kategori geçişleri">
+    <div class="live-categories-grid">
+      <button class="live-pill" onclick="go('products');setCategory('tul-perde')">Tül Perde <i class="fas fa-arrow-right"></i></button>
+      <button class="live-pill" onclick="go('products');setCategory('zebra-perde')">Zebra Perde <i class="fas fa-arrow-right"></i></button>
+      <button class="live-pill" onclick="go('products');setCategory('stor-perde')">Stor Perde <i class="fas fa-arrow-right"></i></button>
+      <button class="live-pill" onclick="go('products');setCategory('koltuk')">Koltuk Örtüsü <i class="fas fa-arrow-right"></i></button>
     </div>
   </div>
   <div class="local-seo-section">
@@ -4130,6 +4197,18 @@ window.addEventListener('scroll',()=>{
     scrollRafId = 0;
   });
 },{passive:true});
+
+
+function setCategory(categorySlug){
+  const allIds=['carsaf','tul-perde','plise-perde','stor-perde','zebra-perde','koltuk'];
+  const allToggle=document.getElementById('cat-all');
+  if(allToggle) allToggle.checked=false;
+  allIds.forEach(id=>{
+    const el=document.getElementById(`cat-${id}`);
+    if(el) el.checked=(id===categorySlug);
+  });
+  applyFilters();
+}
 
 // ── Observer ──
 function initObserver(){
