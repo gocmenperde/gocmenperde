@@ -901,15 +901,23 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 
 
 .hero-ad-slider{padding:18px 5%;background:#fff}
-.hero-ad-slider-shell{max-width:1300px;margin:0 auto;border:1px solid rgba(34,45,78,.12);border-radius:16px;padding:12px;overflow:hidden;background:#fff}
-.hero-ad-track{display:flex;gap:12px;min-width:max-content;animation:heroAdsFlow 28s linear infinite;will-change:transform}
-.hero-ad-slider-shell:hover .hero-ad-track{animation-play-state:paused}
-.hero-ad-card{min-width:280px;max-width:280px;border:1px solid rgba(34,45,78,.12);border-radius:14px;overflow:hidden;background:#fff;text-decoration:none;color:#1d2434;display:flex;flex-direction:column}
+.hero-ad-slider-shell{max-width:1300px;margin:0 auto;border:1px solid rgba(34,45,78,.12);border-radius:16px;padding:12px;background:#fff}
+.hero-ad-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.hero-ad-title{font-size:.86rem;font-weight:800;letter-spacing:1px;color:#2a3656;text-transform:uppercase}
+.hero-ad-controls{display:flex;align-items:center;gap:6px}
+.hero-ad-btn{width:34px;height:34px;border-radius:999px;border:1px solid rgba(34,45,78,.18);background:#fff;color:#2a3656;cursor:pointer}
+.hero-ad-btn:disabled{opacity:.4;cursor:not-allowed}
+.hero-ad-viewport{overflow-x:auto;scroll-snap-type:x mandatory;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:12px;scrollbar-width:thin;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.hero-ad-viewport::-webkit-scrollbar{height:8px}
+.hero-ad-viewport::-webkit-scrollbar-thumb{background:rgba(34,45,78,.22);border-radius:999px}
+.hero-ad-card{scroll-snap-align:start;border:1px solid rgba(34,45,78,.12);border-radius:14px;overflow:hidden;background:#fff;text-decoration:none;color:#1d2434;display:flex;flex-direction:column;min-width:0}
 .hero-ad-card img{width:100%;height:140px;object-fit:cover}
 .hero-ad-card h4{font-size:.88rem;padding:10px 12px 2px}
 .hero-ad-card span{font-size:.72rem;color:#4b5569;padding:0 12px 12px;display:block}
-@keyframes heroAdsFlow{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 6px))}}
-@media(max-width:700px){.hero-ad-card{min-width:220px;max-width:220px}.hero-ad-card img{height:112px}}
+.hero-ad-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+.hero-ad-dot{width:8px;height:8px;border:none;border-radius:999px;background:rgba(34,45,78,.22);cursor:pointer}
+.hero-ad-dot.active{background:#2a3656;transform:scale(1.15)}
+@media(max-width:700px){.hero-ad-card img{height:112px}}
 
 .pulse-announcement{position:relative;overflow:hidden;background:linear-gradient(122deg,#f5f1e7,#efe8da,#e9ebf6);background-size:200% 100%;animation:pulseShift 16s linear infinite;padding:20px 5%;color:#202737;border-top:1px solid rgba(34,45,78,.08);border-bottom:1px solid rgba(34,45,78,.08)}
 .pulse-announcement-inner{max-width:1300px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
@@ -1127,7 +1135,15 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
   </div>
   <div class="hero-ad-slider" id="heroAdSlider" style="display:none">
     <div class="hero-ad-slider-shell">
-      <div class="hero-ad-track" id="heroAdTrack"></div>
+      <div class="hero-ad-header">
+        <strong class="hero-ad-title">Reklamlar & Kampanyalar</strong>
+        <div class="hero-ad-controls">
+          <button type="button" class="hero-ad-btn" id="heroAdPrev" aria-label="Önceki reklam"><i class="fas fa-chevron-left"></i></button>
+          <button type="button" class="hero-ad-btn" id="heroAdNext" aria-label="Sonraki reklam"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="hero-ad-viewport" id="heroAdTrack" role="region" aria-label="Reklam slider"></div>
+      <div class="hero-ad-dots" id="heroAdDots" aria-hidden="true"></div>
     </div>
   </div>
   <div class="live-categories" aria-label="Hızlı kategori geçişleri">
@@ -1920,27 +1936,101 @@ async function loadHomeSlider(){
 function renderHomeSlider(){
   const wrap = document.getElementById('heroAdSlider');
   const track = document.getElementById('heroAdTrack');
-  if(!wrap || !track) return;
+  const dots = document.getElementById('heroAdDots');
+  if(!wrap || !track || !dots) return;
+  clearHomeSliderAutoplay();
   if(!HOME_SLIDES.length){
     wrap.style.display='none';
     track.innerHTML='';
+    dots.innerHTML='';
     return;
   }
-  const cards = HOME_SLIDES.map((item)=>`
+  const cards = HOME_SLIDES.map((item, idx)=>`
     <a class="hero-ad-card" href="${item.linkUrl || '#'}" target="_self" rel="noopener">
       <img src="${resolveAssetUrl(item.imageUrl || '')}" alt="${item.title || 'Kampanya'}" loading="lazy" decoding="async">
       <h4>${item.title || 'Kampanya'}</h4>
       <span>Detayları görüntüle →</span>
     </a>
   `).join('');
-  track.innerHTML = cards + cards;
+  track.innerHTML = cards;
+  dots.innerHTML = HOME_SLIDES.map((_, idx)=>`<button type="button" class="hero-ad-dot${idx===0?' active':''}" aria-label="${idx+1}. slayta git" onclick="goHomeSlide(${idx})"></button>`).join('');
   wrap.style.display='block';
+  homeSlideIndex = 0;
+  setHomeSliderActiveDot(0);
+  attachHomeSliderEvents();
+  HOME_SLIDER_AUTOPLAY = window.setInterval(()=>goHomeSlide(homeSlideIndex + 1), 5000);
+}
+
+function attachHomeSliderEvents(){
+  if(HOME_SLIDER_EVENTS_BOUND) return;
+  HOME_SLIDER_EVENTS_BOUND = true;
+  const prev = document.getElementById('heroAdPrev');
+  const next = document.getElementById('heroAdNext');
+  const track = document.getElementById('heroAdTrack');
+  if(prev) prev.addEventListener('click', ()=>goHomeSlide(homeSlideIndex - 1));
+  if(next) next.addEventListener('click', ()=>goHomeSlide(homeSlideIndex + 1));
+  if(track){
+    track.addEventListener('scroll', debounce(()=>syncHomeSlideFromScroll(), 90), { passive:true });
+    track.addEventListener('pointerdown', clearHomeSliderAutoplay, { passive:true });
+    track.addEventListener('pointerup', restartHomeSliderAutoplay, { passive:true });
+    track.addEventListener('touchstart', clearHomeSliderAutoplay, { passive:true });
+    track.addEventListener('touchend', restartHomeSliderAutoplay, { passive:true });
+  }
+}
+function goHomeSlide(nextIndex){
+  if(!HOME_SLIDES.length) return;
+  const track = document.getElementById('heroAdTrack');
+  if(!track) return;
+  const card = track.querySelector('.hero-ad-card');
+  if(!card) return;
+  homeSlideIndex = (nextIndex + HOME_SLIDES.length) % HOME_SLIDES.length;
+  const targetLeft = homeSlideIndex * (card.getBoundingClientRect().width + 12);
+  track.scrollTo({ left: targetLeft, behavior:'smooth' });
+  setHomeSliderActiveDot(homeSlideIndex);
+  restartHomeSliderAutoplay();
+}
+function syncHomeSlideFromScroll(){
+  const track = document.getElementById('heroAdTrack');
+  const card = track?.querySelector('.hero-ad-card');
+  if(!track || !card) return;
+  const step = card.getBoundingClientRect().width + 12;
+  const idx = Math.round(track.scrollLeft / step);
+  if(Number.isFinite(idx)){
+    homeSlideIndex = Math.max(0, Math.min(HOME_SLIDES.length - 1, idx));
+    setHomeSliderActiveDot(homeSlideIndex);
+  }
+}
+function setHomeSliderActiveDot(idx){
+  const dots = document.querySelectorAll('#heroAdDots .hero-ad-dot');
+  dots.forEach((dot, i)=>dot.classList.toggle('active', i===idx));
+}
+function clearHomeSliderAutoplay(){
+  if(HOME_SLIDER_AUTOPLAY){
+    clearInterval(HOME_SLIDER_AUTOPLAY);
+    HOME_SLIDER_AUTOPLAY = null;
+  }
+}
+function restartHomeSliderAutoplay(){
+  clearHomeSliderAutoplay();
+  if(HOME_SLIDES.length > 1){
+    HOME_SLIDER_AUTOPLAY = window.setInterval(()=>goHomeSlide(homeSlideIndex + 1), 5000);
+  }
+}
+function debounce(fn, wait){
+  let t;
+  return function(...args){
+    clearTimeout(t);
+    t = setTimeout(()=>fn.apply(this, args), wait);
+  };
 }
 
 // ── Ürün verisi ──
 let PRODUCTS = [];
 let PRODUCT_SOCIAL = {};
 let HOME_SLIDES = [];
+let homeSlideIndex = 0;
+let HOME_SLIDER_AUTOPLAY = null;
+let HOME_SLIDER_EVENTS_BOUND = false;
 let currentModalProductId = null;
 // Kategoriler (admin'den senkronize edilir)
 let CATEGORIES = [
