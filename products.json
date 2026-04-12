@@ -37,9 +37,9 @@
     "id": "zebra-perde-bej-1774990805411-953",
     "name": "Zebra Perde Bej",
     "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
-    "image": "resimler/1774990624727-bulk-b4057564-9c38-424c-8efc-5cc9f3d42d25-IMG_1799.jpeg",
+    "image": "/resimler/1774990624727-bulk-b4057564-9c38-424c-8efc-5cc9f3d42d25-IMG_1799.jpeg",
     "images": [
-      "resimler/1774990624727-bulk-b4057564-9c38-424c-8efc-5cc9f3d42d25-IMG_1799.jpeg"
+      "/resimler/1774990624727-bulk-b4057564-9c38-424c-8efc-5cc9f3d42d25-IMG_1799.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -49,9 +49,9 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
-    "stock": null,
+    "stock": 100,
     "serialNumber": "Düz V-02",
     "active": true,
     "specs": {
