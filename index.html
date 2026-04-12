@@ -892,10 +892,25 @@ body.theme-dark .feature-item,body.theme-dark .product-card,body.theme-dark .tru
 body.theme-dark .product-name,body.theme-dark .section-title,body.theme-dark .campaign-stream-name{color:#ecf1ff}
 body.theme-dark .product-desc,body.theme-dark .section-desc,body.theme-dark .campaign-stream-sub{color:#b7c3de}
 body.theme-dark .live-pill{background:#1b2438;border-color:rgba(195,205,232,.2);color:#e8ebf7}
+body.theme-dark .live-categories-shell{background:linear-gradient(120deg,#161e31,#1a243a);border-color:rgba(195,205,232,.2);box-shadow:none}
+body.theme-dark .live-categories-head strong{color:#eef3ff}
+body.theme-dark .live-categories-head span{color:#aeb9d7}
+body.theme-dark .live-pill-text b{color:#eef3ff}
+body.theme-dark .live-pill-text small{color:#afbbd8}
 body.theme-dark .pulse-announcement{background:linear-gradient(122deg,#1a2235,#1b2740,#263150);color:#eaf0ff;border-color:rgba(195,205,232,.18)}
 body.theme-dark .mini-cart,body.theme-dark .search-bar,body.theme-dark .favorite-bar{background:#151d2f;color:#e8ebf7;border-color:rgba(195,205,232,.2)}
 body.theme-dark #headerSearchInput,body.theme-dark #searchInput,body.theme-dark #sortSelect,body.theme-dark #minPrice,body.theme-dark #maxPrice{background:#0f1727;color:#e8ebf7;border-color:rgba(195,205,232,.25)}
 body.theme-dark #headerSearchInput::placeholder,body.theme-dark #searchInput::placeholder{color:#98a5c4}
+body.theme-dark .local-seo-section{background:linear-gradient(180deg,#0f1727,#101b2f)}
+body.theme-dark .local-seo-box{background:#141d30;border-color:rgba(195,205,232,.2)}
+body.theme-dark .local-seo-box h2{color:#eef3ff}
+body.theme-dark .local-seo-box p{color:#b7c3de}
+body.theme-dark .local-seo-tags span{background:#1a2439;border-color:rgba(195,205,232,.24);color:#d8e2f8}
+body.theme-dark #mobileMenu{background:linear-gradient(165deg,rgba(14,20,33,.96) 0%,rgba(17,26,43,.94) 100%);border-right-color:rgba(195,205,232,.2)}
+body.theme-dark #mobileMenu .menu-logo{color:#ffd682;border-bottom-color:rgba(213,163,63,.35)}
+body.theme-dark #mobileMenu button{background:linear-gradient(135deg,rgba(34,46,71,.92),rgba(28,38,59,.88));border-color:rgba(195,205,232,.22);color:#ecf1ff;box-shadow:none}
+body.theme-dark #mobileMenu .menu-entry-icon{background:rgba(213,163,63,.2);color:#ffd682;border-color:rgba(213,163,63,.38)}
+body.theme-dark #mobileMenu .menu-close-btn{background:rgba(213,163,63,.18);color:#f8f1df}
 body::before{background:
   radial-gradient(circle at 5% 12%, rgba(213,163,63,0.08), transparent 35%),
   radial-gradient(circle at 90% 10%, rgba(78,116,255,0.05), transparent 35%),
@@ -946,24 +961,43 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 .campaign-stream-empty{border:1px dashed rgba(34,45,78,.25);border-radius:12px;padding:14px;background:rgba(255,255,255,.6);font-size:.82rem;color:#586078}
 @keyframes pulseShift{0%{background-position:0 0}100%{background-position:200% 0}}
 
-.live-categories{padding:28px 5% 10px;background:linear-gradient(180deg,#fbfbfa,transparent)}
-.live-categories-grid{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.live-pill{border:none;background:#fff;border:1px solid rgba(34,45,78,.15);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.78rem;font-weight:700;color:#282f41;cursor:pointer;transition:.25s ease}
-.live-pill:hover{transform:translateY(-3px);background:linear-gradient(135deg,#fff,rgba(213,163,63,.08))}
-.live-pill i{color:#3d4f80}
+.live-categories{padding:26px 5% 14px;background:linear-gradient(180deg,#fbfbfa,transparent);overflow:hidden}
+.live-categories-shell{max-width:1300px;margin:0 auto;border:1px solid rgba(34,45,78,.12);border-radius:18px;background:linear-gradient(120deg,#ffffff,#f9fafc);box-shadow:0 16px 30px rgba(17,28,58,.08);padding:14px 16px}
+.live-categories-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.live-categories-head strong{font-size:.86rem;letter-spacing:1.1px;color:#1f2941}
+.live-categories-head span{font-size:.72rem;color:#5f6679}
+.live-categories-marquee{position:relative;overflow:hidden}
+.live-categories-track{display:flex;align-items:stretch;gap:12px;min-width:max-content;will-change:transform;animation:liveCategoryFlow 34s linear infinite}
+.live-categories-marquee:hover .live-categories-track{animation-play-state:paused}
+.live-pill{border:none;background:#fff;border:1px solid rgba(34,45,78,.15);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:.76rem;font-weight:700;color:#232c40;cursor:pointer;transition:.25s ease;min-width:190px;text-align:left}
+.live-pill:hover{transform:translateY(-2px);border-color:rgba(61,79,128,.38);box-shadow:0 12px 22px rgba(17,28,58,.11)}
+.live-pill-media{width:44px;height:44px;border-radius:999px;overflow:hidden;border:2px solid rgba(61,79,128,.42);flex-shrink:0;background:#f2f5fb}
+.live-pill-media img{width:100%;height:100%;object-fit:cover}
+.live-pill-text{display:flex;flex-direction:column;gap:2px}
+.live-pill-text b{font-size:.8rem;color:#1f2941;line-height:1.2}
+.live-pill-text small{font-size:.66rem;color:#667189;font-weight:600;letter-spacing:.2px}
+@keyframes liveCategoryFlow{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 6px))}}
 .gallery-section{background:#fbfbfa}
 .gallery-section .section-header{padding:28px;border-radius:20px;background:#fff;border:1px solid rgba(34,45,78,.1);box-shadow:0 10px 26px rgba(17,28,58,.06)}
 .gallery-section .section-title{color:#1e2637}
 .gallery-section .section-desc{color:#575f71;max-width:760px}
 .gallery-grid{margin-top:28px}
-@media(max-width:900px){.live-categories-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){
   .pulse-announcement{padding:14px}
   .campaign-stream-grid{grid-template-columns:1fr}
   .campaign-stream-media{height:180px}
   .gallery-section .section-header{padding:20px;border-radius:16px}
+  .live-categories-shell{padding:12px}
+  .live-pill{min-width:168px}
+  .live-pill-media{width:40px;height:40px}
 }
-@media(max-width:640px){.live-categories-grid{grid-template-columns:1fr}}
+@media(max-width:640px){
+  .live-categories{padding-top:18px}
+  .live-categories-head{margin-bottom:10px}
+  .live-categories-head strong{font-size:.78rem}
+  .live-categories-head span{font-size:.66rem}
+  .live-categories-track{gap:10px;animation-duration:30s}
+}
 
 /* Görsel zenginleştirme ve yerleşim düzeltmeleri */
 .pulse-announcement{
@@ -1125,11 +1159,27 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
     </div>
   </div>
   <div class="live-categories" aria-label="Hızlı kategori geçişleri">
-    <div class="live-categories-grid">
-      <button class="live-pill" onclick="go('products');setCategory('tul-perde')">Tül Perde <i class="fas fa-arrow-right"></i></button>
-      <button class="live-pill" onclick="go('products');setCategory('zebra-perde')">Zebra Perde <i class="fas fa-arrow-right"></i></button>
-      <button class="live-pill" onclick="go('products');setCategory('stor-perde')">Stor Perde <i class="fas fa-arrow-right"></i></button>
-      <button class="live-pill" onclick="go('products');setCategory('koltuk')">Koltuk Örtüsü <i class="fas fa-arrow-right"></i></button>
+    <div class="live-categories-shell">
+      <div class="live-categories-head">
+        <strong>Popüler Kategoriler</strong>
+        <span>Sağdan sola kayan panel · dokun ve geç</span>
+      </div>
+      <div class="live-categories-marquee" role="region" aria-label="Kayan kategori paneli">
+        <div class="live-categories-track">
+          <button class="live-pill" onclick="go('products');setCategory('tul-perde')"><span class="live-pill-media"><img src="resimler/foto1.jpg" alt="Tül perde"></span><span class="live-pill-text"><b>Tül Perde</b><small>Işık geçirgen şıklık</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('zebra-perde')"><span class="live-pill-media"><img src="resimler/1774687325299-IMG_1471.jpeg" alt="Zebra perde"></span><span class="live-pill-text"><b>Zebra Perde</b><small>Pratik gün ışığı kontrolü</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('stor-perde')"><span class="live-pill-media"><img src="resimler/1774694045163-IMG_9907.jpeg" alt="Stor perde"></span><span class="live-pill-text"><b>Stor Perde</b><small>Temiz ve modern görünüm</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('plise-perde')"><span class="live-pill-media"><img src="resimler/1774731933026-IMG_1545.png" alt="Plise perde"></span><span class="live-pill-text"><b>Plise Perde</b><small>Dar alanlara ideal çözüm</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('carsaf')"><span class="live-pill-media"><img src="resimler/foto11.jpg" alt="Çarşaf"></span><span class="live-pill-text"><b>Çarşaf</b><small>Yumuşak doku, rahat uyku</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('koltuk')"><span class="live-pill-media"><img src="resimler/1774899432010-0-222f6c30-3bb6-440a-b26e-02904cc199d0-IMG_1770.jpeg" alt="Koltuk örtüsü"></span><span class="live-pill-text"><b>Koltuk Örtüsü</b><small>Koruma ve yenilik bir arada</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('tul-perde')"><span class="live-pill-media"><img src="resimler/foto1.jpg" alt="Tül perde"></span><span class="live-pill-text"><b>Tül Perde</b><small>Işık geçirgen şıklık</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('zebra-perde')"><span class="live-pill-media"><img src="resimler/1774687325299-IMG_1471.jpeg" alt="Zebra perde"></span><span class="live-pill-text"><b>Zebra Perde</b><small>Pratik gün ışığı kontrolü</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('stor-perde')"><span class="live-pill-media"><img src="resimler/1774694045163-IMG_9907.jpeg" alt="Stor perde"></span><span class="live-pill-text"><b>Stor Perde</b><small>Temiz ve modern görünüm</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('plise-perde')"><span class="live-pill-media"><img src="resimler/1774731933026-IMG_1545.png" alt="Plise perde"></span><span class="live-pill-text"><b>Plise Perde</b><small>Dar alanlara ideal çözüm</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('carsaf')"><span class="live-pill-media"><img src="resimler/foto11.jpg" alt="Çarşaf"></span><span class="live-pill-text"><b>Çarşaf</b><small>Yumuşak doku, rahat uyku</small></span></button>
+          <button class="live-pill" onclick="go('products');setCategory('koltuk')"><span class="live-pill-media"><img src="resimler/1774899432010-0-222f6c30-3bb6-440a-b26e-02904cc199d0-IMG_1770.jpeg" alt="Koltuk örtüsü"></span><span class="live-pill-text"><b>Koltuk Örtüsü</b><small>Koruma ve yenilik bir arada</small></span></button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="local-seo-section">
