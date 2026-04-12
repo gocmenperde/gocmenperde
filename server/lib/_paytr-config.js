@@ -1,13 +1,18 @@
-function getPaytrCredentials() {
-  // Hem NEXT_PUBLIC hem de düz hallerini kontrol eder
-  const merchantId = process.env.NEXT_PUBLIC_PAYTR_MERCHANT_ID || process.env.PAYTR_MERCHANT_ID || '';
-  const merchantKey = process.env.NEXT_PUBLIC_PAYTR_MERCHANT_KEY || process.env.PAYTR_MERCHANT_KEY || '';
-  const merchantSalt = process.env.NEXT_PUBLIC_PAYTR_MERCHANT_SALT || process.env.PAYTR_MERCHANT_SALT || '';
+// server/lib/_paytr-config.js
+module.exports = {
+  getPaytrCredentials: () => {
+    // .trim() kullanarak sağdaki soldaki tüm görünmez boşlukları siliyoruz
+    const id = (process.env.NEXT_PUBLIC_PAYTR_MERCHANT_ID || '').trim();
+    const key = (process.env.NEXT_PUBLIC_PAYTR_MERCHANT_KEY || '').trim();
+    const salt = (process.env.NEXT_PUBLIC_PAYTR_MERCHANT_SALT || '').trim();
 
-  return {
-    merchantId: merchantId.trim(),
-    merchantKey: merchantKey.trim(),
-    merchantSalt: merchantSalt.trim(),
-    hasRequiredCredentials: Boolean(merchantId && merchantKey && merchantSalt)
-  };
-}
+    console.log("PayTR Deseni Kontrol Ediliyor...");
+
+    return {
+      merchantId: id,
+      merchantKey: key,
+      merchantSalt: salt,
+      hasRequiredCredentials: Boolean(id && key && salt)
+    };
+  }
+};
