@@ -2,6 +2,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/admin/login",
+      "destination": "/admin.html"
+    },
+    {
       "source": "/paytr/callback",
       "destination": "/api/paytr-callback"
     },

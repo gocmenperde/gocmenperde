@@ -510,9 +510,11 @@ tbody tr:hover td{background:#fdfcf8}
     <div class="login-right">
       <h2>Giriş Yap</h2>
       <p>Admin hesabınızla devam edin</p>
-      <input type="email" class="login-input" id="loginEmail" placeholder="E-posta adresinizi girin">
-      <input type="password" class="login-input" id="loginPass" placeholder="Şifrenizi girin">
-      <button class="login-btn" onclick="doLogin()"><i class="fas fa-lock"></i>&nbsp;&nbsp;Giriş Yap</button>
+      <form id="adminLoginForm" onsubmit="event.preventDefault();doLogin()">
+        <input type="email" class="login-input" id="loginEmail" placeholder="E-posta adresinizi girin" autocomplete="username">
+        <input type="password" class="login-input" id="loginPass" placeholder="Şifrenizi girin" autocomplete="current-password">
+        <button type="submit" class="login-btn"><i class="fas fa-lock"></i>&nbsp;&nbsp;Giriş Yap</button>
+      </form>
       <p class="login-error" id="loginError"><i class="fas fa-exclamation-triangle"></i> &nbsp;E-posta veya şifre hatalı!</p>
     </div>
   </div>
@@ -564,7 +566,7 @@ tbody tr:hover td{background:#fdfcf8}
         <div class="nav-item" onclick="showPage('products')"><i class="fas fa-boxes-stacked"></i> Ürün Yönetimi</div>
         <div class="nav-item" onclick="showPage('categories');renderCatTable()"><i class="fas fa-folder-open"></i> Kategoriler</div>
         <div class="nav-item" onclick="showPage('campaigns')"><i class="fas fa-tag"></i> Kampanyalar</div>
-        <div class="nav-item" onclick="showPage('slider');loadSliderItems()"><i class="fas fa-sliders"></i> Slider Paneli</div>
+        <div class="nav-item" onclick="showPage('slider');loadSliderItems()"><i class="fas fa-rectangle-ad"></i> Reklam Yönetimi</div>
         <div class="nav-item" onclick="showPage('showcase');renderShowcaseAdminPage()"><i class="fas fa-images"></i> Montaj & Yorum Alanı</div>
         <div class="nav-item" onclick="showPage('fromyou');renderFromYouAdminPage()"><i class="fas fa-camera-retro"></i> Sizden Gelenler</div>
       </div>
@@ -1432,6 +1434,9 @@ const ADMIN_PASS_KEY = 'gp_admin_pass';
 const ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
 function getPass(){ return localStorage.getItem(ADMIN_PASS_KEY) || 'Emin.016'; }
 function getAdminApiKey(){ return 'gocmen1993'; }
+if(window.location.pathname === '/admin/login'){
+  window.history.replaceState({}, '', '/admin.html');
+}
 
 function doLogin(){
   const e = (document.getElementById('loginEmail').value || '').trim().toLowerCase();
@@ -1457,6 +1462,7 @@ function logout(){
   document.getElementById('loginPass').value = '';
   closeSidebar();
 }
+window.doLogin = doLogin;
 ['loginPass','loginEmail'].forEach(id=>document.getElementById(id).addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); }));
 ['f-price','f-oldprice'].forEach(id=>document.getElementById(id)?.addEventListener('input',updateDiscountBadgeFromInputs));
 
