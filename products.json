@@ -479,10 +479,10 @@
     "id": "zebra-perde-gri-beyaz-cizgili-1774963152707-620",
     "name": "Zebra Perde Koyu Yeşil Beyaz Çizgili",
     "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
-    "image": "resimler/1775858669467-product-0-02d6e7bc-9219-4c46-8175-a9043d03d7de-IMG_2358.png",
+    "image": "/resimler/1775858669467-product-0-02d6e7bc-9219-4c46-8175-a9043d03d7de-IMG_2358.png",
     "images": [
-      "resimler/1775858669467-product-0-02d6e7bc-9219-4c46-8175-a9043d03d7de-IMG_2358.png",
-      "resimler/1775858675435-product-1-1e58dd4a-ac4c-418a-aba9-b14ca73aa2bc-IMG_1795.jpeg"
+      "/resimler/1775858669467-product-0-02d6e7bc-9219-4c46-8175-a9043d03d7de-IMG_2358.png",
+      "/resimler/1775858675435-product-1-1e58dd4a-ac4c-418a-aba9-b14ca73aa2bc-IMG_1795.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -494,7 +494,7 @@
     "badge": "%24 İNDİRİM",
     "discountType": "manual",
     "discountValue": null,
-    "stock": null,
+    "stock": 73,
     "serialNumber": "Hayal V-06",
     "active": true,
     "specs": {
