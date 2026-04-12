@@ -71,9 +71,9 @@
     "id": "zebra-perde-krem-1774990805411-490",
     "name": "Zebra Perde Krem",
     "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
-    "image": "resimler/1774990661749-bulk-fe3d5866-f36d-4eb1-93e8-35cb5d2f36ac-IMG_1800.jpeg",
+    "image": "/resimler/1774990661749-bulk-fe3d5866-f36d-4eb1-93e8-35cb5d2f36ac-IMG_1800.jpeg",
     "images": [
-      "resimler/1774990661749-bulk-fe3d5866-f36d-4eb1-93e8-35cb5d2f36ac-IMG_1800.jpeg"
+      "/resimler/1774990661749-bulk-fe3d5866-f36d-4eb1-93e8-35cb5d2f36ac-IMG_1800.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -83,9 +83,9 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
-    "stock": null,
+    "stock": 100,
     "serialNumber": "Düz V-03",
     "active": true,
     "specs": {
