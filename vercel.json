@@ -1,13 +1,14 @@
 {
   "version": 2,
+  "env": {
+    "PAYTR_MERCHANT_ID": "@paytr_merchant_id",
+    "PAYTR_MERCHANT_KEY": "@paytr_merchant_key",
+    "PAYTR_MERCHANT_SALT": "@paytr_merchant_salt"
+  },
   "rewrites": [
     {
-      "source": "/admin/login",
-      "destination": "/admin.html"
-    },
-    {
       "source": "/api/(.*)",
-      "destination": "/api/router.js?route=$1"
+      "destination": "/api/router?route=$1"
     }
   ]
 }
