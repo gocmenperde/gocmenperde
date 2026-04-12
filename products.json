@@ -207,9 +207,9 @@
     "id": "zebra-perde-bej-sarmasik-1774963152707-654",
     "name": "Zebra Perde Bej Sarmaşık",
     "desc": "Modern ve şık görünümüyle evlerin vazgeçilmezi olan Zebra Perde, çift katmanlı dokusu sayesinde hem tül hem de güneşlik görevini aynı anda üstlenir.",
-    "image": "resimler/1774962502137-bulk-498ace8c-6f8d-4f13-8fcd-a462d8c64369-IMG_1785.jpeg",
+    "image": "/resimler/1774962502137-bulk-498ace8c-6f8d-4f13-8fcd-a462d8c64369-IMG_1785.jpeg",
     "images": [
-      "resimler/1774962502137-bulk-498ace8c-6f8d-4f13-8fcd-a462d8c64369-IMG_1785.jpeg"
+      "/resimler/1774962502137-bulk-498ace8c-6f8d-4f13-8fcd-a462d8c64369-IMG_1785.jpeg"
     ],
     "price": 650,
     "oldPrice": 850,
@@ -219,9 +219,9 @@
     "isSquareMeter": true,
     "features": "",
     "badge": "%24 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
-    "stock": null,
+    "stock": 80,
     "serialNumber": "Sarmaşık V-02",
     "active": true,
     "specs": {
