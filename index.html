@@ -1451,8 +1451,16 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
               <option value="">İlçe seçin</option>
             </select>
             <input type="text" id="f-district-other" class="address-part-input hidden" placeholder="İlçenizi yazın" oninput="syncAddressFromParts()">
-            <input type="text" id="f-neighborhood" class="address-part-input" placeholder="Mahalle" oninput="syncAddressFromParts()">
-            <input type="text" id="f-street" class="address-part-input" placeholder="Cadde / Sokak / Apartman No" oninput="syncAddressFromParts()">
+            <select id="f-neighborhood" class="address-part-input" onchange="onNeighborhoodChanged(this.value)">
+              <option value="">Mahalle seçin</option>
+              <option value="diger">Diğeri</option>
+            </select>
+            <input type="text" id="f-neighborhood-other" class="address-part-input hidden" placeholder="Mahalleyi yazın" oninput="syncAddressFromParts()">
+            <select id="f-street" class="address-part-input" onchange="onStreetChanged(this.value)">
+              <option value="">Cadde / Sokak seçin</option>
+              <option value="diger">Diğeri</option>
+            </select>
+            <input type="text" id="f-street-other" class="address-part-input hidden" placeholder="Cadde / Sokak / Apartman No yazın" oninput="syncAddressFromParts()">
           </div>
           <textarea id="f-addr" class="form-input form-textarea" placeholder="Mahalle, Sokak, Bina No, Daire — Osmangazi / Bursa" oninput="syncPartsFromAddress(this.value)"></textarea>
         </div>
@@ -3842,6 +3850,8 @@ const CITY_DISTRICTS_FALLBACK = {
 let CITY_DISTRICTS = {...CITY_DISTRICTS_FALLBACK};
 let districtsApiLoaded = false;
 let districtsApiLoadingPromise = null;
+let STREET_MAP = {};
+let neighborhoodStreetLoadingPromise = null;
 
 function toComparableCityName(value){
   return String(value || '').trim().toLocaleLowerCase('tr-TR');
@@ -4274,7 +4284,10 @@ function updateCartActionPanel(){
   amount.textContent = `${Math.max(0, grandTotal).toLocaleString('tr-TR')} TL`;
   shipping.textContent = 'Kargo Bedava';
   panel.style.display = 'flex';
-  btn.textContent = inCheckout ? 'Onayla ve Bitir' : 'Sepeti Onayla';
+  const selectedPayment = document.getElementById('f-payment')?.value || '';
+  btn.textContent = inCheckout
+    ? (selectedPayment === 'kredikarti' ? 'Ödeme Ekranına Geç' : 'Onayla ve Bitir')
+    : 'Sepeti Onayla';
   btn.onclick = inCheckout ? submitOrder : focusOrderFormFromPanel;
 }
 
@@ -4352,6 +4365,7 @@ function onCityChanged(city){
   districtEl.value = '';
   districtOtherEl.value = '';
   districtOtherEl.classList.add('hidden');
+  resetNeighborhoodAndStreetSelectors();
   syncAddressFromParts();
 }
 
@@ -4365,7 +4379,109 @@ function onDistrictChanged(value){
     districtOtherEl.classList.add('hidden');
     districtOtherEl.value = '';
   }
+  loadNeighborhoodAndStreetData();
   syncAddressFromParts();
+}
+
+function resetNeighborhoodAndStreetSelectors(){
+  STREET_MAP = {};
+  neighborhoodStreetLoadingPromise = null;
+  const neighborhoodEl = document.getElementById('f-neighborhood');
+  const neighborhoodOtherEl = document.getElementById('f-neighborhood-other');
+  const streetEl = document.getElementById('f-street');
+  const streetOtherEl = document.getElementById('f-street-other');
+  if(neighborhoodEl) neighborhoodEl.innerHTML = '<option value="">Mahalle seçin</option><option value="diger">Diğeri</option>';
+  if(neighborhoodOtherEl){ neighborhoodOtherEl.classList.add('hidden'); neighborhoodOtherEl.value = ''; }
+  if(streetEl) streetEl.innerHTML = '<option value="">Cadde / Sokak seçin</option><option value="diger">Diğeri</option>';
+  if(streetOtherEl){ streetOtherEl.classList.add('hidden'); streetOtherEl.value = ''; }
+}
+
+function onNeighborhoodChanged(value){
+  const neighborhoodOtherEl = document.getElementById('f-neighborhood-other');
+  if(neighborhoodOtherEl){
+    if(value === 'diger'){
+      neighborhoodOtherEl.classList.remove('hidden');
+      neighborhoodOtherEl.focus();
+    }else{
+      neighborhoodOtherEl.classList.add('hidden');
+      neighborhoodOtherEl.value = '';
+    }
+  }
+  populateStreetOptions(value && value !== 'diger' ? (STREET_MAP[value] || []) : []);
+  syncAddressFromParts();
+}
+
+function onStreetChanged(value){
+  const streetOtherEl = document.getElementById('f-street-other');
+  if(!streetOtherEl) return;
+  if(value === 'diger'){
+    streetOtherEl.classList.remove('hidden');
+    streetOtherEl.focus();
+  }else{
+    streetOtherEl.classList.add('hidden');
+    streetOtherEl.value = '';
+  }
+  syncAddressFromParts();
+}
+
+function uniqTrimmedStrings(values){
+  return Array.from(new Set((Array.isArray(values) ? values : []).map((v)=>String(v || '').trim()).filter(Boolean)));
+}
+
+function populateNeighborhoodOptions(neighborhoods = []){
+  const neighborhoodEl = document.getElementById('f-neighborhood');
+  if(!neighborhoodEl) return;
+  neighborhoodEl.innerHTML = '<option value="">Mahalle seçin</option>' +
+    uniqTrimmedStrings(neighborhoods).map((item)=>`<option value="${item}">${item}</option>`).join('') +
+    '<option value="diger">Diğeri</option>';
+}
+
+function populateStreetOptions(streets = []){
+  const streetEl = document.getElementById('f-street');
+  if(!streetEl) return;
+  streetEl.innerHTML = '<option value="">Cadde / Sokak seçin</option>' +
+    uniqTrimmedStrings(streets).map((item)=>`<option value="${item}">${item}</option>`).join('') +
+    '<option value="diger">Diğeri</option>';
+}
+
+function getSelectedDistrictValue(){
+  const districtSelectValue = document.getElementById('f-district')?.value.trim() || '';
+  const districtOther = document.getElementById('f-district-other')?.value.trim() || '';
+  return districtSelectValue === 'diger' ? districtOther : districtSelectValue;
+}
+
+async function loadNeighborhoodAndStreetData(){
+  const city = document.getElementById('f-city')?.value.trim() || '';
+  const district = getSelectedDistrictValue();
+  if(!city || !district){
+    resetNeighborhoodAndStreetSelectors();
+    return;
+  }
+  neighborhoodStreetLoadingPromise = (async ()=>{
+    try{
+      const endpoint = `https://turkiyeapi.dev/api/v1/districts?name=${encodeURIComponent(district)}&province=${encodeURIComponent(city)}`;
+      const res = await fetch(endpoint);
+      if(!res.ok) throw new Error('Mahalle/sokak verisi alınamadı');
+      const payload = await res.json();
+      const rows = Array.isArray(payload?.data) ? payload.data : [];
+      const matched = rows.find((row)=>toComparableCityName(row?.name || '') === toComparableCityName(district)) || rows[0] || {};
+      const neighborhoodsRaw = Array.isArray(matched?.neighborhoods) ? matched.neighborhoods : [];
+      STREET_MAP = {};
+      neighborhoodsRaw.forEach((entry)=>{
+        const neighborhoodName = String(entry?.name || entry || '').trim();
+        if(!neighborhoodName) return;
+        STREET_MAP[neighborhoodName] = uniqTrimmedStrings(entry?.streets || entry?.roads || []);
+      });
+      const neighborhoods = uniqTrimmedStrings(neighborhoodsRaw.map((entry)=>entry?.name || entry));
+      populateNeighborhoodOptions(neighborhoods);
+      populateStreetOptions([]);
+    }catch(_){
+      STREET_MAP = {};
+      populateNeighborhoodOptions([]);
+      populateStreetOptions([]);
+    }
+  })();
+  await neighborhoodStreetLoadingPromise;
 }
 
 function sanitizePhoneInput(inputEl){
@@ -4379,8 +4495,12 @@ function syncAddressFromParts(){
   const districtSelectValue = document.getElementById('f-district')?.value.trim() || '';
   const districtOther = document.getElementById('f-district-other')?.value.trim() || '';
   const district = districtSelectValue === 'diger' ? districtOther : districtSelectValue;
-  const neighborhood = document.getElementById('f-neighborhood')?.value.trim();
-  const street = document.getElementById('f-street')?.value.trim();
+  const neighborhoodSelectValue = document.getElementById('f-neighborhood')?.value.trim() || '';
+  const neighborhoodOther = document.getElementById('f-neighborhood-other')?.value.trim() || '';
+  const neighborhood = neighborhoodSelectValue === 'diger' ? neighborhoodOther : neighborhoodSelectValue;
+  const streetSelectValue = document.getElementById('f-street')?.value.trim() || '';
+  const streetOther = document.getElementById('f-street-other')?.value.trim() || '';
+  const street = streetSelectValue === 'diger' ? streetOther : streetSelectValue;
   const addrEl = document.getElementById('f-addr');
   if(!addrEl) return;
   const firstLine = [neighborhood, street].filter(Boolean).join(', ');
@@ -4395,8 +4515,10 @@ function syncPartsFromAddress(addressText=''){
   const districtOtherEl = document.getElementById('f-district-other');
   const cityEl = document.getElementById('f-city');
   const neighborhoodEl = document.getElementById('f-neighborhood');
+  const neighborhoodOtherEl = document.getElementById('f-neighborhood-other');
   const streetEl = document.getElementById('f-street');
-  if(!neighborhoodEl || !streetEl || !districtEl || !cityEl || !districtOtherEl) return;
+  const streetOtherEl = document.getElementById('f-street-other');
+  if(!neighborhoodEl || !streetEl || !districtEl || !cityEl || !districtOtherEl || !neighborhoodOtherEl || !streetOtherEl) return;
 
   const labeledParts = {};
   const normalizeLabel = (text='') => String(text)
@@ -4421,8 +4543,6 @@ function syncPartsFromAddress(addressText=''){
 
   if(Object.keys(labeledParts).length){
     const streetWithDoorNo = [labeledParts.street, labeledParts.doorNo ? `Kapı No: ${labeledParts.doorNo}` : ''].filter(Boolean).join(', ');
-    neighborhoodEl.value = labeledParts.neighborhood || '';
-    streetEl.value = streetWithDoorNo;
     cityEl.value = CITY_OPTIONS.includes(labeledParts.city || '') ? labeledParts.city : '';
     onCityChanged(cityEl.value);
     if((labeledParts.district || '') && Array.from(districtEl.options).some((opt)=>opt.value === labeledParts.district)){
@@ -4433,6 +4553,30 @@ function syncPartsFromAddress(addressText=''){
       districtEl.value = 'diger';
       districtOtherEl.classList.remove('hidden');
       districtOtherEl.value = labeledParts.district;
+    }
+    loadNeighborhoodAndStreetData();
+    const parsedNeighborhood = labeledParts.neighborhood || '';
+    if(parsedNeighborhood && Array.from(neighborhoodEl.options).some((opt)=>opt.value === parsedNeighborhood)){
+      neighborhoodEl.value = parsedNeighborhood;
+      neighborhoodOtherEl.value = '';
+      neighborhoodOtherEl.classList.add('hidden');
+    }else if(parsedNeighborhood){
+      neighborhoodEl.value = 'diger';
+      neighborhoodOtherEl.classList.remove('hidden');
+      neighborhoodOtherEl.value = parsedNeighborhood;
+    }else{
+      neighborhoodEl.value = '';
+    }
+    if(streetWithDoorNo && Array.from(streetEl.options).some((opt)=>opt.value === streetWithDoorNo)){
+      streetEl.value = streetWithDoorNo;
+      streetOtherEl.value = '';
+      streetOtherEl.classList.add('hidden');
+    }else if(streetWithDoorNo){
+      streetEl.value = 'diger';
+      streetOtherEl.classList.remove('hidden');
+      streetOtherEl.value = streetWithDoorNo;
+    }else{
+      streetEl.value = '';
     }
     return;
   }
@@ -4466,8 +4610,29 @@ function syncPartsFromAddress(addressText=''){
   }
 
   const districtCity = cityLine.split('/').map(s=>s.trim()).filter(Boolean);
-  neighborhoodEl.value = neighborhood;
-  streetEl.value = street;
+  loadNeighborhoodAndStreetData();
+  if(neighborhood && Array.from(neighborhoodEl.options).some((opt)=>opt.value === neighborhood)){
+    neighborhoodEl.value = neighborhood;
+    neighborhoodOtherEl.value = '';
+    neighborhoodOtherEl.classList.add('hidden');
+  }else if(neighborhood){
+    neighborhoodEl.value = 'diger';
+    neighborhoodOtherEl.classList.remove('hidden');
+    neighborhoodOtherEl.value = neighborhood;
+  }else{
+    neighborhoodEl.value = '';
+  }
+  if(street && Array.from(streetEl.options).some((opt)=>opt.value === street)){
+    streetEl.value = street;
+    streetOtherEl.value = '';
+    streetOtherEl.classList.add('hidden');
+  }else if(street){
+    streetEl.value = 'diger';
+    streetOtherEl.classList.remove('hidden');
+    streetOtherEl.value = street;
+  }else{
+    streetEl.value = '';
+  }
   cityEl.value = CITY_OPTIONS.includes(districtCity[1] || '') ? districtCity[1] : '';
   onCityChanged(cityEl.value);
   const pickedDistrict = districtCity[0] || '';
@@ -4596,6 +4761,7 @@ function togglePaymentFields(){
   if(m==='kredikarti' && submitBtn){
     submitBtn.innerHTML = '<i class="fas fa-credit-card" style="font-size:1.1rem"></i> Ödeme Ekranına Geç';
   }
+  updateCartActionPanel();
 }
 
 // ── Sipariş ──
