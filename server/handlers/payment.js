@@ -65,6 +65,14 @@ async function parsePaytrResponse(response) {
   try {
     return { payload: JSON.parse(rawBody), parseError: null, rawBody };
   } catch (error) {
+    const asForm = new URLSearchParams(rawBody);
+    if (asForm.has('status')) {
+      return {
+        payload: Object.fromEntries(asForm.entries()),
+        parseError: null,
+        rawBody,
+      };
+    }
     return { payload: null, parseError: safeString(error.message, 'invalid_json'), rawBody };
   }
 }
