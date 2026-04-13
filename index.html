@@ -1804,6 +1804,7 @@ const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
 const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
 const FROM_YOU_SHOWCASE_LEGACY_KEYS = ['gp_from_you_showcase', 'from_you_showcase', 'gp_sizden_gelenler_v1'];
 const FROM_YOU_RENDERED_MAP = {};
+let fromYouShowcaseApiItems = null;
 const DEFAULT_INSTALLATION_SHOWCASE = [
   {src:'resimler/foto1.jpg',title:'Salon Tül Uygulaması',desc:'Özel ölçü tül perde montajı ile ferah salon görünümü.',label:'Salon Tül'},
   {src:'resimler/foto2.jpg',title:'Zebra Perde Montajı',desc:'Gün ışığını kontrollü kullanan zebra perde çözümü.',label:'Zebra Sistem'},
@@ -1936,7 +1937,26 @@ function parseShowcaseJSON(key, fallback){
   }catch(_){}
   return fallback;
 }
+async function loadFromYouShowcaseFromApi(){
+  try{
+    const res = await fetch('/api/from-you-showcase', { cache:'no-store' });
+    if(!res.ok) throw new Error('Sizden gelenler alınamadı');
+    const payload = await res.json();
+    const items = Array.isArray(payload?.items) ? payload.items : [];
+    if(items.length){
+      fromYouShowcaseApiItems = items;
+      renderHomeShowcaseSections();
+      renderFromYouShowcase('fromYouPageGrid', 12);
+      initObserver();
+    }
+  }catch(_){
+    fromYouShowcaseApiItems = null;
+  }
+}
 function getFromYouShowcaseList(limit=12){
+  if(Array.isArray(fromYouShowcaseApiItems) && fromYouShowcaseApiItems.length){
+    return fromYouShowcaseApiItems.slice(0, limit);
+  }
   const candidates = [FROM_YOU_SHOWCASE_KEY, ...FROM_YOU_SHOWCASE_LEGACY_KEYS];
   for(const key of candidates){
     try{
@@ -3810,6 +3830,7 @@ window.addEventListener('load',()=>{
   runSafely('renderLiveCampaignStream', ()=>renderLiveCampaignStream());
   runSafely('renderHomePromoPanel', ()=>renderHomePromoPanel());
   runSafely('renderFromYouShowcase', ()=>renderFromYouShowcase('fromYouPageGrid', 12));
+  runSafely('loadFromYouShowcaseFromApi', ()=>loadFromYouShowcaseFromApi());
   runSafely('initAddressSelectors', ()=>initAddressSelectors());
   runSafely('loadHomeSlider', ()=>loadHomeSlider());
   runSafely('loadFavoritesFromStorage', ()=>loadFavoritesFromStorage());
