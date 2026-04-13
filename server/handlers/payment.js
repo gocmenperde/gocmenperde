@@ -66,6 +66,56 @@ function sanitizeRedirectUrl(value, fallback) {
   }
 }
 
+function normalizePaytrResponseText(value) {
+  return String(value || '')
+    .replace(/^\uFEFF/, '')
+    .trim();
+}
+
+function parsePaytrTokenResponse(rawText) {
+  const responseText = normalizePaytrResponseText(rawText);
+  if (!responseText) {
+    return { status: 'failed', reason: 'EMPTY_PAYTR_RESPONSE' };
+  }
+
+  try {
+    return JSON.parse(responseText);
+  } catch {
+    // no-op
+  }
+
+  try {
+    const qs = new URLSearchParams(responseText);
+    const status = qs.get('status');
+    if (status) {
+      return {
+        status,
+        reason: qs.get('reason') || qs.get('err_msg') || '',
+        token: qs.get('token') || ''
+      };
+    }
+  } catch {
+    // no-op
+  }
+
+  const statusMatch = responseText.match(/status["'=:\s]+(success|failed)/i);
+  const tokenMatch = responseText.match(/token["'=:\s]+([a-z0-9_-]+)/i);
+  const reasonMatch = responseText.match(/(?:reason|err_msg)["'=:\s]+([^<\n\r]+)/i);
+
+  if (statusMatch) {
+    return {
+      status: statusMatch[1].toLowerCase(),
+      token: tokenMatch?.[1] || '',
+      reason: reasonMatch?.[1]?.trim() || ''
+    };
+  }
+
+  return {
+    status: 'failed',
+    reason: responseText.slice(0, 240) || 'INVALID_PAYTR_RESPONSE'
+  };
+}
+
 function buildPaytrBasket(items) {
   const basket = items.map((item) => {
     const name = String(item.name || 'Ürün').slice(0, 200);
@@ -202,25 +252,7 @@ module.exports = async function handler(req, res) {
     });
 
     const responseText = await paytrResponse.text();
-    let data = null;
-    try {
-      data = JSON.parse(responseText);
-    } catch {
-      try {
-        const qs = new URLSearchParams(responseText);
-        if (qs.get('status')) {
-          data = {
-            status: qs.get('status'),
-            reason: qs.get('reason') || qs.get('err_msg') || '',
-            token: qs.get('token') || ''
-          };
-        } else {
-          data = { status: 'failed', reason: responseText || 'INVALID_PAYTR_RESPONSE' };
-        }
-      } catch {
-        data = { status: 'failed', reason: responseText || 'INVALID_PAYTR_RESPONSE' };
-      }
-    }
+    const data = parsePaytrTokenResponse(responseText);
 
     if (!paytrResponse.ok || data?.status !== 'success' || !data?.token) {
       return res.status(502).json({
