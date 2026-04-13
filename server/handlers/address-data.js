@@ -139,6 +139,27 @@ function collectStreetLikeValuesDeep(source, collector, depth = 0) {
 function normalizeStreetValues(entry) {
   const values = [];
   collectStreetLikeValuesDeep(entry, values);
+  const directKeys = [
+    'streets',
+    'roads',
+    'avenues',
+    'bulvards',
+    'boulevards',
+    'streets_and_roads',
+    'caddeSokaklar',
+    'sokaklar',
+    'caddeler',
+    'ways',
+    'items',
+  ];
+  directKeys.forEach((key) => {
+    const value = entry?.[key];
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (typeof item === 'string' && item.trim()) values.push(item.trim());
+      });
+    }
+  });
   return uniqTrimmedStrings(values);
 }
 

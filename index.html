@@ -4488,11 +4488,14 @@ function populateStreetOptions(streets = []){
   const allStreets = uniqTrimmedStrings(streets);
   const avenues = allStreets.filter((item)=>/\bcadde\b|\bcd\b/i.test(item));
   const onlyStreets = allStreets.filter((item)=>/\bsokak\b|\bsk\b/i.test(item));
+  const uncategorized = allStreets.filter((item)=>!/\bcadde\b|\bcd\b|\bsokak\b|\bsk\b/i.test(item));
+  const avenueOptions = uniqTrimmedStrings([...(avenues.length ? avenues : []), ...uncategorized]);
+  const streetOptions = uniqTrimmedStrings([...(onlyStreets.length ? onlyStreets : []), ...uncategorized]);
   avenueEl.innerHTML = '<option value="">Cadde seçin</option>' +
-    avenues.map((item)=>`<option value="${item}">${item}</option>`).join('') +
+    avenueOptions.map((item)=>`<option value="${item}">${item}</option>`).join('') +
     '<option value="diger">Diğeri</option>';
   streetEl.innerHTML = '<option value="">Sokak seçin</option>' +
-    onlyStreets.map((item)=>`<option value="${item}">${item}</option>`).join('') +
+    streetOptions.map((item)=>`<option value="${item}">${item}</option>`).join('') +
     '<option value="diger">Diğeri</option>';
 }
 
