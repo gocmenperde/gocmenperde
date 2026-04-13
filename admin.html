@@ -922,65 +922,19 @@ Işık: Yarı Geçirgen"></textarea></div>
     <button class="btn btn-primary" onclick="openAddCampaignModal()"><i class="fas fa-plus"></i> Yeni Kampanya</button>
   </div>
   <div class="dash-panel" style="margin-bottom:16px">
-    <div class="dash-panel-header"><h3><i class="fas fa-display"></i> Ana Sayfa Canlı Fırsat Vitrini</h3></div>
+    <div class="dash-panel-header"><h3><i class="fas fa-display"></i> Ana Sayfa Kaydırmalı Ürün Vitrini</h3></div>
     <div class="dash-panel-body">
       <div class="form-row">
-        <div class="fg"><label>Üst Etiket</label><input id="campaignHeroLabel" type="text" placeholder="Premium Kampanya"></div>
-        <div class="fg"><label>Buton Metni</label><input id="campaignHeroActionText" type="text" placeholder="Tüm Ürünleri Gör"></div>
-      </div>
-      <div class="form-row">
-        <div class="fg"><label>Başlık</label><input id="campaignHeroTitle" type="text" placeholder="Vitrin Ürünlerde Özel Fiyatlar"></div>
-      </div>
-      <div class="form-row">
-        <div class="fg"><label>Açıklama</label><textarea id="campaignHeroSubtitle" placeholder="Tam genişlikte premium vitrin; yönetim panelinden seçtiğiniz ürünler anında güncellenir."></textarea></div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-        <button class="btn btn-outline btn-sm" onclick="saveCampaignHeroContent()"><i class="fas fa-floppy-disk"></i> Başlık Alanını Kaydet</button>
-        <button class="btn btn-outline btn-sm" onclick="resetCampaignHeroContent()"><i class="fas fa-rotate-left"></i> Varsayılan Başlık</button>
-      </div>
-      <div class="form-row">
         <div class="fg">
-          <label>Ürün Bağlantısı (opsiyonel)</label>
-          <select id="liveFeedProduct"></select>
-        </div>
-        <div class="fg">
-          <label>Başlık</label>
-          <input id="liveFeedTitle" type="text" placeholder="Örn: Premium Zebra Perde">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="fg"><label>Etiket</label><input id="liveFeedLabel" type="text" placeholder="Örn: Kampanya"></div>
-        <div class="fg"><label>Buton Metni</label><input id="liveFeedBtnText" type="text" value="Ürünü İncele"></div>
-      </div>
-      <div class="form-row">
-        <div class="fg"><label>Yeni Fiyat (TL)</label><input id="liveFeedPrice" type="number" min="0" step="0.01"></div>
-        <div class="fg"><label>Eski Fiyat (TL)</label><input id="liveFeedOldPrice" type="number" min="0" step="0.01"></div>
-      </div>
-      <div class="form-row">
-        <div class="fg">
-          <label>Görsel Yükle</label>
-          <label class="upload-zone" style="padding:12px;border-radius:10px">
-            <i class="fas fa-image" style="font-size:1.2rem;margin-bottom:6px"></i>
-            <p><span class="highlight">PC veya mobilden görsel seç</span> (otomatik yüklenir)</p>
-            <input type="file" accept="image/*" onchange="handleLiveFeedImageSelect(this)">
-          </label>
-          <input id="liveFeedImage" type="text" readonly placeholder="resimler/... veya preview://" style="margin-top:8px;background:#f7f7f7">
-          <p id="liveFeedImageName" style="font-size:0.72rem;margin-top:4px;color:var(--slate-light)">JPG, PNG, WEBP</p>
+          <label>Ürün Seç</label>
+          <select id="featuredProductSelect"></select>
         </div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-sm" onclick="saveLiveFeedItem()"><i class="fas fa-plus"></i> Vitrine Ekle</button>
-        <button class="btn btn-outline btn-sm" onclick="seedLiveFeedFromProducts()"><i class="fas fa-wand-magic-sparkles"></i> Ürünlerden Otomatik Doldur</button>
+        <button class="btn btn-primary btn-sm" onclick="addFeaturedProduct()"><i class="fas fa-plus"></i> Kaydırmalı Alana Ekle</button>
+        <button class="btn btn-outline btn-sm" onclick="resetFeaturedProducts()"><i class="fas fa-rotate-left"></i> Varsayılanı Yükle</button>
       </div>
-      <div class="form-row" style="margin-top:12px">
-        <div class="fg"><label>Canlı Vitrin Kaynağı</label><select id="liveFeedSourceMode"><option value="manual">Manuel kartlar</option><option value="category">Seçili kategori otomatik</option><option value="product">Seçili ürün otomatik</option></select></div>
-        <div class="fg"><label>Vitrin Kategorisi</label><select id="liveFeedSourceCategory"></select></div>
-        <div class="fg"><label>Vitrin Ürünü</label><select id="liveFeedSourceProduct"></select></div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="saveLiveFeedSourceConfig()"><i class="fas fa-floppy-disk"></i> Vitrin Kaynağını Kaydet</button>
-      </div>
-      <div id="liveFeedList" class="live-feed-admin-grid" style="margin-top:14px"></div>
+      <div id="featuredProductsList" class="live-feed-admin-grid" style="margin-top:14px"></div>
     </div>
   </div>
   <div id="campaignList"></div>
@@ -1684,7 +1638,7 @@ const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
 const FOOTER_PAYMENT_LOGOS_KEY = 'gp_footer_payment_logos_v1';
 const HOME_PROMO_PANEL_KEY = 'gp_home_promo_panel_v1';
 const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
-const CAMPAIGN_HERO_CONTENT_KEY = 'gp_campaign_hero_content_v1';
+const HOME_FEATURED_PRODUCTS_KEY = 'gp_home_featured_products_v1';
 const DEFAULT_HOME_PROMO_PANEL = {
   enabled:true,
   delayMs:1400,
@@ -3962,96 +3916,65 @@ function getCatLabel(key){return(CATEGORIES.find(c=>c.key===key)||{label:key}).l
 //  CAMPAIGNS
 // ════════════════════════════════════
 const CAMP_KEY='gp_campaigns';
-const LIVE_CAMPAIGN_STREAM_KEY='gp_live_campaign_stream_v1';
-const LIVE_CAMPAIGN_STREAM_CONFIG_KEY='gp_live_campaign_stream_config_v1';
-const DEFAULT_LIVE_CAMPAIGN_STREAM_CONFIG={sourceMode:'manual',categoryKey:'',productId:''};
-const DEFAULT_LIVE_CAMPAIGN_STREAM=[
-  {id:'premium-zebra',productId:'zebra-premium-gri',title:'Premium Zebra Perde',label:'Yeni',price:2390,oldPrice:2790,image:'resimler/foto9.jpg',buttonText:'Ürüne Git',active:true},
-  {id:'plise-kampanya',productId:'plise-krem-160x200',title:'Plise Perde Krem 160x200',label:'Kampanya',price:1450,oldPrice:1690,image:'resimler/foto7.jpg',buttonText:'İncele',active:true},
-  {id:'stor-salon',productId:'stor-salon-antrasit',title:'Stor Perde Antrasit Seri',label:'Çok Satan',price:1890,oldPrice:2190,image:'resimler/foto8.jpg',buttonText:'Detaylar',active:true}
-];
-function getCampaignHeroContent(){
+const DEFAULT_HOME_FEATURED_PRODUCTS=['zebra-premium-gri','plise-krem-160x200','stor-salon-antrasit'];
+function getHomeFeaturedProductIds(){
   try{
-    const parsed = JSON.parse(localStorage.getItem(CAMPAIGN_HERO_CONTENT_KEY) || 'null') || {};
-    return {
-      label: String(parsed.label || DEFAULT_CAMPAIGN_HERO_CONTENT.label).trim(),
-      title: String(parsed.title || DEFAULT_CAMPAIGN_HERO_CONTENT.title).trim(),
-      subtitle: String(parsed.subtitle || DEFAULT_CAMPAIGN_HERO_CONTENT.subtitle).trim(),
-      actionText: String(parsed.actionText || DEFAULT_CAMPAIGN_HERO_CONTENT.actionText).trim()
-    };
-  }catch(_){
-    return {...DEFAULT_CAMPAIGN_HERO_CONTENT};
+    const parsed = JSON.parse(localStorage.getItem(HOME_FEATURED_PRODUCTS_KEY)||'null');
+    if(Array.isArray(parsed) && parsed.length) return parsed.map((id)=>String(id||'').trim()).filter(Boolean);
+  }catch(_){ }
+  return [...DEFAULT_HOME_FEATURED_PRODUCTS];
+}
+function saveHomeFeaturedProductIds(list){
+  localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(Array.isArray(list)?list:[]));
+}
+function fillFeaturedProductSelect(){
+  const select = document.getElementById('featuredProductSelect');
+  if(!select) return;
+  select.innerHTML = `<option value="">Ürün seçin</option>${PRODUCTS.filter(p=>p?.active).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}`;
+}
+function renderFeaturedProductsAdminList(){
+  const box = document.getElementById('featuredProductsList');
+  if(!box) return;
+  const ids = getHomeFeaturedProductIds();
+  const items = ids.map((id)=>PRODUCTS.find((p)=>String(p.id)===id)).filter(Boolean);
+  if(!items.length){
+    box.innerHTML = `<div class="campaign-card" style="padding:14px">Henüz kaydırmalı vitrine ürün eklenmedi.</div>`;
+    return;
   }
+  box.innerHTML = items.map((item,idx)=>`
+    <div class="live-feed-admin-card">
+      <img src="${item.image || item.images?.[0] || 'resimler/foto6.jpg'}" alt="${item.name}" loading="lazy">
+      <h4>${item.name}</h4>
+      <div class="live-feed-admin-meta"><span>${Number(item.price||0).toLocaleString('tr-TR')} TL</span><span>${item.badge || 'Öne Çıkan'}</span></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn btn-sm btn-danger" onclick="removeFeaturedProduct(${idx})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
 }
-function fillCampaignHeroContentForm(){
-  const content = getCampaignHeroContent();
-  if(document.getElementById('campaignHeroLabel')) document.getElementById('campaignHeroLabel').value = content.label;
-  if(document.getElementById('campaignHeroTitle')) document.getElementById('campaignHeroTitle').value = content.title;
-  if(document.getElementById('campaignHeroSubtitle')) document.getElementById('campaignHeroSubtitle').value = content.subtitle;
-  if(document.getElementById('campaignHeroActionText')) document.getElementById('campaignHeroActionText').value = content.actionText;
+function addFeaturedProduct(){
+  const id = document.getElementById('featuredProductSelect')?.value || '';
+  if(!id){ aToast('⚠️ Ürün seçin','error'); return; }
+  const product = PRODUCTS.find((p)=>String(p.id)===id && p?.active);
+  if(!product){ aToast('⚠️ Ürün bulunamadı','error'); return; }
+  const ids = getHomeFeaturedProductIds();
+  if(ids.includes(id)){ aToast('⚠️ Bu ürün zaten ekli','error'); return; }
+  ids.unshift(id);
+  saveHomeFeaturedProductIds(ids.slice(0,12));
+  renderFeaturedProductsAdminList();
+  aToast('✓ Ürün kaydırmalı vitrine eklendi','success');
 }
-function saveCampaignHeroContent(){
-  const payload = {
-    label: (document.getElementById('campaignHeroLabel')?.value || '').trim() || DEFAULT_CAMPAIGN_HERO_CONTENT.label,
-    title: (document.getElementById('campaignHeroTitle')?.value || '').trim() || DEFAULT_CAMPAIGN_HERO_CONTENT.title,
-    subtitle: (document.getElementById('campaignHeroSubtitle')?.value || '').trim() || DEFAULT_CAMPAIGN_HERO_CONTENT.subtitle,
-    actionText: (document.getElementById('campaignHeroActionText')?.value || '').trim() || DEFAULT_CAMPAIGN_HERO_CONTENT.actionText
-  };
-  localStorage.setItem(CAMPAIGN_HERO_CONTENT_KEY, JSON.stringify(payload));
-  aToast('✓ Vitrin başlık alanı kaydedildi','success');
+function removeFeaturedProduct(idx){
+  const ids = getHomeFeaturedProductIds();
+  ids.splice(idx,1);
+  saveHomeFeaturedProductIds(ids);
+  renderFeaturedProductsAdminList();
+  aToast('✓ Ürün vitrinden kaldırıldı','success');
 }
-function resetCampaignHeroContent(){
-  localStorage.setItem(CAMPAIGN_HERO_CONTENT_KEY, JSON.stringify(DEFAULT_CAMPAIGN_HERO_CONTENT));
-  fillCampaignHeroContentForm();
-  aToast('✓ Varsayılan vitrin başlığı yüklendi','success');
-}
-function getCampaigns(){return JSON.parse(localStorage.getItem(CAMP_KEY)||'null')||defaultCampaigns();}
-function saveCampaignsList(arr){localStorage.setItem(CAMP_KEY,JSON.stringify(arr));}
-function getLiveCampaignStreamItems(){
-  try{
-    const parsed = JSON.parse(localStorage.getItem(LIVE_CAMPAIGN_STREAM_KEY)||'null');
-    if(Array.isArray(parsed) && parsed.length) return parsed;
-  }catch(_){}
-  return DEFAULT_LIVE_CAMPAIGN_STREAM;
-}
-function saveLiveCampaignStreamItems(list){
-  localStorage.setItem(LIVE_CAMPAIGN_STREAM_KEY, JSON.stringify(Array.isArray(list)?list:[]));
-}
-function getLiveFeedSourceConfig(){
-  try{
-    const parsed = JSON.parse(localStorage.getItem(LIVE_CAMPAIGN_STREAM_CONFIG_KEY) || 'null') || {};
-    return {
-      sourceMode: ['manual','category','product'].includes(parsed.sourceMode) ? parsed.sourceMode : 'manual',
-      categoryKey: String(parsed.categoryKey || '').trim(),
-      productId: String(parsed.productId || '').trim()
-    };
-  }catch(_){
-    return {...DEFAULT_LIVE_CAMPAIGN_STREAM_CONFIG};
-  }
-}
-function renderLiveFeedSourceForm(){
-  const cfg = getLiveFeedSourceConfig();
-  const modeEl = document.getElementById('liveFeedSourceMode');
-  const categoryEl = document.getElementById('liveFeedSourceCategory');
-  const productEl = document.getElementById('liveFeedSourceProduct');
-  if(modeEl) modeEl.value = cfg.sourceMode;
-  if(categoryEl){
-    categoryEl.innerHTML = `<option value="">Kategori seçin</option>${CATEGORIES.map(c=>`<option value="${c.key}">${c.label}</option>`).join('')}`;
-    categoryEl.value = cfg.categoryKey || '';
-  }
-  if(productEl){
-    productEl.innerHTML = `<option value="">Ürün seçin</option>${PRODUCTS.filter(p=>p?.active).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}`;
-    productEl.value = cfg.productId || '';
-  }
-}
-function saveLiveFeedSourceConfig(){
-  const payload = {
-    sourceMode: document.getElementById('liveFeedSourceMode')?.value || 'manual',
-    categoryKey: document.getElementById('liveFeedSourceCategory')?.value || '',
-    productId: document.getElementById('liveFeedSourceProduct')?.value || ''
-  };
-  localStorage.setItem(LIVE_CAMPAIGN_STREAM_CONFIG_KEY, JSON.stringify(payload));
-  aToast('✓ Canlı vitrin kaynağı kaydedildi','success');
+function resetFeaturedProducts(){
+  saveHomeFeaturedProductIds(DEFAULT_HOME_FEATURED_PRODUCTS);
+  renderFeaturedProductsAdminList();
+  aToast('✓ Varsayılan kaydırmalı vitrin yüklendi','success');
 }
 function defaultCampaigns(){
   return [
@@ -4062,15 +3985,8 @@ function defaultCampaigns(){
 
 function renderCampaigns(){
   const list = getCampaigns();
-  fillCampaignHeroContentForm();
-  const productSelect = document.getElementById('liveFeedProduct');
-  if(productSelect){
-    productSelect.innerHTML = `<option value="">Ürün seçmeden manuel vitrin kartı</option>${
-      PRODUCTS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')
-    }`;
-  }
-  renderLiveFeedSourceForm();
-  renderLiveFeedAdminList();
+  fillFeaturedProductSelect();
+  renderFeaturedProductsAdminList();
   document.getElementById('campaignList').innerHTML = list.map((c,i)=>`
     <div class="campaign-card">
       <div class="campaign-card-header">
