@@ -73,14 +73,7 @@ out tags;
     .map((item) => item?.tags?.name)
     .filter(Boolean);
 
-  return sortStreetValues(names.filter((name) => {
-    const normalized = toComparable(name);
-    return (
-      /\bcadde(si)?\b|\bcd\b/.test(normalized) ||
-      /\bsokak\b|\bsokagi\b|\bsk\b/.test(normalized) ||
-      /\bbulvar\b/.test(normalized)
-    );
-  }));
+  return sortStreetValues(names);
 }
 
 function isStreetLikeName(value) {
