@@ -1283,7 +1283,6 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
   <div class="gallery-section">
     <div class="section-header">
       <div><div class="section-tag">Montaj Projelerimiz</div><h2 class="section-title">Uygulama &amp; <em>İlham Alanı</em></h2></div>
-      <p class="section-desc">Müşterilerimize montajını yaptığımız seçkin uygulamalardan ilham alın. Bu alan admin panelinden canlı olarak güncellenir.</p>
     </div>
     <div class="gallery-grid" id="installationGalleryGrid"></div>
   </div>
@@ -1296,7 +1295,6 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
   <div class="from-you-preview">
     <div class="section-header" style="max-width:100%;margin:0 auto 28px">
       <div><div class="section-tag">Sizden Gelenler</div><h2 class="section-title">Müşteri Evlerinden <em>Işıltılı Sonuçlar</em></h2></div>
-      <p class="section-desc">Gerçek müşteri evleri, gerçek uygulamalar. Bu içerik admin panelinden canlı güncellenir.</p>
     </div>
     <div class="from-you-grid" id="fromYouPreviewGrid"></div>
   </div>
@@ -1778,6 +1776,7 @@ const CAMPAIGN_HERO_CONTENT_KEY = 'gp_campaign_hero_content_v1';
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
 const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
+const FROM_YOU_SHOWCASE_LEGACY_KEYS = ['gp_from_you_showcase', 'from_you_showcase', 'gp_sizden_gelenler_v1'];
 const DEFAULT_INSTALLATION_SHOWCASE = [
   {src:'resimler/foto1.jpg',title:'Salon Tül Uygulaması',desc:'Özel ölçü tül perde montajı ile ferah salon görünümü.',label:'Salon Tül'},
   {src:'resimler/foto2.jpg',title:'Zebra Perde Montajı',desc:'Gün ışığını kontrollü kullanan zebra perde çözümü.',label:'Zebra Sistem'},
@@ -1909,6 +1908,21 @@ function parseShowcaseJSON(key, fallback){
     if(Array.isArray(raw) && raw.length) return raw;
   }catch(_){}
   return fallback;
+}
+function getFromYouShowcaseList(limit=12){
+  const candidates = [FROM_YOU_SHOWCASE_KEY, ...FROM_YOU_SHOWCASE_LEGACY_KEYS];
+  for(const key of candidates){
+    try{
+      const raw = JSON.parse(localStorage.getItem(key) || 'null');
+      if(Array.isArray(raw) && raw.length){
+        const normalized = raw
+          .map((item)=>typeof item === 'string' ? {src:item,images:[item]} : item)
+          .filter((item)=>item && (item.src || (Array.isArray(item.images) && item.images.length)));
+        if(normalized.length) return normalized.slice(0, limit);
+      }
+    }catch(_){}
+  }
+  return DEFAULT_FROM_YOU_SHOWCASE.slice(0, limit);
 }
 function starsFromRating(rating){
   const safe = Math.max(1, Math.min(5, Number(rating) || 5));
@@ -2057,7 +2071,7 @@ function renderLiveCampaignStream(){
 function renderFromYouShowcase(targetId='fromYouPageGrid', limit=12){
   const grid = document.getElementById(targetId);
   if(!grid) return;
-  const list = parseShowcaseJSON(FROM_YOU_SHOWCASE_KEY, DEFAULT_FROM_YOU_SHOWCASE).slice(0, limit);
+  const list = getFromYouShowcaseList(limit);
   preloadCriticalImages(list.map(item=>getFromYouImages(item)[0]), targetId === 'fromYouPageGrid' ? 6 : 3);
   FROM_YOU_RENDERED_MAP[targetId] = list;
   if(!list.length){
