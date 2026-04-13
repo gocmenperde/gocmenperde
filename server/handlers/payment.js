@@ -58,12 +58,8 @@ module.exports = async function handler(req, res) {
     const maxInstallment = "0";
     const timeoutLimit = "30";
 
-    // TOKEN OLUŞTURMA (Sıralama hayati önem taşır!)
-    const hashStr = merchantId + userIp + merchantOid + userEmail + paymentAmount + userBasket + noInstallment + maxInstallment + currency + testMode;
-    const paytrToken = crypto
-      .createHmac('sha256', merchantKey)
-      .update(hashStr + merchantSalt)
-      .digest('base64');
+    // PayTR v2 iFrame Token sıralaması tam olarak budur:
+const hashStr = merchantId + userIp + merchantOid + userEmail + paymentAmount + userBasket + noInstallment + maxInstallment + currency + testMode;
 
     // PayTR'ye gidecek paket
     const params = new URLSearchParams();
