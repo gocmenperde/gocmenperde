@@ -4567,13 +4567,14 @@ function populateStreetOptions(streets = []){
   const streetEl = document.getElementById('f-street');
   if(!avenueEl || !streetEl) return;
   const allStreets = uniqTrimmedStrings(streets);
-  const avenuePattern = /\bcadde(si)?\b|\bcd\b|\bbulvar(i)?\b/i;
-  const streetPattern = /\bsokak\b|\bsokagi\b|\bsk\b/i;
+  const avenuePattern = /\bcadde(si)?\b|\bcd\.?\b|\bbulvar(i)?\b|\bblv\.?\b/i;
+  const streetPattern = /\bsokak\b|\bsokagi\b|\bsk\.?\b/i;
   const avenues = allStreets.filter((item)=>avenuePattern.test(item));
   const onlyStreets = allStreets.filter((item)=>streetPattern.test(item));
   const uncategorized = allStreets.filter((item)=>!avenuePattern.test(item) && !streetPattern.test(item));
-  const avenueOptions = uniqTrimmedStrings([...(avenues.length ? avenues : []), ...uncategorized]);
-  const streetOptions = uniqTrimmedStrings([...(onlyStreets.length ? onlyStreets : []), ...uncategorized]);
+  const fallbackOptions = uniqTrimmedStrings([...allStreets, ...uncategorized]);
+  const avenueOptions = uniqTrimmedStrings([...(avenues.length ? avenues : fallbackOptions), ...uncategorized]);
+  const streetOptions = uniqTrimmedStrings([...(onlyStreets.length ? onlyStreets : fallbackOptions), ...uncategorized]);
   avenueEl.innerHTML = '<option value="">Cadde seçin</option>' +
     avenueOptions.map((item)=>`<option value="${item}">${item}</option>`).join('') +
     '<option value="diger">Diğeri</option>';
