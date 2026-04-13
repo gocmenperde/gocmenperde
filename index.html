@@ -3823,7 +3823,7 @@ let favorites = [];
 let savedAddresses = [];
 let homeSliderLoadedOnce = false;
 const CITY_OPTIONS = ['Adana','Adıyaman','Afyonkarahisar','Ağrı','Amasya','Ankara','Antalya','Artvin','Aydın','Balıkesir','Bilecik','Bingöl','Bitlis','Bolu','Burdur','Bursa','Çanakkale','Çankırı','Çorum','Denizli','Diyarbakır','Edirne','Elazığ','Erzincan','Erzurum','Eskişehir','Gaziantep','Giresun','Gümüşhane','Hakkari','Hatay','Isparta','Mersin','İstanbul','İzmir','Kars','Kastamonu','Kayseri','Kırklareli','Kırşehir','Kocaeli','Konya','Kütahya','Malatya','Manisa','Kahramanmaraş','Mardin','Muğla','Muş','Nevşehir','Niğde','Ordu','Rize','Sakarya','Samsun','Siirt','Sinop','Sivas','Tekirdağ','Tokat','Trabzon','Tunceli','Şanlıurfa','Uşak','Van','Yozgat','Zonguldak','Aksaray','Bayburt','Karaman','Kırıkkale','Batman','Şırnak','Bartın','Ardahan','Iğdır','Yalova','Karabük','Kilis','Osmaniye','Düzce'];
-const CITY_DISTRICTS = {
+const CITY_DISTRICTS_FALLBACK = {
   'Adana':['Seyhan','Yüreğir','Çukurova','Sarıçam','Ceyhan','Kozan','İmamoğlu','Karaisalı','Karataş','Pozantı','Saimbeyli','Tufanbeyli','Yumurtalık','Feke','Aladağ'],
   'Ankara':['Altındağ','Çankaya','Etimesgut','Keçiören','Mamak','Sincan','Yenimahalle','Akyurt','Ayaş','Bala','Beypazarı','Çamlıdere','Çubuk','Elmadağ','Evren','Gölbaşı','Güdül','Haymana','Kalecik','Kızılcahamam','Nallıhan','Polatlı','Pursaklar','Şereflikoçhisar'],
   'Antalya':['Muratpaşa','Kepez','Konyaaltı','Aksu','Döşemealtı','Alanya','Manavgat','Kaş','Kemer','Kumluca','Serik','Finike','Demre','Elmalı','Gazipaşa','Gündoğmuş','Akseki','İbradı'],
@@ -3839,6 +3839,40 @@ const CITY_DISTRICTS = {
   'Tekirdağ':['Süleymanpaşa','Çerkezköy','Çorlu','Ergene','Hayrabolu','Kapaklı','Malkara','Marmaraereğlisi','Muratlı','Saray','Şarköy'],
   'Trabzon':['Ortahisar','Akçaabat','Araklı','Arsin','Beşikdüzü','Çarşıbaşı','Çaykara','Dernekpazarı','Düzköy','Hayrat','Köprübaşı','Maçka','Of','Sürmene','Şalpazarı','Tonya','Vakfıkebir','Yomra']
 };
+let CITY_DISTRICTS = {...CITY_DISTRICTS_FALLBACK};
+let districtsApiLoaded = false;
+let districtsApiLoadingPromise = null;
+
+function toComparableCityName(value){
+  return String(value || '').trim().toLocaleLowerCase('tr-TR');
+}
+
+async function ensureAllDistrictData(){
+  if(districtsApiLoaded) return;
+  if(districtsApiLoadingPromise) return districtsApiLoadingPromise;
+  districtsApiLoadingPromise = fetch('https://turkiyeapi.dev/api/v1/provinces')
+    .then((res)=>{ if(!res.ok) throw new Error('İl/ilçe verisi alınamadı'); return res.json(); })
+    .then((payload)=>{
+      const rows = Array.isArray(payload?.data) ? payload.data : [];
+      if(!rows.length) throw new Error('İl/ilçe verisi boş döndü');
+      const nextMap = {};
+      rows.forEach((row)=>{
+        const cityName = String(row?.name || '').trim();
+        if(!cityName) return;
+        const districtsRaw = Array.isArray(row?.districts) ? row.districts : [];
+        const districts = districtsRaw
+          .map((d)=>String(d?.name || d || '').trim())
+          .filter(Boolean);
+        if(districts.length) nextMap[cityName] = Array.from(new Set(districts));
+      });
+      if(Object.keys(nextMap).length){
+        CITY_DISTRICTS = nextMap;
+        districtsApiLoaded = true;
+      }
+    })
+    .catch(()=>{ CITY_DISTRICTS = {...CITY_DISTRICTS_FALLBACK}; });
+  return districtsApiLoadingPromise;
+}
 
 function getAuthToken(){
   return localStorage.getItem('token') || localStorage.getItem('gp_token') || '';
@@ -4303,13 +4337,17 @@ function initAddressSelectors(){
   cityEl.innerHTML = '<option value="">İl seçin</option>' + CITY_OPTIONS.map((city)=>`<option value="${city}">${city}</option>`).join('');
   cityEl.dataset.ready = '1';
   onCityChanged(cityEl.value || '');
+  ensureAllDistrictData().then(()=>{
+    if(cityEl.value) onCityChanged(cityEl.value);
+  });
 }
 
 function onCityChanged(city){
   const districtEl = document.getElementById('f-district');
   const districtOtherEl = document.getElementById('f-district-other');
   if(!districtEl || !districtOtherEl) return;
-  const districts = Array.isArray(CITY_DISTRICTS[city]) ? CITY_DISTRICTS[city] : [];
+  const cityKey = Object.keys(CITY_DISTRICTS).find((name)=>toComparableCityName(name) === toComparableCityName(city)) || city;
+  const districts = Array.isArray(CITY_DISTRICTS[cityKey]) ? CITY_DISTRICTS[cityKey] : [];
   districtEl.innerHTML = '<option value="">İlçe seçin</option>' + districts.map((district)=>`<option value="${district}">${district}</option>`).join('') + '<option value="diger">Diğeri</option>';
   districtEl.value = '';
   districtOtherEl.value = '';
