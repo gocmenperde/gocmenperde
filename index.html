@@ -4487,7 +4487,10 @@ async function loadNeighborhoodAndStreetData(){
 
 async function fetchLatestStreetsForNeighborhood(neighborhoodName){
   if(!neighborhoodName) return [];
-  const cachedByDistrict = STREET_MAP[neighborhoodName] || [];
+  const target = String(neighborhoodName || '').trim();
+  const normalizedTarget = target.toLocaleLowerCase('tr-TR');
+  const matchedNeighborhoodKey = Object.keys(STREET_MAP).find((key)=>String(key || '').trim().toLocaleLowerCase('tr-TR') === normalizedTarget);
+  const cachedByDistrict = STREET_MAP[matchedNeighborhoodKey || target] || [];
   if(cachedByDistrict.length){
     return uniqTrimmedStrings(cachedByDistrict);
   }
