@@ -72,16 +72,59 @@ out tags;
   }));
 }
 
+function isStreetLikeName(value) {
+  const normalized = toComparable(value);
+  return normalized.includes('cadde') || normalized.includes('sokak') || /\b(cd|sk)\b/.test(normalized);
+}
+
+function collectStreetLikeValuesDeep(source, collector, depth = 0) {
+  if (depth > 5 || source == null) return;
+
+  if (typeof source === 'string') {
+    const value = source.trim();
+    if (value && isStreetLikeName(value)) collector.push(value);
+    return;
+  }
+
+  if (Array.isArray(source)) {
+    source.forEach((item) => collectStreetLikeValuesDeep(item, collector, depth + 1));
+    return;
+  }
+
+  if (typeof source !== 'object') return;
+
+  const keys = [
+    'streets',
+    'roads',
+    'avenues',
+    'bulvards',
+    'boulevards',
+    'streets_and_roads',
+    'caddeSokaklar',
+    'sokaklar',
+    'caddeler',
+    'ways',
+    'items',
+  ];
+
+  keys.forEach((key) => {
+    if (source[key] != null) collectStreetLikeValuesDeep(source[key], collector, depth + 1);
+  });
+
+  Object.values(source).forEach((value) => {
+    if (typeof value === 'string') {
+      const normalized = value.trim();
+      if (normalized && isStreetLikeName(normalized)) collector.push(normalized);
+      return;
+    }
+    if (Array.isArray(value)) collectStreetLikeValuesDeep(value, collector, depth + 1);
+  });
+}
+
 function normalizeStreetValues(entry) {
-  return uniqTrimmedStrings([
-    ...(Array.isArray(entry?.streets) ? entry.streets : []),
-    ...(Array.isArray(entry?.roads) ? entry.roads : []),
-    ...(Array.isArray(entry?.avenues) ? entry.avenues : []),
-    ...(Array.isArray(entry?.bulvards) ? entry.bulvards : []),
-    ...(Array.isArray(entry?.boulevards) ? entry.boulevards : []),
-    ...(Array.isArray(entry?.streets_and_roads) ? entry.streets_and_roads : []),
-    ...(Array.isArray(entry?.caddeSokaklar) ? entry.caddeSokaklar : []),
-  ]);
+  const values = [];
+  collectStreetLikeValuesDeep(entry, values);
+  return uniqTrimmedStrings(values);
 }
 
 module.exports = async function handler(req, res) {
@@ -98,16 +141,6 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    if (neighborhood) {
-      const streets = await fetchNeighborhoodStreetsFromOsm({ city, district, neighborhood });
-      return res.status(200).json({
-        success: true,
-        city,
-        district,
-        neighborhood,
-        streets,
-      });
-    }
     const endpoint = `${TURKIYE_API_BASE}?name=${encodeURIComponent(district)}&province=${encodeURIComponent(city)}`;
     const upstream = await fetch(endpoint);
     if (!upstream.ok) {
@@ -125,6 +158,30 @@ module.exports = async function handler(req, res) {
       if (!neighborhoodName) return;
       streetsByNeighborhood[neighborhoodName] = sortStreetValues(normalizeStreetValues(entry));
     });
+
+    if (neighborhood) {
+      const directStreets = sortStreetValues(streetsByNeighborhood[neighborhood] || []);
+      if (directStreets.length) {
+        return res.status(200).json({
+          success: true,
+          city,
+          district,
+          neighborhood,
+          streets: directStreets,
+          source: 'turkiyeapi',
+        });
+      }
+
+      const fallbackStreets = await fetchNeighborhoodStreetsFromOsm({ city, district, neighborhood });
+      return res.status(200).json({
+        success: true,
+        city,
+        district,
+        neighborhood,
+        streets: fallbackStreets,
+        source: 'osm',
+      });
+    }
 
     return res.status(200).json({
       success: true,
