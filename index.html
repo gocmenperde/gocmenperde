@@ -344,6 +344,22 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .review-stars{color:var(--gold);font-size:0.8rem;margin-bottom:16px;letter-spacing:2px}
 .review-text{font-family:var(--ff-display);font-size:1.05rem;font-weight:400;color:var(--ink);line-height:1.8;font-style:italic;margin-bottom:20px}
 .review-author{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--slate);font-weight:500}
+.premium-commerce-band{padding:42px 5% 22px;background:linear-gradient(180deg,#fff,#fcf8ef)}
+.premium-commerce-shell{max-width:1520px;margin:0 auto;border-radius:24px;border:1px solid rgba(201,168,76,.35);box-shadow:0 20px 55px rgba(15,14,13,.1);background:linear-gradient(145deg,#111,#1d1711 54%,#2a2115 100%);overflow:hidden}
+.premium-commerce-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.11)}
+.premium-commerce-head h3{font-family:var(--ff-display);font-size:clamp(1.35rem,2.3vw,2.1rem);color:#fff}
+.premium-commerce-head p{color:rgba(255,255,255,.76);font-size:.84rem;max-width:54ch;line-height:1.6}
+.premium-commerce-pill{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);font-size:.67rem;letter-spacing:1.3px;text-transform:uppercase;color:#f6dc9a}
+.premium-commerce-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:18px}
+.premium-commerce-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:16px;color:#fff}
+.premium-commerce-card i{color:#f6d98f;margin-bottom:10px;font-size:1.05rem}
+.premium-commerce-card b{display:block;font-size:.78rem;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:5px}
+.premium-commerce-card span{font-size:.78rem;color:rgba(255,255,255,.8);line-height:1.52}
+.home-from-you-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.home-from-you-count{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.28);font-size:.67rem;letter-spacing:1.3px;text-transform:uppercase;color:var(--gold-dark);font-weight:700}
+.home-from-you-count b{font-size:.72rem;color:#2d271d}
+@media(max-width:980px){.premium-commerce-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.premium-commerce-head{padding:18px}.premium-commerce-grid{grid-template-columns:1fr}.premium-commerce-band{padding-top:30px}}
 .from-you-preview{padding:74px 5% 28px;background:linear-gradient(180deg,#fff 0%,#faf7f1 100%)}
 #from-you{background:radial-gradient(circle at top right,rgba(201,168,76,0.2),transparent 45%),linear-gradient(165deg,#110f0d 0%,#1f1a14 55%,#2b241b 100%);padding:95px 5%}
 .from-you-hero{width:min(1520px,98%);margin:0 auto}
@@ -1257,6 +1273,23 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
       </div>
     </div>
   </div>
+  <div class="premium-commerce-band">
+    <div class="premium-commerce-shell">
+      <div class="premium-commerce-head">
+        <div>
+          <div class="premium-commerce-pill"><i class="fas fa-crown"></i> Premium E-Ticaret Deneyimi</div>
+          <h3>Lüks showroom hissini dijitalde yaşayın.</h3>
+          <p>Koleksiyonları hızlıca keşfedin, güvenli ödeme altyapısı ile sipariş verin ve profesyonel montaj planlamasını tek platformdan yönetin.</p>
+        </div>
+      </div>
+      <div class="premium-commerce-grid">
+        <div class="premium-commerce-card"><i class="fas fa-medal"></i><b>Özel Koleksiyon</b><span>Sezona özel premium kumaşlar ve trend renk paletleri.</span></div>
+        <div class="premium-commerce-card"><i class="fas fa-shield-check"></i><b>Güvenli Ödeme</b><span>3D Secure destekli ödeme süreci ve korumalı sipariş takibi.</span></div>
+        <div class="premium-commerce-card"><i class="fas fa-truck-fast"></i><b>Hızlı Operasyon</b><span>Keşif, dikim, montaj adımlarında planlı ve şeffaf süreç yönetimi.</span></div>
+        <div class="premium-commerce-card"><i class="fas fa-headset"></i><b>7/24 Destek</b><span>Sipariş sonrası da devam eden canlı destek ve bakım yönlendirmesi.</span></div>
+      </div>
+    </div>
+  </div>
   <div class="trust-section">
     <div class="trust-grid">
       <div class="trust-card">
@@ -1297,6 +1330,9 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
   <div class="from-you-preview">
     <div class="section-header" style="max-width:100%;margin:0 auto 28px">
       <div><div class="section-tag">Sizden Gelenler</div><h2 class="section-title">Müşteri Evlerinden <em>Işıltılı Sonuçlar</em></h2></div>
+    </div>
+    <div class="home-from-you-meta">
+      <div class="home-from-you-count"><i class="fas fa-camera"></i> Anasayfada Gösterilen Paylaşım: <b id="fromYouPreviewCount">0</b></div>
     </div>
     <div class="from-you-grid" id="fromYouPreviewGrid"></div>
   </div>
@@ -1954,8 +1990,13 @@ async function loadFromYouShowcaseFromApi(){
   }
 }
 function getFromYouShowcaseList(limit=12){
+  const applyLimit = (items)=>{
+    if(!Array.isArray(items)) return [];
+    if(Number.isFinite(limit) && limit > 0) return items.slice(0, limit);
+    return items;
+  };
   if(Array.isArray(fromYouShowcaseApiItems) && fromYouShowcaseApiItems.length){
-    return fromYouShowcaseApiItems.slice(0, limit);
+    return applyLimit(fromYouShowcaseApiItems);
   }
   const candidates = [FROM_YOU_SHOWCASE_KEY, ...FROM_YOU_SHOWCASE_LEGACY_KEYS];
   for(const key of candidates){
@@ -1965,11 +2006,11 @@ function getFromYouShowcaseList(limit=12){
         const normalized = raw
           .map((item)=>typeof item === 'string' ? {src:item,images:[item]} : item)
           .filter((item)=>item && (item.src || (Array.isArray(item.images) && item.images.length)));
-        if(normalized.length) return normalized.slice(0, limit);
+        if(normalized.length) return applyLimit(normalized);
       }
     }catch(_){}
   }
-  return DEFAULT_FROM_YOU_SHOWCASE.slice(0, limit);
+  return applyLimit(DEFAULT_FROM_YOU_SHOWCASE);
 }
 function starsFromRating(rating){
   const safe = Math.max(1, Math.min(5, Number(rating) || 5));
@@ -2047,7 +2088,7 @@ function renderFooterPaymentLogos(){
 function renderHomeShowcaseSections(){
   renderInstallationShowcase();
   renderCustomerShowcaseReviews();
-  renderFromYouShowcase('fromYouPreviewGrid', 3);
+  renderFromYouShowcase('fromYouPreviewGrid', Number.POSITIVE_INFINITY);
 }
 function getLiveCampaignStreamItems(){
   try{
@@ -2119,6 +2160,10 @@ function renderFromYouShowcase(targetId='fromYouPageGrid', limit=12){
   const grid = document.getElementById(targetId);
   if(!grid) return;
   const list = getFromYouShowcaseList(limit);
+  if(targetId === 'fromYouPreviewGrid'){
+    const countEl = document.getElementById('fromYouPreviewCount');
+    if(countEl) countEl.textContent = String(list.length);
+  }
   preloadCriticalImages(list.map(item=>getFromYouImages(item)[0]), targetId === 'fromYouPageGrid' ? 6 : 3);
   FROM_YOU_RENDERED_MAP[targetId] = list;
   if(!list.length){
