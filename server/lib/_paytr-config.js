@@ -4,7 +4,7 @@
 const PAYTR_FALLBACK_CREDENTIALS = {
   id: '690414',
   key: 'qiyTzuAETF2mB8pk',
-  salt: '403qjuMhFhc7DpQH'
+  salt: '4o3qjuMhFhc7DpQH'
 };
 
 const PAYTR_ENV_ALIASES = {
