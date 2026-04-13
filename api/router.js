@@ -4,7 +4,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // PayTR değişkenlerini burada bir kez konsola yazdır ki yüklendiğini gör
-console.log("Sistem Başlatıldı - PayTR ID:", process.env.NEXT_PUBLIC_PAYTR_MERCHANT_ID ? "OK" : "YOK");
+console.log("Sistem Başlatıldı - PayTR ID:", process.env.PAYTR_MERCHANT_ID ? "OK" : "YOK");
 const auth = require('../server/handlers/auth');
 const customer = require('../server/handlers/customer');
 const customers = require('../server/handlers/customers');
