@@ -1000,6 +1000,12 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 @keyframes campaignRail{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 7px))}}
 @keyframes pulseShift{0%{background-position:0 0}100%{background-position:200% 0}}
 
+.premium-hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.hero-premium-btn{border:none;border-radius:14px;padding:13px 18px;background:linear-gradient(120deg,#1f2941,#2f3f64);color:#fff;font-weight:800;letter-spacing:.4px;cursor:pointer;box-shadow:0 14px 26px rgba(18,26,46,.28);transition:.25s ease;display:inline-flex;align-items:center;gap:8px}
+.hero-premium-btn.secondary{background:linear-gradient(120deg,#d6a343,#b8842d);color:#1f1a11}
+.hero-premium-btn:hover{transform:translateY(-2px);box-shadow:0 18px 30px rgba(18,26,46,.35)}
+.home-featured-shell{display:grid;gap:14px}
+.home-featured-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .live-categories{padding:26px 5% 14px;background:linear-gradient(180deg,#fbfbfa,transparent);overflow:hidden}
 .live-categories-shell{max-width:1300px;margin:0 auto;border:1px solid rgba(34,45,78,.12);border-radius:18px;background:linear-gradient(120deg,#ffffff,#f9fafc);box-shadow:0 16px 30px rgba(17,28,58,.08);padding:14px 16px}
 .live-categories-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
@@ -1218,11 +1224,9 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
         </div>
       </div>
       <p class="hero-subtitle">Evinize en uygun perdeyi birlikte seçiyor; keşif, ölçü, dikim ve montajın tamamını tek ekip olarak yönetiyoruz.</p>
-      <div class="hero-actions">
-        <button class="btn-primary" onclick="go('products')">Tüm Ürünler</button>
-      </div>
-      <div class="hero-promo-cta-wrap">
-        <button class="hero-promo-cta secondary" onclick="go('contact')">Ücretsiz Keşif Al</button>
+      <div class="hero-actions premium-hero-actions">
+        <button class="hero-premium-btn" onclick="go('products')"><i class="fas fa-gem"></i> Ürünleri Keşfet</button>
+        <button class="hero-premium-btn secondary" onclick="go('contact')"><i class="fas fa-ruler-combined"></i> Ücretsiz Keşif Al</button>
       </div>
       <div class="hero-proof-strip" aria-label="Güven göstergeleri">
         <div class="hero-proof-pill"><b>30+ Yıl</b><span>Ustalık Tecrübesi</span></div>
@@ -1288,23 +1292,19 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
     </div>
   </div>
   <div class="premium-commerce-band" style="padding-top:14px">
-    <div class="premium-commerce-shell" style="display:grid;gap:14px">
-      <div class="campaign-stream-header">
+    <div class="premium-commerce-shell home-featured-shell">
+      <div class="home-featured-head">
         <div>
-          <div class="campaign-stream-title"><i class="fas fa-bolt"></i> Ana Sayfa Canlı Fırsat Vitrini</div>
-          <h3 id="campaignHeroTitle" style="margin:6px 0 4px;font-size:1.2rem;color:#1f2941">Vitrin Ürünlerde Özel Fiyatlar</h3>
-          <div class="campaign-stream-sub" id="campaignHeroSubtitle">Yönetim panelinden güncellenen canlı kampanya kartları.</div>
+          <div class="premium-commerce-pill"><i class="fas fa-star"></i> Öne Çıkan Ürünler</div>
+          <h3>Kaydırmalı ürün vitrini</h3>
+          <p>Admin panelinden ürün ekleyip kaldırabilir, ana sayfadaki bu alanı anlık güncelleyebilirsiniz.</p>
         </div>
-        <div class="campaign-stream-actions">
-          <button class="campaign-stream-btn" id="campaignHeroActionBtn" onclick="go('products')">Tüm Ürünleri Gör</button>
-          <button class="campaign-stream-btn" id="campaignHeroDiscoveryBtn" onclick="go('contact')">Ücretsiz Keşif Al</button>
+        <div class="top-product-slider-controls">
+          <button type="button" class="top-product-slider-btn" id="homeFeaturedPrev" aria-label="Önceki ürünler" onclick="scrollHomeFeaturedRail(-1)"><i class="fas fa-chevron-left"></i></button>
+          <button type="button" class="top-product-slider-btn" id="homeFeaturedNext" aria-label="Sonraki ürünler" onclick="scrollHomeFeaturedRail(1)"><i class="fas fa-chevron-right"></i></button>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;color:#3a4254;letter-spacing:1px;text-transform:uppercase">
-        <i class="fas fa-star" style="color:#d5a33f"></i>
-        <span id="campaignHeroLabel">Premium Kampanya</span>
-      </div>
-      <div class="campaign-stream-grid" id="campaignStreamGrid"></div>
+      <div class="top-product-slider-track" id="homeFeaturedRail"></div>
     </div>
   </div>
   <div class="local-seo-section">
@@ -1876,9 +1876,7 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 
 <script>
 const WA_NUMBER = '905012110958';
-const LIVE_CAMPAIGN_STREAM_KEY = 'gp_live_campaign_stream_v1';
-const LIVE_CAMPAIGN_STREAM_CONFIG_KEY = 'gp_live_campaign_stream_config_v1';
-const CAMPAIGN_HERO_CONTENT_KEY = 'gp_campaign_hero_content_v1';
+const HOME_FEATURED_PRODUCTS_KEY = 'gp_home_featured_products_v1';
 const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
@@ -1906,17 +1904,7 @@ const DEFAULT_FROM_YOU_SHOWCASE = [
   {src:'resimler/foto8.jpg',images:['resimler/foto8.jpg','resimler/foto9.jpg'],title:'Nilüfer Zebra + Fon',location:'Nilüfer',comment:'Model önerisi çok başarılıydı, salon şimdi çok daha modern görünüyor.'},
   {src:'resimler/foto11.jpg',images:['resimler/foto11.jpg','resimler/foto10.jpg'],title:'Yatak Odası Dönüşümü',location:'Yıldırım',comment:'Işık dengesi harika oldu, işçilik gerçekten çok özenliydi.'}
 ];
-const DEFAULT_LIVE_CAMPAIGN_STREAM = [
-  {id:'premium-zebra',productId:'zebra-premium-gri',title:'Premium Zebra Perde',label:'Yeni',price:2390,oldPrice:2790,image:'resimler/foto9.jpg',buttonText:'Ürünü İncele',active:true},
-  {id:'plise-kampanya',productId:'plise-krem-160x200',title:'Plise Perde Krem 160x200',label:'Kampanya',price:1450,oldPrice:1690,image:'resimler/foto7.jpg',buttonText:'Ürünü İncele',active:true},
-  {id:'stor-salon',productId:'stor-salon-antrasit',title:'Stor Perde Antrasit Seri',label:'Çok Satan',price:1890,oldPrice:2190,image:'resimler/foto8.jpg',buttonText:'Detaylar',active:true}
-];
-const DEFAULT_CAMPAIGN_HERO_CONTENT = {
-  label:'Premium Kampanya',
-  title:'Vitrin Ürünlerde Özel Fiyatlar',
-  subtitle:'Tam genişlikte premium vitrin; yönetim panelinden seçtiğiniz ürünler anında güncellenir.',
-  actionText:'Tüm Ürünleri Gör'
-};
+const DEFAULT_HOME_FEATURED_PRODUCTS = ['zebra-premium-gri','plise-krem-160x200','stor-salon-antrasit'];
 const DEFAULT_SURPRISE_CAMPAIGN = {
   enabled:true,
   triggerMinute:1.5,
@@ -1930,13 +1918,6 @@ const DEFAULT_SURPRISE_CAMPAIGN = {
   targetProduct:'',
   targetPath:'#products'
 };
-const DEFAULT_LIVE_CAMPAIGN_STREAM_CONFIG = {
-  sourceMode:'manual',
-  categoryKey:'',
-  productId:''
-};
-
-
 
 const HOME_PROMO_PANEL_KEY = 'gp_home_promo_panel_v1';
 const HOME_PROMO_SEEN_SESSION_KEY = 'gp_home_promo_seen_v1';
@@ -2246,129 +2227,47 @@ function renderHomeShowcaseSections(){
   renderCustomerShowcaseReviews();
   renderFromYouShowcase('fromYouPreviewGrid', Number.POSITIVE_INFINITY);
 }
-function getLiveCampaignStreamItems(){
+function getHomeFeaturedProductIds(){
   try{
-    const parsed = JSON.parse(localStorage.getItem(LIVE_CAMPAIGN_STREAM_KEY) || 'null');
-    if(Array.isArray(parsed) && parsed.length) return parsed;
-  }catch(_){}
-  return DEFAULT_LIVE_CAMPAIGN_STREAM;
+    const parsed = JSON.parse(localStorage.getItem(HOME_FEATURED_PRODUCTS_KEY) || 'null');
+    if(Array.isArray(parsed) && parsed.length) return parsed.map((id)=>String(id || '').trim()).filter(Boolean);
+  }catch(_){ }
+  return [...DEFAULT_HOME_FEATURED_PRODUCTS];
 }
-function getLiveCampaignStreamConfig(){
-  try{
-    const parsed = JSON.parse(localStorage.getItem(LIVE_CAMPAIGN_STREAM_CONFIG_KEY) || 'null') || {};
-    return {
-      sourceMode: ['manual','category','product'].includes(parsed.sourceMode) ? parsed.sourceMode : DEFAULT_LIVE_CAMPAIGN_STREAM_CONFIG.sourceMode,
-      categoryKey: String(parsed.categoryKey || '').trim(),
-      productId: String(parsed.productId || '').trim()
-    };
-  }catch(_){
-    return {...DEFAULT_LIVE_CAMPAIGN_STREAM_CONFIG};
-  }
+function getHomeFeaturedProducts(){
+  const selectedIds = getHomeFeaturedProductIds();
+  const selectedProducts = selectedIds
+    .map((id)=>PRODUCTS.find((item)=>String(item.id)===id && item?.active))
+    .filter(Boolean);
+  if(selectedProducts.length) return selectedProducts.slice(0, 12);
+  return PRODUCTS.filter((item)=>item?.active).slice(0, 12);
 }
-function buildCampaignItemsFromSourceConfig(config){
-  if(config.sourceMode === 'category' && config.categoryKey){
-    return PRODUCTS.filter((p)=>p?.active && String(p.cat) === config.categoryKey)
-      .slice(0, 8)
-      .map((p)=>({
-        id:`cat-${p.id}`,
-        productId:p.id,
-        title:p.name,
-        label:'Kategori Vitrini',
-        price:Number(p.price)||0,
-        oldPrice:Number(p.oldPrice)||0,
-        image:p.image || p.images?.[0] || 'resimler/foto6.jpg',
-        unit:p.unit || '',
-        buttonText:'Ürünü İncele',
-        active:true
-      }));
-  }
-  if(config.sourceMode === 'product' && config.productId){
-    const p = PRODUCTS.find((item)=>String(item.id) === config.productId && item?.active);
-    if(p){
-      return [{
-        id:`product-${p.id}`,
-        productId:p.id,
-        title:p.name,
-        label:'Öne Çıkan Ürün',
-        price:Number(p.price)||0,
-        oldPrice:Number(p.oldPrice)||0,
-        image:p.image || p.images?.[0] || 'resimler/foto6.jpg',
-        unit:p.unit || '',
-        buttonText:'Ürünü İncele',
-        active:true
-      }];
-    }
-  }
-  return getLiveCampaignStreamItems().filter(item=>item && item.active!==false).slice(0,6);
-}
-function formatTl(value){
-  return `${(Number(value)||0).toLocaleString('tr-TR')} TL`;
-}
-function getCampaignHeroContent(){
-  try{
-    const parsed = JSON.parse(localStorage.getItem(CAMPAIGN_HERO_CONTENT_KEY) || 'null') || {};
-    return {
-      label: String(parsed.label || DEFAULT_CAMPAIGN_HERO_CONTENT.label).trim(),
-      title: String(parsed.title || DEFAULT_CAMPAIGN_HERO_CONTENT.title).trim(),
-      subtitle: String(parsed.subtitle || DEFAULT_CAMPAIGN_HERO_CONTENT.subtitle).trim(),
-      actionText: String(parsed.actionText || DEFAULT_CAMPAIGN_HERO_CONTENT.actionText).trim()
-    };
-  }catch(_){
-    return {...DEFAULT_CAMPAIGN_HERO_CONTENT};
-  }
-}
-function renderCampaignHeroContent(){
-  const content = getCampaignHeroContent();
-  const label = document.getElementById('campaignHeroLabel');
-  const title = document.getElementById('campaignHeroTitle');
-  const subtitle = document.getElementById('campaignHeroSubtitle');
-  const btn = document.getElementById('campaignHeroActionBtn');
-  if(label) label.textContent = content.label || DEFAULT_CAMPAIGN_HERO_CONTENT.label;
-  if(title) title.textContent = content.title || DEFAULT_CAMPAIGN_HERO_CONTENT.title;
-  if(subtitle) subtitle.textContent = content.subtitle || DEFAULT_CAMPAIGN_HERO_CONTENT.subtitle;
-  if(btn) btn.textContent = content.actionText || DEFAULT_CAMPAIGN_HERO_CONTENT.actionText;
-}
-function renderLiveCampaignStream(){
-  const grid = document.getElementById('campaignStreamGrid');
-  if(!grid) return;
-  renderCampaignHeroContent();
-  const sourceConfig = getLiveCampaignStreamConfig();
-  const list = buildCampaignItemsFromSourceConfig(sourceConfig);
+function renderHomeFeaturedProducts(){
+  const rail = document.getElementById('homeFeaturedRail');
+  if(!rail) return;
+  const list = getHomeFeaturedProducts();
   if(!list.length){
-    grid.innerHTML = '<div class="campaign-stream-empty">Canlı fırsat kartı bulunmuyor. Admin panelinden ekleyebilirsiniz.</div>';
+    rail.innerHTML = '<div class="campaign-stream-empty">Gösterilecek ürün bulunamadı.</div>';
     return;
   }
-  const cards = list.map((item,idx)=>{
-    const linked = PRODUCTS.find(p=>String(p.id)===String(item.productId));
-    const image = resolveAssetUrl(item.image || linked?.image || linked?.images?.[0] || 'resimler/foto6.jpg');
-    const name = item.title || linked?.name || 'Kampanyalı Ürün';
-    const price = Number(item.price || linked?.price || 0);
-    const oldPrice = Number(item.oldPrice || linked?.oldPrice || 0);
-    const unit = item.unit || linked?.unit || '';
-    const action = linked ? `openModalFromProduct('${escapeInline(linked.id)}')` : `go('products')`;
-    return `<article class="campaign-stream-card">
-      <div class="campaign-stream-media">
-        <img src="${image}" ${imageFallbackAttr(image)} alt="${name}" loading="${idx<2?'eager':'lazy'}" decoding="async">
-        <span class="campaign-stream-badge">${item.label || 'Özel Fiyat'}</span>
-      </div>
-      <div class="campaign-stream-name">${name}</div>
-      <div class="campaign-stream-price">
-        <span class="new">${formatTl(price)}</span>
-        ${oldPrice>price?`<span class="old">${formatTl(oldPrice)}</span>`:''}
-        ${unit?`<span class="unit">/ ${unit}</span>`:''}
-      </div>
-      <button class="campaign-stream-btn" onclick="${action}">${item.buttonText || 'Ürünü İncele'}</button>
-    </article>`;
-  }).join('');
-  const shouldAutoScroll = list.length > 3;
-  if(shouldAutoScroll){
-    grid.classList.add('auto-scroll');
-    grid.innerHTML = `<div class="campaign-stream-rail">${cards}${cards}</div>`;
-  }else{
-    grid.classList.remove('auto-scroll');
-    grid.innerHTML = cards;
-  }
+  rail.innerHTML = list.map((product)=>`
+    <article class="top-product-card" onclick="openModalFromProduct('${escapeInline(product.id)}')">
+      <div class="top-product-thumb"><img src="${resolveAssetUrl(product.image || product.images?.[0] || 'resimler/foto6.jpg')}" ${imageFallbackAttr(product.image || product.images?.[0] || 'resimler/foto6.jpg')} alt="${product.name}" loading="lazy" decoding="async"></div>
+      <span class="top-product-badge">${product.badge || 'Öne Çıkan'}</span>
+      <h4>${product.name}</h4>
+      <p>${(product.desc || 'Premium kumaş kalitesi ve profesyonel montaj ile uygulanır.').slice(0,90)}</p>
+      <div class="top-product-price-row"><strong>${formatPrice(product.price)}</strong>${product.oldPrice>product.price?`<span>${formatPrice(product.oldPrice)}</span>`:''}</div>
+      <button type="button">Ürünü İncele <i class="fas fa-arrow-right"></i></button>
+    </article>
+  `).join('');
 }
+function scrollHomeFeaturedRail(direction=1){
+  const rail = document.getElementById('homeFeaturedRail');
+  if(!rail) return;
+  const amount = Math.max(220, Math.floor(rail.clientWidth * 0.75));
+  rail.scrollBy({ left: amount * direction, behavior:'smooth' });
+}
+
 function renderFromYouShowcase(targetId='fromYouPageGrid', limit=12){
   const grid = document.getElementById(targetId);
   if(!grid) return;
@@ -2646,7 +2545,7 @@ function renderProductState(list, {withObserver=true} = {}){
   syncCategoriesFromAdmin();
   renderProducts(PRODUCTS);
   updateTopProductRail(PRODUCTS);
-  renderLiveCampaignStream();
+  renderHomeFeaturedProducts();
   renderHomePromoPanel();
   const topRail = document.getElementById('topProductRail');
   if(topRail && !topRail.dataset.boundScroll){
@@ -4090,7 +3989,7 @@ window.addEventListener('load',()=>{
   else setTimeout(()=>hideLoader(false),320);
   runSafely('renderHomeShowcaseSections', ()=>renderHomeShowcaseSections());
   runSafely('renderFooterPaymentLogos', ()=>renderFooterPaymentLogos());
-  runSafely('renderLiveCampaignStream', ()=>renderLiveCampaignStream());
+  runSafely('renderHomeFeaturedProducts', ()=>renderHomeFeaturedProducts());
   runSafely('renderHomePromoPanel', ()=>renderHomePromoPanel());
   runSafely('renderSurpriseCampaign', ()=>renderSurpriseCampaign());
   runSafely('scheduleSurpriseCampaignModal', ()=>scheduleSurpriseCampaignModal());
@@ -4126,7 +4025,7 @@ window.addEventListener('storage',(event)=>{
     renderFromYouShowcase('fromYouPageGrid', 12);
     initObserver();
   }
-  if(event.key===LIVE_CAMPAIGN_STREAM_KEY || event.key===CAMPAIGN_HERO_CONTENT_KEY || event.key===LIVE_CAMPAIGN_STREAM_CONFIG_KEY) renderLiveCampaignStream();
+  if(event.key===HOME_FEATURED_PRODUCTS_KEY) renderHomeFeaturedProducts();
   if(event.key===SURPRISE_CAMPAIGN_KEY) scheduleSurpriseCampaignModal();
 });
 
