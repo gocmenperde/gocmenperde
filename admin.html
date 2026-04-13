@@ -1944,7 +1944,10 @@ function buildAutoFromYouComment(title, note){
   ];
   const pick = packs[Math.floor(Math.random()*packs.length)];
   const prefix = 'Müşteri yorumu: ';
-  return `${prefix}${pick}${note ? ` (${note})` : ''}`;
+  return `${prefix}${pick}`;
+}
+function sanitizeCustomerText(str){
+  return String(str || '').replace(/\bbilmem\s*be\b/gi,'').replace(/\s{2,}/g,' ').trim();
 }
 function getFromYouItemImages(item){
   if(!item) return [];
@@ -2020,9 +2023,9 @@ function renderFromYouRows(){
   body.innerHTML = fromYouItems.map((item, idx)=>`
     <tr>
       <td>${idx+1}</td>
-      <td><img class="product-thumb" src="${resolveAssetUrl(getFromYouItemImages(item)[0] || '')}" ${withImageFallback(getFromYouItemImages(item)[0] || '')} alt="${item.title || 'Müşteri evi fotoğrafı'}"></td>
+      <td><img class="product-thumb" src="${resolveAssetUrl(getFromYouItemImages(item)[0] || 'resimler/foto6.jpg')}" ${withImageFallback(getFromYouItemImages(item)[0] || 'resimler/foto6.jpg')} alt="${item.title || 'Müşteri evi fotoğrafı'}"></td>
       <td><b>${item.title || '-'}</b><small style="display:block;color:var(--slate-light);margin-top:3px">${item.location || '-'}</small><small style="display:block;color:var(--slate-light);margin-top:3px">📷 ${getFromYouItemImages(item).length} fotoğraf</small></td>
-      <td>${item.comment || '-'}</td>
+      <td>${sanitizeCustomerText(item.comment) || '-'}</td>
       <td style="display:flex;gap:6px">
         <button class="icon-btn edit" onclick="editFromYouItem(${idx})" title="Düzenle"><i class="fas fa-pen"></i></button>
         <button class="icon-btn del" onclick="removeFromYouItem(${idx})" title="Sil"><i class="fas fa-trash"></i></button>
@@ -2057,7 +2060,7 @@ function addFromYouEntry(){
   const note = document.getElementById('fromYouNote')?.value.trim();
   if(!src || !title){ aToast('Fotoğraf ve başlık zorunludur'); return; }
   const comment = buildAutoFromYouComment(title, note);
-  const payload = {src,title,location,note,comment,images,author:'Doğrulanmış Müşteri'};
+  const payload = {src,title,location,note,comment:sanitizeCustomerText(comment),images,author:'Doğrulanmış Müşteri'};
   if(editingFromYouIndex >= 0 && fromYouItems[editingFromYouIndex]){
     const prev = fromYouItems[editingFromYouIndex];
     fromYouItems[editingFromYouIndex] = {...prev,...payload};

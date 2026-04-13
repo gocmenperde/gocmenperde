@@ -344,7 +344,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .review-stars{color:var(--gold);font-size:0.8rem;margin-bottom:16px;letter-spacing:2px}
 .review-text{font-family:var(--ff-display);font-size:1.05rem;font-weight:400;color:var(--ink);line-height:1.8;font-style:italic;margin-bottom:20px}
 .review-author{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--slate);font-weight:500}
-.from-you-preview{padding:70px 0 20px}
+.from-you-preview{padding:74px 5% 28px;background:linear-gradient(180deg,#fff 0%,#faf7f1 100%)}
 #from-you{background:radial-gradient(circle at top right,rgba(201,168,76,0.2),transparent 45%),linear-gradient(165deg,#110f0d 0%,#1f1a14 55%,#2b241b 100%);padding:95px 5%}
 .from-you-hero{width:min(1520px,98%);margin:0 auto}
 #from-you .section-tag{color:#f2d27a}
@@ -358,10 +358,10 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .floating-cta .cta-call{background:#fff;color:var(--ink);border:1px solid var(--border)}
 @media(max-width:640px){.floating-cta a span{display:none}.floating-cta a{width:44px;height:44px;justify-content:center;padding:0}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.cursor-dot,.cursor-ring{display:none!important}}
-.from-you-card{position:relative;overflow:hidden;border-radius:18px;border:1px solid rgba(255,255,255,0.16);background:rgba(255,255,255,0.06);backdrop-filter:blur(4px);min-height:320px;box-shadow:0 20px 40px rgba(0,0,0,0.22);transition:transform .35s ease, box-shadow .35s ease}
-.from-you-card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 28px 50px rgba(0,0,0,0.32)}
+.from-you-card{position:relative;overflow:hidden;border-radius:20px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);backdrop-filter:blur(4px);min-height:320px;box-shadow:0 20px 40px rgba(0,0,0,0.22);transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease}
+.from-you-card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 28px 50px rgba(0,0,0,0.32);border-color:rgba(242,210,122,0.55)}
 .from-you-card img{width:100%;height:100%;object-fit:cover;display:block}
-.from-you-card-overlay{position:absolute;inset:auto 0 0 0;padding:18px;background:linear-gradient(to top,rgba(0,0,0,0.85),rgba(0,0,0,0.1));color:#fff}
+.from-you-card-overlay{position:absolute;inset:auto 0 0 0;padding:18px;background:linear-gradient(to top,rgba(0,0,0,0.9) 10%,rgba(0,0,0,0.3) 65%,rgba(0,0,0,0));color:#fff}
 .from-you-card-overlay h4{font-family:var(--ff-display);font-size:1.25rem;margin-bottom:8px}
 .from-you-card-overlay p{font-size:0.8rem;line-height:1.6;color:rgba(255,255,255,0.9)}
 .from-you-card-badge{display:inline-flex;padding:5px 10px;border-radius:999px;font-size:0.62rem;letter-spacing:1.3px;text-transform:uppercase;background:rgba(242,210,122,0.25);border:1px solid rgba(242,210,122,0.45);margin-bottom:8px}
@@ -1917,6 +1917,9 @@ function starsFromRating(rating){
 function escapeInline(str){
   return String(str || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 }
+function sanitizeCustomerText(str){
+  return String(str || '').replace(/\bbilmem\s*be\b/gi,'').replace(/\s{2,}/g,' ').trim();
+}
 function getFromYouImages(item){
   if(!item) return [];
   const list = Array.isArray(item.images) ? item.images : [];
@@ -1953,7 +1956,7 @@ function renderCustomerShowcaseReviews(){
   grid.innerHTML = reviews.map((review)=>`
     <div class="review-card">
       <div class="review-stars">${starsFromRating(review.rating)}</div>
-      <p class="review-text">"${review.text || 'Çok memnun kaldık, teşekkür ederiz.'}"</p>
+      <p class="review-text">"${sanitizeCustomerText(review.text) || 'Çok memnun kaldık, teşekkür ederiz.'}"</p>
       <div class="review-author">${review.author || 'Doğrulanmış Müşteri'}</div>
     </div>
   `).join('');
@@ -2061,16 +2064,20 @@ function renderFromYouShowcase(targetId='fromYouPageGrid', limit=12){
     grid.innerHTML = '<div class="review-card">Henüz müşteri paylaşımı yok.</div>';
     return;
   }
-  grid.innerHTML = list.map((item, idx)=>`
-    <article class="from-you-card" role="button" tabindex="0" onclick="openFromYouGallery('${escapeInline(targetId)}',${idx})" onkeydown="if(event.key==='Enter' || event.key===' '){event.preventDefault();openFromYouGallery('${escapeInline(targetId)}',${idx})}">
-      <img src="${resolveAssetUrl(getFromYouImages(item)[0] || '')}" ${imageFallbackAttr(getFromYouImages(item)[0] || '')} alt="${item.title || ('Müşteri evi ' + (idx+1))}" loading="${idx < 2 ? 'eager' : 'lazy'}" fetchpriority="${idx === 0 ? 'high' : 'auto'}" decoding="async">
-      <div class="from-you-card-overlay">
-        <span class="from-you-card-badge">${item.location || 'Doğrulanmış Müşteri'}</span>
-        <h4>Müşteri Yorumu</h4>
-        <p>“${item.comment || 'Sonuç beklentimizin de üzerinde oldu.'}”</p>${getFromYouImages(item).length>1 ? `<p style="margin-top:6px;font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;opacity:0.85"><i class="fas fa-images"></i> ${getFromYouImages(item).length} fotoğraf</p>` : ''}
-      </div>
-    </article>
-  `).join('');
+  grid.innerHTML = list.map((item, idx)=>{
+    const photos = getFromYouImages(item);
+    const cover = photos[0] || 'resimler/foto6.jpg';
+    return `
+      <article class="from-you-card" role="button" tabindex="0" onclick="openFromYouGallery('${escapeInline(targetId)}',${idx})" onkeydown="if(event.key==='Enter' || event.key===' '){event.preventDefault();openFromYouGallery('${escapeInline(targetId)}',${idx})}">
+        <img src="${resolveAssetUrl(cover)}" ${imageFallbackAttr(cover)} alt="${item.title || ('Müşteri evi ' + (idx+1))}" loading="${idx < 2 ? 'eager' : 'lazy'}" fetchpriority="${idx === 0 ? 'high' : 'auto'}" decoding="async">
+        <div class="from-you-card-overlay">
+          <span class="from-you-card-badge">${item.location || 'Doğrulanmış Müşteri'}</span>
+          <h4>Müşteri Yorumu</h4>
+          <p>“${sanitizeCustomerText(item.comment) || 'Sonuç beklentimizin de üzerinde oldu.'}”</p>${photos.length>1 ? `<p style="margin-top:6px;font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;opacity:0.85"><i class="fas fa-images"></i> ${photos.length} fotoğraf</p>` : ''}
+        </div>
+      </article>
+    `;
+  }).join('');
 }
 function openFromYouGallery(targetId, index){
   const list = FROM_YOU_RENDERED_MAP[targetId] || [];
