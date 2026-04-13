@@ -4457,6 +4457,18 @@ function onStreetChanged(value){
   syncAddressFromParts();
 }
 
+function setAddressPartManualFallback(partId, hasStructuredOptions){
+  const selectEl = document.getElementById(partId);
+  const otherEl = document.getElementById(`${partId}-other`);
+  if(!selectEl || !otherEl) return;
+  if(hasStructuredOptions){
+    if(selectEl.value !== 'diger') otherEl.classList.add('hidden');
+    return;
+  }
+  selectEl.value = 'diger';
+  otherEl.classList.remove('hidden');
+}
+
 function uniqTrimmedStrings(values){
   return Array.from(new Set((Array.isArray(values) ? values : []).map((v)=>String(v || '').trim()).filter(Boolean)));
 }
@@ -4486,9 +4498,11 @@ function populateStreetOptions(streets = []){
   const streetEl = document.getElementById('f-street');
   if(!avenueEl || !streetEl) return;
   const allStreets = uniqTrimmedStrings(streets);
-  const avenues = allStreets.filter((item)=>/\bcadde\b|\bcd\b/i.test(item));
-  const onlyStreets = allStreets.filter((item)=>/\bsokak\b|\bsk\b/i.test(item));
-  const uncategorized = allStreets.filter((item)=>!/\bcadde\b|\bcd\b|\bsokak\b|\bsk\b/i.test(item));
+  const avenuePattern = /\bcadde(si)?\b|\bcd\b|\bbulvar(i)?\b/i;
+  const streetPattern = /\bsokak\b|\bsokagi\b|\bsk\b/i;
+  const avenues = allStreets.filter((item)=>avenuePattern.test(item));
+  const onlyStreets = allStreets.filter((item)=>streetPattern.test(item));
+  const uncategorized = allStreets.filter((item)=>!avenuePattern.test(item) && !streetPattern.test(item));
   const avenueOptions = uniqTrimmedStrings([...(avenues.length ? avenues : []), ...uncategorized]);
   const streetOptions = uniqTrimmedStrings([...(onlyStreets.length ? onlyStreets : []), ...uncategorized]);
   avenueEl.innerHTML = '<option value="">Cadde seçin</option>' +
@@ -4497,6 +4511,8 @@ function populateStreetOptions(streets = []){
   streetEl.innerHTML = '<option value="">Sokak seçin</option>' +
     streetOptions.map((item)=>`<option value="${item}">${item}</option>`).join('') +
     '<option value="diger">Diğeri</option>';
+  setAddressPartManualFallback('f-avenue', avenueOptions.length > 0);
+  setAddressPartManualFallback('f-street', streetOptions.length > 0);
 }
 
 function getSelectedDistrictValue(){
