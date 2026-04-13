@@ -5,6 +5,54 @@ const loginAttempts = new Map();
 const MAX_ATTEMPTS = 7;
 const WINDOW_MS = 1000 * 60 * 10;
 
+async function listUserAddresses(userId) {
+  const hasAddressTable = await pool.query(
+    "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'adresler') AS exists"
+  );
+
+  if (hasAddressTable.rows?.[0]?.exists) {
+    const columns = await pool.query(
+      "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'adresler'"
+    );
+    const available = new Set(columns.rows.map((row) => row.column_name));
+    const selectFragments = [
+      available.has('id') ? 'id' : 'ROW_NUMBER() OVER (ORDER BY COALESCE(created_at, NOW()) DESC) AS id',
+      available.has('baslik') ? 'baslik' : "'Kayıtlı Adres'::text AS baslik",
+      available.has('adres') ? 'adres' : "''::text AS adres",
+      available.has('created_at') ? 'created_at' : 'NOW() AS created_at',
+    ];
+    const whereColumn = available.has('musteri_id') ? 'musteri_id' : null;
+    if (whereColumn) {
+      const result = await pool.query(
+        `SELECT ${selectFragments.join(', ')} FROM adresler WHERE ${whereColumn} = $1 ORDER BY created_at DESC NULLS LAST`,
+        [userId]
+      );
+      return result.rows.map((row) => ({
+        id: row.id,
+        baslik: row.baslik || 'Kayıtlı Adres',
+        adres: row.adres || '',
+        created_at: row.created_at || null,
+      }));
+    }
+  }
+
+  const fallbackRows = await pool.query(
+    `SELECT MIN(id) AS id, MAX(created_at) AS created_at, adres
+     FROM siparisler
+     WHERE musteri_id = $1 AND COALESCE(TRIM(adres), '') <> ''
+     GROUP BY adres
+     ORDER BY MAX(created_at) DESC`,
+    [userId]
+  );
+
+  return fallbackRows.rows.map((row, index) => ({
+    id: row.id || `order_addr_${index + 1}`,
+    baslik: `Sipariş Adresi ${index + 1}`,
+    adres: row.adres,
+    created_at: row.created_at || null,
+  }));
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
@@ -126,8 +174,8 @@ module.exports = async function handler(req, res) {
     if (action === 'addresses' && req.method === 'GET') {
       const user = verifyAuthToken(req);
       if (!user) return res.status(401).json({ error: 'Oturum geçersiz.' });
-      const result = await pool.query('SELECT * FROM adresler WHERE musteri_id = $1 ORDER BY created_at DESC', [user.id]);
-      return res.status(200).json({ success: true, addresses: result.rows });
+      const addresses = await listUserAddresses(user.id);
+      return res.status(200).json({ success: true, addresses });
     }
 
     if (action === 'add-address' && req.method === 'POST') {
