@@ -1097,6 +1097,21 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
     </div>
   </div>
 </div>
+<div class="home-promo-modal" id="surpriseCampaignModal" aria-hidden="true">
+  <div class="home-promo-shell" role="dialog" aria-modal="true" aria-labelledby="surpriseCampaignTitle">
+    <button class="home-promo-close" type="button" aria-label="Kapat" onclick="closeSurpriseCampaignModal(true)"><i class="fas fa-xmark"></i></button>
+    <div class="home-promo-bg" id="surpriseCampaignBg"></div>
+    <div class="home-promo-overlay"></div>
+    <div class="home-promo-card">
+      <div class="home-promo-badge" id="surpriseCampaignBadge"><i class="fas fa-gift"></i> Size Özel</div>
+      <h2 class="home-promo-title" id="surpriseCampaignTitle">Kampanyaya Hak Kazandınız!</h2>
+      <p class="home-promo-sub" id="surpriseCampaignContent">Sitede geçirdiğiniz süreye özel fırsatlar hazır.</p>
+      <div class="hero-actions" style="margin-top:12px">
+        <button class="btn-primary" id="surpriseCampaignBtn" onclick="go('products');closeSurpriseCampaignModal(true)">Kampanyayı İncele</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="search-bar" id="searchBar">
   <input type="text" id="headerSearchInput" placeholder="Ürün ara..." style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-family:var(--ff-body)" oninput="liveSearch(this.value)">
@@ -1262,6 +1277,22 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
           <button class="live-pill" onclick="go('products');setCategory('koltuk')"><span class="live-pill-media"><img src="resimler/1774899432010-0-222f6c30-3bb6-440a-b26e-02904cc199d0-IMG_1770.jpeg" alt="Koltuk örtüsü"></span><span class="live-pill-text"><b>Koltuk Örtüsü</b><small>Koruma ve yenilik bir arada</small></span></button>
         </div>
       </div>
+    </div>
+  </div>
+  <div class="premium-commerce-band" style="padding-top:14px">
+    <div class="premium-commerce-shell" style="display:grid;gap:14px">
+      <div class="campaign-stream-header">
+        <div>
+          <div class="campaign-stream-title"><i class="fas fa-bolt"></i> Ana Sayfa Canlı Fırsat Vitrini</div>
+          <div class="campaign-stream-sub" id="campaignHeroSubtitle">Yönetim panelinden güncellenen canlı kampanya kartları.</div>
+        </div>
+        <button class="campaign-stream-btn" id="campaignHeroActionBtn" onclick="go('products')">Tüm Ürünleri Gör</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;color:#3a4254;letter-spacing:1px;text-transform:uppercase">
+        <i class="fas fa-star" style="color:#d5a33f"></i>
+        <span id="campaignHeroLabel">Premium Kampanya</span>
+      </div>
+      <div class="campaign-stream-grid" id="campaignStreamGrid"></div>
     </div>
   </div>
   <div class="local-seo-section">
@@ -1835,6 +1866,7 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 const WA_NUMBER = '905012110958';
 const LIVE_CAMPAIGN_STREAM_KEY = 'gp_live_campaign_stream_v1';
 const CAMPAIGN_HERO_CONTENT_KEY = 'gp_campaign_hero_content_v1';
+const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
 const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
@@ -1861,11 +1893,32 @@ const DEFAULT_FROM_YOU_SHOWCASE = [
   {src:'resimler/foto8.jpg',images:['resimler/foto8.jpg','resimler/foto9.jpg'],title:'Nilüfer Zebra + Fon',location:'Nilüfer',comment:'Model önerisi çok başarılıydı, salon şimdi çok daha modern görünüyor.'},
   {src:'resimler/foto11.jpg',images:['resimler/foto11.jpg','resimler/foto10.jpg'],title:'Yatak Odası Dönüşümü',location:'Yıldırım',comment:'Işık dengesi harika oldu, işçilik gerçekten çok özenliydi.'}
 ];
+const DEFAULT_LIVE_CAMPAIGN_STREAM = [
+  {id:'premium-zebra',productId:'zebra-premium-gri',title:'Premium Zebra Perde',label:'Yeni',price:2390,oldPrice:2790,image:'resimler/foto9.jpg',buttonText:'Ürünü İncele',active:true},
+  {id:'plise-kampanya',productId:'plise-krem-160x200',title:'Plise Perde Krem 160x200',label:'Kampanya',price:1450,oldPrice:1690,image:'resimler/foto7.jpg',buttonText:'Ürünü İncele',active:true},
+  {id:'stor-salon',productId:'stor-salon-antrasit',title:'Stor Perde Antrasit Seri',label:'Çok Satan',price:1890,oldPrice:2190,image:'resimler/foto8.jpg',buttonText:'Detaylar',active:true}
+];
+const DEFAULT_CAMPAIGN_HERO_CONTENT = {
+  label:'Premium Kampanya',
+  title:'Vitrin Ürünlerde Özel Fiyatlar',
+  subtitle:'Tam genişlikte premium vitrin; yönetim panelinden seçtiğiniz ürünler anında güncellenir.',
+  actionText:'Tüm Ürünleri Gör'
+};
+const DEFAULT_SURPRISE_CAMPAIGN = {
+  enabled:true,
+  triggerMinute:1.5,
+  badge:'Size Özel Teklif',
+  title:'Kampanyaya Hak Kazandınız!',
+  content:'Sitede geçirdiğiniz süreye özel kampanyalı ürünleri şimdi keşfedin.',
+  image:'resimler/foto8.jpg',
+  buttonText:'Kampanyayı İncele'
+};
 
 
 
 const HOME_PROMO_PANEL_KEY = 'gp_home_promo_panel_v1';
 const HOME_PROMO_SEEN_SESSION_KEY = 'gp_home_promo_seen_v1';
+const SURPRISE_CAMPAIGN_SEEN_SESSION_KEY = 'gp_surprise_campaign_seen_v1';
 const DEFAULT_HOME_PROMO_PANEL = {
   enabled:true,
   delayMs:1400,
@@ -1880,6 +1933,7 @@ const DEFAULT_HOME_PROMO_PANEL = {
   ]
 };
 let homePromoTimer = null;
+let surpriseCampaignTimer = null;
 
 const FOOTER_PAYMENT_LOGOS_KEY = 'gp_footer_payment_logos_v1';
 const DEFAULT_FOOTER_PAYMENT_LOGOS = [
@@ -1964,6 +2018,50 @@ function syncHomePromoVisibility(targetId){
   }
   clearTimeout(homePromoTimer);
   closeHomePromoPanel(false);
+}
+function getSurpriseCampaignConfig(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(SURPRISE_CAMPAIGN_KEY) || 'null');
+    if(parsed && typeof parsed === 'object'){
+      return {...DEFAULT_SURPRISE_CAMPAIGN, ...parsed};
+    }
+  }catch(_){ }
+  return {...DEFAULT_SURPRISE_CAMPAIGN};
+}
+function renderSurpriseCampaign(){
+  const cfg = getSurpriseCampaignConfig();
+  const badge = document.getElementById('surpriseCampaignBadge');
+  const title = document.getElementById('surpriseCampaignTitle');
+  const content = document.getElementById('surpriseCampaignContent');
+  const bg = document.getElementById('surpriseCampaignBg');
+  const btn = document.getElementById('surpriseCampaignBtn');
+  if(badge) badge.innerHTML = `<i class="fas fa-gift"></i> ${cfg.badge || DEFAULT_SURPRISE_CAMPAIGN.badge}`;
+  if(title) title.textContent = cfg.title || DEFAULT_SURPRISE_CAMPAIGN.title;
+  if(content) content.textContent = cfg.content || DEFAULT_SURPRISE_CAMPAIGN.content;
+  if(bg) bg.style.backgroundImage = `url('${resolveAssetUrl(cfg.image || DEFAULT_SURPRISE_CAMPAIGN.image)}')`;
+  if(btn) btn.textContent = cfg.buttonText || DEFAULT_SURPRISE_CAMPAIGN.buttonText;
+}
+function openSurpriseCampaignModal(){
+  const cfg = getSurpriseCampaignConfig();
+  const el = document.getElementById('surpriseCampaignModal');
+  if(!el || !cfg.enabled) return;
+  renderSurpriseCampaign();
+  el.classList.add('open');
+  el.setAttribute('aria-hidden','false');
+}
+function closeSurpriseCampaignModal(markSeen=true){
+  const el = document.getElementById('surpriseCampaignModal');
+  if(!el) return;
+  el.classList.remove('open');
+  el.setAttribute('aria-hidden','true');
+  if(markSeen) sessionStorage.setItem(SURPRISE_CAMPAIGN_SEEN_SESSION_KEY,'1');
+}
+function scheduleSurpriseCampaignModal(){
+  clearTimeout(surpriseCampaignTimer);
+  const cfg = getSurpriseCampaignConfig();
+  if(!cfg.enabled || sessionStorage.getItem(SURPRISE_CAMPAIGN_SEEN_SESSION_KEY)==='1') return;
+  const delay = Math.max(0, Number(cfg.triggerMinute) || 0) * 60 * 1000;
+  surpriseCampaignTimer = setTimeout(()=>openSurpriseCampaignModal(), delay);
 }
 
 function parseShowcaseJSON(key, fallback){
@@ -3704,10 +3802,15 @@ function ensureReviewFormVisibleOnMobile(){
 
 document.getElementById('homePromoClose')?.addEventListener('click',()=>closeHomePromoPanel(true));
 document.getElementById('homePromoModal')?.addEventListener('click',(e)=>{ if(e.target===document.getElementById('homePromoModal')) closeHomePromoPanel(true); });
+document.getElementById('surpriseCampaignModal')?.addEventListener('click',(e)=>{ if(e.target===document.getElementById('surpriseCampaignModal')) closeSurpriseCampaignModal(true); });
 
 document.addEventListener('keydown', (e)=>{
   if(e.key === 'Escape' && document.getElementById('homePromoModal')?.classList.contains('open')){
     closeHomePromoPanel(true);
+    return;
+  }
+  if(e.key === 'Escape' && document.getElementById('surpriseCampaignModal')?.classList.contains('open')){
+    closeSurpriseCampaignModal(true);
     return;
   }
   const modalOpen = document.getElementById('productModal')?.classList.contains('open');
@@ -3874,6 +3977,8 @@ window.addEventListener('load',()=>{
   runSafely('renderFooterPaymentLogos', ()=>renderFooterPaymentLogos());
   runSafely('renderLiveCampaignStream', ()=>renderLiveCampaignStream());
   runSafely('renderHomePromoPanel', ()=>renderHomePromoPanel());
+  runSafely('renderSurpriseCampaign', ()=>renderSurpriseCampaign());
+  runSafely('scheduleSurpriseCampaignModal', ()=>scheduleSurpriseCampaignModal());
   runSafely('renderFromYouShowcase', ()=>renderFromYouShowcase('fromYouPageGrid', 12));
   runSafely('loadFromYouShowcaseFromApi', ()=>loadFromYouShowcaseFromApi());
   runSafely('initAddressSelectors', ()=>initAddressSelectors());
@@ -3907,6 +4012,7 @@ window.addEventListener('storage',(event)=>{
     initObserver();
   }
   if(event.key===LIVE_CAMPAIGN_STREAM_KEY || event.key===CAMPAIGN_HERO_CONTENT_KEY) renderLiveCampaignStream();
+  if(event.key===SURPRISE_CAMPAIGN_KEY) scheduleSurpriseCampaignModal();
 });
 
 // ── Navigasyon ──
