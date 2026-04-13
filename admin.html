@@ -1680,6 +1680,33 @@ let fromYouItems = [];
 let editingFromYouIndex = -1;
 let footerPaymentLogos = [];
 
+async function fetchFromYouItemsFromApi(){
+  try{
+    const res = await apiFetch('/api/admin/from-you-showcase', { headers:{ 'x-admin-key': getAdminApiKey() } });
+    if(!res.ok) throw new Error('Sizden gelenler getirilemedi');
+    const payload = await res.json();
+    return Array.isArray(payload?.items) ? payload.items : [];
+  }catch(err){
+    console.warn('from-you admin fetch fallback:', err?.message || err);
+    return null;
+  }
+}
+async function persistFromYouItems(){
+  localStorage.setItem(FROM_YOU_SHOWCASE_KEY, JSON.stringify(fromYouItems));
+  try{
+    const res = await apiFetch('/api/admin/from-you-showcase', {
+      method:'PUT',
+      headers:{'Content-Type':'application/json','x-admin-key':getAdminApiKey()},
+      body: JSON.stringify({ items: fromYouItems })
+    });
+    if(!res.ok) throw new Error('Sizden gelenler kaydedilemedi');
+    return true;
+  }catch(err){
+    console.warn('from-you admin save fallback:', err?.message || err);
+    return false;
+  }
+}
+
 function getShowcaseState(key, fallback){
   try{
     const parsed = JSON.parse(localStorage.getItem(key) || 'null');
@@ -2037,6 +2064,12 @@ function renderFromYouAdminPage(){
   fromYouItems = getShowcaseState(FROM_YOU_SHOWCASE_KEY, []);
   renderFromYouRows();
   setFromYouSubmitState();
+  fetchFromYouItemsFromApi().then((items)=>{
+    if(!Array.isArray(items) || !items.length) return;
+    fromYouItems = items;
+    localStorage.setItem(FROM_YOU_SHOWCASE_KEY, JSON.stringify(fromYouItems));
+    renderFromYouRows();
+  });
 }
 function editFromYouItem(index){
   const item = fromYouItems[index];
@@ -2052,7 +2085,7 @@ function editFromYouItem(index){
   setFromYouSubmitState();
   aToast('Düzenleme modu açıldı','success');
 }
-function addFromYouEntry(){
+async function addFromYouEntry(){
   const images = getFromYouImagesFromField();
   const src = images[0] || '';
   const title = document.getElementById('fromYouTitle')?.value.trim();
@@ -2068,15 +2101,15 @@ function addFromYouEntry(){
     fromYouItems.unshift(payload);
     fromYouItems = fromYouItems.slice(0,20);
   }
-  localStorage.setItem(FROM_YOU_SHOWCASE_KEY, JSON.stringify(fromYouItems));
+  await persistFromYouItems();
   renderFromYouRows();
   const isEdit = editingFromYouIndex >= 0;
   resetFromYouForm();
   aToast(isEdit ? '✓ Sizden gelenler kartı güncellendi' : '✓ Sizden gelenler kartı eklendi (yorum otomatik oluşturuldu)','success');
 }
-function removeFromYouItem(index){
+async function removeFromYouItem(index){
   fromYouItems.splice(index,1);
-  localStorage.setItem(FROM_YOU_SHOWCASE_KEY, JSON.stringify(fromYouItems));
+  await persistFromYouItems();
   renderFromYouRows();
   if(editingFromYouIndex === index) resetFromYouForm();
   else if(editingFromYouIndex > index){ editingFromYouIndex -= 1; setFromYouSubmitState(); }
