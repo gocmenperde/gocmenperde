@@ -18,6 +18,7 @@ const sliderAds = require('../server/handlers/slider-ads');
 const adminSliderAds = require('../server/handlers/admin/slider-ads');
 const slider = require('../server/handlers/slider');
 const visits = require('../server/handlers/visits');
+const addressData = require('../server/handlers/address-data');
 
 const ROUTES = {
   'auth': auth,
@@ -33,6 +34,7 @@ const ROUTES = {
   'admin/slider-ads': adminSliderAds,
   'slider': slider,
   'visits': visits,
+  'address-data': addressData,
 };
 
 module.exports = async function handler(req, res) {
