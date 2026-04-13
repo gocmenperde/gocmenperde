@@ -580,6 +580,7 @@ tbody tr:hover td{background:#fdfcf8}
         <div class="nav-item" onclick="showPage('products')"><i class="fas fa-boxes-stacked"></i> Ürün Yönetimi</div>
         <div class="nav-item" onclick="showPage('categories');renderCatTable()"><i class="fas fa-folder-open"></i> Kategoriler</div>
         <div class="nav-item" onclick="showPage('campaigns')"><i class="fas fa-tag"></i> Kampanyalar</div>
+        <div class="nav-item" onclick="showPage('entrypanel');renderEntryPanelPage()"><i class="fas fa-door-open"></i> Giriş Paneli</div>
         <div class="nav-item" onclick="showPage('slider');loadSliderItems()"><i class="fas fa-rectangle-ad"></i> Reklam Yönetimi</div>
         <div class="nav-item" onclick="showPage('showcase');renderShowcaseAdminPage()"><i class="fas fa-images"></i> Montaj & Yorum Alanı</div>
         <div class="nav-item" onclick="showPage('fromyou');renderFromYouAdminPage()"><i class="fas fa-camera-retro"></i> Sizden Gelenler</div>
@@ -1102,6 +1103,76 @@ Işık: Yarı Geçirgen"></textarea></div>
   </div>
 </div>
 
+<!-- ══ GİRİŞ PANELİ ══ -->
+<div class="page" id="page-entrypanel">
+  <div class="breadcrumb"><i class="fas fa-home"></i> <span>Giriş Paneli</span></div>
+  <div class="page-header">
+    <div><h1>Giriş &amp; <em>Anlık Kampanya</em></h1><p>İlk açılış kampanyası ve gezerken çıkan kampanya pop-up ayarları</p></div>
+  </div>
+
+  <div class="settings-section" style="margin-bottom:16px">
+    <div class="settings-section-header"><i class="fas fa-rectangle-ad"></i> İlk Açılış: Enflasyona İnat Zam Yok Paneli</div>
+    <div class="settings-body" style="padding:16px 22px;display:grid;gap:14px">
+      <div class="form-row">
+        <div class="fg"><label>Panel Durumu</label><select id="homePromoEnabled"><option value="1">Aktif</option><option value="0">Pasif</option></select></div>
+        <div class="fg"><label>Açılış Gecikmesi (ms)</label><input type="number" id="homePromoDelay" min="0" step="100" placeholder="1400"></div>
+      </div>
+      <div class="fg"><label>Kampanya Etiketi</label><input type="text" id="homePromoCampaignLabel" placeholder="Kampanya"></div>
+      <div class="fg"><label>Ana Başlık</label><input type="text" id="homePromoTitle" placeholder="NİSAN'DA ZAM YOK!"></div>
+      <div class="fg"><label>Alt Metin</label><textarea id="homePromoSubtitle" placeholder="Tüm ürünlerde 2025 fiyatları devam ediyor!"></textarea></div>
+      <div class="form-row-3">
+        <div class="fg"><label>Özellik 1</label><input type="text" id="homePromoFeature1" placeholder="Ücretsiz Teslimat"></div>
+        <div class="fg"><label>Özellik 2</label><input type="text" id="homePromoFeature2" placeholder="Ücretsiz Kurulum"></div>
+        <div class="fg"><label>Özellik 3</label><input type="text" id="homePromoFeature3" placeholder="Taksit Seçenekleri"></div>
+      </div>
+      <div class="fg"><label>Arka Plan Görseli</label><input type="text" id="homePromoImage" placeholder="Yüklenen görsel yolu otomatik oluşur" readonly style="background:#f7f7f7"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <label class="btn btn-outline btn-sm" style="cursor:pointer"><i class="fas fa-image"></i> Cihazdan Fotoğraf Seç
+          <input type="file" id="homePromoImageFile" accept="image/*" onchange="handleHomePromoImageUpload(this)" style="display:none">
+        </label>
+        <button class="btn btn-outline btn-sm" onclick="clearHomePromoImage()"><i class="fas fa-eraser"></i> Görseli Temizle</button>
+      </div>
+      <div style="border:1px solid var(--border);border-radius:12px;padding:12px;background:#fcfbf8">
+        <div style="font-size:0.72rem;color:var(--slate-light);margin-bottom:8px">Önizleme</div>
+        <img id="homePromoPreview" src="" alt="Reklam paneli önizleme" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:1px solid var(--border)">
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="saveHomePromoSettings()"><i class="fas fa-floppy-disk"></i> Kaydet</button>
+        <button class="btn btn-outline btn-sm" onclick="resetHomePromoSettings()"><i class="fas fa-rotate-left"></i> Varsayılana Dön</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteHomePromoSettings()"><i class="fas fa-trash"></i> Reklamı Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-header"><i class="fas fa-bolt"></i> Gezinirken Aniden Göster: Kampanyaya Hak Kazandınız Pop-up</div>
+    <div class="settings-body" style="padding:16px 22px;display:grid;gap:14px">
+      <div class="form-row">
+        <div class="fg"><label>Pop-up Durumu</label><select id="surpriseCampaignEnabled"><option value="1">Aktif</option><option value="0">Pasif</option></select></div>
+        <div class="fg"><label>Kaçıncı Dakikada Çıksın?</label><input type="number" id="surpriseCampaignMinute" min="0" step="0.5" placeholder="1.5"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Rozet / Etiket</label><input type="text" id="surpriseCampaignBadge" placeholder="Size Özel Teklif"></div>
+        <div class="fg"><label>Buton Metni</label><input type="text" id="surpriseCampaignButton" placeholder="Kampanyayı İncele"></div>
+      </div>
+      <div class="fg"><label>Başlık</label><input type="text" id="surpriseCampaignTitle" placeholder="Kampanyaya Hak Kazandınız!"></div>
+      <div class="fg"><label>İçerik Metni</label><textarea id="surpriseCampaignContent" placeholder="Sitede geçirdiğiniz süreye özel avantajlar sizi bekliyor."></textarea></div>
+      <div class="fg"><label>Görsel</label><input type="text" id="surpriseCampaignImage" readonly placeholder="Yüklenen görsel yolu" style="background:#f7f7f7"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <label class="btn btn-outline btn-sm" style="cursor:pointer"><i class="fas fa-image"></i> PC/Mobilden Görsel Seç
+          <input type="file" id="surpriseCampaignImageFile" accept="image/*" onchange="handleSurpriseCampaignImageUpload(this)" style="display:none">
+        </label>
+        <button class="btn btn-outline btn-sm" onclick="clearSurpriseCampaignImage()"><i class="fas fa-eraser"></i> Görseli Temizle</button>
+      </div>
+      <img id="surpriseCampaignPreview" src="" alt="Sürpriz kampanya önizleme" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:1px solid var(--border);background:#f7f7f7">
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="saveSurpriseCampaignSettings()"><i class="fas fa-floppy-disk"></i> Kaydet</button>
+        <button class="btn btn-outline btn-sm" onclick="resetSurpriseCampaignSettings()"><i class="fas fa-rotate-left"></i> Varsayılana Dön</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ BİLDİRİMLER ══ -->
 
 <div class="page" id="page-notifications">
@@ -1139,41 +1210,6 @@ Işık: Yarı Geçirgen"></textarea></div>
       </div>
       <div id="footerLogoRows"></div>
       <p class="logo-settings-note">Ekledikleriniz tüm sayfalarda footer ödeme logolarını anında günceller. Sıralama için ↑↓ butonlarını kullanın.</p>
-    </div>
-  </div>
-
-  <div class="settings-section">
-    <div class="settings-section-header"><i class="fas fa-rectangle-ad"></i> Anasayfa Reklam Paneli</div>
-    <div class="settings-body" style="padding:16px 22px;display:grid;gap:14px">
-      <div class="form-row">
-        <div class="fg"><label>Panel Durumu</label><select id="homePromoEnabled"><option value="1">Aktif</option><option value="0">Pasif</option></select></div>
-        <div class="fg"><label>Açılış Gecikmesi (ms)</label><input type="number" id="homePromoDelay" min="0" step="100" placeholder="1400"></div>
-      </div>
-      <div class="fg"><label>Kampanya Etiketi</label><input type="text" id="homePromoCampaignLabel" placeholder="Kampanya"></div>
-      <div class="fg"><label>Ana Başlık</label><input type="text" id="homePromoTitle" placeholder="NİSAN'DA ZAM YOK!"></div>
-      <div class="fg"><label>Alt Metin</label><textarea id="homePromoSubtitle" placeholder="Tüm ürünlerde 2025 fiyatları devam ediyor!"></textarea></div>
-      <div class="form-row-3">
-        <div class="fg"><label>Özellik 1</label><input type="text" id="homePromoFeature1" placeholder="Ücretsiz Teslimat"></div>
-        <div class="fg"><label>Özellik 2</label><input type="text" id="homePromoFeature2" placeholder="Ücretsiz Kurulum"></div>
-        <div class="fg"><label>Özellik 3</label><input type="text" id="homePromoFeature3" placeholder="Taksit Seçenekleri"></div>
-      </div>
-      <div class="fg"><label>Arka Plan Görseli</label><input type="text" id="homePromoImage" placeholder="Yüklenen görsel yolu otomatik oluşur" readonly style="background:#f7f7f7"></div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-        <label class="btn btn-outline btn-sm" style="cursor:pointer"><i class="fas fa-image"></i> Cihazdan Fotoğraf Seç
-          <input type="file" id="homePromoImageFile" accept="image/*" onchange="handleHomePromoImageUpload(this)" style="display:none">
-        </label>
-        <button class="btn btn-outline btn-sm" onclick="clearHomePromoImage()"><i class="fas fa-eraser"></i> Görseli Temizle</button>
-      </div>
-      <div style="border:1px solid var(--border);border-radius:12px;padding:12px;background:#fcfbf8">
-        <div style="font-size:0.72rem;color:var(--slate-light);margin-bottom:8px">Önizleme</div>
-        <img id="homePromoPreview" src="" alt="Reklam paneli önizleme" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:1px solid var(--border)">
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        <button class="btn btn-primary btn-sm" onclick="saveHomePromoSettings()"><i class="fas fa-floppy-disk"></i> Kaydet</button>
-        <button class="btn btn-outline btn-sm" onclick="resetHomePromoSettings()"><i class="fas fa-rotate-left"></i> Varsayılana Dön</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteHomePromoSettings()"><i class="fas fa-trash"></i> Reklamı Sil</button>
-      </div>
-      <p style="font-size:0.75rem;color:var(--slate-light)">Bu panel sadece anasayfada görünür. Ürünler veya diğer sayfalara geçildiğinde otomatik kapanır.</p>
     </div>
   </div>
 
@@ -1627,12 +1663,13 @@ document.addEventListener('DOMContentLoaded', bindLoginEvents);
 //  NAVIGATION
 // ════════════════════════════════════
 let currentPage = 'dashboard';
-const pageTitles = {dashboard:'Dashboard',orders:'Siparişler',customers:'Müşteriler',favorites:'Favoriler',products:'Ürün Yönetimi',categories:'Kategoriler',campaigns:'Kampanyalar',showcase:'Montaj & Yorum Alanı',fromyou:'Sizden Gelenler',notifications:'Bildirimler',settings:'Ayarlar'};
+const pageTitles = {dashboard:'Dashboard',orders:'Siparişler',customers:'Müşteriler',favorites:'Favoriler',products:'Ürün Yönetimi',categories:'Kategoriler',campaigns:'Kampanyalar',entrypanel:'Giriş Paneli',showcase:'Montaj & Yorum Alanı',fromyou:'Sizden Gelenler',notifications:'Bildirimler',settings:'Ayarlar'};
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
 const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
 const FOOTER_PAYMENT_LOGOS_KEY = 'gp_footer_payment_logos_v1';
 const HOME_PROMO_PANEL_KEY = 'gp_home_promo_panel_v1';
+const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
 const CAMPAIGN_HERO_CONTENT_KEY = 'gp_campaign_hero_content_v1';
 const DEFAULT_HOME_PROMO_PANEL = {
   enabled:true,
@@ -1652,6 +1689,15 @@ const DEFAULT_CAMPAIGN_HERO_CONTENT = {
   title:'Vitrin Ürünlerde Özel Fiyatlar',
   subtitle:'Tam genişlikte premium vitrin; yönetim panelinden seçtiğiniz ürünler anında güncellenir.',
   actionText:'Tüm Ürünleri Gör'
+};
+const DEFAULT_SURPRISE_CAMPAIGN = {
+  enabled:true,
+  triggerMinute:1.5,
+  badge:'Size Özel Teklif',
+  title:'Kampanyaya Hak Kazandınız!',
+  content:'Sitede geçirdiğiniz süreye özel kampanyalı ürünleri şimdi keşfedin.',
+  image:'resimler/foto8.jpg',
+  buttonText:'Kampanyayı İncele'
 };
 const DEFAULT_FOOTER_PAYMENT_LOGOS = [
   {src:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Troy_logo.svg/320px-Troy_logo.svg.png',alt:'Troy'},
@@ -1866,6 +1912,76 @@ function deleteHomePromoSettings(){
   document.getElementById('homePromoEnabled').value = '0';
   saveHomePromoSettings();
   aToast('Reklam paneli pasife alındı');
+}
+function getSurpriseCampaignSettings(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(SURPRISE_CAMPAIGN_KEY) || 'null');
+    if(parsed && typeof parsed === 'object'){
+      return {...DEFAULT_SURPRISE_CAMPAIGN, ...parsed};
+    }
+  }catch(_){ }
+  return {...DEFAULT_SURPRISE_CAMPAIGN};
+}
+function updateSurpriseCampaignPreview(){
+  const src = (document.getElementById('surpriseCampaignImage')?.value || '').trim();
+  const img = document.getElementById('surpriseCampaignPreview');
+  if(!img) return;
+  img.src = src || DEFAULT_SURPRISE_CAMPAIGN.image;
+}
+function renderSurpriseCampaignSettings(){
+  const cfg = getSurpriseCampaignSettings();
+  if(document.getElementById('surpriseCampaignEnabled')) document.getElementById('surpriseCampaignEnabled').value = cfg.enabled ? '1' : '0';
+  if(document.getElementById('surpriseCampaignMinute')) document.getElementById('surpriseCampaignMinute').value = Number(cfg.triggerMinute) || 0;
+  if(document.getElementById('surpriseCampaignBadge')) document.getElementById('surpriseCampaignBadge').value = cfg.badge || '';
+  if(document.getElementById('surpriseCampaignTitle')) document.getElementById('surpriseCampaignTitle').value = cfg.title || '';
+  if(document.getElementById('surpriseCampaignContent')) document.getElementById('surpriseCampaignContent').value = cfg.content || '';
+  if(document.getElementById('surpriseCampaignImage')) document.getElementById('surpriseCampaignImage').value = cfg.image || '';
+  if(document.getElementById('surpriseCampaignButton')) document.getElementById('surpriseCampaignButton').value = cfg.buttonText || '';
+  updateSurpriseCampaignPreview();
+}
+function handleSurpriseCampaignImageUpload(input){
+  const file = input?.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const result = String(e?.target?.result || '').trim();
+    if(!result) return;
+    const imageInput = document.getElementById('surpriseCampaignImage');
+    if(imageInput) imageInput.value = result;
+    updateSurpriseCampaignPreview();
+    aToast('✓ Sürpriz kampanya görseli yüklendi','success');
+  };
+  reader.readAsDataURL(file);
+}
+function clearSurpriseCampaignImage(){
+  const imageInput = document.getElementById('surpriseCampaignImage');
+  if(imageInput) imageInput.value = '';
+  const fileInput = document.getElementById('surpriseCampaignImageFile');
+  if(fileInput) fileInput.value = '';
+  updateSurpriseCampaignPreview();
+}
+function saveSurpriseCampaignSettings(){
+  const cfg = {
+    enabled: document.getElementById('surpriseCampaignEnabled')?.value !== '0',
+    triggerMinute: Math.max(0, Number(document.getElementById('surpriseCampaignMinute')?.value) || 0),
+    badge: (document.getElementById('surpriseCampaignBadge')?.value || '').trim() || DEFAULT_SURPRISE_CAMPAIGN.badge,
+    title: (document.getElementById('surpriseCampaignTitle')?.value || '').trim() || DEFAULT_SURPRISE_CAMPAIGN.title,
+    content: (document.getElementById('surpriseCampaignContent')?.value || '').trim() || DEFAULT_SURPRISE_CAMPAIGN.content,
+    image: (document.getElementById('surpriseCampaignImage')?.value || '').trim() || DEFAULT_SURPRISE_CAMPAIGN.image,
+    buttonText: (document.getElementById('surpriseCampaignButton')?.value || '').trim() || DEFAULT_SURPRISE_CAMPAIGN.buttonText
+  };
+  localStorage.setItem(SURPRISE_CAMPAIGN_KEY, JSON.stringify(cfg));
+  updateSurpriseCampaignPreview();
+  aToast('✓ Sürpriz kampanya pop-up kaydedildi','success');
+}
+function resetSurpriseCampaignSettings(){
+  localStorage.setItem(SURPRISE_CAMPAIGN_KEY, JSON.stringify(DEFAULT_SURPRISE_CAMPAIGN));
+  renderSurpriseCampaignSettings();
+  aToast('Varsayılan sürpriz kampanya ayarları yüklendi');
+}
+function renderEntryPanelPage(){
+  renderHomePromoSettings();
+  renderSurpriseCampaignSettings();
 }
 
 function saveShowcaseImages(){ localStorage.setItem(INSTALLATION_SHOWCASE_KEY, JSON.stringify(showcaseImages)); }
@@ -2135,11 +2251,12 @@ function showPage(id){
   closeSidebar();
   if(id==='favorites') renderFavorites();
   if(id==='campaigns') renderCampaigns();
+  if(id==='entrypanel') renderEntryPanelPage();
   if(id==='slider') loadSliderItems();
   if(id==='showcase') renderShowcaseAdminPage();
   if(id==='fromyou') renderFromYouAdminPage();
   if(id==='notifications') renderNotifs();
-  if(id==='settings'){ renderFooterLogoRows(); renderHomePromoSettings(); }
+  if(id==='settings'){ renderFooterLogoRows(); }
 }
 function handleStatCardKey(event, target, filter){
   if(event.key!=='Enter' && event.key!==' ') return;
@@ -4922,6 +5039,7 @@ async function initAdmin(){
   footerPaymentLogos = getFooterPaymentLogoState();
   renderFooterLogoRows();
   renderHomePromoSettings();
+  renderSurpriseCampaignSettings();
   renderCustomTemplateButtons();
   renderCustomTemplateButtons('bulk');
   renderNotifs();
@@ -4947,6 +5065,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');const files=Array.from(e.dataTransfer.files||[]);if(files.length){const input=document.getElementById('f-imageFile');const dt=new DataTransfer();files.forEach(f=>dt.items.add(f));input.files=dt.files;handleImageSelect(input);}});
   }
   document.getElementById('homePromoImage')?.addEventListener('input', updateHomePromoPreview);
+  document.getElementById('surpriseCampaignImage')?.addEventListener('input', updateSurpriseCampaignPreview);
   window.addEventListener('pageshow', (event) => {
     if (!event.persisted) return;
     document.body.style.opacity = '0.99';
