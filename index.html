@@ -4201,6 +4201,10 @@ function recoverUIAfterResume(){
 
 const VISIT_SESSION_KEY = 'gp_visit_session_id';
 let visitHeartbeatTimer = null;
+const FOREGROUND_REFRESH_MIN_INTERVAL_MS = 120000;
+const FOREGROUND_REFRESH_DEBOUNCE_MS = 650;
+let foregroundRefreshTimer = null;
+let lastForegroundRefreshAt = 0;
 
 function getVisitSessionId(){
   try{
@@ -4238,6 +4242,44 @@ function startVisitTracking(){
     if(document.visibilityState !== 'visible') return;
     sendVisitEvent({heartbeat:true});
   }, 30000);
+}
+
+function shouldRefreshProductsOnForeground({force=false} = {}){
+  if(force) return true;
+  if(productRequestInFlight) return false;
+  const now = Date.now();
+  if(now - lastForegroundRefreshAt < FOREGROUND_REFRESH_MIN_INTERVAL_MS) return false;
+  try{
+    const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
+    if(!raw) return true;
+    const parsed = JSON.parse(raw);
+    const savedAt = Number(parsed?.savedAt || 0);
+    if(!savedAt) return true;
+    return now - savedAt > PRODUCTS_CACHE_TTL_MS;
+  }catch(_){
+    return true;
+  }
+}
+
+function refreshCatalogOnForeground({force=false} = {}){
+  if(document.visibilityState !== 'visible') return;
+  if(!shouldRefreshProductsOnForeground({force})) return;
+  lastForegroundRefreshAt = Date.now();
+  loadProducts().catch(()=>{});
+  loadHomeFeaturedProductIds();
+  loadProductsFeaturedProductIds();
+  loadActiveCampaigns();
+}
+
+function scheduleForegroundRefresh({force=false} = {}){
+  clearTimeout(foregroundRefreshTimer);
+  foregroundRefreshTimer = setTimeout(()=>{
+    if('requestIdleCallback' in window){
+      requestIdleCallback(()=>refreshCatalogOnForeground({force}), {timeout:1200});
+      return;
+    }
+    refreshCatalogOnForeground({force});
+  }, FOREGROUND_REFRESH_DEBOUNCE_MS);
 }
 
 function runSafely(taskName, fn){
@@ -4283,16 +4325,16 @@ window.addEventListener('pagehide',()=>{ sessionStorage.setItem('gp_fast_resume'
 window.addEventListener('pageshow',(ev)=>{
   if(ev.persisted) hideLoader(true);
   recoverUIAfterResume();
-  if(document.visibilityState === 'visible') loadProducts();
+  if(document.visibilityState === 'visible') scheduleForegroundRefresh({force:ev.persisted});
 });
-window.addEventListener('focus', recoverUIAfterResume);
+window.addEventListener('focus', ()=>{
+  recoverUIAfterResume();
+  scheduleForegroundRefresh();
+});
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState === 'visible'){
     recoverUIAfterResume();
-    loadProducts();
-    loadHomeFeaturedProductIds();
-    loadProductsFeaturedProductIds();
-    loadActiveCampaigns();
+    scheduleForegroundRefresh();
     sendVisitEvent({heartbeat:true});
   }
 });
