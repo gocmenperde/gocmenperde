@@ -10,9 +10,9 @@ module.exports = async function handler(req, res) {
 
   try {
     await ensureHomeFeaturedProductsSchema();
-    const result = await pool.query('SELECT product_ids AS "productIds" FROM home_featured_products_config WHERE id = 1');
+    const result = await pool.query('SELECT product_ids AS "productIds", updated_at AS "updatedAt" FROM home_featured_products_config WHERE id = 1');
     const productIds = normalizeFeaturedProductIds(result.rows[0]?.productIds || []);
-    return res.status(200).json({ success: true, productIds });
+    return res.status(200).json({ success: true, productIds, updatedAt: result.rows[0]?.updatedAt || null });
   } catch (err) {
     console.error('home-featured-products public error:', err.message);
     return res.status(500).json({ error: 'Sunucu hatası: ' + err.message });
