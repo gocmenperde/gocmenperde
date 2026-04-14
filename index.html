@@ -1013,6 +1013,19 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 .home-featured-shell h3{color:#fff}
 .home-featured-shell p{color:rgba(240,244,255,.84)}
 .home-featured-shell .premium-commerce-pill{background:rgba(12,14,22,.58);border-color:rgba(234,194,108,.7);color:#f3d99b}
+.home-featured-shell .campaign-stream-controls{display:flex;align-items:center;gap:8px}
+.home-featured-shell .campaign-stream-btn{
+  min-width:44px;
+  width:44px;
+  height:44px;
+  padding:0;
+  border-radius:12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:0;
+  font-size:.95rem;
+}
 #homeFeaturedRail{scroll-snap-type:x mandatory;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x;cursor:grab}
 #homeFeaturedRail.dragging{cursor:grabbing}
 #homeFeaturedRail .home-featured-card{scroll-snap-align:start;border:1px solid rgba(219,185,112,.45);background:linear-gradient(155deg,rgba(255,255,255,.97),rgba(248,241,228,.96));box-shadow:0 14px 24px rgba(12,15,26,.3)}
@@ -1041,6 +1054,7 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 @media(max-width:760px){
   .pulse-announcement{padding:14px}
   .home-featured-shell{padding:14px;border-radius:18px}
+  .home-featured-shell .campaign-stream-btn{min-width:42px;width:42px;height:42px}
   .campaign-stream-media{height:180px}
   .gallery-section .section-header{padding:20px;border-radius:16px}
   .live-categories-shell{padding:12px}
