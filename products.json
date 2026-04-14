@@ -3,10 +3,11 @@
     "id": "fon-perde-1776162796837-391",
     "name": "Fon Perde",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
-    "image": "resimler/1776162764458-product-1-937d7019-450f-4199-83ea-6a7b15e7e9de-IMG_9919.jpeg",
+    "image": "resimler/1776192723507-product-0-54a6d5f2-e9bf-4464-a2cf-aa8ff5df7b41-IMG_9922.jpeg",
     "images": [
-      "resimler/1776162764458-product-1-937d7019-450f-4199-83ea-6a7b15e7e9de-IMG_9919.jpeg",
-      "resimler/1776162769760-product-2-3ca6705e-ae00-41f7-80fd-b9509e8345df-IMG_9918.jpeg"
+      "resimler/1776192723507-product-0-54a6d5f2-e9bf-4464-a2cf-aa8ff5df7b41-IMG_9922.jpeg",
+      "resimler/1776192709386-product-1-d4258e2b-326e-4935-b85a-5a5289c691d8-IMG_9919.jpeg",
+      "resimler/1776192722125-product-2-1320b858-448a-43f4-9847-add7d8b24d4b-IMG_9918.jpeg"
     ],
     "price": 4999,
     "oldPrice": 5999,
@@ -16,10 +17,12 @@
     "isSquareMeter": false,
     "features": "",
     "badge": "%17 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
     "stock": 56,
     "serialNumber": "Fon-1",
+    "isLiveShowcase": true,
+    "isFeatured": true,
     "active": true,
     "specs": {
       "• Malzeme": "%100 Polyester ipliklerden dokunmuştur. Bu sayede buruşmaz, leke tutmaz ve uzun ömürlüdür.",
@@ -32,9 +35,7 @@
       "• Sıkma": "Hafif sıkma yapılması veya sıkılmadan asılması tavsiye edilir.",
       "• Ütüleme": "Gerekirse düşük sıcaklıkta tersten ütülenebilir.",
       "• Kurulama": "Güneş ışığına maruz bırakmadan, gölgede kurutulması daha uygundur."
-    },
-    "isLiveShowcase": true,
-    "isFeatured": true
+    }
   },
   {
     "id": "tul-perde-1776118956932-199",
