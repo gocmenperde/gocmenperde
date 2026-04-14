@@ -1427,6 +1427,15 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
       </div>
     </div>
     <div class="products-content">
+      <section class="campaign-stream" id="homeCampaignSection" style="margin-bottom:18px;display:none">
+        <div class="campaign-stream-header">
+          <div>
+            <div class="campaign-stream-title"><i class="fas fa-tags"></i> Güncel Kampanyalar</div>
+            <div class="campaign-stream-sub">Kuponlu kampanyaları tek tıkla sepete uygulayın.</div>
+          </div>
+        </div>
+        <div class="campaign-stream-grid" id="homeCampaignGrid"></div>
+      </section>
       <div class="top-product-slider" id="topProductSlider">
         <div class="top-product-slider-head">
           <div>
@@ -1942,6 +1951,8 @@ const DEFAULT_FOOTER_PAYMENT_LOGOS = [
   {src:'/resimler/3dsecure.JPG',alt:'3D Secure'},
   {src:'/resimler/Guvenli.JPG',alt:'Güvenli Öde'}
 ];
+let activeCampaigns = [];
+
 const FOOTER_PAYMENT_LOGO_FALLBACKS = {
   troy:'/resimler/Troy.jpg',
   mastercard:'/resimler/Mastercard.PNG',
@@ -4157,6 +4168,7 @@ window.addEventListener('load',()=>{
   runSafely('renderFooterPaymentLogos', ()=>renderFooterPaymentLogos());
   runSafely('renderHomeFeaturedProducts', ()=>renderHomeFeaturedProducts());
   runSafely('loadHomeFeaturedProductIds', ()=>loadHomeFeaturedProductIds());
+  runSafely('loadActiveCampaigns', ()=>loadActiveCampaigns());
   runSafely('renderHomePromoPanel', ()=>renderHomePromoPanel());
   runSafely('renderSurpriseCampaign', ()=>renderSurpriseCampaign());
   runSafely('scheduleSurpriseCampaignModal', ()=>scheduleSurpriseCampaignModal());
@@ -4184,6 +4196,7 @@ document.addEventListener('visibilitychange',()=>{
     recoverUIAfterResume();
     loadProducts();
     loadHomeFeaturedProductIds();
+    loadActiveCampaigns();
     sendVisitEvent({heartbeat:true});
   }
 });
@@ -4662,8 +4675,10 @@ function renderCart(){
   <div class="coupon-area">
     <input type="text" id="couponInput" class="form-input" placeholder="Kupon kodu girin">
     <button id="couponBtn" onclick="applyCoupon()">Uygula</button>
-  </div>`;
+  </div>
+  <div id="cartCampaignHints"></div>`;
   refreshTotalAmount();
+  renderCampaignCouponHints();
   footer.style.display='flex';
   if(form) form.style.display='none';
   if(cartHint) cartHint.style.display='block';
@@ -5316,6 +5331,95 @@ async function hasCompletedOrderForCoupon(){
   }
 }
 
+function isCampaignActiveNow(c){
+  if(!c || c.isActive === false) return false;
+  const today = new Date().toISOString().slice(0,10);
+  if(c.startDate && String(c.startDate) > today) return false;
+  if(c.endDate && String(c.endDate) < today) return false;
+  return true;
+}
+
+function findCouponCampaign(code=''){
+  const normalized = String(code || '').trim().toUpperCase();
+  if(!normalized) return null;
+  return activeCampaigns.find((item)=>String(item.couponCode || '').trim().toUpperCase() === normalized) || null;
+}
+
+function calculateCampaignDiscount(campaign, amount){
+  const totalAmount = Number(amount || 0);
+  if(!campaign || !Number.isFinite(totalAmount) || totalAmount <= 0) return 0;
+  if(campaign.discountType === 'amount') return roundTo2(Math.min(totalAmount, Number(campaign.discountValue || 0)));
+  return roundTo2(totalAmount * (Math.max(0, Number(campaign.discountValue || 0)) / 100));
+}
+
+function formatCampaignDiscount(campaign){
+  if(!campaign) return '';
+  if(campaign.discountType === 'amount') return `${Number(campaign.discountValue || 0).toLocaleString('tr-TR')} TL`;
+  return `%${Number(campaign.discountValue || 0).toLocaleString('tr-TR')}`;
+}
+
+function renderCampaignCards(containerId, { compact=false } = {}){
+  const box = document.getElementById(containerId);
+  if(!box) return;
+  const campaigns = activeCampaigns.filter(isCampaignActiveNow);
+  if(!campaigns.length){
+    if(containerId === 'homeCampaignGrid'){
+      const section = document.getElementById('homeCampaignSection');
+      if(section) section.style.display = 'none';
+    }
+    box.innerHTML = '';
+    return;
+  }
+  if(containerId === 'homeCampaignGrid'){
+    const section = document.getElementById('homeCampaignSection');
+    if(section) section.style.display = 'block';
+  }
+  box.innerHTML = campaigns.map((campaign)=>{
+    const coupon = campaign.couponCode ? `<span class="campaign-stream-badge"><i class="fas fa-ticket"></i> ${campaign.couponCode}</span>` : '';
+    const btnLabel = compact ? 'Sepete Uygula' : (campaign.buttonLabel || 'Kampanyayı İncele');
+    const action = campaign.couponCode
+      ? `applyCoupon('${String(campaign.couponCode || '').replace(/'/g, "\\'")}')`
+      : `navigateToCampaign(decodeURIComponent('${encodeURIComponent(campaign.targetPath || '#products')}'))`;
+    return `<article class="campaign-stream-card">
+      <div class="campaign-stream-media">
+        <img src="${campaign.imageUrl || 'resimler/foto8.jpg'}" alt="${campaign.name || 'Kampanya'}" loading="lazy" decoding="async">
+        ${coupon}
+      </div>
+      <div class="campaign-stream-name">${campaign.name || 'Kampanya'}</div>
+      <div class="campaign-stream-price"><span class="new">${formatCampaignDiscount(campaign)} İndirim</span></div>
+      <button class="campaign-stream-btn" type="button" onclick="${action}">${btnLabel}</button>
+    </article>`;
+  }).join('');
+}
+
+function renderCampaignCouponHints(){
+  renderCampaignCards('cartCampaignHints', { compact:true });
+}
+
+function navigateToCampaign(targetPath=''){
+  const path = String(targetPath || '').trim();
+  if(!path){ go('products'); return; }
+  if(path.startsWith('#')){
+    const section = path.replace('#','').trim();
+    if(section){ go(section); return; }
+  }
+  if(path.startsWith('/')){ window.location.href = path; return; }
+  go('products');
+}
+
+async function loadActiveCampaigns(){
+  try{
+    const res = await fetch('/api/campaigns', { cache:'no-store' });
+    if(!res.ok) throw new Error('Kampanya API hatası');
+    const payload = await res.json();
+    activeCampaigns = Array.isArray(payload?.items) ? payload.items : [];
+  }catch(_){
+    activeCampaigns = [];
+  }
+  renderCampaignCards('homeCampaignGrid');
+  renderCampaignCouponHints();
+}
+
 function refreshTotalAmount(){
   const amount = Math.max(0, roundTo2(total - couponDiscountAmount));
   const totalEl = document.getElementById('totalAmount');
@@ -5327,17 +5431,20 @@ async function applyCoupon(codeFromBanner=''){
   const input = document.getElementById('couponInput');
   const c = (codeFromBanner || input?.value || '').trim().toUpperCase();
   if(!c){ showToast('Kupon kodu giriniz'); return; }
-  if(c !== 'ILKSIPARIS10'){ showToast('❌ Geçersiz kupon kodu'); return; }
-  const hasOrder = await hasCompletedOrderForCoupon();
-  if(hasOrder){
-    showToast('❌ İlk sipariş kuponu sadece ilk siparişte geçerlidir');
-    return;
+  const campaign = findCouponCampaign(c);
+  if(!campaign || !isCampaignActiveNow(campaign)){ showToast('❌ Geçersiz kupon kodu'); return; }
+  if(c === 'ILKSIPARIS10'){
+    const hasOrder = await hasCompletedOrderForCoupon();
+    if(hasOrder){
+      showToast('❌ İlk sipariş kuponu sadece ilk siparişte geçerlidir');
+      return;
+    }
   }
   appliedCouponCode = c;
-  couponDiscountAmount = roundTo2(total * 0.10);
+  couponDiscountAmount = calculateCampaignDiscount(campaign, total);
   if(input) input.value = c;
   refreshTotalAmount();
-  showToast('🎉 İlk siparişe özel %10 indirim uygulandı!');
+  showToast(`🎉 ${campaign.name || c} indirimi uygulandı!`);
 }
 
 function applyPendingCouponFromStorage(){

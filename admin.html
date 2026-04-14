@@ -1499,11 +1499,23 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
       <input type="hidden" id="editCampaignIdx">
       <div class="fg"><label>Kampanya Adı *</label><input type="text" id="cm-name" placeholder="örn: Yaz Sonu İndirimi"></div>
       <div class="fg"><label>Açıklama</label><textarea id="cm-desc" placeholder="Kampanya detayları..."></textarea></div>
+      <div class="fg"><label>Kampanya Görseli *</label><input type="text" id="cm-image" placeholder="/resimler/..."></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+        <label class="btn btn-outline btn-sm" style="cursor:pointer"><i class="fas fa-image"></i> Görsel Seç
+          <input type="file" id="cm-imageFile" accept="image/*" onchange="uploadCampaignImageFromInput()" style="display:none">
+        </label>
+        <span id="cm-imageUploadStatus" style="font-size:0.72rem;color:var(--slate-light)">Henüz yüklenmedi</span>
+      </div>
       <div class="form-row">
         <div class="fg"><label>İndirim Tipi</label><select id="cm-discountType"><option value="percent">Yüzde (%)</option><option value="amount">TL Tutarı</option></select></div>
         <div class="fg"><label>İndirim Değeri</label><input type="number" id="cm-discount" placeholder="25" min="0" step="0.01"></div>
       </div>
       <div class="fg"><label>Kupon Kodu</label><input type="text" id="cm-code" placeholder="YILBASI20"></div>
+      <div class="form-row">
+        <div class="fg"><label>Buton Metni</label><input type="text" id="cm-buttonLabel" placeholder="Kampanyayı İncele"></div>
+        <div class="fg"><label>Sıra</label><input type="number" id="cm-sortOrder" value="0"></div>
+      </div>
+      <div class="fg"><label>Hedef Yol</label><input type="text" id="cm-targetPath" placeholder="#products"></div>
       <div class="form-row">
         <div class="fg"><label>Başlangıç</label><input type="date" id="cm-start"></div>
         <div class="fg"><label>Bitiş</label><input type="date" id="cm-end"></div>
@@ -3910,7 +3922,6 @@ function getCatLabel(key){return(CATEGORIES.find(c=>c.key===key)||{label:key}).l
 // ════════════════════════════════════
 //  CAMPAIGNS
 // ════════════════════════════════════
-const CAMP_KEY='gp_campaigns';
 const DEFAULT_HOME_FEATURED_PRODUCTS=['zebra-premium-gri','plise-krem-160x200','stor-salon-antrasit'];
 const HOME_FEATURED_PRODUCTS_META_KEY = 'gp_home_featured_products_meta_v1';
 let homeFeaturedProductIdsCache = [...DEFAULT_HOME_FEATURED_PRODUCTS];
@@ -4073,189 +4084,191 @@ async function resetFeaturedProducts(){
 }
 function defaultCampaigns(){
   return [
-    {id:1,name:'Sezon Sonu %25 İndirim',desc:'Tüm ürünlerde geçerli sezon sonu kampanyası.',discount:25,discountType:'percent',code:'',start:'2025-01-01',end:'2025-12-31',active:true},
-    {id:2,name:'İlk Sipariş Kuponu',desc:'Yeni müşterilere %10 indirim.',discount:10,discountType:'percent',code:'ILKSIPARIS10',start:'2025-01-01',end:'2025-12-31',active:false}
+    {id:1,name:'Sezon Sonu %25 İndirim',description:'Tüm ürünlerde geçerli sezon sonu kampanyası.',imageUrl:'resimler/foto8.jpg',discountValue:25,discountType:'percent',couponCode:'',startDate:'2026-01-01',endDate:'2026-12-31',targetPath:'#products',buttonLabel:'Kampanyayı İncele',sortOrder:0,isActive:true},
+    {id:2,name:'İlk Sipariş Kuponu',description:'Yeni müşterilere %10 indirim.',imageUrl:'resimler/foto6.jpg',discountValue:10,discountType:'percent',couponCode:'ILKSIPARIS10',startDate:'2026-01-01',endDate:'2026-12-31',targetPath:'#cart',buttonLabel:'Kuponu Kullan',sortOrder:1,isActive:true}
   ];
 }
-function getCampaigns(){
+function normalizeCampaignRecord(item={}, idx=0){
+  return {
+    id: Number(item.id || Date.now() + idx),
+    name: String(item.name || '').trim(),
+    description: String(item.description || item.desc || '').trim(),
+    imageUrl: String(item.imageUrl || item.image_url || 'resimler/foto8.jpg').trim(),
+    discountType: String(item.discountType || item.discount_type || 'percent') === 'amount' ? 'amount' : 'percent',
+    discountValue: Number(item.discountValue ?? item.discount_value ?? item.discount ?? 0) || 0,
+    couponCode: String(item.couponCode || item.coupon_code || item.code || '').trim().toUpperCase(),
+    startDate: String(item.startDate || item.start_date || item.start || '').trim(),
+    endDate: String(item.endDate || item.end_date || item.end || '').trim(),
+    targetPath: String(item.targetPath || item.target_path || '#products').trim(),
+    buttonLabel: String(item.buttonLabel || item.button_label || 'Kampanyayı İncele').trim(),
+    sortOrder: Number(item.sortOrder ?? item.sort_order ?? item.orderNo ?? idx) || 0,
+    isActive: item.isActive !== false && item.active !== false,
+  };
+}
+async function getCampaigns(){
   try{
-    const parsed = JSON.parse(localStorage.getItem(CAMP_KEY) || 'null');
-    if(Array.isArray(parsed)) return parsed;
-  }catch(_){ }
-  const defaults = defaultCampaigns();
-  localStorage.setItem(CAMP_KEY, JSON.stringify(defaults));
-  return defaults;
+    const res = await apiFetch('/api/admin/campaigns', { headers:{ 'x-admin-key': getAdminApiKey() } });
+    if(!res.ok) throw new Error('API kampanya listesi alınamadı');
+    const payload = await res.json();
+    const items = Array.isArray(payload?.items) ? payload.items : [];
+    return items.map((item,idx)=>normalizeCampaignRecord(item,idx));
+  }catch(_){
+    const fallbacks = defaultCampaigns();
+    return fallbacks.map((item,idx)=>normalizeCampaignRecord(item,idx));
+  }
 }
-function saveCampaignsList(list){
-  const next = Array.isArray(list) ? list : [];
-  localStorage.setItem(CAMP_KEY, JSON.stringify(next));
-}
-
 async function renderCampaigns(){
   if(!Array.isArray(PRODUCTS) || !PRODUCTS.length){
     await fetchProducts();
   }
-  const list = getCampaigns();
+  const list = await getCampaigns();
   document.getElementById('campaignList').innerHTML = list.map((c,i)=>`
     <div class="campaign-card">
       <div class="campaign-card-header">
-        <div><span class="campaign-badge ${c.active?'active':'paused'}"><i class="fas fa-circle" style="font-size:0.45rem"></i> ${c.active?'Aktif':'Pasif'}</span><h3 style="margin-top:6px">${c.name}</h3></div>
+        <div><span class="campaign-badge ${c.isActive?'active':'paused'}"><i class="fas fa-circle" style="font-size:0.45rem"></i> ${c.isActive?'Aktif':'Pasif'}</span><h3 style="margin-top:6px">${c.name}</h3></div>
         <div style="display:flex;gap:6px">
           <button class="icon-btn edit" onclick="editCampaign(${i})" title="Düzenle"><i class="fas fa-pen"></i></button>
           <button class="icon-btn del" onclick="deleteCampaign(${i})" title="Sil"><i class="fas fa-trash"></i></button>
         </div>
       </div>
-      <p class="campaign-desc">${c.desc}</p>
+      <div style="display:grid;grid-template-columns:minmax(120px,180px) 1fr;gap:12px;align-items:center;margin-bottom:12px">
+        <img src="${c.imageUrl || 'resimler/foto8.jpg'}" alt="${c.name}" style="width:100%;height:92px;border-radius:12px;object-fit:cover;border:1px solid var(--border)">
+        <p class="campaign-desc" style="margin:0">${c.description || 'Açıklama eklenmedi.'}</p>
+      </div>
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">
-        ${c.discount?`<span class="badge" style="background:var(--gold-light);color:#8a6c1e"><i class="fas fa-${c.discountType==='amount'?'turkish-lira-sign':'percent'}"></i> ${c.discountType==='amount'?`${Number(c.discount).toLocaleString('tr-TR')} TL`: `%${Number(c.discount).toLocaleString('tr-TR')}`} indirim</span>`:''}
-        ${c.code?`<span class="badge badge-cat"><i class="fas fa-tag"></i> ${c.code}</span>`:''}
-        ${c.start?`<span class="badge" style="background:var(--blue-light);color:var(--blue)"><i class="fas fa-calendar"></i> ${c.start} → ${c.end||'∞'}</span>`:''}
+        ${c.discountValue?`<span class="badge" style="background:var(--gold-light);color:#8a6c1e"><i class="fas fa-${c.discountType==='amount'?'turkish-lira-sign':'percent'}"></i> ${c.discountType==='amount'?`${Number(c.discountValue).toLocaleString('tr-TR')} TL`: `%${Number(c.discountValue).toLocaleString('tr-TR')}`} indirim</span>`:''}
+        ${c.couponCode?`<span class="badge badge-cat"><i class="fas fa-tag"></i> ${c.couponCode}</span>`:''}
+        ${(c.startDate || c.endDate)?`<span class="badge" style="background:var(--blue-light);color:var(--blue)"><i class="fas fa-calendar"></i> ${c.startDate || '∞'} → ${c.endDate || '∞'}</span>`:''}
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn ${c.active?'btn-danger':'btn-success'} btn-sm" onclick="toggleCampaign(${i})">${c.active?'<i class="fas fa-pause"></i> Durdur':'<i class="fas fa-play"></i> Aktive Et'}</button>
-        ${c.code?`<button class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText('${c.code}').then(()=>aToast('Kopyalandı: ${c.code}','success'))"><i class="fas fa-copy"></i> Kodu Kopyala</button>`:''}
+        <button class="btn ${c.isActive?'btn-danger':'btn-success'} btn-sm" onclick="toggleCampaign(${c.id},${i})">${c.isActive?'<i class="fas fa-pause"></i> Durdur':'<i class="fas fa-play"></i> Aktive Et'}</button>
+        ${c.couponCode?`<button class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText('${c.couponCode}').then(()=>aToast('Kopyalandı: ${c.couponCode}','success'))"><i class="fas fa-copy"></i> Kodu Kopyala</button>`:''}
       </div>
     </div>`).join('');
+  window.__campaignCache = list;
 }
-function renderLiveFeedAdminList(){
-  const box = document.getElementById('liveFeedList');
-  if(!box) return;
-  const list = getLiveCampaignStreamItems();
-  if(!list.length){
-    box.innerHTML = `<div class="campaign-card" style="padding:14px">Henüz vitrin kartı yok.</div>`;
-    return;
+function getCampaignFromCache(i){
+  return Array.isArray(window.__campaignCache) ? window.__campaignCache[i] : null;
+}
+async function uploadCampaignImageFromInput(){
+  const fileInput = document.getElementById('cm-imageFile');
+  const status = document.getElementById('cm-imageUploadStatus');
+  const file = fileInput?.files?.[0];
+  if(!file){ if(status) status.textContent='Dosya seçilmedi'; return ''; }
+  const token = localStorage.getItem('gh_token');
+  if(!token){ aToast('⚠️ Önce GitHub token girin','error'); if(status) status.textContent='Token eksik'; return ''; }
+  try{
+    if(status) status.textContent='Yükleniyor...';
+    const uploadedPath = await uploadImageWithRetry(token, file, { prefix:'campaign' });
+    document.getElementById('cm-image').value = uploadedPath || '';
+    if(status) status.textContent='✓ Yüklendi';
+    return uploadedPath || '';
+  }catch(_){
+    if(status) status.textContent='Yükleme başarısız';
+    aToast('❌ Kampanya görseli yüklenemedi','error');
+    return '';
   }
-  box.innerHTML = list.map((item,idx)=>`
-    <div class="live-feed-admin-card">
-      <img src="${item.image || 'resimler/foto6.jpg'}" alt="${item.title || 'Vitrin kartı'}" loading="lazy">
-      <h4>${item.title || 'Vitrin Kartı'}</h4>
-      <div class="live-feed-admin-meta"><span>${Number(item.price||0).toLocaleString('tr-TR')} TL</span><span>${item.label || 'Etiket yok'}</span></div>
-      <div style="display:flex;gap:6px;margin-top:8px">
-        <button class="btn btn-sm btn-outline" onclick="editLiveFeedItem(${idx})"><i class="fas fa-pen"></i></button>
-        <button class="btn btn-sm btn-danger" onclick="removeLiveFeedItem(${idx})"><i class="fas fa-trash"></i></button>
-      </div>
-    </div>
-  `).join('');
 }
-function saveLiveFeedItem(){
-  const productId = document.getElementById('liveFeedProduct')?.value || '';
-  const linkedProduct = PRODUCTS.find(p=>String(p.id)===String(productId));
-  const title = document.getElementById('liveFeedTitle')?.value.trim() || linkedProduct?.name || '';
-  const image = document.getElementById('liveFeedImage')?.value.trim() || linkedProduct?.image || linkedProduct?.images?.[0] || '';
-  if(!title || !image){ aToast('⚠️ Başlık ve görsel zorunlu','error'); return; }
-  const obj = {
-    id: Date.now().toString(),
-    productId: productId || '',
-    title,
-    label: document.getElementById('liveFeedLabel')?.value.trim() || 'Özel Fiyat',
-    buttonText: document.getElementById('liveFeedBtnText')?.value.trim() || 'Ürünü İncele',
-    price: Number(document.getElementById('liveFeedPrice')?.value || linkedProduct?.price || 0),
-    oldPrice: Number(document.getElementById('liveFeedOldPrice')?.value || linkedProduct?.oldPrice || 0),
-    image,
-    unit: linkedProduct?.unit || '',
-    active: true
-  };
-  const editIdxRaw = document.getElementById('liveFeedList')?.dataset.editIdx;
-  const list = getLiveCampaignStreamItems();
-  if(editIdxRaw!==undefined && editIdxRaw!==''){
-    list[Number(editIdxRaw)] = {...list[Number(editIdxRaw)], ...obj};
-    delete document.getElementById('liveFeedList').dataset.editIdx;
-    aToast('✓ Vitrin kartı güncellendi','success');
-  }else{
-    list.unshift(obj);
-    aToast('✓ Vitrin kartı eklendi','success');
-  }
-  saveLiveCampaignStreamItems(list.slice(0,12));
-  clearLiveFeedForm();
-  renderLiveFeedAdminList();
-}
-function clearLiveFeedForm(){
-  ['liveFeedTitle','liveFeedLabel','liveFeedPrice','liveFeedOldPrice','liveFeedImage'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.value='';
-  });
-  const btn = document.getElementById('liveFeedBtnText'); if(btn) btn.value='Ürünü İncele';
-  const p = document.getElementById('liveFeedProduct'); if(p) p.value='';
-  const name = document.getElementById('liveFeedImageName'); if(name) name.textContent='JPG, PNG, WEBP';
-}
-function editLiveFeedItem(idx){
-  const item = getLiveCampaignStreamItems()[idx];
-  if(!item) return;
-  document.getElementById('liveFeedProduct').value = item.productId || '';
-  document.getElementById('liveFeedTitle').value = item.title || '';
-  document.getElementById('liveFeedLabel').value = item.label || '';
-  document.getElementById('liveFeedBtnText').value = item.buttonText || 'Ürünü İncele';
-  document.getElementById('liveFeedPrice').value = item.price || '';
-  document.getElementById('liveFeedOldPrice').value = item.oldPrice || '';
-  document.getElementById('liveFeedImage').value = item.image || '';
-  const list = document.getElementById('liveFeedList');
-  if(list) list.dataset.editIdx = String(idx);
-  aToast('Kart düzenleme modunda','success');
-}
-function removeLiveFeedItem(idx){
-  const list = getLiveCampaignStreamItems();
-  list.splice(idx,1);
-  saveLiveCampaignStreamItems(list);
-  renderLiveFeedAdminList();
-  aToast('✓ Vitrin kartı silindi','success');
-}
-function seedLiveFeedFromProducts(){
-  const seeds = PRODUCTS.filter(p=>p.active).slice(0,4).map((p,idx)=>({
-    id:`seed-${Date.now()}-${idx}`,
-    productId:p.id,
-    title:p.name,
-    label:idx===0?'Yeni Sezon':'Kampanya',
-    buttonText:'Ürünü İncele',
-    price:Number(p.price)||0,
-    oldPrice:Number(p.oldPrice)||0,
-    image:p.image || p.images?.[0] || 'resimler/foto6.jpg',
-    unit:p.unit || '',
-    active:true
-  }));
-  if(!seeds.length){ aToast('⚠️ Aktif ürün bulunamadı','error'); return; }
-  saveLiveCampaignStreamItems(seeds);
-  renderLiveFeedAdminList();
-  aToast('✓ Ürünlerden canlı vitrin hazırlandı','success');
-}
-
 function openAddCampaignModal(){
   document.getElementById('campaignModalTitle').innerText='Yeni Kampanya';
   document.getElementById('editCampaignIdx').value='';
-  ['cm-name','cm-desc','cm-discount','cm-code','cm-start','cm-end'].forEach(id=>document.getElementById(id).value='');
+  ['cm-name','cm-desc','cm-discount','cm-code','cm-start','cm-end','cm-image','cm-buttonLabel','cm-targetPath','cm-sortOrder'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('cm-discountType').value='percent';
+  const fileInput = document.getElementById('cm-imageFile'); if(fileInput) fileInput.value='';
+  const status = document.getElementById('cm-imageUploadStatus'); if(status) status.textContent='Henüz yüklenmedi';
   campaignSwState=true;updateCampaignSwitch();
   document.getElementById('campaignModal').classList.add('open');
 }
 function editCampaign(i){
-  const c=getCampaigns()[i];
+  const c = getCampaignFromCache(i);
+  if(!c) return;
   document.getElementById('campaignModalTitle').innerText='Kampanya Düzenle';
-  document.getElementById('editCampaignIdx').value=i;
-  document.getElementById('cm-name').value=c.name;
-  document.getElementById('cm-desc').value=c.desc||'';
-  document.getElementById('cm-discount').value=c.discount||'';
-  document.getElementById('cm-code').value=c.code||'';
-  document.getElementById('cm-discountType').value=c.discountType||'percent';
-  document.getElementById('cm-start').value=c.start||'';
-  document.getElementById('cm-end').value=c.end||'';
-  campaignSwState=!!c.active;updateCampaignSwitch();
+  document.getElementById('editCampaignIdx').value=String(c.id || '');
+  document.getElementById('cm-name').value=c.name || '';
+  document.getElementById('cm-desc').value=c.description || '';
+  document.getElementById('cm-discount').value=c.discountValue || '';
+  document.getElementById('cm-code').value=c.couponCode || '';
+  document.getElementById('cm-discountType').value=c.discountType || 'percent';
+  document.getElementById('cm-start').value=c.startDate || '';
+  document.getElementById('cm-end').value=c.endDate || '';
+  document.getElementById('cm-image').value=c.imageUrl || '';
+  document.getElementById('cm-buttonLabel').value=c.buttonLabel || 'Kampanyayı İncele';
+  document.getElementById('cm-targetPath').value=c.targetPath || '#products';
+  document.getElementById('cm-sortOrder').value=String(Number(c.sortOrder)||0);
+  const status = document.getElementById('cm-imageUploadStatus'); if(status) status.textContent='Mevcut kayıt yüklü';
+  const fileInput = document.getElementById('cm-imageFile'); if(fileInput) fileInput.value='';
+  campaignSwState=!!c.isActive;updateCampaignSwitch();
   document.getElementById('campaignModal').classList.add('open');
 }
-function saveCampaign(){
+async function saveCampaign(){
   const name=document.getElementById('cm-name').value.trim();
   if(!name){aToast('⚠️ Kampanya adı zorunlu','error');return;}
-  const list=getCampaigns();
-  const obj={id:Date.now(),name,desc:document.getElementById('cm-desc').value.trim(),discount:parseFloat(document.getElementById('cm-discount').value)||0,discountType:document.getElementById('cm-discountType').value||'percent',code:document.getElementById('cm-code').value.trim().toUpperCase(),start:document.getElementById('cm-start').value,end:document.getElementById('cm-end').value,active:campaignSwState};
-  const idx=document.getElementById('editCampaignIdx').value;
-  if(idx!==''){list[parseInt(idx)]=obj;aToast('✓ Güncellendi','success');}
-  else{list.push(obj);aToast('✓ Kampanya eklendi','success');}
-  saveCampaignsList(list);closeModal('campaignModal');renderCampaigns();
+  if(!document.getElementById('cm-image').value.trim() && document.getElementById('cm-imageFile')?.files?.[0]){
+    await uploadCampaignImageFromInput();
+  }
+  const body={
+    name,
+    description:document.getElementById('cm-desc').value.trim(),
+    imageUrl:document.getElementById('cm-image').value.trim(),
+    discountValue:parseFloat(document.getElementById('cm-discount').value)||0,
+    discountType:document.getElementById('cm-discountType').value||'percent',
+    couponCode:document.getElementById('cm-code').value.trim().toUpperCase(),
+    startDate:document.getElementById('cm-start').value,
+    endDate:document.getElementById('cm-end').value,
+    targetPath:document.getElementById('cm-targetPath').value.trim(),
+    buttonLabel:document.getElementById('cm-buttonLabel').value.trim() || 'Kampanyayı İncele',
+    sortOrder:Number(document.getElementById('cm-sortOrder').value)||0,
+    isActive:campaignSwState
+  };
+  if(!body.imageUrl){ aToast('⚠️ Kampanya görseli zorunlu','error'); return; }
+  const id=document.getElementById('editCampaignIdx').value;
+  const isEdit=Boolean(id);
+  try{
+    const res = await apiFetch(`/api/admin/campaigns${isEdit?`?id=${encodeURIComponent(id)}`:''}`, {
+      method:isEdit?'PUT':'POST',
+      headers:{'Content-Type':'application/json','x-admin-key':getAdminApiKey()},
+      body:JSON.stringify(body)
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data?.error || 'Kaydedilemedi');
+    aToast(isEdit?'✓ Kampanya güncellendi':'✓ Kampanya eklendi','success');
+    closeModal('campaignModal');
+    await renderCampaigns();
+  }catch(err){
+    aToast('❌ '+(err.message || 'Kaydetme hatası'),'error');
+  }
 }
-function deleteCampaign(i){
+async function deleteCampaign(i){
+  const c = getCampaignFromCache(i);
+  if(!c) return;
   if(!confirm('Bu kampanya silinsin mi?')) return;
-  const list=getCampaigns();list.splice(i,1);saveCampaignsList(list);renderCampaigns();aToast('✓ Silindi');
+  try{
+    const res = await apiFetch(`/api/admin/campaigns?id=${encodeURIComponent(c.id)}`, { method:'DELETE', headers:{'x-admin-key':getAdminApiKey()} });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data?.error || 'Silinemedi');
+    aToast('✓ Silindi','success');
+    await renderCampaigns();
+  }catch(err){
+    aToast('❌ '+(err.message || 'Silme hatası'),'error');
+  }
 }
-function toggleCampaign(i){
-  const list=getCampaigns();list[i].active=!list[i].active;saveCampaignsList(list);renderCampaigns();aToast(list[i].active?'✓ Kampanya aktive edildi':'Kampanya durduruldu',list[i].active?'success':'');
+async function toggleCampaign(idFromCard, index){
+  const c = getCampaignFromCache(index);
+  if(!c) return;
+  const body = {...c, isActive: !c.isActive};
+  try{
+    const res = await apiFetch(`/api/admin/campaigns?id=${encodeURIComponent(idFromCard || c.id)}`, {
+      method:'PUT',
+      headers:{'Content-Type':'application/json','x-admin-key':getAdminApiKey()},
+      body:JSON.stringify(body)
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data?.error || 'Durum güncellenemedi');
+    aToast(body.isActive?'✓ Kampanya aktive edildi':'Kampanya durduruldu',body.isActive?'success':'');
+    await renderCampaigns();
+  }catch(err){
+    aToast('❌ '+(err.message || 'Durum değiştirilemedi'),'error');
+  }
 }
 function toggleCampaignSwitch(){campaignSwState=!campaignSwState;updateCampaignSwitch();}
 function updateCampaignSwitch(){
