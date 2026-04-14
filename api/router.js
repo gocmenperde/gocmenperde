@@ -24,6 +24,8 @@ const slider = require('../server/handlers/slider');
 const visits = require('../server/handlers/visits');
 const addressData = require('../server/handlers/address-data');
 const stockAlerts = require('../server/handlers/stock-alerts');
+const campaigns = require('../server/handlers/campaigns');
+const adminCampaigns = require('../server/handlers/admin/campaigns');
 
 const ROUTES = {
   'auth': auth,
@@ -45,6 +47,8 @@ const ROUTES = {
   'visits': visits,
   'address-data': addressData,
   'stock-alerts': stockAlerts,
+  'campaigns': campaigns,
+  'admin/campaigns': adminCampaigns,
 };
 
 module.exports = async function handler(req, res) {
