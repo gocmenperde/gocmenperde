@@ -3,11 +3,9 @@
     "id": "fon-perde-1776162796837-391",
     "name": "Fon Perde",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
-    "image": "resimler/1776192723507-product-0-54a6d5f2-e9bf-4464-a2cf-aa8ff5df7b41-IMG_9922.jpeg",
+    "image": "https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/resimler/1776192723507-product-0-54a6d5f2-e9bf-4464-a2cf-aa8ff5df7b41-IMG_9922.jpeg",
     "images": [
-      "resimler/1776192723507-product-0-54a6d5f2-e9bf-4464-a2cf-aa8ff5df7b41-IMG_9922.jpeg",
-      "resimler/1776192709386-product-1-d4258e2b-326e-4935-b85a-5a5289c691d8-IMG_9919.jpeg",
-      "resimler/1776192722125-product-2-1320b858-448a-43f4-9847-add7d8b24d4b-IMG_9918.jpeg"
+      "https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/resimler/1776192723507-product-0-54a6d5f2-e9bf-4464-a2cf-aa8ff5df7b41-IMG_9922.jpeg"
     ],
     "price": 4999,
     "oldPrice": 5999,
