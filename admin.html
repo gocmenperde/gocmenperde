@@ -3981,9 +3981,9 @@ let productsFeaturedProductIdsCache = [...DEFAULT_PRODUCTS_FEATURED_PRODUCTS];
 
 function normalizeFeaturedIds(ids){
   const source = Array.isArray(ids) ? ids : [];
+  if(!source.length) return [];
   const normalized = source.map((id)=>String(id||'').trim()).filter(Boolean).slice(0,20);
-  const unique = [...new Set(normalized)];
-  return unique.length ? unique : [...DEFAULT_HOME_FEATURED_PRODUCTS];
+  return [...new Set(normalized)];
 }
 function normalizeFeaturedLookup(value){
   return String(value || '')

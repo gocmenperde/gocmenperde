@@ -26,13 +26,16 @@ function normalizeProductsFeaturedProductIds(payload = {}, fallback = DEFAULT_PR
     ? payload
     : (Array.isArray(payload.productIds) ? payload.productIds : fallback);
 
+  if (!Array.isArray(source) || source.length === 0) {
+    return [];
+  }
+
   const normalized = source
     .map((id) => String(id || '').trim())
     .filter(Boolean)
     .slice(0, 20);
 
-  const unique = [...new Set(normalized)];
-  return unique.length ? unique : [...DEFAULT_PRODUCTS_FEATURED_PRODUCTS];
+  return [...new Set(normalized)];
 }
 
 module.exports = {

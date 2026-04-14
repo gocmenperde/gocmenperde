@@ -1878,14 +1878,14 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 </div>
 
 <div class="mobile-bottom-nav" aria-label="Mobil alt menü">
-  <button class="mbn-item" id="mbn-home" onclick="go('home')"><i class="fas fa-house"></i><span>Ana Sayfa</span></button>
-  <button class="mbn-item" id="mbn-products" onclick="go('products')"><i class="fas fa-th-large"></i><span>Ürünler</span></button>
-  <button class="mbn-item" id="mbn-cart" onclick="go('cart')">
+  <button type="button" class="mbn-item" id="mbn-home" onclick="go('home')"><i class="fas fa-house"></i><span>Ana Sayfa</span></button>
+  <button type="button" class="mbn-item" id="mbn-products" onclick="go('products')"><i class="fas fa-th-large"></i><span>Ürünler</span></button>
+  <button type="button" class="mbn-item" id="mbn-cart" onclick="go('cart')">
     <i class="fas fa-bag-shopping"></i><span>Sepet</span>
     <span class="mbn-badge" id="cartCountBottom">0</span>
   </button>
-  <button class="mbn-item" onclick="window.location.href='hesabim.html'"><i class="fas fa-user"></i><span>Hesabım</span></button>
-  <button class="mbn-item" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>Menü</span></button>
+  <button type="button" class="mbn-item" onclick="window.location.href='hesabim.html'"><i class="fas fa-user"></i><span>Hesabım</span></button>
+  <button type="button" class="mbn-item" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>Menü</span></button>
 </div>
 
 <div class="cart-action-panel" id="cartActionPanel" style="display:none">
@@ -2311,9 +2311,9 @@ let homeFeaturedTouchBound = false;
 
 function normalizeHomeFeaturedIds(ids){
   const list = Array.isArray(ids) ? ids : [];
+  if(!list.length) return [];
   const normalized = list.map((id)=>String(id || '').trim()).filter(Boolean).slice(0,20);
-  const unique = [...new Set(normalized)];
-  return unique.length ? unique : [...DEFAULT_HOME_FEATURED_PRODUCTS];
+  return [...new Set(normalized)];
 }
 function getHomeFeaturedProductIds(){
   try{
@@ -4382,8 +4382,19 @@ function resolveSectionId(id){
   return document.getElementById(target) ? target : 'home';
 }
 
+function ensureMobileNavInteractive(){
+  document.body.classList.remove('cart-sheet-open','product-modal-open');
+  const nav = document.querySelector('.mobile-bottom-nav');
+  if(nav){
+    nav.style.pointerEvents = 'auto';
+    nav.style.opacity = '';
+    nav.style.transform = '';
+  }
+}
+
 function go(id){
   closeAllPopups();
+  ensureMobileNavInteractive();
   const nextId = resolveSectionId(id);
   if(nextId === 'products') resetCategorySelectionToAll();
   if(window.location.hash !== `#${nextId}`) window.location.hash = nextId;
