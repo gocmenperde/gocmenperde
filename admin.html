@@ -3928,6 +3928,7 @@ function getCatLabel(key){return(CATEGORIES.find(c=>c.key===key)||{label:key}).l
 // ════════════════════════════════════
 const CAMP_KEY='gp_campaigns';
 const DEFAULT_HOME_FEATURED_PRODUCTS=['zebra-premium-gri','plise-krem-160x200','stor-salon-antrasit'];
+const HOME_FEATURED_PRODUCTS_META_KEY = 'gp_home_featured_products_meta_v1';
 let homeFeaturedProductIdsCache = [...DEFAULT_HOME_FEATURED_PRODUCTS];
 
 function normalizeFeaturedIds(ids){
@@ -3946,13 +3947,33 @@ function getHomeFeaturedProductIds(){
   }
   return [...homeFeaturedProductIdsCache];
 }
+function readHomeFeaturedMeta(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(HOME_FEATURED_PRODUCTS_META_KEY) || 'null');
+    return Number(parsed?.updatedAt || 0) || 0;
+  }catch(_){
+    return 0;
+  }
+}
+function saveHomeFeaturedMeta(updatedAt = Date.now()){
+  const safeTs = Number(updatedAt || 0) || Date.now();
+  localStorage.setItem(HOME_FEATURED_PRODUCTS_META_KEY, JSON.stringify({ updatedAt: safeTs }));
+}
 async function syncHomeFeaturedProductsFromApi(){
   try{
     const res = await apiFetch('/api/admin/home-featured-products', { headers:{'x-admin-key':'gocmen1993'} });
     if(!res.ok) throw new Error('API alınamadı');
     const payload = await res.json();
-    homeFeaturedProductIdsCache = normalizeFeaturedIds(payload?.productIds);
+    const apiIds = normalizeFeaturedIds(payload?.productIds);
+    const apiUpdatedAt = payload?.updatedAt ? new Date(payload.updatedAt).getTime() : 0;
+    const localUpdatedAt = readHomeFeaturedMeta();
+    if(localUpdatedAt > apiUpdatedAt && localUpdatedAt > 0){
+      homeFeaturedProductIdsCache = getHomeFeaturedProductIds();
+      return;
+    }
+    homeFeaturedProductIdsCache = apiIds;
     localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(homeFeaturedProductIdsCache));
+    saveHomeFeaturedMeta(apiUpdatedAt || Date.now());
   }catch(_){
     homeFeaturedProductIdsCache = getHomeFeaturedProductIds();
   }
@@ -3961,13 +3982,21 @@ async function saveHomeFeaturedProductIds(list){
   const normalized = normalizeFeaturedIds(list);
   homeFeaturedProductIdsCache = normalized;
   localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(normalized));
+  saveHomeFeaturedMeta(Date.now());
   try{
-    await apiFetch('/api/admin/home-featured-products', {
+    const res = await apiFetch('/api/admin/home-featured-products', {
       method:'PUT',
       headers:{'Content-Type':'application/json','x-admin-key':'gocmen1993'},
       body: JSON.stringify({ productIds: normalized })
     });
-  }catch(_){ }
+    if(!res.ok) throw new Error('API kaydetme hatası');
+    const payload = await res.json();
+    if(payload?.updatedAt){
+      saveHomeFeaturedMeta(new Date(payload.updatedAt).getTime() || Date.now());
+    }
+  }catch(_){
+    aToast('⚠️ Sunucuya kaydedilemedi. Değişiklik bu tarayıcıda görünecek.','error');
+  }
 }
 function fillFeaturedProductSelect(){
   const select = document.getElementById('featuredProductSelect');

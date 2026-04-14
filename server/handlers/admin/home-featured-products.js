@@ -17,9 +17,9 @@ module.exports = async function handler(req, res) {
     await ensureHomeFeaturedProductsSchema();
 
     if (req.method === 'GET') {
-      const result = await pool.query('SELECT product_ids AS "productIds" FROM home_featured_products_config WHERE id = 1');
+      const result = await pool.query('SELECT product_ids AS "productIds", updated_at AS "updatedAt" FROM home_featured_products_config WHERE id = 1');
       const productIds = normalizeFeaturedProductIds(result.rows[0]?.productIds || []);
-      return res.status(200).json({ success: true, productIds });
+      return res.status(200).json({ success: true, productIds, updatedAt: result.rows[0]?.updatedAt || null });
     }
 
     if (req.method === 'PUT') {
@@ -31,7 +31,8 @@ module.exports = async function handler(req, res) {
          DO UPDATE SET product_ids = EXCLUDED.product_ids, updated_at = NOW()`,
         [JSON.stringify(productIds)]
       );
-      return res.status(200).json({ success: true, productIds });
+      const check = await pool.query('SELECT updated_at AS "updatedAt" FROM home_featured_products_config WHERE id = 1');
+      return res.status(200).json({ success: true, productIds, updatedAt: check.rows[0]?.updatedAt || null });
     }
 
     return res.status(405).json({ error: 'Desteklenmeyen method.' });

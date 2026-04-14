@@ -1887,6 +1887,7 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 <script>
 const WA_NUMBER = '905012110958';
 const HOME_FEATURED_PRODUCTS_KEY = 'gp_home_featured_products_v1';
+const HOME_FEATURED_PRODUCTS_META_KEY = 'gp_home_featured_products_meta_v1';
 const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
@@ -2291,15 +2292,36 @@ function getHomeFeaturedProductIds(){
   }catch(_){ }
   return [...DEFAULT_HOME_FEATURED_PRODUCTS];
 }
+function getHomeFeaturedUpdatedAt(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(HOME_FEATURED_PRODUCTS_META_KEY) || 'null');
+    return Number(parsed?.updatedAt || 0) || 0;
+  }catch(_){
+    return 0;
+  }
+}
+function setHomeFeaturedUpdatedAt(updatedAt = Date.now()){
+  const safeTs = Number(updatedAt || 0) || Date.now();
+  localStorage.setItem(HOME_FEATURED_PRODUCTS_META_KEY, JSON.stringify({ updatedAt: safeTs }));
+}
 async function loadHomeFeaturedProductIds(){
+  const localIds = getHomeFeaturedProductIds();
+  const localUpdatedAt = getHomeFeaturedUpdatedAt();
   try{
     const res = await fetch('/api/home-featured-products', { cache:'no-store' });
     if(!res.ok) throw new Error('Öne çıkan ürün listesi alınamadı');
     const payload = await res.json();
-    const ids = normalizeHomeFeaturedIds(payload?.productIds);
+    const apiIds = normalizeHomeFeaturedIds(payload?.productIds);
+    const apiUpdatedAt = payload?.updatedAt ? new Date(payload.updatedAt).getTime() : 0;
+    const useLocal = localUpdatedAt > apiUpdatedAt && localUpdatedAt > 0;
+    const ids = useLocal ? localIds : apiIds;
     localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(ids));
+    setHomeFeaturedUpdatedAt(useLocal ? localUpdatedAt : (apiUpdatedAt || Date.now()));
     renderHomeFeaturedProducts();
-  }catch(_){ }
+  }catch(_){
+    localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(localIds));
+    renderHomeFeaturedProducts();
+  }
 }
 function getHomeFeaturedProducts(){
   if(!Array.isArray(PRODUCTS) || !PRODUCTS.length) return [];
