@@ -2344,11 +2344,23 @@ const GITHUB_RAW_PRODUCTS_URL = 'https://raw.githubusercontent.com/gocmenperde/g
 const GITHUB_RAW_CATEGORIES_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/categories.json';
 const ADMIN_CACHE_KEY = 'gp_admin_products_cache_v1';
 
+function getApiFallbackUrl(path=''){
+  const clean = String(path || '').trim();
+  if(!clean.startsWith('/api/')) return '';
+  const route = clean.replace(/^\/api\//,'').replace(/^\/+|\/+$/g,'');
+  return route ? `/api/router?route=${encodeURIComponent(route)}` : '';
+}
+
 async function apiFetch(url, options = {}, timeoutMs = 12000){
   const controller = new AbortController();
   const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  const fetchOptions = { ...options, signal: controller.signal };
   try{
-    return await fetch(url, { ...options, signal: controller.signal });
+    const primary = await fetch(url, fetchOptions);
+    if(primary.ok || primary.status !== 404) return primary;
+    const fallbackUrl = getApiFallbackUrl(url);
+    if(!fallbackUrl) return primary;
+    return await fetch(fallbackUrl, fetchOptions);
   } finally {
     clearTimeout(timer);
   }

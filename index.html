@@ -2167,9 +2167,23 @@ function parseShowcaseJSON(key, fallback){
   }catch(_){}
   return fallback;
 }
+
+function getApiFallbackUrl(path){
+  const clean = String(path || '').trim();
+  if(!clean.startsWith('/api/')) return '';
+  const route = clean.replace(/^\/api\//,'').replace(/^\/+|\/+$/g,'');
+  return route ? `/api/router?route=${encodeURIComponent(route)}` : '';
+}
+async function fetchWithApiFallback(path, options = {}){
+  const primary = await fetch(path, options);
+  if(primary.ok || primary.status !== 404) return primary;
+  const fallbackUrl = getApiFallbackUrl(path);
+  if(!fallbackUrl) return primary;
+  return fetch(fallbackUrl, options);
+}
 async function loadFromYouShowcaseFromApi(){
   try{
-    const res = await fetch('/api/from-you-showcase', { cache:'no-store' });
+    const res = await fetchWithApiFallback('/api/from-you-showcase', { cache:'no-store' });
     if(!res.ok) throw new Error('Sizden gelenler alınamadı');
     const payload = await res.json();
     const items = Array.isArray(payload?.items) ? payload.items : [];
@@ -2324,7 +2338,7 @@ async function loadHomeFeaturedProductIds(){
   const localIds = getHomeFeaturedProductIds();
   const localUpdatedAt = getHomeFeaturedUpdatedAt();
   try{
-    const res = await fetch('/api/home-featured-products', { cache:'no-store' });
+    const res = await fetchWithApiFallback('/api/home-featured-products', { cache:'no-store' });
     if(!res.ok) throw new Error('Öne çıkan ürün listesi alınamadı');
     const payload = await res.json();
     const apiIds = normalizeHomeFeaturedIds(payload?.productIds);
@@ -2362,7 +2376,7 @@ async function loadProductsFeaturedProductIds(){
   const localIds = getProductsFeaturedProductIds();
   const localUpdatedAt = getProductsFeaturedUpdatedAt();
   try{
-    const res = await fetch('/api/products-featured-products', { cache:'no-store' });
+    const res = await fetchWithApiFallback('/api/products-featured-products', { cache:'no-store' });
     if(!res.ok) throw new Error('Öne çıkan ürün listesi alınamadı');
     const payload = await res.json();
     const apiIds = normalizeHomeFeaturedIds(payload?.productIds);
@@ -4133,15 +4147,24 @@ function toggleMenu(){
 function closeMobileMenuWrapper(){ setMobileMenuState(false); }
 function closeAllPopups(){
   document.querySelectorAll('.mini-cart,.search-bar,.favorite-bar').forEach(el=>el.classList.remove('open'));
-  document.getElementById('globalOverlay').classList.remove('open');
+  const overlay = document.getElementById('globalOverlay');
+  if(overlay) overlay.classList.remove('open');
   closeCartSheet();
   closeMobileMenuWrapper();
   hideToast();
 }
 function togglePopup(id){
-  const p=document.getElementById(id),o=document.getElementById('globalOverlay'),was=p.classList.contains('open');
+  const p = document.getElementById(id);
+  const o = document.getElementById('globalOverlay');
+  if(!p || !o) return;
+  const was = p.classList.contains('open');
   closeAllPopups();
-  if(!was){ p.classList.add('open'); o.classList.add('open'); if(id==='miniCart') renderMiniCart(); if(id==='favoriteBar') renderFavorites(); }
+  if(!was){
+    p.classList.add('open');
+    o.classList.add('open');
+    if(id==='miniCart') renderMiniCart();
+    if(id==='favoriteBar') renderFavorites();
+  }
 }
 
 // ── İmleç ──
