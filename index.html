@@ -2336,17 +2336,14 @@ function setHomeFeaturedUpdatedAt(updatedAt = Date.now()){
 }
 async function loadHomeFeaturedProductIds(){
   const localIds = getHomeFeaturedProductIds();
-  const localUpdatedAt = getHomeFeaturedUpdatedAt();
   try{
     const res = await fetchWithApiFallback('/api/home-featured-products', { cache:'no-store' });
     if(!res.ok) throw new Error('Öne çıkan ürün listesi alınamadı');
     const payload = await res.json();
     const apiIds = normalizeHomeFeaturedIds(payload?.productIds);
     const apiUpdatedAt = payload?.updatedAt ? new Date(payload.updatedAt).getTime() : 0;
-    const useLocal = localUpdatedAt > apiUpdatedAt && localUpdatedAt > 0;
-    const ids = useLocal ? localIds : apiIds;
-    localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(ids));
-    setHomeFeaturedUpdatedAt(useLocal ? localUpdatedAt : (apiUpdatedAt || Date.now()));
+    localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(apiIds));
+    setHomeFeaturedUpdatedAt(apiUpdatedAt || Date.now());
     renderHomeFeaturedProducts();
   }catch(_){
     localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(localIds));
@@ -2374,17 +2371,14 @@ function setProductsFeaturedUpdatedAt(updatedAt = Date.now()){
 }
 async function loadProductsFeaturedProductIds(){
   const localIds = getProductsFeaturedProductIds();
-  const localUpdatedAt = getProductsFeaturedUpdatedAt();
   try{
     const res = await fetchWithApiFallback('/api/products-featured-products', { cache:'no-store' });
     if(!res.ok) throw new Error('Öne çıkan ürün listesi alınamadı');
     const payload = await res.json();
     const apiIds = normalizeHomeFeaturedIds(payload?.productIds);
     const apiUpdatedAt = payload?.updatedAt ? new Date(payload.updatedAt).getTime() : 0;
-    const useLocal = localUpdatedAt > apiUpdatedAt && localUpdatedAt > 0;
-    const ids = useLocal ? localIds : apiIds;
-    localStorage.setItem(PRODUCTS_FEATURED_PRODUCTS_KEY, JSON.stringify(ids));
-    setProductsFeaturedUpdatedAt(useLocal ? localUpdatedAt : (apiUpdatedAt || Date.now()));
+    localStorage.setItem(PRODUCTS_FEATURED_PRODUCTS_KEY, JSON.stringify(apiIds));
+    setProductsFeaturedUpdatedAt(apiUpdatedAt || Date.now());
     updateTopProductRail(PRODUCTS);
   }catch(_){
     localStorage.setItem(PRODUCTS_FEATURED_PRODUCTS_KEY, JSON.stringify(localIds));
