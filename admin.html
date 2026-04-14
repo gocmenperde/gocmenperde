@@ -3972,6 +3972,10 @@ async function saveHomeFeaturedProductIds(list){
 function fillFeaturedProductSelect(){
   const select = document.getElementById('featuredProductSelect');
   if(!select) return;
+  if(!Array.isArray(PRODUCTS) || !PRODUCTS.length){
+    select.innerHTML = `<option value="">Ürün bulunamadı</option>`;
+    return;
+  }
   select.innerHTML = `<option value="">Ürün seçin</option>${PRODUCTS.map(p=>`<option value="${p.id}">${p.name}${p?.active===false?' (pasif)':''}</option>`).join('')}`;
 }
 function renderFeaturedProductsAdminList(){
@@ -4026,6 +4030,9 @@ function defaultCampaigns(){
 }
 
 async function renderCampaigns(){
+  if(!Array.isArray(PRODUCTS) || !PRODUCTS.length){
+    await fetchProducts();
+  }
   const list = getCampaigns();
   fillFeaturedProductSelect();
   await syncHomeFeaturedProductsFromApi();
