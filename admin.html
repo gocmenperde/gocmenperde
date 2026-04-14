@@ -4049,11 +4049,6 @@ async function syncHomeFeaturedProductsFromApi(){
     const payload = await res.json();
     const apiIds = normalizeFeaturedIds(payload?.productIds);
     const apiUpdatedAt = payload?.updatedAt ? new Date(payload.updatedAt).getTime() : 0;
-    const localUpdatedAt = readHomeFeaturedMeta();
-    if(localUpdatedAt > apiUpdatedAt && localUpdatedAt > 0){
-      homeFeaturedProductIdsCache = getHomeFeaturedProductIds();
-      return;
-    }
     homeFeaturedProductIdsCache = apiIds;
     localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(homeFeaturedProductIdsCache));
     saveHomeFeaturedMeta(apiUpdatedAt || Date.now());
@@ -4176,11 +4171,6 @@ async function syncProductsFeaturedProductsFromApi(){
     const payload = await res.json();
     const apiIds = normalizeFeaturedIds(payload?.productIds);
     const apiUpdatedAt = payload?.updatedAt ? new Date(payload.updatedAt).getTime() : 0;
-    const localUpdatedAt = readProductsFeaturedMeta();
-    if(localUpdatedAt > apiUpdatedAt && localUpdatedAt > 0){
-      productsFeaturedProductIdsCache = getProductsFeaturedProductIds();
-      return;
-    }
     productsFeaturedProductIdsCache = apiIds;
     localStorage.setItem(PRODUCTS_FEATURED_PRODUCTS_KEY, JSON.stringify(productsFeaturedProductIdsCache));
     saveProductsFeaturedMeta(apiUpdatedAt || Date.now());
