@@ -212,6 +212,25 @@ select.filter-sel:focus{border-color:var(--gold)}
 .bulk-image-preview-item.main{outline:2px solid var(--gold)}
 .bulk-image-preview-empty{font-size:0.73rem;color:var(--slate-light);padding:10px;border:1px dashed var(--border-2);border-radius:8px;background:#fff}
 
+.home-merch-editor{margin-bottom:16px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow-sm)}
+.home-merch-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.home-merch-editor-head h3{font-size:1.05rem;display:flex;align-items:center;gap:8px;color:#1f2740}
+.home-merch-editor-head p{font-size:.78rem;color:var(--slate-light);margin-top:6px;max-width:68ch}
+.home-merch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.home-merch-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:linear-gradient(145deg,#fff,#faf8f2)}
+.home-merch-card h4{font-size:.92rem;color:#1e2740;margin-bottom:8px}
+.home-merch-card .fg{margin-bottom:9px}
+.home-merch-picklist{max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:10px;background:#fff;padding:8px;display:grid;gap:6px}
+.home-merch-option{display:flex;align-items:center;gap:8px;padding:7px;border-radius:8px;border:1px solid transparent}
+.home-merch-option:hover{background:#f6f8fc;border-color:#dbe2f2}
+.home-merch-option img{width:38px;height:38px;border-radius:8px;object-fit:cover;border:1px solid var(--border)}
+.home-merch-option small{display:block;font-size:.7rem;color:var(--slate-light)}
+.home-merch-preview{margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.home-merch-preview-item{border:1px solid var(--border);border-radius:10px;background:#fff;padding:6px;text-align:center}
+.home-merch-preview-item img{width:100%;height:78px;object-fit:cover;border-radius:8px;margin-bottom:6px}
+.home-merch-preview-item b{display:block;font-size:.69rem;line-height:1.35;color:#20283f}
+.home-merch-empty{font-size:.74rem;color:var(--slate-light);padding:10px;border:1px dashed var(--border-2);border-radius:8px;background:#fff}
+
 /* ──────────── TABLE ──────────── */
 .table-wrap{background:white;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;overflow-x:auto;box-shadow:var(--shadow-sm)}
 table{width:100%;border-collapse:collapse;min-width:520px}
@@ -871,6 +890,35 @@ Işık: Yarı Geçirgen"></textarea></div>
     </div>
     <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap">
       <button class="btn btn-success" type="button" onclick="saveBulkProducts()"><i class="fas fa-save"></i> Toplu Kaydet</button>
+    </div>
+  </div>
+  <div class="home-merch-editor" id="homeMerchEditor">
+    <div class="home-merch-editor-head">
+      <div>
+        <h3><i class="fas fa-wand-magic-sparkles"></i> Ana Sayfa Vitrin Yönetimi</h3>
+        <p>Öne çıkan ürünler ve canlı ürün vitrini alanlarını buradan seçip düzenleyin. Kaydettiğiniz anda ana sayfa tasarımı premium görünümle güncellenir.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" type="button" onclick="resetHomepageMerchSettings()"><i class="fas fa-rotate-left"></i> Varsayılan</button>
+        <button class="btn btn-success btn-sm" type="button" onclick="saveHomepageMerchSettings()"><i class="fas fa-save"></i> Vitrin Ayarlarını Kaydet</button>
+      </div>
+    </div>
+    <div class="home-merch-grid">
+      <article class="home-merch-card">
+        <h4>Öne Çıkan Ürünler</h4>
+        <div class="fg"><label>Başlık</label><input type="text" id="homeFeaturedTitleInput" placeholder="Editörün premium seçimleri"></div>
+        <div class="fg"><label>Alt Başlık</label><textarea id="homeFeaturedSubtitleInput" placeholder="Kısa açıklama"></textarea></div>
+        <div class="fg"><label>Ürün Seçimi (en fazla 8)</label><div class="home-merch-picklist" id="homeFeaturedProductPicker"></div></div>
+        <div class="home-merch-preview" id="homeFeaturedPreview"></div>
+      </article>
+      <article class="home-merch-card">
+        <h4>Ana Sayfa Canlı Ürün Vitrini</h4>
+        <div class="fg"><label>Etiket</label><input type="text" id="homeLiveLabelInput" placeholder="Ana Sayfa Canlı Ürün Vitrini"></div>
+        <div class="fg"><label>Başlık</label><input type="text" id="homeLiveTitleInput" placeholder="Trend ürünler sürekli güncellenen bir akışta"></div>
+        <div class="fg"><label>Alt Başlık</label><textarea id="homeLiveSubtitleInput" placeholder="Kısa açıklama"></textarea></div>
+        <div class="fg"><label>Ürün Seçimi (en fazla 12)</label><div class="home-merch-picklist" id="homeLiveProductPicker"></div></div>
+        <div class="home-merch-preview" id="homeLivePreview"></div>
+      </article>
     </div>
   </div>
   <div class="toolbar">
@@ -1642,6 +1690,8 @@ const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
 const FOOTER_PAYMENT_LOGOS_KEY = 'gp_footer_payment_logos_v1';
 const HOME_PROMO_PANEL_KEY = 'gp_home_promo_panel_v1';
 const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
+const HOME_FEATURED_PRODUCTS_KEY = 'gp_home_featured_products_v1';
+const HOME_LIVE_PRODUCT_SHOWCASE_KEY = 'gp_home_live_product_showcase_v1';
 const DEFAULT_HOME_PROMO_PANEL = {
   enabled:true,
   delayMs:1400,
@@ -1654,6 +1704,17 @@ const DEFAULT_HOME_PROMO_PANEL = {
     {icon:'fas fa-screwdriver-wrench',text:'Ücretsiz Kurulum'},
     {icon:'fas fa-credit-card',text:'Taksit Seçenekleri'}
   ]
+};
+const DEFAULT_HOME_FEATURED_PRODUCTS = {
+  title:'Editörün premium seçimleri',
+  subtitle:'Yönetim panelinden belirlenen ürünler burada canlı olarak gösterilir.',
+  productIds:[]
+};
+const DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE = {
+  label:'Ana Sayfa Canlı Ürün Vitrini',
+  title:'Trend ürünler sürekli güncellenen bir akışta',
+  subtitle:'Yönetim panelinden seçilen ürünler hızlı keşif şeridinde öne çıkar.',
+  productIds:[]
 };
 const DEFAULT_CAMPAIGN_HERO_CONTENT = {
   label:'Premium Kampanya',
@@ -2265,6 +2326,7 @@ function showPage(id){
   currentPage = id;
   closeSidebar();
   if(id==='favorites') renderFavorites();
+  if(id==='products') renderHomepageMerchEditor();
   if(id==='campaigns') renderCampaigns();
   if(id==='entrypanel') renderEntryPanelPage();
   if(id==='slider') loadSliderItems();
@@ -3598,6 +3660,7 @@ function saveBulkProducts(){
   }
   PRODUCTS.unshift(...incoming);
   renderTable();
+  renderHomepageMerchEditor();
   renderDashboard();
   aToast(`✓ ${incoming.length} ürün toplu olarak eklendi`,'success');
   if(getGithubToken()) saveProductsJSON({silent:true});
@@ -4227,6 +4290,134 @@ function updateCampaignSwitch(){
   sw.className='switch '+(campaignSwState?'on':'off');
   lbl.textContent=campaignSwState?'Aktif':'Pasif';
   lbl.style.color=campaignSwState?'var(--green)':'var(--red)';
+}
+
+function getDefaultMerchProductIds(limit=8){
+  return PRODUCTS.filter(p=>p?.active).slice(0,limit).map(p=>String(p.id));
+}
+function normalizeMerchProductIds(ids=[], limit=12){
+  const list=[];
+  (Array.isArray(ids)?ids:[]).forEach((id)=>{
+    const key=String(id||'').trim();
+    if(!key || list.includes(key)) return;
+    list.push(key);
+  });
+  if(list.length) return list.slice(0,limit);
+  return getDefaultMerchProductIds(limit);
+}
+function getHomeFeaturedProductsConfig(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(HOME_FEATURED_PRODUCTS_KEY)||'null')||{};
+    return {
+      title:String(parsed.title||DEFAULT_HOME_FEATURED_PRODUCTS.title).trim(),
+      subtitle:String(parsed.subtitle||DEFAULT_HOME_FEATURED_PRODUCTS.subtitle).trim(),
+      productIds:normalizeMerchProductIds(parsed.productIds,8)
+    };
+  }catch(_){
+    return {...DEFAULT_HOME_FEATURED_PRODUCTS,productIds:getDefaultMerchProductIds(8)};
+  }
+}
+function getHomeLiveProductsConfig(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(HOME_LIVE_PRODUCT_SHOWCASE_KEY)||'null')||{};
+    return {
+      label:String(parsed.label||DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE.label).trim(),
+      title:String(parsed.title||DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE.title).trim(),
+      subtitle:String(parsed.subtitle||DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE.subtitle).trim(),
+      productIds:normalizeMerchProductIds(parsed.productIds,12)
+    };
+  }catch(_){
+    return {...DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE,productIds:getDefaultMerchProductIds(12)};
+  }
+}
+function renderMerchPickList(targetId, selectedIds, inputName){
+  const wrap=document.getElementById(targetId);
+  if(!wrap) return;
+  const activeProducts=PRODUCTS.filter(p=>p?.active);
+  if(!activeProducts.length){
+    wrap.innerHTML='<div class="home-merch-empty">Aktif ürün bulunamadı.</div>';
+    return;
+  }
+  wrap.innerHTML=activeProducts.map((p)=>{
+    const checked=selectedIds.includes(String(p.id));
+    return `<label class="home-merch-option"><input type="checkbox" name="${inputName}" value="${p.id}" ${checked?'checked':''} onchange="renderHomepageMerchPreview()"><img src="${resolveAssetUrl(p.image||'')}" alt="${p.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2238%22 height=%2238%22><rect fill=%22%23f0f0f0%22 width=%2238%22 height=%2238%22/></svg>'"><span><b style="font-size:.75rem">${p.name}</b><small>${Number(p.price||0).toLocaleString('tr-TR')} ₺</small></span></label>`;
+  }).join('');
+}
+function collectCheckedValues(name, limit){
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el=>String(el.value)).slice(0,limit);
+}
+function renderHomepageMerchPreview(){
+  const featuredIds=collectCheckedValues('homeFeaturedProduct',8);
+  const liveIds=collectCheckedValues('homeLiveProduct',12);
+  const featuredWrap=document.getElementById('homeFeaturedPreview');
+  const liveWrap=document.getElementById('homeLivePreview');
+  const render=(wrap, ids)=>{
+    if(!wrap) return;
+    const products=ids.map(id=>PRODUCTS.find(p=>String(p.id)===String(id))).filter(Boolean);
+    if(!products.length){ wrap.innerHTML='<div class="home-merch-empty">Henüz ürün seçilmedi.</div>'; return; }
+    wrap.innerHTML=products.map((p)=>`<div class="home-merch-preview-item"><img src="${resolveAssetUrl(p.image||'')}" alt="${p.name}"><b>${p.name}</b></div>`).join('');
+  };
+  render(featuredWrap,featuredIds);
+  render(liveWrap,liveIds);
+}
+function renderHomepageMerchEditor(){
+  const featured=getHomeFeaturedProductsConfig();
+  const live=getHomeLiveProductsConfig();
+  if(document.getElementById('homeFeaturedTitleInput')) document.getElementById('homeFeaturedTitleInput').value=featured.title;
+  if(document.getElementById('homeFeaturedSubtitleInput')) document.getElementById('homeFeaturedSubtitleInput').value=featured.subtitle;
+  if(document.getElementById('homeLiveLabelInput')) document.getElementById('homeLiveLabelInput').value=live.label;
+  if(document.getElementById('homeLiveTitleInput')) document.getElementById('homeLiveTitleInput').value=live.title;
+  if(document.getElementById('homeLiveSubtitleInput')) document.getElementById('homeLiveSubtitleInput').value=live.subtitle;
+  renderMerchPickList('homeFeaturedProductPicker', featured.productIds, 'homeFeaturedProduct');
+  renderMerchPickList('homeLiveProductPicker', live.productIds, 'homeLiveProduct');
+  renderHomepageMerchPreview();
+}
+function saveHomepageMerchSettings(){
+  const featured={
+    title:(document.getElementById('homeFeaturedTitleInput')?.value||'').trim()||DEFAULT_HOME_FEATURED_PRODUCTS.title,
+    subtitle:(document.getElementById('homeFeaturedSubtitleInput')?.value||'').trim()||DEFAULT_HOME_FEATURED_PRODUCTS.subtitle,
+    productIds:collectCheckedValues('homeFeaturedProduct',8)
+  };
+  const live={
+    label:(document.getElementById('homeLiveLabelInput')?.value||'').trim()||DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE.label,
+    title:(document.getElementById('homeLiveTitleInput')?.value||'').trim()||DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE.title,
+    subtitle:(document.getElementById('homeLiveSubtitleInput')?.value||'').trim()||DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE.subtitle,
+    productIds:collectCheckedValues('homeLiveProduct',12)
+  };
+  if(!featured.productIds.length || !live.productIds.length){
+    aToast('⚠️ Her iki vitrin için en az bir ürün seçin','error');
+    return;
+  }
+  localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify(featured));
+  localStorage.setItem(HOME_LIVE_PRODUCT_SHOWCASE_KEY, JSON.stringify(live));
+  renderHomepageMerchEditor();
+  aToast('✓ Ana sayfa vitrin ayarları kaydedildi','success');
+}
+function resetHomepageMerchSettings(){
+  localStorage.removeItem(HOME_FEATURED_PRODUCTS_KEY);
+  localStorage.removeItem(HOME_LIVE_PRODUCT_SHOWCASE_KEY);
+  renderHomepageMerchEditor();
+  aToast('✓ Vitrin ayarları varsayılana döndürüldü','success');
+}
+async function syncHomeFeaturedProductsFromApi(){
+  renderHomepageMerchEditor();
+}
+async function syncProductsFeaturedProductsFromApi(){
+  renderHomepageMerchEditor();
+}
+async function cleanupMissingHomeFeaturedProducts(){
+  const cfg=getHomeFeaturedProductsConfig();
+  const valid=cfg.productIds.filter(id=>PRODUCTS.some(p=>String(p.id)===String(id)));
+  if(valid.length!==cfg.productIds.length){
+    localStorage.setItem(HOME_FEATURED_PRODUCTS_KEY, JSON.stringify({...cfg,productIds:valid}));
+  }
+}
+async function cleanupMissingProductsFeaturedProducts(){
+  const cfg=getHomeLiveProductsConfig();
+  const valid=cfg.productIds.filter(id=>PRODUCTS.some(p=>String(p.id)===String(id)));
+  if(valid.length!==cfg.productIds.length){
+    localStorage.setItem(HOME_LIVE_PRODUCT_SHOWCASE_KEY, JSON.stringify({...cfg,productIds:valid}));
+  }
 }
 
 // ════════════════════════════════════

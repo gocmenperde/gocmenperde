@@ -1023,6 +1023,38 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
 .live-pill-text{display:flex;flex-direction:column;gap:2px}
 .live-pill-text b{font-size:.8rem;color:#1f2941;line-height:1.2}
 .live-pill-text small{font-size:.66rem;color:#667189;font-weight:600;letter-spacing:.2px}
+
+.home-featured{padding:18px 5% 8px;background:linear-gradient(180deg,#fdfcf8 0%,#f7f4ee 100%)}
+.home-featured-shell{max-width:1300px;margin:0 auto;border-radius:24px;padding:20px;background:linear-gradient(135deg,#151a28 0%,#233252 55%,#2f446c 100%);border:1px solid rgba(213,163,63,.34);box-shadow:0 20px 42px rgba(8,12,22,.28)}
+.home-featured-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.home-featured-kicker{display:inline-flex;align-items:center;gap:8px;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.12);color:#f8db9e;font-size:.64rem;letter-spacing:1.2px;text-transform:uppercase;font-weight:800}
+.home-featured-head h3{font-size:clamp(1.35rem,2.8vw,2rem);color:#fff;line-height:1.18;margin-top:8px}
+.home-featured-head p{font-size:.82rem;color:rgba(255,255,255,.74);margin-top:6px;max-width:62ch}
+.home-featured-cta{border:none;border-radius:12px;background:linear-gradient(120deg,#ffd982,#f0ba58);color:#312109;padding:12px 18px;font-weight:800;letter-spacing:.9px;cursor:pointer;box-shadow:0 10px 22px rgba(0,0,0,.28)}
+.home-featured-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.home-featured-card{border:none;background:rgba(255,255,255,.96);border-radius:16px;overflow:hidden;box-shadow:0 14px 30px rgba(6,8,16,.2);cursor:pointer;text-align:left;display:flex;flex-direction:column;min-height:100%}
+.home-featured-card img{width:100%;height:180px;object-fit:cover;display:block}
+.home-featured-card-body{padding:12px 12px 14px;display:flex;flex-direction:column;gap:6px}
+.home-featured-card-cat{font-size:.62rem;letter-spacing:1px;text-transform:uppercase;color:#53607d;font-weight:700}
+.home-featured-card h4{font-size:.95rem;color:#1a2439;line-height:1.3;min-height:42px}
+.home-featured-price{display:flex;align-items:flex-end;gap:8px}
+.home-featured-price b{font-size:1rem;color:#18243b}
+.home-featured-price span{font-size:.7rem;color:#7d8495;text-decoration:line-through}
+.home-featured-empty{padding:14px;border:1px dashed rgba(255,255,255,.34);border-radius:12px;color:rgba(255,255,255,.8);font-size:.82rem}
+
+.home-live-vitrine{padding:8px 5% 18px;background:linear-gradient(180deg,#f7f4ee 0%,#fdfbf7 100%)}
+.home-live-shell{max-width:1300px;margin:0 auto;border-radius:22px;background:#fff;border:1px solid rgba(34,45,78,.12);padding:16px;box-shadow:0 16px 30px rgba(15,24,42,.09)}
+.home-live-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.home-live-head b{font-size:.78rem;letter-spacing:1.3px;text-transform:uppercase;color:#334263}
+.home-live-head h3{font-size:1.3rem;color:#18233a;line-height:1.2}
+.home-live-head p{font-size:.8rem;color:#5d677f;margin-top:4px}
+.home-live-track{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x mandatory}
+.home-live-item{flex:0 0 min(240px,72vw);background:linear-gradient(140deg,#ffffff,#f6f8fd);border:1px solid rgba(34,45,78,.12);border-radius:15px;padding:10px;display:flex;gap:10px;align-items:center;cursor:pointer;scroll-snap-align:start}
+.home-live-item img{width:68px;height:68px;border-radius:12px;object-fit:cover;border:1px solid rgba(34,45,78,.14)}
+.home-live-item strong{font-size:.84rem;color:#1d2942;line-height:1.3;display:block}
+.home-live-item span{font-size:.73rem;color:#54607b;display:block;margin-top:4px}
+.home-live-item em{font-style:normal;font-size:.7rem;color:#8a93a7;text-transform:uppercase;letter-spacing:.8px;display:block;margin-top:5px}
+@media(max-width:760px){.home-featured-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home-featured-card img{height:132px}.home-live-shell{padding:12px}}
 @keyframes liveCategoryFlow{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 6px))}}
 .gallery-section{background:#fbfbfa}
 .gallery-section .section-header{padding:28px;border-radius:20px;background:#fff;border:1px solid rgba(34,45,78,.1);box-shadow:0 10px 26px rgba(17,28,58,.06)}
@@ -1292,6 +1324,31 @@ footer{background:linear-gradient(140deg,#202737,#29334a);color:rgba(255,255,255
       </div>
     </div>
   </div>
+  <section class="home-featured" aria-label="Öne çıkan ürünler">
+    <div class="home-featured-shell">
+      <div class="home-featured-head">
+        <div>
+          <span class="home-featured-kicker"><i class="fas fa-gem"></i> Öne Çıkan Ürünler</span>
+          <h3 id="homeFeaturedTitle">Editörün premium seçimleri</h3>
+          <p id="homeFeaturedSubtitle">Yönetim panelinden belirlenen ürünler burada canlı olarak gösterilir.</p>
+        </div>
+        <button class="home-featured-cta" type="button" onclick="go('products')">Tüm Ürünleri Keşfet</button>
+      </div>
+      <div class="home-featured-grid" id="homeFeaturedGrid"></div>
+    </div>
+  </section>
+  <section class="home-live-vitrine" aria-label="Canlı ürün vitrini">
+    <div class="home-live-shell">
+      <div class="home-live-head">
+        <div>
+          <b id="homeLiveLabel"><i class="fas fa-bolt"></i> Ana Sayfa Canlı Ürün Vitrini</b>
+          <h3 id="homeLiveTitle">Trend ürünler sürekli güncellenen bir akışta</h3>
+          <p id="homeLiveSubtitle">Yönetim panelinden seçilen ürünler, ziyaretçiler için hızlı keşif şeridinde öne çıkar.</p>
+        </div>
+      </div>
+      <div class="home-live-track" id="homeLiveShowcaseTrack"></div>
+    </div>
+  </section>
   <div class="local-seo-section">
     <div class="local-seo-box">
       <h2>Bursa Perdeci Aramalarında Güvenilen Adres</h2>
@@ -1900,6 +1957,8 @@ const DEFAULT_SURPRISE_CAMPAIGN = {
 const HOME_PROMO_PANEL_KEY = 'gp_home_promo_panel_v1';
 const HOME_PROMO_SEEN_SESSION_KEY = 'gp_home_promo_seen_v1';
 const SURPRISE_CAMPAIGN_SEEN_SESSION_KEY = 'gp_surprise_campaign_seen_v1';
+const HOME_FEATURED_PRODUCTS_KEY = 'gp_home_featured_products_v1';
+const HOME_LIVE_PRODUCT_SHOWCASE_KEY = 'gp_home_live_product_showcase_v1';
 const DEFAULT_HOME_PROMO_PANEL = {
   enabled:true,
   delayMs:1400,
@@ -1912,6 +1971,17 @@ const DEFAULT_HOME_PROMO_PANEL = {
     {icon:'fas fa-screwdriver-wrench',text:'Ücretsiz Kurulum'},
     {icon:'fas fa-credit-card',text:'Taksit Seçenekleri'}
   ]
+};
+const DEFAULT_HOME_FEATURED_PRODUCTS = {
+  title:'Editörün premium seçimleri',
+  subtitle:'Yönetim panelinden belirlenen ürünler burada canlı olarak gösterilir.',
+  productIds:[]
+};
+const DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE = {
+  label:'Ana Sayfa Canlı Ürün Vitrini',
+  title:'Trend ürünler sürekli güncellenen bir akışta',
+  subtitle:'Yönetim panelinden seçilen ürünler, ziyaretçiler için hızlı keşif şeridinde öne çıkar.',
+  productIds:[]
 };
 let homePromoTimer = null;
 let surpriseCampaignTimer = null;
@@ -2303,6 +2373,111 @@ function openFromYouGallery(targetId, index){
   openImageViewer();
 }
 
+function normalizeSelectedProductIds(ids=[], limit=12){
+  const chosen = [];
+  const source = Array.isArray(ids) ? ids : [];
+  source.forEach((id)=>{
+    const key = String(id || '').trim();
+    if(!key || chosen.includes(key)) return;
+    chosen.push(key);
+  });
+  if(chosen.length) return chosen.slice(0, limit);
+  return PRODUCTS.filter(p=>p?.active).slice(0, limit).map(p=>String(p.id));
+}
+function readHomeFeaturedConfig(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(HOME_FEATURED_PRODUCTS_KEY) || 'null') || {};
+    return {
+      title: String(parsed.title || DEFAULT_HOME_FEATURED_PRODUCTS.title).trim(),
+      subtitle: String(parsed.subtitle || DEFAULT_HOME_FEATURED_PRODUCTS.subtitle).trim(),
+      productIds: normalizeSelectedProductIds(parsed.productIds, 8)
+    };
+  }catch(_){
+    return {...DEFAULT_HOME_FEATURED_PRODUCTS, productIds: normalizeSelectedProductIds([], 8)};
+  }
+}
+function readHomeLiveShowcaseConfig(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(HOME_LIVE_PRODUCT_SHOWCASE_KEY) || 'null') || {};
+    return {
+      label: String(parsed.label || DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE.label).trim(),
+      title: String(parsed.title || DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE.title).trim(),
+      subtitle: String(parsed.subtitle || DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE.subtitle).trim(),
+      productIds: normalizeSelectedProductIds(parsed.productIds, 12)
+    };
+  }catch(_){
+    return {...DEFAULT_HOME_LIVE_PRODUCT_SHOWCASE, productIds: normalizeSelectedProductIds([], 12)};
+  }
+}
+function getCatalogCategoryLabel(catKey=''){
+  const key = String(catKey || '').trim();
+  const found = CATEGORIES.find(c=>String(c?.key||'')===key);
+  return found?.label || 'Koleksiyon';
+}
+function getRenderableProductsByIds(ids=[]){
+  const list = normalizeSelectedProductIds(ids, 12)
+    .map((id)=>PRODUCTS.find((p)=>String(p.id)===String(id)))
+    .filter((p)=>p && p.active);
+  return list.length ? list : PRODUCTS.filter(p=>p.active).slice(0, 8);
+}
+function renderHomeFeaturedProducts(){
+  const featuredCfg = readHomeFeaturedConfig();
+  const liveCfg = readHomeLiveShowcaseConfig();
+  const featuredGrid = document.getElementById('homeFeaturedGrid');
+  const liveTrack = document.getElementById('homeLiveShowcaseTrack');
+  if(!featuredGrid || !liveTrack) return;
+
+  const titleEl = document.getElementById('homeFeaturedTitle');
+  const subtitleEl = document.getElementById('homeFeaturedSubtitle');
+  if(titleEl) titleEl.textContent = featuredCfg.title;
+  if(subtitleEl) subtitleEl.textContent = featuredCfg.subtitle;
+
+  const featuredProducts = getRenderableProductsByIds(featuredCfg.productIds).slice(0,8);
+  if(!featuredProducts.length){
+    featuredGrid.innerHTML = '<div class="home-featured-empty">Henüz öne çıkan ürün seçilmedi.</div>';
+  }else{
+    featuredGrid.innerHTML = featuredProducts.map((item)=>`
+      <button class="home-featured-card" type="button" onclick="go('products');setTimeout(()=>openModalFromProduct('${escapeInline(item.id)}'),120)">
+        <img src="${resolveAssetUrl(item.image)}" ${imageFallbackAttr(item.image)} alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">
+        <div class="home-featured-card-body">
+          <span class="home-featured-card-cat">${escapeHtml(getCatalogCategoryLabel(item.cat))}</span>
+          <h4>${escapeHtml(item.name)}</h4>
+          <div class="home-featured-price"><b>${Number(item.price||0).toLocaleString('tr-TR')} ₺</b>${item.oldPrice?`<span>${Number(item.oldPrice).toLocaleString('tr-TR')} ₺</span>`:''}</div>
+        </div>
+      </button>
+    `).join('');
+  }
+
+  const liveLabelEl = document.getElementById('homeLiveLabel');
+  const liveTitleEl = document.getElementById('homeLiveTitle');
+  const liveSubtitleEl = document.getElementById('homeLiveSubtitle');
+  if(liveLabelEl) liveLabelEl.innerHTML = `<i class="fas fa-bolt"></i> ${escapeHtml(liveCfg.label)}`;
+  if(liveTitleEl) liveTitleEl.textContent = liveCfg.title;
+  if(liveSubtitleEl) liveSubtitleEl.textContent = liveCfg.subtitle;
+
+  const liveProducts = getRenderableProductsByIds(liveCfg.productIds).slice(0,12);
+  if(!liveProducts.length){
+    liveTrack.innerHTML = '<div class="home-featured-empty" style="color:#4d5870;border-color:rgba(34,45,78,.24)">Canlı vitrin için ürün seçimi bekleniyor.</div>';
+  }else{
+    liveTrack.innerHTML = liveProducts.map((item)=>`
+      <article class="home-live-item" role="button" tabindex="0" onclick="go('products');setTimeout(()=>openModalFromProduct('${escapeInline(item.id)}'),120)" onkeydown="if(event.key==='Enter' || event.key===' '){event.preventDefault();go('products');setTimeout(()=>openModalFromProduct('${escapeInline(item.id)}'),120)}">
+        <img src="${resolveAssetUrl(item.image)}" ${imageFallbackAttr(item.image)} alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">
+        <div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <span>${Number(item.price||0).toLocaleString('tr-TR')} ₺ ${item.unit && item.unit!=='adet' ? '/ '+escapeHtml(item.unit) : ''}</span>
+          <em>${escapeHtml(getCatalogCategoryLabel(item.cat))}</em>
+        </div>
+      </article>
+    `).join('');
+  }
+}
+function loadHomeFeaturedProductIds(){
+  renderHomeFeaturedProducts();
+}
+function loadProductsFeaturedProductIds(){
+  renderHomeFeaturedProducts();
+}
+
 async function loadHomeSlider(){
   if(homeSliderLoadedOnce) return;
   homeSliderLoadedOnce = true;
@@ -2560,6 +2735,7 @@ function renderProductState(list, {withObserver=true} = {}){
   hydrateProductSocialData();
   syncCategoriesFromAdmin();
   renderProducts(PRODUCTS);
+  renderHomeFeaturedProducts();
   renderHomePromoPanel();
   renderRecentlyViewed();
   if(withObserver) initObserver();
@@ -4016,6 +4192,9 @@ window.addEventListener('storage',(event)=>{
     initObserver();
   }
   if(event.key===SURPRISE_CAMPAIGN_KEY) scheduleSurpriseCampaignModal();
+  if(event.key===HOME_FEATURED_PRODUCTS_KEY || event.key===HOME_LIVE_PRODUCT_SHOWCASE_KEY){
+    renderHomeFeaturedProducts();
+  }
 });
 
 // ── Navigasyon ──
