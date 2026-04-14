@@ -161,7 +161,7 @@ img,video,canvas,svg{max-width:100%}
 /* ── Header ── */
 .mini-cart,.search-bar,.favorite-bar{position:fixed;top:75px;right:5%;width:90%;max-width:400px;background:white;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);z-index:1000;display:none;padding:20px;max-height:70vh;overflow-y:auto}
 .mini-cart.open,.search-bar.open,.favorite-bar.open{display:block}
-#mobileMenu{position:fixed;top:0;left:0;transform:translateX(-104%);pointer-events:none;width:280px;height:100%;max-height:100dvh;background:linear-gradient(160deg,rgba(255,255,255,0.84) 0%,rgba(247,241,229,0.78) 45%,rgba(240,230,207,0.72) 100%);backdrop-filter:blur(22px) saturate(130%);-webkit-backdrop-filter:blur(22px) saturate(130%);z-index:2000;padding:50px 30px;transition:transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94),box-shadow 0.35s ease;display:flex;flex-direction:column;gap:10px;box-shadow:0 26px 54px rgba(15,14,13,0.26);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-right:1px solid rgba(255,255,255,0.56)}
+#mobileMenu{position:fixed;top:0;left:0;transform:translateX(-104%);pointer-events:none;width:280px;height:100%;max-height:100dvh;background:linear-gradient(160deg,rgba(255,255,255,0.84) 0%,rgba(247,241,229,0.78) 45%,rgba(240,230,207,0.72) 100%);backdrop-filter:blur(22px) saturate(130%);-webkit-backdrop-filter:blur(22px) saturate(130%);z-index:12480;padding:50px 30px;transition:transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94),box-shadow 0.35s ease;display:flex;flex-direction:column;gap:10px;box-shadow:0 26px 54px rgba(15,14,13,0.26);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-right:1px solid rgba(255,255,255,0.56)}
 #mobileMenu.open{transform:translateX(0);pointer-events:auto}
 #mobileMenu .menu-logo{font-family:var(--ff-display);font-size:1.6rem;color:var(--gold-dark);letter-spacing:3px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(201,168,76,0.28)}
 #mobileMenu button{width:100%;justify-content:flex-start;background:linear-gradient(135deg,rgba(255,255,255,0.6),rgba(255,250,241,0.46));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.52);color:var(--ink);text-align:left;font-size:0.82rem;letter-spacing:1.6px;text-transform:uppercase;padding:12px 14px;border-radius:12px;cursor:pointer;transition:all 0.3s;border-bottom:none;font-family:var(--ff-body);font-weight:500;display:flex;align-items:center;gap:10px;min-height:52px;box-shadow:0 8px 18px rgba(15,14,13,0.08)}
@@ -172,7 +172,7 @@ img,video,canvas,svg{max-width:100%}
 #mobileMenu .menu-close-btn{margin-top:12px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(201,168,76,0.45);border-radius:12px;padding:12px 0;letter-spacing:2px;background:rgba(201,168,76,0.14);color:var(--ink)}
 #mobileMenu .menu-close-btn:hover{color:var(--ink);background:rgba(201,168,76,0.2)}
 #mobileCategoryMenu{display:flex;flex-direction:column;gap:10px}
-#menuOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.28);z-index:990;display:none}
+#menuOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.28);z-index:12470;display:none}
 @media(max-width:640px){#mobileMenu{width:min(82vw,320px);top:0;bottom:calc(8px + env(safe-area-inset-bottom) + 72px);height:auto;max-height:none;padding:28px 22px calc(18px + env(safe-area-inset-bottom));border-bottom-right-radius:22px}}
 header{position:fixed;top:0;left:0;right:0;z-index:12240;padding:0 5%;background:rgba(255,255,255,0.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(201,168,76,0.2);transition:var(--transition)}
 .header-inner{max-width:100%;margin:auto;height:75px;display:flex;align-items:center;justify-content:space-between}
@@ -2835,6 +2835,12 @@ async function loadProducts({forceRefresh=false} = {}){
         if(!localRes.ok) throw new Error('Ürünler alınamadı');
         fresh = await localRes.json();
       }
+      if(!Array.isArray(fresh) || !fresh.length){
+        const fallbackLocalRes = await fetch('/products.json', { cache:'reload' });
+        if(fallbackLocalRes.ok){
+          fresh = await fallbackLocalRes.json();
+        }
+      }
       writeProductsToCache(fresh);
       renderProductState(fresh, {withObserver:true});
       productsLoadedOnce = true;
@@ -2851,6 +2857,10 @@ async function loadProducts({forceRefresh=false} = {}){
         const homeFeaturedRail = document.getElementById('homeFeaturedRail');
         if(homeFeaturedRail){
           homeFeaturedRail.innerHTML = '<div class="campaign-stream-empty">Ürünler alınamadı. Lütfen sayfayı yenileyin.</div>';
+        }
+        const topProductRail = document.getElementById('topProductRail');
+        if(topProductRail){
+          topProductRail.innerHTML = '<div class="campaign-stream-empty">Öne çıkan ürünler şu an yüklenemiyor.</div>';
         }
       }
     } finally {
@@ -3584,10 +3594,16 @@ function toggleTopProductRailButtons(){
 
 // ── Filtreler ──
 function applyFilters(){
-  const search = document.getElementById('searchInput').value.toLocaleLowerCase('tr');
-  const sort   = document.getElementById('sortSelect').value;
-  const minP   = parseFloat(document.getElementById('minPrice').value)||0;
-  const maxP   = parseFloat(document.getElementById('maxPrice').value)||Infinity;
+  const searchInputEl = document.getElementById('searchInput');
+  const sortSelectEl = document.getElementById('sortSelect');
+  const minPriceEl = document.getElementById('minPrice');
+  const maxPriceEl = document.getElementById('maxPrice');
+  const categoryLabelEl = document.getElementById('categoryLabel');
+
+  const search = String(searchInputEl?.value || '').toLocaleLowerCase('tr');
+  const sort   = String(sortSelectEl?.value || 'popular');
+  const minP   = parseFloat(minPriceEl?.value || '0') || 0;
+  const maxP   = parseFloat(maxPriceEl?.value || '') || Infinity;
   const catAll = document.getElementById('cat-all')?.checked ?? true;
 
   const activeCats = CATEGORIES.filter(c => {
@@ -3636,7 +3652,9 @@ function applyFilters(){
   const label = (!catAll && activeCats.length===1)
     ? (CATEGORIES.find(c=>c.key===activeCats[0])?.label || 'Ürünler')
     : 'Tüm Ürünler';
-  document.getElementById('categoryLabel').innerText = label + ' (' + filtered.length + ')';
+  if(categoryLabelEl){
+    categoryLabelEl.innerText = label + ' (' + filtered.length + ')';
+  }
   renderProducts(filtered);
   updateTopProductRail(filtered);
   initObserver();
@@ -4393,12 +4411,18 @@ function ensureMobileNavInteractive(){
 }
 
 function go(id){
-  closeAllPopups();
-  ensureMobileNavInteractive();
-  const nextId = resolveSectionId(id);
-  if(nextId === 'products') resetCategorySelectionToAll();
-  if(window.location.hash !== `#${nextId}`) window.location.hash = nextId;
-  applySectionState(nextId, {scroll:true});
+  try{
+    closeAllPopups();
+    ensureMobileNavInteractive();
+    const nextId = resolveSectionId(id);
+    if(nextId === 'products') resetCategorySelectionToAll();
+    if(window.location.hash !== `#${nextId}`) window.location.hash = nextId;
+    applySectionState(nextId, {scroll:true});
+  }catch(err){
+    console.error('[nav] go failed:', err);
+    const fallbackId = resolveSectionId(id);
+    applySectionState(fallbackId, {scroll:true});
+  }
 }
 
 function resetCategorySelectionToAll(){
@@ -4409,7 +4433,17 @@ function resetCategorySelectionToAll(){
     const el = document.getElementById('cat-'+c.key);
     if(el) el.checked = false;
   });
-  applyFilters();
+  safeApplyFilters();
+}
+
+function safeApplyFilters(){
+  try{
+    applyFilters();
+  }catch(err){
+    console.error('[products] applyFilters failed:', err);
+    renderProducts(Array.isArray(PRODUCTS) ? PRODUCTS : []);
+    updateTopProductRail(Array.isArray(PRODUCTS) ? PRODUCTS : []);
+  }
 }
 
 window.addEventListener('hashchange',()=>{
