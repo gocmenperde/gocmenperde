@@ -2077,6 +2077,36 @@ function handleSurpriseCampaignClick(){
   go('products');
   closeSurpriseCampaignModal(true);
 }
+function handleTargetPathNavigation(targetPath=''){
+  const cleanPath = String(targetPath || '').trim();
+  if(!cleanPath || cleanPath === '#'){
+    go('home');
+    return false;
+  }
+  if(cleanPath.startsWith('#')){
+    const sectionId = cleanPath.replace(/^#/, '').trim();
+    go(sectionId || 'home');
+    return false;
+  }
+  if(cleanPath.includes('category=')){
+    const match = cleanPath.match(/category=([^#&]+)/);
+    if(match && match[1]){
+      go('products');
+      setCategory(decodeURIComponent(match[1]));
+      return false;
+    }
+  }
+  if(cleanPath.includes('product=')){
+    const match = cleanPath.match(/product=([^#&]+)/);
+    if(match && match[1]){
+      go('products');
+      setTimeout(()=>openModalFromProduct(decodeURIComponent(match[1])), 120);
+      return false;
+    }
+  }
+  window.location.href = cleanPath;
+  return false;
+}
 function renderSurpriseCampaign(){
   const cfg = getSurpriseCampaignConfig();
   const badge = document.getElementById('surpriseCampaignBadge');
@@ -2391,8 +2421,9 @@ function renderHomeSlider(){
     const cropZoom = Number.isFinite(Number(item.cropZoom)) ? Math.max(1, Math.min(1.8, Number(item.cropZoom))) : 1.08;
     const title = escapeHtml(item.title || 'Fon Perde Çeşitlerimiz');
     const buttonLabel = escapeHtml(item.buttonLabel || 'Kampanyadan Faydalan');
+    const targetPath = escapeHtml(String(item.targetPath || '#'));
     return `
-    <a class="hero-ad-card" href="${item.targetPath || '#'}" target="_self" rel="noopener">
+    <a class="hero-ad-card" href="${targetPath}" target="_self" rel="noopener" onclick="return handleTargetPathNavigation('${escapeInline(item.targetPath || '#')}')">
       <img src="${resolveAssetUrl(item.imageUrl || '')}" ${imageFallbackAttr(item.imageUrl || '')} alt="Kampanya görseli" loading="${idx===0?'eager':'lazy'}" fetchpriority="${idx===0?'high':'auto'}" decoding="async" style="--crop-x:${cropX}%;--crop-y:${cropY}%;--crop-zoom:${cropZoom}">
       <div class="hero-ad-copy">
         <strong class="hero-ad-title">${title}</strong>
