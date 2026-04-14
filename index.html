@@ -2419,12 +2419,29 @@ function getHomeFeaturedProducts(){
   if(defaultProducts.length) return defaultProducts.slice(0, 12);
   return sourceProducts.filter(isRenderableCatalogProduct).slice(0, 12);
 }
+function decodeFeaturedLookupValue(value){
+  const raw = String(value || '').trim();
+  if(!raw) return '';
+  try{
+    return decodeURIComponent(raw);
+  }catch(_){
+    return raw;
+  }
+}
 function normalizeFeaturedLookupKey(value){
-  return String(value || '')
-    .trim()
+  return decodeFeaturedLookupValue(value)
     .toLocaleLowerCase('tr')
-    .replace(/\s+/g,'-')
-    .replace(/[^a-z0-9çğıöşü_-]/g,'')
+    .replace(/[ç]/g,'c')
+    .replace(/[ğ]/g,'g')
+    .replace(/[ı]/g,'i')
+    .replace(/[ö]/g,'o')
+    .replace(/[ş]/g,'s')
+    .replace(/[ü]/g,'u')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .trim()
+    .replace(/&/g,'-')
+    .replace(/[^a-z0-9_-]+/g,'-')
     .replace(/-+/g,'-')
     .replace(/^-|-$/g,'');
 }

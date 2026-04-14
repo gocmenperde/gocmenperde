@@ -3985,12 +3985,29 @@ function normalizeFeaturedIds(ids){
   const normalized = source.map((id)=>String(id||'').trim()).filter(Boolean).slice(0,20);
   return [...new Set(normalized)];
 }
+function decodeFeaturedLookupValue(value){
+  const raw = String(value || '').trim();
+  if(!raw) return '';
+  try{
+    return decodeURIComponent(raw);
+  }catch(_){
+    return raw;
+  }
+}
 function normalizeFeaturedLookup(value){
-  return String(value || '')
-    .trim()
+  return decodeFeaturedLookupValue(value)
     .toLocaleLowerCase('tr')
-    .replace(/\s+/g,'-')
-    .replace(/[^a-z0-9çğıöşü_-]/g,'')
+    .replace(/[ç]/g,'c')
+    .replace(/[ğ]/g,'g')
+    .replace(/[ı]/g,'i')
+    .replace(/[ö]/g,'o')
+    .replace(/[ş]/g,'s')
+    .replace(/[ü]/g,'u')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .trim()
+    .replace(/&/g,'-')
+    .replace(/[^a-z0-9_-]+/g,'-')
     .replace(/-+/g,'-')
     .replace(/^-|-$/g,'');
 }
