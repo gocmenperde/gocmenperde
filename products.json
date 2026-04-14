@@ -321,7 +321,7 @@
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
     "isLiveShowcase": false,
-    "isFeatured": false
+    "isFeatured": true
   },
   {
     "id": "zebra-perde-antrasit-sarmasik-1774963152707-791",
@@ -357,7 +357,7 @@
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
     "isLiveShowcase": false,
-    "isFeatured": false
+    "isFeatured": true
   },
   {
     "id": "zebra-perde-siyah-sarmasik-1774963152707-862",
@@ -393,7 +393,7 @@
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
     "isLiveShowcase": false,
-    "isFeatured": false
+    "isFeatured": true
   },
   {
     "id": "zebra-perde-bej-cizgili-1774963152707-99",
@@ -500,7 +500,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": false,
+    "isLiveShowcase": true,
     "isFeatured": false
   },
   {
@@ -536,7 +536,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": false,
+    "isLiveShowcase": true,
     "isFeatured": false
   },
   {
@@ -572,7 +572,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": false,
+    "isLiveShowcase": true,
     "isFeatured": false
   },
   {
