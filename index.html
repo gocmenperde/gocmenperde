@@ -3190,11 +3190,32 @@ function isFonPerdeProduct(product){
   const cat = String(product?.cat || '').toLowerCase();
   return name.includes('fon') || cat.includes('fon');
 }
+function isGuneslikProduct(product){
+  const name = String(product?.name || '').toLocaleLowerCase('tr');
+  const cat = String(product?.cat || '').toLocaleLowerCase('tr');
+  return cat === 'guneslik' || name.includes('güneşlik') || name.includes('guneslik');
+}
+function isOrmeTulProduct(product){
+  if(!isMeterProduct(product)) return false;
+  const cat = String(product?.cat || '').toLocaleLowerCase('tr');
+  const haystack = [
+    product?.name,
+    product?.desc,
+    product?.id,
+    product?.serialNumber
+  ].map((v)=>String(v || '').toLocaleLowerCase('tr')).join(' ');
+  const hasTul = haystack.includes('tül') || haystack.includes('tul');
+  const hasOrme = haystack.includes('örme') || haystack.includes('orme');
+  return cat === 'tul-perde' && hasTul && hasOrme;
+}
 function needsDimensions(product){
   return isMeterProduct(product) || isSquareMeterProduct(product) || isFonPerdeProduct(product);
 }
 function isPleatedMeterProduct(product){
-  return (isMeterProduct(product) || isFonPerdeProduct(product)) && !isSquareMeterProduct(product);
+  return isOrmeTulProduct(product) && !isSquareMeterProduct(product);
+}
+function requiresHeightMeasurement(product){
+  return isSquareMeterProduct(product) || isPleatedMeterProduct(product) || isGuneslikProduct(product);
 }
 function getPileMultiplier(pileType){
   if(pileType === 'seyrek') return 2;
@@ -3262,6 +3283,29 @@ function bindTulPerdeAutoCalc(product, qtyInputId, widthInputId, heightInputId, 
   wEl.addEventListener('input', recalc);
   hEl.addEventListener('input', recalc);
   pileEl.addEventListener('change', recalc);
+  recalc();
+}
+function bindMeterDimensionsAutoCalc(product, qtyInputId, widthInputId, heightInputId, priceInfoId){
+  const qtyEl = document.getElementById(qtyInputId);
+  const wEl = document.getElementById(widthInputId);
+  const hEl = document.getElementById(heightInputId);
+  const infoEl = document.getElementById(priceInfoId);
+  if(!qtyEl || !wEl || !hEl || !infoEl) return;
+  const recalc = ()=>{
+    const w = parseLocaleNumber(wEl.value);
+    const h = parseLocaleNumber(hEl.value);
+    if(Number.isFinite(w) && w > 0 && Number.isFinite(h) && h > 0){
+      const meter = roundTo2(w * h);
+      const total = roundTo2(meter * (Number(product?.price) || 0));
+      qtyEl.value = String(meter).replace('.', ',');
+      infoEl.textContent = `${meter.toLocaleString('tr-TR')} m • ${total.toLocaleString('tr-TR')} TL`;
+    } else {
+      qtyEl.value = '0';
+      infoEl.textContent = 'En ve boy girildiğinde metre ve fiyat otomatik hesaplanır';
+    }
+  };
+  wEl.addEventListener('input', recalc);
+  hEl.addEventListener('input', recalc);
   recalc();
 }
 function formatQty(value){
@@ -3342,8 +3386,9 @@ function buildCard(p, index=0){
   const meterProduct = isMeterProduct(p);
   const squareProduct = isSquareMeterProduct(p);
   const pleatedMeterProduct = isPleatedMeterProduct(p);
+  const meterDimensionsProduct = meterProduct && !pleatedMeterProduct && !squareProduct && requiresHeightMeasurement(p);
   const requireSize = needsDimensions(p);
-  const requireHeight = squareProduct || pleatedMeterProduct;
+  const requireHeight = requiresHeightMeasurement(p);
   const social = getProductSocial(p.id);
   const stockCount = getNormalizedStockCount(p);
   const outOfStock = isOutOfStock(p);
@@ -3358,12 +3403,13 @@ function buildCard(p, index=0){
   const addBtn = outOfStock
     ? buildOutOfStockActions(p.id, p.name)
     : `<div class="qty-wrap">
-    ${squareProduct || pleatedMeterProduct ? `<input type="text" class="qty-input" id="${qid}" value="0" readonly>` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="qty-input" id="${qid}" value="1" ${meterProduct ? `title="Virgüllü değer girebilirsiniz"` : ''}>`}
+    ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="qty-input" id="${qid}" value="0" readonly>` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="qty-input" id="${qid}" value="1" ${meterProduct ? `title="Virgüllü değer girebilirsiniz"` : ''}>`}
     ${requireSize ? `<input type="text" inputmode="decimal" class="qty-input dimension-input" id="${wid}" placeholder="En (m)">` : ''}
     ${requireHeight ? `<input type="text" inputmode="decimal" class="qty-input dimension-input" id="${hid}" placeholder="Boy (m)">` : ''}
     ${pleatedMeterProduct ? `<select class="qty-input pile-select" id="pile-${p.id}"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select>` : ''}
     ${squareProduct ? `<span id="${pid}" class="qty-help-text">En ve boy girildiğinde m² ve fiyat otomatik hesaplanır</span>` : ''}
     ${pleatedMeterProduct ? `<span id="${pid}" class="qty-help-text">En/boy ve pile seçimine göre (1:2 / 1:2.5 / 1:3) metre ve fiyat otomatik hesaplanır</span>` : ''}
+    ${meterDimensionsProduct ? `<span id="${pid}" class="qty-help-text">En ve boy girildiğinde metre ve fiyat otomatik hesaplanır</span>` : ''}
     <button class="add-btn" onclick="event.stopPropagation();addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','pile-${p.id}')">Sepete Ekle</button>
   </div>`;
 
@@ -3411,6 +3457,10 @@ function renderProducts(list){
     }
     if(isPleatedMeterProduct(p)){
       bindTulPerdeAutoCalc(p, 'q-' + p.id, 'w-' + p.id, 'h-' + p.id, 'pile-' + p.id, 'price-info-' + p.id);
+      return;
+    }
+    if(isMeterProduct(p) && requiresHeightMeasurement(p)){
+      bindMeterDimensionsAutoCalc(p, 'q-' + p.id, 'w-' + p.id, 'h-' + p.id, 'price-info-' + p.id);
     }
   });
 }
@@ -3850,14 +3900,16 @@ function openModalFromProduct(id){
   const squareProduct = isSquareMeterProduct(p);
   const requireSize = needsDimensions(p);
   const pleatedMeterProduct = isPleatedMeterProduct(p);
-  const requireHeight = squareProduct || pleatedMeterProduct;
+  const meterDimensionsProduct = meterProduct && !pleatedMeterProduct && !squareProduct && requiresHeightMeasurement(p);
+  const requireHeight = requiresHeightMeasurement(p);
   document.getElementById('mAddWrap').innerHTML = `
-    ${squareProduct || pleatedMeterProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly>` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1">`}
+    ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly>` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1">`}
     ${requireSize ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${wid}" placeholder="En (m)">` : ''}
     ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${hid}" placeholder="Boy (m)">` : ''}
     ${pleatedMeterProduct ? `<select class="modal-qty-input pile-select" id="modal-pile-${p.id}"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select>` : ''}
     ${squareProduct ? `<span id="${pid}" class="modal-inline-help">En ve boy girildiğinde m² ve fiyat otomatik hesaplanır</span>` : ''}
     ${pleatedMeterProduct ? `<span id="${pid}" class="modal-inline-help">Fon perdede en bir panel için minimum 1 metredir. Çift kanat için toplam en en az 2 metre olmalıdır.</span><span class="modal-inline-help">En/boy ve pile seçimine göre (1:2 / 1:2.5 / 1:3) metre ve fiyat otomatik hesaplanır</span>` : ''}
+    ${meterDimensionsProduct ? `<span id="${pid}" class="modal-inline-help">En ve boy girildiğinde metre ve fiyat otomatik hesaplanır</span>` : ''}
     ${outOfStock
       ? `<button class="modal-add-btn" style="background:#6b7280" disabled>Tükendi</button><button class="modal-add-btn" onclick="subscribeStockAlert('${p.id}','${String(p.name||'').replace(/'/g, "\\'")}')">Gelince Haber Ver</button>`
       : `<button class="modal-add-btn" onclick="addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','modal-pile-${p.id}')"><i class="fas fa-bag-shopping" style="margin-right:8px"></i>Sepete Ekle</button>`}
@@ -3868,6 +3920,8 @@ function openModalFromProduct(id){
     bindSquareMeterAutoCalc(p, qid, wid, hid, pid);
   } else if(pleatedMeterProduct){
     bindTulPerdeAutoCalc(p, qid, wid, hid, `modal-pile-${p.id}`, pid);
+  } else if(meterDimensionsProduct){
+    bindMeterDimensionsAutoCalc(p, qid, wid, hid, pid);
   }
   renderModalReviews(id);
   syncReviewNameField(id);
@@ -4607,8 +4661,9 @@ function addToCartFromProduct(productId, qtyInputId, widthInputId, heightInputId
   const meterProduct = isMeterProduct(product);
   const squareProduct = isSquareMeterProduct(product);
   const pleatedMeterProduct = isPleatedMeterProduct(product);
+  const meterDimensionsProduct = meterProduct && !pleatedMeterProduct && !squareProduct && requiresHeightMeasurement(product);
   const requireSize = needsDimensions(product);
-  const requireHeight = squareProduct || pleatedMeterProduct;
+  const requireHeight = requiresHeightMeasurement(product);
   const qtyRaw = document.getElementById(qtyInputId)?.value ?? '1';
   const widthRaw = document.getElementById(widthInputId)?.value ?? '';
   const heightRaw = requireHeight ? (document.getElementById(heightInputId)?.value ?? '') : '';
@@ -4624,6 +4679,10 @@ function addToCartFromProduct(productId, qtyInputId, widthInputId, heightInputId
     showToast('Lütfen perde için en ve boy ölçülerini metre cinsinden girin');
     return;
   }
+  if(meterDimensionsProduct && (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0)){
+    showToast('Lütfen en ve boy ölçülerini metre cinsinden girin');
+    return;
+  }
 
   let qty = meterProduct ? parseLocaleNumber(qtyRaw) : parseInt(qtyRaw, 10);
   if(squareProduct){
@@ -4634,6 +4693,11 @@ function addToCartFromProduct(productId, qtyInputId, widthInputId, heightInputId
   if(pleatedMeterProduct){
     const mult = getPileMultiplier(pileType);
     qty = roundTo2(width * height * mult);
+    const qtyEl = document.getElementById(qtyInputId);
+    if(qtyEl) qtyEl.value = String(qty).replace('.', ',');
+  }
+  if(meterDimensionsProduct){
+    qty = roundTo2(width * height);
     const qtyEl = document.getElementById(qtyInputId);
     if(qtyEl) qtyEl.value = String(qty).replace('.', ',');
   }
