@@ -4113,8 +4113,10 @@ async function saveHomeFeaturedProductIds(list){
     if(payload?.updatedAt){
       saveHomeFeaturedMeta(new Date(payload.updatedAt).getTime() || Date.now());
     }
+    return true;
   }catch(_){
     aToast('⚠️ Sunucuya kaydedilemedi. Değişiklik bu tarayıcıda görünecek.','error');
+    return false;
   }
 }
 function fillFeaturedProductSelect(){
@@ -4167,26 +4169,26 @@ async function addFeaturedProduct(){
   const ids = getHomeFeaturedProductIds();
   if(ids.includes(id)){ aToast('⚠️ Bu ürün zaten ekli','error'); return; }
   ids.unshift(id);
-  await saveHomeFeaturedProductIds(ids.slice(0,12));
+  const saved = await saveHomeFeaturedProductIds(ids.slice(0,12));
   renderFeaturedProductsAdminList();
-  aToast('✓ Ürün kaydırmalı vitrine eklendi','success');
+  aToast(saved ? '✓ Ürün kaydırmalı vitrine eklendi' : '⚠️ Ürün yalnızca bu cihazda eklendi (sunucuya yazılamadı)','success');
 }
 async function removeFeaturedProduct(idx){
   const ids = getHomeFeaturedProductIds();
   ids.splice(idx,1);
-  await saveHomeFeaturedProductIds(ids);
+  const saved = await saveHomeFeaturedProductIds(ids);
   renderFeaturedProductsAdminList();
-  aToast('✓ Ürün vitrinden kaldırıldı','success');
+  aToast(saved ? '✓ Ürün vitrinden kaldırıldı' : '⚠️ Kaldırma yalnızca bu cihazda uygulandı (sunucuya yazılamadı)','success');
 }
 async function resetFeaturedProducts(){
-  await saveHomeFeaturedProductIds(DEFAULT_HOME_FEATURED_PRODUCTS);
+  const saved = await saveHomeFeaturedProductIds(DEFAULT_HOME_FEATURED_PRODUCTS);
   renderFeaturedProductsAdminList();
-  aToast('✓ Varsayılan kaydırmalı vitrin yüklendi','success');
+  aToast(saved ? '✓ Varsayılan kaydırmalı vitrin yüklendi' : '⚠️ Varsayılanlar yalnızca bu cihazda yüklendi (sunucuya yazılamadı)','success');
 }
 async function forceSaveHomeFeaturedProducts(){
-  await saveHomeFeaturedProductIds(getHomeFeaturedProductIds());
+  const saved = await saveHomeFeaturedProductIds(getHomeFeaturedProductIds());
   renderFeaturedProductsAdminList();
-  aToast('✓ Canlı ürün vitrini GitHub/sunucuya kaydedildi','success');
+  aToast(saved ? '✓ Canlı ürün vitrini sunucuya kaydedildi' : '⚠️ Sunucuya kaydetme başarısız. API/logları kontrol edin.','error');
 }
 function renderHomeFeaturedAdminPage(){
   fillFeaturedProductSelect();
@@ -4244,8 +4246,10 @@ async function saveProductsFeaturedProductIds(list){
     if(payload?.updatedAt){
       saveProductsFeaturedMeta(new Date(payload.updatedAt).getTime() || Date.now());
     }
+    return true;
   }catch(_){
     aToast('⚠️ Sunucuya kaydedilemedi. Değişiklik bu tarayıcıda görünecek.','error');
+    return false;
   }
 }
 function fillProductsFeaturedProductSelect(){
@@ -4298,26 +4302,26 @@ async function addProductsFeaturedProduct(){
   const ids = getProductsFeaturedProductIds();
   if(ids.includes(id)){ aToast('⚠️ Bu ürün zaten ekli','error'); return; }
   ids.unshift(id);
-  await saveProductsFeaturedProductIds(ids.slice(0,12));
+  const saved = await saveProductsFeaturedProductIds(ids.slice(0,12));
   renderProductsFeaturedProductsAdminList();
-  aToast('✓ Ürün öne çıkanlar alanına eklendi','success');
+  aToast(saved ? '✓ Ürün öne çıkanlar alanına eklendi' : '⚠️ Ürün yalnızca bu cihazda eklendi (sunucuya yazılamadı)','success');
 }
 async function removeProductsFeaturedProduct(idx){
   const ids = getProductsFeaturedProductIds();
   ids.splice(idx,1);
-  await saveProductsFeaturedProductIds(ids);
+  const saved = await saveProductsFeaturedProductIds(ids);
   renderProductsFeaturedProductsAdminList();
-  aToast('✓ Ürün öne çıkanlar alanından kaldırıldı','success');
+  aToast(saved ? '✓ Ürün öne çıkanlar alanından kaldırıldı' : '⚠️ Kaldırma yalnızca bu cihazda uygulandı (sunucuya yazılamadı)','success');
 }
 async function resetProductsFeaturedProducts(){
-  await saveProductsFeaturedProductIds(DEFAULT_PRODUCTS_FEATURED_PRODUCTS);
+  const saved = await saveProductsFeaturedProductIds(DEFAULT_PRODUCTS_FEATURED_PRODUCTS);
   renderProductsFeaturedProductsAdminList();
-  aToast('✓ Ürünler sayfası için varsayılan liste yüklendi','success');
+  aToast(saved ? '✓ Ürünler sayfası için varsayılan liste yüklendi' : '⚠️ Varsayılanlar yalnızca bu cihazda yüklendi (sunucuya yazılamadı)','success');
 }
 async function forceSaveProductsFeaturedProducts(){
-  await saveProductsFeaturedProductIds(getProductsFeaturedProductIds());
+  const saved = await saveProductsFeaturedProductIds(getProductsFeaturedProductIds());
   renderProductsFeaturedProductsAdminList();
-  aToast('✓ Öne çıkan ürünler GitHub/sunucuya kaydedildi','success');
+  aToast(saved ? '✓ Öne çıkan ürünler sunucuya kaydedildi' : '⚠️ Sunucuya kaydetme başarısız. API/logları kontrol edin.','error');
 }
 function renderProductsFeaturedAdminPage(){
   fillProductsFeaturedProductSelect();
