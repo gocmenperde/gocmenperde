@@ -706,7 +706,7 @@ tbody tr:hover td{background:#fdfcf8}
           <button class="quick-btn" onclick="showPage('orders');loadAdminOrders()"><i class="fas fa-shopping-bag"></i> Siparişleri Görüntüle</button>
           <button class="quick-btn" onclick="showPage('products');openAddModal()"><i class="fas fa-plus-circle"></i> Yeni Ürün Ekle</button>
           <button class="quick-btn" onclick="showPage('customers');loadCustomers()"><i class="fas fa-users"></i> Müşteri Listesi</button>
-          <button class="quick-btn" onclick="saveProductsJSON()"><i class="fas fa-cloud-upload-alt"></i> GitHub'a Kaydet</button>
+          <button class="quick-btn" onclick="saveProductsJSON()"><i class="fas fa-cloud-upload-alt"></i> Kaydet</button>
           <button class="quick-btn wa-btn" onclick="window.open('https://wa.me/905012110958','_blank')"><i class="fab fa-whatsapp"></i> WhatsApp'ı Aç</button>
         </div>
       </div>
@@ -926,7 +926,7 @@ Işık: Yarı Geçirgen"></textarea></div>
       <option value="active">Aktif</option>
       <option value="inactive">Pasif</option>
     </select>
-    <button class="btn btn-success btn-sm" style="margin-left:auto" onclick="saveProductsJSON()"><i class="fas fa-cloud-upload-alt"></i> GitHub'a Kaydet</button>
+    <button class="btn btn-success btn-sm" style="margin-left:auto" onclick="saveProductsJSON()"><i class="fas fa-cloud-upload-alt"></i> Kaydet</button>
     <button class="btn btn-outline btn-sm" onclick="downloadJSON()"><i class="fas fa-download"></i> Yedek</button>
   </div>
   <div class="table-wrap">
@@ -945,7 +945,7 @@ Işık: Yarı Geçirgen"></textarea></div>
   <div class="page-header">
     <div><h1>Kategori <em>Yönetimi</em></h1><p>Ürün kategorilerini düzenleyin</p></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-success btn-sm" onclick="saveCategoriesJSON()"><i class="fas fa-cloud-upload-alt"></i> Kategorileri GitHub'a Kaydet</button>
+      <button class="btn btn-success btn-sm" onclick="saveCategoriesJSON()"><i class="fas fa-cloud-upload-alt"></i> Kategorileri Kaydet</button>
       <button class="btn btn-primary" onclick="openAddCatModal()"><i class="fas fa-plus"></i> Yeni Kategori</button>
     </div>
   </div>
@@ -2670,12 +2670,6 @@ function handleSliderImageFileSelect(input){
 
 async function uploadSliderImage(){
   const status = document.getElementById('sliderImageUploadStatus');
-  const token = getGithubToken();
-  if(!token){
-    aToast('⚠️ Önce geçerli bir GitHub token girin','error');
-    resetGithubToken();
-    return;
-  }
   if(!sliderSelectedDataUrl && !sliderSelectedFileName){
     aToast('⚠️ Önce bir görsel seçin','error');
     return;
@@ -2687,10 +2681,11 @@ async function uploadSliderImage(){
     if(!file){
       throw new Error('Yüklenecek dosya bulunamadı');
     }
-    const uploadedPath = await uploadImageWithRetry(token, file, { prefix:'slider' });
-    document.getElementById('sliderImage').value = uploadedPath || '';
-    if(status) status.textContent = `Yüklendi: ${uploadedPath}`;
-    aToast('✅ Slider görseli yüklendi','success');
+    const {uploaded} = await uploadImagesToServer([file], 'slider');
+    const uploadedPath = uploaded[0] || '';
+    document.getElementById('sliderImage').value = uploadedPath;
+    if(status) status.textContent = uploadedPath ? `Yüklendi: ${uploadedPath}` : 'Yükleme başarısız';
+    if(uploadedPath) aToast('✅ Slider görseli yüklendi','success');
   }catch(err){
     if(status) status.textContent = 'Yükleme başarısız';
     aToast('❌ '+err.message,'error');
@@ -3669,7 +3664,7 @@ function saveBulkProducts(){
   renderHomepageMerchEditor();
   renderDashboard();
   aToast(`✓ ${incoming.length} ürün toplu olarak eklendi`,'success');
-  if(getGithubToken()) saveProductsJSON({silent:true});
+  saveProductsJSON({silent:true});
 }
 
 async function saveProduct(){
@@ -3748,7 +3743,7 @@ async function saveProduct(){
   closeModal('productModal');
   renderTable();
   renderDashboard();
-  if(getGithubToken()) saveProductsJSON({silent:true});
+  saveProductsJSON({silent:true});
 }
 
 function toggleProduct(idx){
@@ -3893,43 +3888,14 @@ function previewCategoryImage(){
 async function handleCategoryImageSelect(input){
   const file=input?.files?.[0];
   if(!file) return;
-  const token=getGithubToken();
   const imagePathInput=document.getElementById('c-image');
   if(!imagePathInput) return;
-  if(!token){
-    const preview = await new Promise(resolve=>{
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(file);
-    });
-    imagePathInput.value = preview || '';
-    previewCategoryImage();
-    aToast('⚠️ GitHub Token yok — görsel yalnızca önizleme olarak eklendi','error');
-    input.value='';
-    return;
-  }
   try{
-    const sanitize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[ğ]/g,'g').replace(/[ü]/g,'u').replace(/[ş]/g,'s').replace(/[ı]/g,'i').replace(/[ö]/g,'o').replace(/[ç]/g,'c').replace(/\s+/g,'-').replace(/[^a-zA-Z0-9._-]/g,'');
-    const uniqueSuffix=()=>{
-      if(window.crypto?.randomUUID) return window.crypto.randomUUID();
-      return `${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
-    };
-    const content = await new Promise(resolve=>{
-      const reader=new FileReader();
-      reader.onload=e=>resolve(e.target.result.split(',')[1]);
-      reader.readAsDataURL(file);
-    });
-    const fileName=`resimler/${Date.now()}-cat-${uniqueSuffix()}-${sanitize(file.name)}`;
-    const url=`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`;
-    const payload={message:'Admin: Kategori görseli yüklendi',content};
-    const res=await fetch(url,{method:'PUT',headers:githubHeaders(token),body:JSON.stringify(payload)});
-    if(!res.ok){
-      const err=await res.json().catch(()=>({message:'GitHub yükleme hatası'}));
-      throw new Error(err.message||'GitHub yükleme hatası');
-    }
-    imagePathInput.value=fileName;
+    const {uploaded} = await uploadImagesToServer([file], 'cat');
+    imagePathInput.value = uploaded[0] || '';
     previewCategoryImage();
-    aToast('✅ Kategori görseli yüklendi','success');
+    if(uploaded[0]) aToast('✅ Kategori görseli yüklendi','success');
+    else aToast('❌ Görsel yüklenemedi','error');
   }catch(err){
     aToast('❌ '+err.message,'error');
   }finally{
@@ -4003,7 +3969,7 @@ function saveCat(){
     aToast('✓ Eklendi: '+label,'success');
   }
   saveCategories();closeModal('catModal');renderCatTable();rebuildCatDropdowns();
-  if(getGithubToken()) saveCategoriesJSON({silent:true});
+  saveCategoriesJSON({silent:true});
 }
 function deleteCat(i){
   const c=CATEGORIES[i],count=PRODUCTS.filter(p=>p.cat===c.key).length;
@@ -4173,14 +4139,13 @@ async function uploadCampaignImageFromInput(){
   const status = document.getElementById('cm-imageUploadStatus');
   const file = fileInput?.files?.[0];
   if(!file){ if(status) status.textContent='Dosya seçilmedi'; return ''; }
-  const token = localStorage.getItem('gh_token');
-  if(!token){ aToast('⚠️ Önce GitHub token girin','error'); if(status) status.textContent='Token eksik'; return ''; }
   try{
     if(status) status.textContent='Yükleniyor...';
-    const uploadedPath = await uploadImageWithRetry(token, file, { prefix:'campaign' });
-    document.getElementById('cm-image').value = uploadedPath || '';
-    if(status) status.textContent='✓ Yüklendi';
-    return uploadedPath || '';
+    const {uploaded} = await uploadImagesToServer([file], 'campaign');
+    const uploadedPath = uploaded[0] || '';
+    document.getElementById('cm-image').value = uploadedPath;
+    if(status) status.textContent = uploadedPath ? '✓ Yüklendi' : 'Yükleme başarısız';
+    return uploadedPath;
   }catch(_){
     if(status) status.textContent='Yükleme başarısız';
     aToast('❌ Kampanya görseli yüklenemedi','error');
@@ -4376,7 +4341,7 @@ async function togglePremiumFlag(productId, key, checked){
 
 function savePremiumFlags(){
   aToast('✓ Premium vitrin bayrakları güncellendi', 'success');
-  if(getGithubToken()) saveProductsJSON({silent:true});
+  saveProductsJSON({silent:true});
 }
 
 function saveHomepageMerchSettings(){ savePremiumFlags(); }
@@ -4936,27 +4901,10 @@ async function handleImageSelect(input){
   if(!files.length) return;
   document.getElementById('f-imageFileName').textContent = files.length===1 ? files[0].name : `${files.length} dosya seçildi`;
   renderSelectedImages();
-  const token=getGithubToken();
-  if(!token){
-    const previews = files.map(file => URL.createObjectURL(file));
-    document.getElementById('f-image').value = previews[0] || '';
-    document.getElementById('f-images').value = previews.join('\n');
-    previewImg();
-    input.value='';
-    renderSelectedImages();
-    aToast('⚠️ GitHub Token yok — yalnızca önizleme','error');
-    return;
-  }
   const status=document.getElementById('imgUploadStatus');
-  status.className='img-status loading';status.innerHTML='<i class="fas fa-spinner fa-spin"></i> GitHub\'a yükleniyor...';status.style.display='flex';
+  status.className='img-status loading';status.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sunucuya yükleniyor...';status.style.display='flex';
   try{
-    const {uploaded, errors} = await uploadImagesWithConcurrency(token, files, {
-      prefix:'product',
-      concurrency:3,
-      onProgress:({done,total,name})=>{
-        status.innerHTML=`<i class="fas fa-spinner fa-spin"></i> Yükleniyor (${done}/${total}) — ${name}`;
-      }
-    });
+    const {uploaded, errors} = await uploadImagesToServer(files, 'product');
     if(uploaded.length){
       document.getElementById('f-image').value=uploaded[0];
       document.getElementById('f-images').value=uploaded.join('\n');
@@ -4964,12 +4912,10 @@ async function handleImageSelect(input){
     }
     input.value='';
     renderSelectedImages();
-    if(errors.length){
-      status.className='img-status done';status.innerHTML=`<i class="fas fa-check-circle"></i> ${uploaded.length} resim yüklendi`;
-    }else{
-      status.className='img-status done';status.innerHTML=`<i class="fas fa-check-circle"></i> ${uploaded.length} resim yüklendi`;
-      aToast('✅ Resimler yüklendi','success');
-    }
+    status.className='img-status done';
+    status.innerHTML=`<i class="fas fa-check-circle"></i> ${uploaded.length} resim yüklendi${errors.length?' ('+errors.length+' hata)':''}`;
+    if(!errors.length) aToast('✅ Resimler yüklendi','success');
+    else aToast(`✅ ${uploaded.length} yüklendi, ${errors.length} hata`,'');
   } catch(err){status.className='img-status error';status.innerHTML='<i class="fas fa-times-circle"></i> '+err.message;aToast('❌ '+err.message,'error');}
 }
 async function handleBulkImageSelect(input){
@@ -4979,38 +4925,17 @@ async function handleBulkImageSelect(input){
   const imageInput=card?.querySelector('.bulk-image');
   const imagesArea=card?.querySelector('.bulk-images');
   const fileNameEl=card?.querySelector('.bulk-image-file-name');
-  if(fileNameEl) fileNameEl.textContent=`${files.length} dosya seçildi`;
+  if(fileNameEl) fileNameEl.textContent='Yükleniyor...';
   if(!imageInput||!imagesArea) return;
-  const token=getGithubToken();
-  if(!token){
-    const previews=files.map(file=>URL.createObjectURL(file));
-    if(previews.length){
-      imageInput.value = previews[0];
-      imagesArea.value = previews.join('\n');
-      refreshBulkCardImageOptions(card);
-    }
-    input.value='';
-    aToast('⚠️ GitHub Token yok — seçilen görsel önizleme olarak eklendi','error');
-    return;
-  }
   try{
-    if(fileNameEl) fileNameEl.textContent='Yükleniyor...';
-    const {uploaded, errors}=await uploadImagesWithConcurrency(token, files, {
-      prefix:'bulk',
-      concurrency:3,
-      onProgress:({done,total})=>{ if(fileNameEl) fileNameEl.textContent=`Yükleniyor... (${done}/${total})`; }
-    });
+    const {uploaded, errors}=await uploadImagesToServer(files, 'bulk');
     if(uploaded.length){
       imageInput.value=uploaded[0];
       imagesArea.value=uploaded.join('\n');
       refreshBulkCardImageOptions(card);
     }
-    if(errors.length){
-      if(fileNameEl) fileNameEl.textContent=`✓ ${uploaded.length} resim yüklendi`;
-    }else{
-      if(fileNameEl) fileNameEl.textContent=`✓ ${uploaded.length} resim yüklendi`;
-      aToast('✅ Toplu ürün resimleri yüklendi','success');
-    }
+    if(fileNameEl) fileNameEl.textContent=`✓ ${uploaded.length} resim yüklendi${errors.length?' ('+errors.length+' hata)':''}`;
+    if(!errors.length) aToast('✅ Toplu ürün resimleri yüklendi','success');
   }catch(err){
     if(fileNameEl) fileNameEl.textContent='Yükleme başarısız';
     aToast('❌ '+err.message,'error');
@@ -5024,18 +4949,12 @@ async function handleShowcaseImageSelect(input){
   if(fileNameEl) fileNameEl.textContent = file ? file.name : 'JPG, PNG, WEBP';
   if(!file) return;
   const pathEl = document.getElementById('showcaseImageSrc');
-  const token = getGithubToken();
-  if(!token){
-    if(pathEl) pathEl.value = URL.createObjectURL(file);
-    aToast('⚠️ GitHub Token yok — sadece önizleme yolu atandı','error');
-    return;
-  }
   try{
     if(fileNameEl) fileNameEl.textContent = 'Yükleniyor...';
-    const uploaded = await uploadImageWithRetry(token, file, {prefix:'showcase'});
-    if(pathEl) pathEl.value = uploaded;
-    if(fileNameEl) fileNameEl.textContent = `✓ ${uploaded}`;
-    aToast('✅ Montaj görseli yüklendi','success');
+    const {uploaded} = await uploadImagesToServer([file], 'showcase');
+    if(pathEl) pathEl.value = uploaded[0]||'';
+    if(fileNameEl) fileNameEl.textContent = uploaded[0] ? `✓ ${uploaded[0]}` : 'Yükleme başarısız';
+    if(uploaded[0]) aToast('✅ Montaj görseli yüklendi','success');
   }catch(err){
     if(fileNameEl) fileNameEl.textContent = 'Yükleme başarısız';
     aToast('❌ '+err.message,'error');
@@ -5049,18 +4968,12 @@ async function handleLiveFeedImageSelect(input){
   if(fileNameEl) fileNameEl.textContent = file ? file.name : 'JPG, PNG, WEBP';
   if(!file) return;
   const pathEl = document.getElementById('liveFeedImage');
-  const token = getGithubToken();
-  if(!token){
-    if(pathEl) pathEl.value = URL.createObjectURL(file);
-    aToast('⚠️ GitHub Token yok — sadece önizleme yolu atandı','error');
-    return;
-  }
   try{
     if(fileNameEl) fileNameEl.textContent = 'Yükleniyor...';
-    const uploaded = await uploadImageWithRetry(token, file, {prefix:'live-feed'});
-    if(pathEl) pathEl.value = uploaded;
-    if(fileNameEl) fileNameEl.textContent = `✓ ${uploaded}`;
-    aToast('✅ Vitrin görseli yüklendi','success');
+    const {uploaded} = await uploadImagesToServer([file], 'live-feed');
+    if(pathEl) pathEl.value = uploaded[0]||'';
+    if(fileNameEl) fileNameEl.textContent = uploaded[0] ? `✓ ${uploaded[0]}` : 'Yükleme başarısız';
+    if(uploaded[0]) aToast('✅ Vitrin görseli yüklendi','success');
   }catch(err){
     if(fileNameEl) fileNameEl.textContent = 'Yükleme başarısız';
     aToast('❌ '+err.message,'error');
@@ -5075,31 +4988,14 @@ async function handleFromYouImageSelect(input){
   if(!files.length) return;
   const pathEl = document.getElementById('fromYouImageSrc');
   const listEl = document.getElementById('fromYouImages');
-  const token = getGithubToken();
-  if(!token){
-    const previews = files.map(file=>URL.createObjectURL(file));
-    if(pathEl) pathEl.value = previews[0] || '';
-    if(listEl) listEl.value = previews.join('\n');
-    renderFromYouImagePreview(previews);
-    aToast('⚠️ GitHub Token yok — sadece önizleme yolu atandı','error');
-    return;
-  }
   try{
     if(fileNameEl) fileNameEl.textContent = 'Yükleniyor...';
-    const {uploaded, errors} = await uploadImagesWithConcurrency(token, files, {
-      prefix:'from-you',
-      concurrency:3,
-      onProgress:({done,total})=>{ if(fileNameEl) fileNameEl.textContent = `Yükleniyor... (${done}/${total})`; }
-    });
+    const {uploaded, errors} = await uploadImagesToServer(files, 'from-you');
     if(pathEl) pathEl.value = uploaded[0] || '';
     if(listEl) listEl.value = uploaded.join('\n');
     renderFromYouImagePreview(uploaded);
-    if(errors.length){
-      if(fileNameEl) fileNameEl.textContent = `✓ ${uploaded.length} resim yüklendi`;
-    }else{
-      if(fileNameEl) fileNameEl.textContent = `✓ ${uploaded.length} resim yüklendi`;
-      aToast('✅ Müşteri evi fotoğrafları yüklendi','success');
-    }
+    if(fileNameEl) fileNameEl.textContent = `✓ ${uploaded.length} resim yüklendi${errors.length?' ('+errors.length+' hata)':''}`;
+    if(!errors.length) aToast('✅ Müşteri evi fotoğrafları yüklendi','success');
   }catch(err){
     if(fileNameEl) fileNameEl.textContent = 'Yükleme başarısız';
     aToast('❌ '+err.message,'error');
@@ -5154,36 +5050,66 @@ function clearImageFields(){
 }
 
 // ════════════════════════════════════
+//  SUNUCU YÜKLEME (birincil yöntem)
+// ════════════════════════════════════
+async function uploadImagesToServer(files, prefix='image'){
+  const adminKey = getAdminApiKey();
+  const fd = new FormData();
+  files.forEach(f => fd.append('files', f));
+  const res = await fetch('/api/admin-upload', {
+    method:'POST',
+    headers:{'x-admin-key': adminKey},
+    body: fd
+  });
+  if(!res.ok){
+    const err = await res.json().catch(()=>({error:'Sunucu yükleme hatası'}));
+    throw new Error(err.error || 'Sunucu yükleme hatası');
+  }
+  const json = await res.json();
+  const paths = (json.results||[]).filter(r=>r.success).map(r=>r.path);
+  const errors = (json.results||[]).filter(r=>!r.success).map(r=>`${r.name}: ${r.error}`);
+  return {uploaded: paths, errors};
+}
+
+async function saveJSONToServer(type, data){
+  const adminKey = getAdminApiKey();
+  const res = await fetch('/api/admin-save-json', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-admin-key': adminKey},
+    body: JSON.stringify({type, data})
+  });
+  if(!res.ok){
+    const err = await res.json().catch(()=>({error:'Kayıt hatası'}));
+    throw new Error(err.error||'Kayıt hatası');
+  }
+  return res.json();
+}
+
+// ════════════════════════════════════
 //  GITHUB SAVE
 // ════════════════════════════════════
 async function saveProductsJSON(opts={}){
   const {silent=false}=opts;
-  const token=getGithubToken();
-  if(!token){aToast('⚠️ Ayarlar > GitHub Token girin','error');return;}
-  if(!silent) aToast('⏳ Ürünler GitHub\'a kaydediliyor...');
+  if(!silent) aToast('⏳ Ürünler kaydediliyor...');
   try{
-    await saveFileToGithub({
-      token,
-      filePath:FILE_PATH,
-      data:PRODUCTS,
-      commitMessage:'Admin: Ürün listesi güncellendi — '+new Date().toLocaleString('tr-TR')
-    });
-    if(!silent) aToast('✅ Ürünler GitHub\'a kaydedildi!','success');
+    await saveJSONToServer('products', PRODUCTS);
+    if(!silent) aToast('✅ Ürünler başarıyla kaydedildi!','success');
+    const token=getGithubToken();
+    if(token){
+      saveFileToGithub({token,filePath:FILE_PATH,data:PRODUCTS,commitMessage:'Admin: Ürün listesi güncellendi — '+new Date().toLocaleString('tr-TR')}).catch(()=>{});
+    }
   }catch(err){aToast('❌ Ürünler kaydedilemedi: '+err.message,'error');}
 }
 async function saveCategoriesJSON(opts={}){
   const {silent=false}=opts;
-  const token=getGithubToken();
-  if(!token){aToast('⚠️ Ayarlar > GitHub Token girin','error');return;}
-  if(!silent) aToast('⏳ Kategoriler GitHub\'a kaydediliyor...');
+  if(!silent) aToast('⏳ Kategoriler kaydediliyor...');
   try{
-    await saveFileToGithub({
-      token,
-      filePath:CATEGORY_FILE_PATH,
-      data:CATEGORIES,
-      commitMessage:'Admin: Kategori listesi güncellendi — '+new Date().toLocaleString('tr-TR')
-    });
-    if(!silent) aToast('✅ Kategoriler GitHub\'a kaydedildi!','success');
+    await saveJSONToServer('categories', CATEGORIES);
+    if(!silent) aToast('✅ Kategoriler başarıyla kaydedildi!','success');
+    const token=getGithubToken();
+    if(token){
+      saveFileToGithub({token,filePath:CATEGORY_FILE_PATH,data:CATEGORIES,commitMessage:'Admin: Kategori listesi güncellendi — '+new Date().toLocaleString('tr-TR')}).catch(()=>{});
+    }
   }catch(err){aToast('❌ '+err.message,'error');}
 }
 function downloadJSON(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(PRODUCTS,null,2)],{type:'application/json'}));a.download='products.json';a.click();aToast('✓ İndirildi!','success');}

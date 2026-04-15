@@ -1,6 +1,6 @@
 
 const { pool } = require('../lib/_db');
-const ADMIN_API_KEY = 'gocmen1993';
+const { requireAdminKey, isAdminKey } = require('../lib/_admin-auth');
 let schemaReady = false;
 
 module.exports = async function handler(req, res) {
@@ -50,9 +50,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'stats' && req.method === 'GET') {
-      if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-        return res.status(403).json({ error: 'Yetkisiz.' });
-      }
+      if (!requireAdminKey(req, res)) return;
 
       const [todayPV, yesterdayPV, monthPV, todayUnique, yesterdayUnique, monthUnique, activeNow, dailyRows, topPagesRows] = await Promise.all([
         scalar(`SELECT COUNT(*)::int AS v FROM site_visit_pageviews WHERE visited_at >= date_trunc('day', now())`),

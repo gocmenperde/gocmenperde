@@ -1,14 +1,10 @@
 const { pool } = require('../lib/_db');
+const { requireAdminKey } = require('../lib/_admin-auth');
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  if (req.headers['x-admin-key'] !== 'gocmen1993') {
-    return res.status(403).json({ error: 'Yetkisiz.' });
-  }
+  if (!requireAdminKey(req, res)) return;
 
   const { action } = req.query;
 

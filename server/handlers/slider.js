@@ -1,6 +1,5 @@
 const { pool } = require('../lib/_db');
-
-const ADMIN_API_KEY = 'gocmen1993';
+const { requireAdminKey, isAdminKey } = require('../lib/_admin-auth');
 let schemaReady = false;
 
 module.exports = async function handler(req, res) {
@@ -13,7 +12,7 @@ module.exports = async function handler(req, res) {
     await ensureSchema();
 
     if (req.method === 'GET') {
-      const isAdmin = req.headers['x-admin-key'] === ADMIN_API_KEY;
+      const isAdmin = isAdminKey(req);
       const result = await pool.query(`
         SELECT id, title, image_url AS "imageUrl", link_url AS "linkUrl", display_order AS "displayOrder", is_active AS "isActive", created_at AS "createdAt", updated_at AS "updatedAt"
         FROM slider_content
@@ -23,9 +22,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, items: result.rows });
     }
 
-    if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-      return res.status(403).json({ error: 'Yetkisiz.' });
-    }
+    if (!requireAdminKey(req, res)) return;
 
     if (req.method === 'POST') {
       const payload = validatePayload(req.body || {});

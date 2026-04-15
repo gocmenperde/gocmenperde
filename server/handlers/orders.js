@@ -1,7 +1,6 @@
 const { verifyAuthToken } = require('../lib/_auth-utils');
-
+const { requireAdminKey, isAdminKey } = require('../lib/_admin-auth');
 const { pool } = require('../lib/_db');
-const ADMIN_API_KEY = 'gocmen1993';
 const ORDER_STATUSES = ['Beklemede', 'Hazırlanıyor', 'Kargoda', 'Teslim Edildi', 'İptal'];
 const ORDER_STATUS_ALIASES = {
   beklemede: 'Beklemede',
@@ -82,17 +81,13 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'all' && req.method === 'GET') {
-      if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-        return res.status(403).json({ error: 'Yetkisiz.' });
-      }
+      if (!requireAdminKey(req, res)) return;
       const result = await pool.query('SELECT * FROM siparisler ORDER BY created_at DESC');
       return res.status(200).json({ success: true, orders: result.rows });
     }
 
     if (action === 'update-status' && req.method === 'POST') {
-      if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-        return res.status(403).json({ error: 'Yetkisiz.' });
-      }
+      if (!requireAdminKey(req, res)) return;
       const { id, durum } = req.body || {};
       const normalizedStatus = normalizeOrderStatus(durum);
       if (!id || !normalizedStatus || !ORDER_STATUSES.includes(normalizedStatus)) {
