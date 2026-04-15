@@ -100,7 +100,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": true,
+    "isLiveShowcase": false,
     "isFeatured": true
   },
   {
@@ -136,7 +136,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": true,
+    "isLiveShowcase": false,
     "isFeatured": true
   },
   {
@@ -172,7 +172,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": true,
+    "isLiveShowcase": false,
     "isFeatured": false
   },
   {
@@ -208,7 +208,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": true,
+    "isLiveShowcase": false,
     "isFeatured": false
   },
   {
@@ -496,7 +496,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": true,
+    "isLiveShowcase": false,
     "isFeatured": false
   },
   {
@@ -532,7 +532,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": true,
+    "isLiveShowcase": false,
     "isFeatured": false
   },
   {
@@ -568,7 +568,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": true,
+    "isLiveShowcase": false,
     "isFeatured": false
   },
   {
@@ -864,7 +864,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": false,
+    "isLiveShowcase": true,
     "isFeatured": false
   },
   {
@@ -901,7 +901,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": false,
+    "isLiveShowcase": true,
     "isFeatured": false
   },
   {
@@ -938,7 +938,7 @@
       "• Mekanizma Bakımı": "Zincir ve ray sisteminin rahat çalışması için mekanizma kısımlarına aşırı güç uygulamaktan kaçının.",
       "• Yıkama Uyarısı": "Kumaşın sert yapısının ve mekanizmanın bozulmaması için zebra perdeleri kesinlikle çamaşır makinesinde yıkamayın."
     },
-    "isLiveShowcase": false,
+    "isLiveShowcase": true,
     "isFeatured": false
   },
   {
@@ -2533,7 +2533,7 @@
       "Ütü": "Düşük ısıda ütüleyin",
       "Kuru Temizleme": "Önerilmez"
     },
-    "isLiveShowcase": false,
+    "isLiveShowcase": true,
     "isFeatured": false
   },
   {
@@ -2563,7 +2563,7 @@
       "Beyazlatıcı": "Kullanmayın"
     },
     "stock": 116,
-    "isLiveShowcase": false,
+    "isLiveShowcase": true,
     "isFeatured": false
   },
   {
@@ -2593,7 +2593,7 @@
       "Beyazlatıcı": "Kullanmayın"
     },
     "stock": 84,
-    "isLiveShowcase": false,
+    "isLiveShowcase": true,
     "isFeatured": false
   },
   {
