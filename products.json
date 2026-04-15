@@ -1,5 +1,37 @@
 [
   {
+    "id": "tul-perde-1776261310862-572",
+    "name": "Tül Perde",
+    "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
+    "image": "resimler/1776261294221-product-0-3d80142c-75f8-4e07-a840-bff98cb6ec70-IMG_2661.jpeg",
+    "images": [
+      "resimler/1776261294221-product-0-3d80142c-75f8-4e07-a840-bff98cb6ec70-IMG_2661.jpeg"
+    ],
+    "price": 299,
+    "oldPrice": 399,
+    "cat": "tul-perde",
+    "unit": "mt",
+    "isMeter": true,
+    "isSquareMeter": false,
+    "features": "",
+    "badge": "%25 İNDİRİM",
+    "discountType": "percent",
+    "discountValue": null,
+    "stock": 56,
+    "serialNumber": null,
+    "isLiveShowcase": true,
+    "isFeatured": true,
+    "active": true,
+    "specs": {},
+    "care": {
+      "Yıkama": "30°C",
+      "Sıkma": "Düşük devir",
+      "Kurutma": "Gölgede kurutun",
+      "Ütü": "Düşük ısı",
+      "Kuru Temizleme": "Önerilmez"
+    }
+  },
+  {
     "id": "fon-perde-1776162796837-391",
     "name": "Fon Perde",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
@@ -1796,7 +1828,7 @@
     ],
     "price": 300,
     "oldPrice": 400,
-    "cat": "ormetulperde",
+    "cat": "tul-perde",
     "unit": "mt",
     "isMeter": true,
     "isSquareMeter": false,
@@ -1833,7 +1865,7 @@
     ],
     "price": 300,
     "oldPrice": 400,
-    "cat": "ormetulperde",
+    "cat": "tul-perde",
     "unit": "mt",
     "isMeter": true,
     "isSquareMeter": false,
