@@ -1,7 +1,4 @@
-// api/router.js veya ana server dosyanın EN ÜSTÜNE ekle
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
+// Replit ortamında env değişkenleri otomatik yüklenir, dotenv gerekmez
 
 // PayTR değişkenlerini burada bir kez konsola yazdır ki yüklendiğini gör
 console.log("Sistem Başlatıldı - PayTR ID:", process.env.PAYTR_MERCHANT_ID ? "OK" : "YOK");
