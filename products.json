@@ -1790,13 +1790,13 @@
     "id": "orme-tul-perde-sarmasik-desen-1774881564791",
     "name": "Örme Tül Perde Sarmaşık Desen",
     "desc": "Bursa Osmangazi'de 30 yılı aşkın tecrübeyle üretilen, şık tasarımıyla evinize zarafet katacak dayanıklı ve estetik tül perde.",
-    "image": "/resimler/1775248455662-0-ee982583-24b3-47d7-a207-25fca35d45d5-IMG_2035.jpeg",
+    "image": "https://cdn.jsdelivr.net/gh/gocmenperde/gocmenperde@main/resimler/1775248455662-0-ee982583-24b3-47d7-a207-25fca35d45d5-IMG_2035.jpeg",
     "images": [
-      "/resimler/1775248455662-0-ee982583-24b3-47d7-a207-25fca35d45d5-IMG_2035.jpeg"
+      "https://cdn.jsdelivr.net/gh/gocmenperde/gocmenperde@main/resimler/1775248455662-0-ee982583-24b3-47d7-a207-25fca35d45d5-IMG_2035.jpeg"
     ],
     "price": 300,
     "oldPrice": 400,
-    "cat": "tul-perde",
+    "cat": "ormetulperde",
     "unit": "mt",
     "isMeter": true,
     "isSquareMeter": false,
@@ -1806,6 +1806,8 @@
     "discountValue": null,
     "stock": 110,
     "serialNumber": null,
+    "isLiveShowcase": false,
+    "isFeatured": false,
     "active": true,
     "specs": {
       "• Malzeme": "%100 Polyester ipliklerden dokunmuştur. Bu sayede buruşmaz, leke tutmaz ve uzun ömürlüdür.",
@@ -1818,22 +1820,20 @@
       "• Sıkma": "Hafif sıkma yapılması veya sıkılmadan asılması tavsiye edilir.",
       "• Ütüleme": "Gerekirse düşük sıcaklıkta tersten ütülenebilir.",
       "• Kurulama": "Güneş ışığına maruz bırakmadan, gölgede kurutulması daha uygundur."
-    },
-    "isLiveShowcase": false,
-    "isFeatured": false
+    }
   },
   {
     "id": "orme-tul-perde-cam-kirigi-desen-1774817208064",
     "name": "Örme Tül Perde Cam Kırığı Desen",
     "desc": "Bursa Osmangazi'de 30 yılı aşkın tecrübeyle üretilen, şık tasarımıyla evinize zarafet katacak dayanıklı ve estetik tül perde.",
-    "image": "/resimler/1774817119283-IMG_1649.png",
+    "image": "https://cdn.jsdelivr.net/gh/gocmenperde/gocmenperde@main/resimler/1774817119283-IMG_1649.png",
     "images": [
-      "/resimler/1774817119283-IMG_1649.png",
-      "/resimler/1774817122112-IMG_1648.png"
+      "https://cdn.jsdelivr.net/gh/gocmenperde/gocmenperde@main/resimler/1774817119283-IMG_1649.png",
+      "https://cdn.jsdelivr.net/gh/gocmenperde/gocmenperde@main/resimler/1774817122112-IMG_1648.png"
     ],
     "price": 300,
     "oldPrice": 400,
-    "cat": "tul-perde",
+    "cat": "ormetulperde",
     "unit": "mt",
     "isMeter": true,
     "isSquareMeter": false,
@@ -1843,6 +1843,8 @@
     "discountValue": null,
     "stock": 132,
     "serialNumber": null,
+    "isLiveShowcase": false,
+    "isFeatured": false,
     "active": true,
     "specs": {
       "• Malzeme": "%100 Polyester ipliklerden dokunmuştur. Bu sayede buruşmaz, leke tutmaz ve uzun ömürlüdür.",
@@ -1855,9 +1857,7 @@
       "• Sıkma": "Hafif sıkma yapılması veya sıkılmadan asılması tavsiye edilir.",
       "• Ütüleme": "Gerekirse düşük sıcaklıkta tersten ütülenebilir.",
       "• Kurulama": "Güneş ışığına maruz bırakmadan, gölgede kurutulması daha uygundur."
-    },
-    "isLiveShowcase": false,
-    "isFeatured": false
+    }
   },
   {
     "id": "plise-perde-gok-mavisi---opak-1774732878586",
