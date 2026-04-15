@@ -723,9 +723,9 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 }
 @media(max-width:700px){
   .modal-overlay{padding:0;background:#fff;backdrop-filter:none}
-  .modal-box{max-width:none;width:100%;min-height:100dvh;border-radius:0;max-height:none;box-shadow:none;background:#fff;display:flex;flex-direction:column}
+  .modal-box{max-width:none;width:100%;min-height:100dvh;border-radius:0;max-height:none;box-shadow:none;background:#fff;display:flex;flex-direction:column;padding-top:calc(env(safe-area-inset-top) + 56px)}
   .modal-close{display:none}
-  .modal-mobile-header{display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:80;padding:calc(env(safe-area-inset-top) + 8px) 10px 8px;background:linear-gradient(180deg,#f8f9fb 0%,#eff2f8 100%);border-bottom:1px solid rgba(34,45,78,.14);box-shadow:0 6px 16px rgba(17,28,58,.1)}
+  .modal-mobile-header{display:flex;align-items:center;gap:8px;position:fixed;top:0;left:0;right:0;z-index:12420;padding:calc(env(safe-area-inset-top) + 8px) max(10px,env(safe-area-inset-right)) 8px max(10px,env(safe-area-inset-left));background:linear-gradient(180deg,#f8f9fb 0%,#eff2f8 100%);border-bottom:1px solid rgba(34,45,78,.14);box-shadow:0 6px 16px rgba(17,28,58,.1)}
   .mh-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
   .mh-back{flex-shrink:0}
   .mh-search{min-width:0}
@@ -3710,6 +3710,14 @@ function lockPageScrollForModal(){
   modalLockedScrollY = window.scrollY || window.pageYOffset || 0;
   document.documentElement.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
+  if(window.matchMedia('(max-width: 700px)').matches){
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    return;
+  }
   document.body.style.position = 'fixed';
   document.body.style.top = `-${modalLockedScrollY}px`;
   document.body.style.left = '0';
@@ -3724,6 +3732,7 @@ function unlockPageScrollForModal(){
   document.body.style.left = '';
   document.body.style.right = '';
   document.body.style.width = '';
+  if(window.matchMedia('(max-width: 700px)').matches) return;
   window.scrollTo(0, modalLockedScrollY || 0);
 }
 
