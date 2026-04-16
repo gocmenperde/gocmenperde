@@ -524,6 +524,18 @@ tbody tr:hover td{background:#fdfcf8}
 .sidebar{box-shadow:0 18px 40px rgba(0,0,0,0.32)}
 .dash-row{flex-direction:column!important}
 .metric-grid{grid-template-columns:1fr}
+.toolbar .btn,.toolbar .filter-sel{width:100%}
+.table-wrap{overflow:visible;border:none;box-shadow:none;background:transparent}
+.table-wrap table{min-width:0;border-collapse:separate;border-spacing:0 10px}
+.table-wrap thead{display:none}
+.table-wrap tbody,.table-wrap tr,.table-wrap td{display:block;width:100%}
+.table-wrap tbody tr{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-sm);padding:10px}
+.table-wrap tbody td{border:none;padding:8px 10px;font-size:.82rem}
+.table-wrap tbody td::before{content:attr(data-label);display:block;font-size:.62rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--slate-light);margin-bottom:4px;font-weight:700}
+.table-wrap tbody td:empty{display:none}
+.campaign-card{padding:16px}
+.campaign-card-header{flex-direction:column;align-items:flex-start}
+.logo-settings-actions{justify-content:flex-start}
 }
 @media(max-width:480px){
 .stats-grid{grid-template-columns:1fr}
@@ -1610,6 +1622,7 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
 //  AUTH
 // ════════════════════════════════════
 const ADMIN_PASS_KEY = 'gp_admin_pass';
+const ADMIN_SESSION_KEY = 'gp_admin_session_v1';
 const ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
 const ADMIN_PASS_FALLBACKS = ['Emin.016', 'gocmen1993'];
 function getStoredPass(){ return (localStorage.getItem(ADMIN_PASS_KEY) || '').trim(); }
@@ -1628,6 +1641,7 @@ function doLogin(){
   const e = (document.getElementById('loginEmail').value || '').trim().toLowerCase();
   const p = (document.getElementById('loginPass').value || '').trim();
   if(e === ADMIN_EMAIL && isValidAdminPassword(p)){
+    sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
     document.getElementById('loginScreen').classList.add('hide');
     document.getElementById('adminApp').classList.add('show');
     initAdmin();
@@ -1642,6 +1656,8 @@ function doLogin(){
   }
 }
 function logout(){
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  adminInitialized = false;
   document.getElementById('loginScreen').classList.remove('hide');
   document.getElementById('adminApp').classList.remove('show');
   document.getElementById('loginEmail').value = '';
@@ -1758,6 +1774,7 @@ const SHOWCASE_DEFAULT_REVIEWS = [
 let showcaseImages = [];
 let showcaseReviews = [];
 let fromYouItems = [];
+let adminInitialized = false;
 let editingFromYouIndex = -1;
 let footerPaymentLogos = [];
 
@@ -2316,6 +2333,11 @@ function closeSidebar(){
   document.getElementById('sidebarOverlay').classList.remove('open');
 }
 function showPage(id){
+  const nextPage = document.getElementById('page-'+id);
+  if(!nextPage){
+    console.warn('[admin] Bilinmeyen sayfa anahtarı:', id);
+    id = 'dashboard';
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>{
@@ -2361,6 +2383,18 @@ function navigateFromStat(target, filter){
   if(target==='customers') loadCustomers();
 }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function syncResponsiveTableLabels(root=document){
+  root.querySelectorAll('.table-wrap table').forEach((table)=>{
+    const headers = Array.from(table.querySelectorAll('thead th')).map((th)=>th.textContent.trim());
+    if(!headers.length) return;
+    table.querySelectorAll('tbody tr').forEach((tr)=>{
+      Array.from(tr.children).forEach((td, index)=>{
+        if(td.tagName !== 'TD') return;
+        td.setAttribute('data-label', headers[index] || 'Alan');
+      });
+    });
+  });
+}
 
 // ════════════════════════════════════
 //  PRODUCTS
@@ -5257,6 +5291,8 @@ function aToast(msg,type=''){
 //  INIT
 // ════════════════════════════════════
 async function initAdmin(){
+  if(adminInitialized) return;
+  adminInitialized = true;
   document.getElementById('dashDate').innerText=new Date().toLocaleDateString('tr-TR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   await loadCategories();
   await fetchProducts();
@@ -5312,6 +5348,15 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.body.style.opacity = '0.99';
     requestAnimationFrame(() => { document.body.style.opacity = ''; });
   });
+  const restoreSession = sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+  if(restoreSession){
+    document.getElementById('loginScreen').classList.add('hide');
+    document.getElementById('adminApp').classList.add('show');
+    initAdmin();
+  }
+  syncResponsiveTableLabels();
+  const tableObserver = new MutationObserver(()=>syncResponsiveTableLabels());
+  tableObserver.observe(document.body, {childList:true, subtree:true});
 });
 </script>
 
