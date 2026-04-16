@@ -1,11 +1,11 @@
 [
   {
-    "id": "fon-perde-modern-cizgili-desenli-1776374743108-305",
-    "name": "Fon Perde Modern Çizgili Desenli",
+    "id": "fon-perde-modern-cizgili-desen-mavi-1776374886960-142",
+    "name": "Fon Perde Modern Çizgili Desen Mavi",
     "desc": "Evinizin atmosferini anında değiştirecek, modern hatları ve özgün dokusuyla öne çıkan bu fon perde; zarafeti ve kaliteyi bir araya getiriyor. Kumaş üzerindeki yatay dalga formundaki özel saçak (püskül) detayları, mekanınıza derinlik ve dinamizm katar.",
-    "image": "resimler/1776374725711-product-0-e561f236-9377-45c8-bf94-9781981b0cc3-IMG_2946.png",
+    "image": "resimler/1776374873810-product-0-c52be644-0205-4c84-9fec-371cfdc95bce-IMG_2946.png",
     "images": [
-      "resimler/1776374725711-product-0-e561f236-9377-45c8-bf94-9781981b0cc3-IMG_2946.png"
+      "resimler/1776374873810-product-0-c52be644-0205-4c84-9fec-371cfdc95bce-IMG_2946.png"
     ],
     "price": 4999,
     "oldPrice": 7999,
@@ -17,7 +17,7 @@
     "badge": "%38 İNDİRİM",
     "discountType": "percent",
     "discountValue": null,
-    "stock": 23,
+    "stock": 24,
     "serialNumber": null,
     "isLiveShowcase": true,
     "isFeatured": true,
