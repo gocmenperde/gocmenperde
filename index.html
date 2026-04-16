@@ -1386,6 +1386,239 @@ footer{background:linear-gradient(140deg,#0e0d0b,#1a160f)!important}
 /* Section transition — soft bottom fade */
 .gallery-section,.features-strip,.reviews-section,.trust-section,.local-seo-section{position:relative}
 
+/* ── Genel Premium İyileştirmeler ── */
+
+/* Hero subtitle override — daha belirgin */
+.hero-subtitle{
+  font-family:var(--ff-body)!important;
+  font-size:clamp(0.82rem,1.8vw,1rem)!important;
+  letter-spacing:1.2px!important;
+  font-weight:400!important;
+  color:rgba(255,255,255,0.72)!important;
+  border-color:rgba(180,147,72,0.35)!important;
+  background:rgba(255,255,255,0.07)!important;
+  backdrop-filter:blur(10px)!important;
+  margin-bottom:32px!important;
+  padding:10px 24px!important;
+}
+
+/* Features strip — daha rafine */
+.features-strip{
+  background:linear-gradient(180deg,#faf8f4 0%,#fff 100%)!important;
+  border-top:1px solid rgba(180,147,72,0.12)!important;
+  border-bottom:1px solid rgba(180,147,72,0.12)!important;
+}
+.feature-item{
+  transition:transform 0.3s ease,box-shadow 0.3s ease!important;
+  border-radius:12px!important;
+  padding:14px!important;
+}
+.feature-item:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 12px 30px rgba(10,9,8,0.06)!important;
+}
+
+/* Trust KPI items — daha premium */
+.trust-kpi-item{
+  border-left:2px solid rgba(180,147,72,0.3)!important;
+  transition:border-color 0.3s,box-shadow 0.3s!important;
+}
+.trust-kpi-item:hover{
+  border-left-color:var(--gold)!important;
+  box-shadow:0 8px 24px rgba(10,9,8,0.06)!important;
+}
+.trust-kpi-item strong{
+  font-family:var(--ff-display)!important;
+  font-size:1.7rem!important;
+}
+
+/* Process steps — daha zarif */
+.process-step{
+  position:relative;
+  overflow:hidden;
+}
+.process-step::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light));
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform 0.4s ease;
+}
+.process-step:hover::before{transform:scaleX(1)!important}
+
+/* Local SEO box — daha şık */
+.local-seo-section{padding:48px 5% 20px!important}
+.local-seo-box{
+  background:linear-gradient(135deg,#fff 0%,#fdf9f2 100%)!important;
+  border-color:rgba(180,147,72,0.18)!important;
+  padding:32px!important;
+}
+.local-seo-box h2{
+  font-size:clamp(1.4rem,2.8vw,2rem)!important;
+  color:var(--ink)!important;
+}
+
+/* Reviews section header – more premium */
+.reviews-section .section-header{
+  padding:28px 32px!important;
+  border-radius:20px!important;
+}
+
+/* Home featured section title */
+.home-featured-head h3{
+  font-family:var(--ff-display)!important;
+  font-size:clamp(1.5rem,2.8vw,2.2rem)!important;
+  line-height:1.1!important;
+}
+
+/* live-categories polish */
+.live-categories-shell{
+  background:linear-gradient(135deg,#fff 0%,#fdf9f2 100%)!important;
+  border-color:rgba(180,147,72,0.18)!important;
+}
+.live-pill{border-radius:16px!important;transition:all 0.3s ease!important}
+.live-pill:hover{
+  background:linear-gradient(135deg,#fff5e0,#fffaef)!important;
+  border-color:rgba(180,147,72,0.45)!important;
+  box-shadow:0 8px 22px rgba(10,9,8,0.08)!important;
+}
+
+/* Section spacing consistency */
+.from-you-preview{padding:80px 5% 60px!important}
+.premium-commerce-band{padding:50px 5% 28px!important}
+
+/* Premium commerce band heading */
+.premium-commerce-head h3{
+  font-family:var(--ff-display)!important;
+  font-size:clamp(1.4rem,2.5vw,2rem)!important;
+}
+
+/* Signature banner polish */
+.signature-banner{
+  margin:50px auto 0!important;
+  border-radius:22px!important;
+}
+.signature-cta button{
+  font-family:var(--ff-body)!important;
+  font-size:0.72rem!important;
+  letter-spacing:1.5px!important;
+  text-transform:uppercase!important;
+  transition:all 0.3s ease!important;
+}
+.signature-cta button:hover{
+  transform:translateY(-2px)!important;
+  box-shadow:0 10px 24px rgba(10,9,8,0.2)!important;
+}
+
+/* ── Yukarı Çık Butonu ── */
+.back-to-top{
+  position:fixed;
+  right:22px;
+  bottom:calc(env(safe-area-inset-bottom) + 130px);
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:var(--ink);
+  color:var(--gold);
+  border:1px solid rgba(180,147,72,0.35);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:0.85rem;
+  z-index:11900;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(12px);
+  transition:all 0.3s ease;
+  box-shadow:0 8px 22px rgba(10,9,8,0.18);
+}
+.back-to-top.visible{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+.back-to-top:hover{
+  background:var(--gold);
+  color:#fff;
+  border-color:var(--gold);
+  transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(180,147,72,0.28);
+}
+@media(max-width:640px){
+  .back-to-top{
+    right:12px;
+    bottom:calc(env(safe-area-inset-bottom) + 80px);
+    width:38px;
+    height:38px;
+  }
+}
+
+/* ── Premium Footer ── */
+footer{
+  background:linear-gradient(165deg,#0d0c09 0%,#1a160f 55%,#221c14 100%)!important;
+  border-top:1px solid rgba(180,147,72,0.22)!important;
+  color:rgba(247,244,239,0.55)!important;
+  font-size:0.82rem!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  text-align:left!important;
+  padding:0!important;
+}
+.footer-top{
+  max-width:1380px;
+  margin:0 auto;
+  padding:70px 5% 52px;
+  display:grid;
+  grid-template-columns:1.6fr 1fr 1fr 1fr;
+  gap:48px;
+}
+@media(max-width:1000px){.footer-top{grid-template-columns:1fr 1fr;gap:36px}}
+@media(max-width:600px){.footer-top{grid-template-columns:1fr;gap:28px;padding:44px 5% 36px}}
+.footer-brand{display:flex;flex-direction:column;gap:18px}
+.footer-logo{display:flex;align-items:center;gap:13px;text-decoration:none}
+.footer-logo-icon{width:42px;height:42px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0}
+.footer-logo-icon::before{content:'';position:absolute;width:22px;height:26px;background:var(--ink);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.footer-logo-icon::after{content:'';position:absolute;width:11px;height:13px;background:var(--gold);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.footer-logo-text{display:flex;flex-direction:column;line-height:1}
+.footer-logo-main{font-family:var(--ff-display);font-size:1.35rem;font-weight:700;color:white;letter-spacing:2px;text-transform:uppercase}
+.footer-logo-main em{color:var(--gold);font-style:normal}
+.footer-logo-sub{font-size:0.58rem;letter-spacing:6px;color:rgba(180,147,72,0.7);text-transform:uppercase;margin-top:3px}
+.footer-tagline{font-size:0.85rem;color:rgba(247,244,239,0.5);line-height:1.85;max-width:300px}
+.footer-social{display:flex;gap:10px;margin-top:4px}
+.footer-social-btn{width:38px;height:38px;border-radius:50%;border:1px solid rgba(180,147,72,0.3);background:rgba(180,147,72,0.08);display:flex;align-items:center;justify-content:center;color:rgba(180,147,72,0.7);font-size:0.9rem;text-decoration:none;transition:all 0.3s}
+.footer-social-btn:hover{border-color:var(--gold);background:rgba(180,147,72,0.18);color:var(--gold);transform:translateY(-2px)}
+.footer-col h4{font-size:0.62rem;letter-spacing:5px;text-transform:uppercase;color:rgba(180,147,72,0.75);font-weight:700;margin-bottom:20px;position:relative;padding-bottom:12px}
+.footer-col h4::after{content:'';position:absolute;bottom:0;left:0;width:28px;height:1px;background:rgba(180,147,72,0.45)}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.footer-col ul li a,.footer-col ul li button{color:rgba(247,244,239,0.48);text-decoration:none;font-size:0.82rem;transition:color 0.3s;display:inline-flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;font-family:var(--ff-body);padding:0}
+.footer-col ul li a:hover,.footer-col ul li button:hover{color:var(--gold)}
+.footer-contact-item{display:flex;flex-direction:column;gap:3px;margin-bottom:14px}
+.footer-contact-label{font-size:0.58rem;letter-spacing:3px;text-transform:uppercase;color:rgba(180,147,72,0.6);font-weight:700}
+.footer-contact-value{font-size:0.82rem;color:rgba(247,244,239,0.55);line-height:1.55}
+.footer-contact-value a{color:rgba(247,244,239,0.55);text-decoration:none;transition:color 0.3s}
+.footer-contact-value a:hover{color:var(--gold)}
+.footer-hours-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:rgba(180,147,72,0.1);border:1px solid rgba(180,147,72,0.22);font-size:0.68rem;color:rgba(247,244,239,0.65);margin-top:6px}
+.footer-hours-chip i{color:var(--gold);font-size:0.72rem}
+.footer-divider{border:none;border-top:1px solid rgba(180,147,72,0.12);margin:0 5%}
+.footer-bottom{max-width:1380px;margin:0 auto;padding:22px 5%;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.footer-copyright{font-size:0.72rem;color:rgba(247,244,239,0.3);letter-spacing:0.3px}
+.footer-copyright span{color:var(--gold)}
+.footer-bottom-links{display:flex;gap:18px;flex-wrap:wrap}
+.footer-bottom-links a{color:rgba(247,244,239,0.32);text-decoration:none;font-size:0.72rem;transition:color 0.3s;letter-spacing:0.2px}
+.footer-bottom-links a:hover{color:rgba(180,147,72,0.65)}
+.footer-trust{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;border:1px solid rgba(180,147,72,0.2);background:rgba(255,255,255,0.03);font-size:0.62rem;color:rgba(247,244,239,0.45);font-weight:600;letter-spacing:0.5px}
+.footer-trust i{color:var(--gold);font-size:0.7rem}
+@media(max-width:600px){
+  .footer-bottom{flex-direction:column;align-items:flex-start;gap:14px;padding:18px 5%}
+  .footer-bottom-links{gap:12px}
+}
+.footer-payment-row{padding:0 5% 28px;max-width:1380px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.footer-payment-label{font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:rgba(247,244,239,0.3)}
+
 </style>
 </head>
 <body>
@@ -1464,6 +1697,7 @@ footer{background:linear-gradient(140deg,#0e0d0b,#1a160f)!important}
 <div class="cursor-ring" id="cursorRing"></div>
 <div id="loader"><div class="loader-text">GÖÇMEN PERDE</div><div class="loader-line"></div></div>
 <div class="toast" id="toast"></div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Yukarı çık" title="Yukarı çık"><i class="fas fa-arrow-up"></i></button>
 
 <header id="mainHeader">
   <div class="header-inner">
@@ -1508,6 +1742,7 @@ footer{background:linear-gradient(140deg,#0e0d0b,#1a160f)!important}
     <div class="hero-content">
       <div class="hero-eyebrow">Bursa · Osmangazi · 30 Yıllık Tecrübe</div>
       <h1 class="hero-title">Göçmen Perde<br><span>Yaşam Alanınıza Özel</span></h1>
+      <div class="hero-subtitle">Bursa'nın 30 yıllık perdecisi · Keşif, dikim ve montaj tek adreste</div>
       <div class="hero-ad-slider" id="heroAdSlider" style="display:none">
         <div class="hero-ad-slider-shell">
           <div class="hero-ad-viewport" id="heroAdTrack" role="region" aria-label="Reklam slider"></div>
@@ -1681,9 +1916,74 @@ footer{background:linear-gradient(140deg,#0e0d0b,#1a160f)!important}
     <div class="from-you-grid" id="fromYouPreviewGrid"></div>
   </div>
   <footer>
-    <p>© 2026 <span>Göçmen Perde</span> — Tüm Hakları Saklıdır · Osmangazi, Bursa</p>
-    <div class="payment-logo-strip" aria-label="Güvenli ödeme logoları"></div>
-    <div class="footer-links"><a href="/gizlilik-politikasi.html">Gizlilik Politikası</a><span style="opacity:0.3">·</span><a href="/mesafeli-satis.html">Mesafeli Satış Sözleşmesi</a><span style="opacity:0.3">·</span><a href="/iade-politikasi.html">İade &amp; İptal Politikası</a></div>
+    <div class="footer-top">
+      <!-- Marka -->
+      <div class="footer-brand footer-col">
+        <a class="footer-logo" onclick="go('home')" style="cursor:pointer">
+          <div class="footer-logo-icon"></div>
+          <div class="footer-logo-text">
+            <span class="footer-logo-main">Göçmen <em>Perde</em></span>
+            <span class="footer-logo-sub">Bursa · Est. 1993</span>
+          </div>
+        </a>
+        <p class="footer-tagline">1993'ten bu yana Bursa'nın güvenilir perdecisi. Özel ölçü, dikim ve montaj hizmetiyle yaşam alanlarınıza değer katıyoruz.</p>
+        <div class="footer-social">
+          <a class="footer-social-btn" href="https://wa.me/905012110958" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          <a class="footer-social-btn" href="https://www.instagram.com/gocmenperde/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a class="footer-social-btn" href="https://maps.google.com/?cid=4728389541117294908" target="_blank" rel="noopener" aria-label="Google Haritalar"><i class="fab fa-google"></i></a>
+        </div>
+      </div>
+      <!-- Koleksiyon -->
+      <div class="footer-col">
+        <h4>Koleksiyonlar</h4>
+        <ul>
+          <li><button onclick="navigateToCategory('tul-perde')"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Tül Perde</button></li>
+          <li><button onclick="navigateToCategory('zebra-perde')"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Zebra Perde</button></li>
+          <li><button onclick="navigateToCategory('stor-perde')"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Stor Perde</button></li>
+          <li><button onclick="navigateToCategory('plise-perde')"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Plise Perde</button></li>
+          <li><button onclick="navigateToCategory('fonperdeler')"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Fon Perde</button></li>
+          <li><button onclick="go('products')"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Tüm Ürünler</button></li>
+        </ul>
+      </div>
+      <!-- Kurumsal -->
+      <div class="footer-col">
+        <h4>Kurumsal</h4>
+        <ul>
+          <li><button onclick="go('about')"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Hakkımızda</button></li>
+          <li><button onclick="go('from-you')"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Sizden Gelenler</button></li>
+          <li><button onclick="go('contact')"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> İletişim</button></li>
+          <li><a href="/gizlilik-politikasi.html"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Gizlilik Politikası</a></li>
+          <li><a href="/mesafeli-satis.html"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> Mesafeli Satış Sözleşmesi</a></li>
+          <li><a href="/iade-politikasi.html"><i class="fas fa-angle-right" style="color:var(--gold);font-size:0.65rem"></i> İade &amp; İptal Politikası</a></li>
+        </ul>
+      </div>
+      <!-- İletişim -->
+      <div class="footer-col">
+        <h4>İletişim</h4>
+        <div class="footer-contact-item">
+          <span class="footer-contact-label"><i class="fas fa-location-dot"></i> Adres</span>
+          <span class="footer-contact-value">Bağlarbaşı Mah. Mümin Gençoğlu Cad.<br>1. Sarıgül Sok. No:3/A<br>Osmangazi / Bursa</span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-label"><i class="fas fa-phone"></i> Telefon</span>
+          <span class="footer-contact-value"><a href="tel:+905012110958">+90 501 211 09 58</a></span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-label"><i class="fas fa-envelope"></i> E-posta</span>
+          <span class="footer-contact-value"><a href="mailto:info@gocmenperde.com.tr">info@gocmenperde.com.tr</a></span>
+        </div>
+        <div class="footer-hours-chip"><i class="fas fa-clock"></i> Pzt – Cmt: 09:00 – 18:00</div>
+      </div>
+    </div>
+    <div class="footer-payment-row">
+      <span class="footer-payment-label">Güvenli Ödeme</span>
+      <div class="payment-logo-strip" aria-label="Güvenli ödeme logoları" style="margin:0;padding:0"></div>
+    </div>
+    <hr class="footer-divider">
+    <div class="footer-bottom">
+      <p class="footer-copyright">© 2026 <span>Göçmen Perde</span> — Tüm Hakları Saklıdır · Osmangazi, Bursa</p>
+      <div class="footer-trust"><i class="fas fa-lock"></i> SSL Güvenli Bağlantı</div>
+    </div>
   </footer>
 </section>
 
@@ -6590,6 +6890,8 @@ window.addEventListener('scroll',()=>{
   scrollRafId = requestAnimationFrame(()=>{
     const header = document.getElementById('mainHeader');
     if(header) header.style.boxShadow = window.scrollY>20 ? '0 4px 30px rgba(0,0,0,0.08)' : 'none';
+    const btt = document.getElementById('backToTop');
+    if(btt) btt.classList.toggle('visible', window.scrollY > 500);
     scrollRafId = 0;
   });
 },{passive:true});

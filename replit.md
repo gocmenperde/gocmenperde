@@ -54,3 +54,10 @@ Bursa merkezli perde mağazası için Türkçe e-ticaret sitesi. Statik HTML say
 - Vercel serverless functions → Express router'a taşındı
 - dotenv kaldırıldı (Replit env'leri otomatik inject eder)
 - GitHub API ile resim yükleme → Sunucu tabanlı yüklemeye geçildi (GitHub opsiyonel backup)
+
+## Premium Tasarım İyileştirmeleri (index.html)
+- **Footer**: Tek satır yer tutucunun yerine 4 kolonlu premium footer: Marka + açıklama + sosyal medya, Koleksiyonlar, Kurumsal linkler, İletişim bilgileri
+- **Hero subtitle**: Ana başlığın altına "pill" tasarımlı alt başlık metni eklendi
+- **"Yukarı çık" butonu**: 500px scroll sonrası görünen altın rengi animasyonlu buton
+- **CSS iyileştirmeleri**: Features strip hover, Trust KPI sol border, Process step üst gradient, Live categories hover, Signature banner, Local SEO kutusu, Reviews header
+- **Footer kategori linkleri**: `fon-perde` → `fonperdeler` olarak düzeltildi
