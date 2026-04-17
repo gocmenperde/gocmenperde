@@ -4,7 +4,7 @@ const { pool } = require('../lib/_db');
 
 const FILE_NAME = 'live-support-messages.json';
 const ADMIN_API_KEY = 'gocmen1993';
-const DEFAULT_NOTIFY_EMAIL = 'zeynelturkoglu@hotmail.com';
+const DEFAULT_NOTIFY_EMAIL = 'muhammedeminturk.16@gmail.com';
 const FALLBACK_RESEND_API_KEY = 're_c4EEGk7p_KvYLe2RR19gjuBkyd354v1Td';
 let resolvedDataFilePath = '';
 let dbSchemaReady = false;
@@ -214,18 +214,21 @@ async function sendTransactionalEmail({ to, subject, html }) {
 
 function buildAdminNotifyTemplate(item) {
   return `
-  <div style="font-family:Inter,Segoe UI,Arial,sans-serif;background:#f4f6fb;padding:24px">
-    <div style="max-width:680px;margin:0 auto;background:#ffffff;border-radius:16px;border:1px solid #e6e9f2;overflow:hidden;box-shadow:0 16px 34px rgba(20,38,80,.08)">
-      <div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2a44);color:#fff">
-        <div style="font-size:12px;letter-spacing:1.4px;text-transform:uppercase;opacity:.78">Canlı Destek Hattı</div>
-        <h2 style="margin:8px 0 0;font-size:23px">Yeni müşteri mesajı geldi</h2>
+  <div style="font-family:Inter,Segoe UI,Arial,sans-serif;background:#eff3fb;padding:28px 14px">
+    <div style="max-width:720px;margin:0 auto;background:#ffffff;border-radius:20px;border:1px solid #dde5f5;overflow:hidden;box-shadow:0 24px 55px rgba(15,23,42,.12)">
+      <div style="padding:24px 26px;background:radial-gradient(circle at 85% 5%,rgba(201,168,76,.24),transparent 45%),linear-gradient(140deg,#0f172a,#1e293b 58%,#19253e);color:#fff">
+        <div style="display:inline-block;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06)">Canlı Destek · Yeni Talep</div>
+        <h2 style="margin:12px 0 0;font-size:25px;line-height:1.25">Yeni müşteri mesajı geldi</h2>
+        <p style="margin:8px 0 0;color:rgba(255,255,255,.82);font-size:14px">Hızlı aksiyon için detaylar aşağıdadır.</p>
       </div>
-      <div style="padding:22px 24px;color:#1f2937;line-height:1.65;font-size:14px">
-        <p style="margin:0 0 12px"><b>Talep No:</b> ${escapeHtml(item.ticketNo)}</p>
-        <p style="margin:0 0 8px"><b>Ad Soyad:</b> ${escapeHtml(item.fullName)}</p>
-        <p style="margin:0 0 8px"><b>Telefon:</b> ${escapeHtml(item.phone)}</p>
-        <p style="margin:0 0 16px"><b>E-posta:</b> ${escapeHtml(item.email)}</p>
-        <div style="padding:14px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;white-space:pre-wrap">${escapeHtml(item.message)}</div>
+      <div style="padding:24px 26px;color:#0f172a;line-height:1.7;font-size:14px">
+        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 8px">
+          <tr><td style="width:140px;color:#64748b;font-weight:600">Talep No</td><td style="font-weight:700;color:#0f172a">${escapeHtml(item.ticketNo)}</td></tr>
+          <tr><td style="color:#64748b;font-weight:600">Ad Soyad</td><td>${escapeHtml(item.fullName)}</td></tr>
+          <tr><td style="color:#64748b;font-weight:600">Telefon</td><td>${escapeHtml(item.phone)}</td></tr>
+          <tr><td style="color:#64748b;font-weight:600">E-posta</td><td><a href="mailto:${escapeHtml(item.email)}" style="color:#1d4ed8;text-decoration:none">${escapeHtml(item.email)}</a></td></tr>
+        </table>
+        <div style="margin-top:16px;padding:16px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;white-space:pre-wrap;color:#1e293b;font-size:14px">${escapeHtml(item.message)}</div>
       </div>
     </div>
   </div>`;
@@ -233,17 +236,18 @@ function buildAdminNotifyTemplate(item) {
 
 function buildCustomerReplyTemplate({ item, subject, message }) {
   return `
-  <div style="font-family:Inter,Segoe UI,Arial,sans-serif;background:#eef2ff;padding:24px">
-    <div style="max-width:700px;margin:0 auto;background:#fff;border:1px solid #dbe3ff;border-radius:18px;overflow:hidden;box-shadow:0 20px 36px rgba(38,52,90,.12)">
-      <div style="padding:24px;background:linear-gradient(130deg,#111827,#1e3a8a);color:#fff">
-        <div style="font-size:12px;letter-spacing:1.2px;text-transform:uppercase;opacity:.8">Göçmen Perde · Canlı Destek</div>
-        <h2 style="margin:8px 0 0;font-size:24px">${escapeHtml(subject)}</h2>
+  <div style="font-family:Inter,Segoe UI,Arial,sans-serif;background:#eef2ff;padding:28px 14px">
+    <div style="max-width:720px;margin:0 auto;background:#fff;border:1px solid #dbe3ff;border-radius:20px;overflow:hidden;box-shadow:0 24px 48px rgba(38,52,90,.14)">
+      <div style="padding:24px 26px;background:radial-gradient(circle at 85% 2%,rgba(201,168,76,.26),transparent 38%),linear-gradient(130deg,#111827,#1e3a8a);color:#fff">
+        <div style="display:inline-block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.08)">Göçmen Perde · Canlı Destek</div>
+        <h2 style="margin:12px 0 0;font-size:24px;line-height:1.35">${escapeHtml(subject)}</h2>
       </div>
-      <div style="padding:24px;color:#1f2937;line-height:1.75;font-size:15px">
+      <div style="padding:24px 26px;color:#1f2937;line-height:1.8;font-size:15px">
         <p style="margin-top:0">Merhaba ${escapeHtml(item.fullName)},</p>
-        <div style="padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;white-space:pre-wrap">${escapeHtml(message)}</div>
-        <div style="margin-top:18px;padding-top:12px;border-top:1px dashed #d1d5db;font-size:13px;color:#6b7280">
-          Talep No: <b>${escapeHtml(item.ticketNo)}</b>
+        <p style="margin:0 0 12px;color:#334155">Talebiniz için teşekkür ederiz. Ekibimizin yanıtı aşağıdadır:</p>
+        <div style="padding:16px 17px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;white-space:pre-wrap;color:#0f172a">${escapeHtml(message)}</div>
+        <div style="margin-top:18px;padding-top:12px;border-top:1px dashed #cbd5e1;font-size:13px;color:#64748b">
+          Talep No: <b style="color:#0f172a">${escapeHtml(item.ticketNo)}</b>
         </div>
       </div>
     </div>
