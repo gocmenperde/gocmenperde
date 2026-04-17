@@ -372,6 +372,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .floating-cta a{display:inline-flex;align-items:center;gap:8px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:0.72rem;font-weight:700;letter-spacing:.7px;box-shadow:0 12px 28px rgba(0,0,0,.2);pointer-events:auto}
 .floating-cta .cta-whatsapp{background:#25D366;color:#fff}
 .floating-cta .cta-call{background:#fff;color:var(--ink);border:1px solid var(--border)}
+.floating-cta .cta-live{background:linear-gradient(135deg,#1f3c88,#5f72bd);color:#fff;border:1px solid rgba(255,255,255,.35)}
 @media(max-width:640px){.floating-cta a span{display:none}.floating-cta a{width:44px;height:44px;justify-content:center;padding:0}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.cursor-dot,.cursor-ring{display:none!important}}
 .from-you-card{position:relative;overflow:hidden;border-radius:20px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);backdrop-filter:blur(4px);min-height:320px;box-shadow:0 20px 40px rgba(0,0,0,0.22);transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease}
@@ -575,6 +576,20 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .contact-item p{font-size:0.9rem;color:rgba(247,244,239,0.7);line-height:1.7}
 .contact-item a{color:rgba(247,244,239,0.7);text-decoration:none;transition:color 0.3s}
 .contact-item a:hover{color:var(--gold)}
+.live-support-card{margin-top:28px;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.25);border-radius:18px;padding:22px;box-shadow:0 18px 36px rgba(0,0,0,0.25)}
+.live-support-card h3{color:#fff;font-family:var(--ff-display);font-size:1.2rem;letter-spacing:.3px}
+.live-support-card p{font-size:0.82rem;color:rgba(247,244,239,0.62);margin:8px 0 14px;line-height:1.7}
+.live-support-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.live-support-input,.live-support-textarea{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(201,168,76,0.28);color:#fff;border-radius:11px;padding:12px 13px;font-size:0.82rem;outline:none;transition:.2s}
+.live-support-input:focus,.live-support-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.15)}
+.live-support-input::placeholder,.live-support-textarea::placeholder{color:rgba(247,244,239,0.48)}
+.live-support-textarea{min-height:104px;resize:vertical;margin-top:10px}
+.live-support-submit{margin-top:12px;width:100%;border:none;border-radius:12px;padding:13px 16px;background:linear-gradient(135deg,var(--gold),#e6c56e);color:#1a1c25;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:.2s}
+.live-support-submit:hover{transform:translateY(-1px);filter:brightness(1.03)}
+.live-support-status{margin-top:10px;font-size:0.78rem;color:rgba(247,244,239,0.72);min-height:18px}
+.live-support-status.success{color:#9ef0c3}
+.live-support-status.error{color:#ffb3b3}
+@media(max-width:760px){.live-support-grid{grid-template-columns:1fr}}
 .map-placeholder{background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:var(--radius);overflow:hidden}
 .map-embed{width:100%;height:400px;border:none;filter:grayscale(100%) invert(92%) contrast(85%)}
 @media(max-width:768px){.map-embed{height:280px}}
@@ -1781,6 +1796,21 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
       </div>
     </div>
     <div class="contact-right">
+      <div class="live-support-card">
+        <h3>Canlı Destek Hattı</h3>
+        <p>Ad soyad, telefon ve e-posta bilgilerinizle mesajınızı bırakın. Ekibimiz size premium destekle e-posta üzerinden dönüş yapsın.</p>
+        <form id="liveSupportForm" onsubmit="submitLiveSupport(event)">
+          <div class="live-support-grid">
+            <input class="live-support-input" id="lsFirstName" type="text" placeholder="Adınız" required>
+            <input class="live-support-input" id="lsLastName" type="text" placeholder="Soyadınız" required>
+            <input class="live-support-input" id="lsPhone" type="tel" placeholder="Telefon" required>
+            <input class="live-support-input" id="lsEmail" type="email" placeholder="E-posta" required>
+          </div>
+          <textarea class="live-support-textarea" id="lsMessage" placeholder="Mesajınızı yazın..." required></textarea>
+          <button class="live-support-submit" id="lsSubmitBtn" type="submit"><i class="fas fa-headset"></i> Canlı Desteğe Gönder</button>
+          <div class="live-support-status" id="lsStatus"></div>
+        </form>
+      </div>
       <div class="map-placeholder">
         <iframe class="map-embed" src="https://maps.google.com/maps?q=Ba%C4%9Flarba%C5%9F%C4%B1+Mah.+M%C3%BCmin+Gen%C3%A7o%C4%9Flu+Cad.+Osmangazi+Bursa&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         <div class="map-cta"><p>Osmangazi, Bursa</p><a class="map-link" href="https://maps.google.com/?cid=4728389541117294908" target="_blank">Yol Tarifi Al <i class="fas fa-arrow-right"></i></a></div>
@@ -1998,6 +2028,7 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 <div class="floating-cta" id="floatingCta">
   <a class="cta-whatsapp" href="https://wa.me/905012110958" target="_blank" rel="noopener" aria-label="WhatsApp ile hızlı teklif alın"><i class="fab fa-whatsapp"></i><span>Hızlı Teklif</span></a>
   <a class="cta-call" href="tel:+905012110958" aria-label="Hemen ara"><i class="fas fa-phone"></i><span>Hemen Ara</span></a>
+  <a class="cta-live" href="#contact" onclick="openLiveSupportFromCta(event)" aria-label="Canlı destek hattı"><i class="fas fa-headset"></i><span>Canlı Destek</span></a>
 </div>
 
 <div class="mobile-bottom-nav" aria-label="Mobil alt menü">
@@ -2021,6 +2052,7 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 
 <script>
 const WA_NUMBER = '905012110958';
+const LIVE_SUPPORT_ENDPOINT = '/api/live-support';
 const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
@@ -2349,6 +2381,69 @@ async function fetchWithApiFallback(path, options = {}){
   if(!fallbackUrl) return primary;
   return fetch(fallbackUrl, options);
 }
+async function submitLiveSupport(event){
+  if(event) event.preventDefault();
+  const firstName = document.getElementById('lsFirstName')?.value?.trim() || '';
+  const lastName = document.getElementById('lsLastName')?.value?.trim() || '';
+  const phone = document.getElementById('lsPhone')?.value?.trim() || '';
+  const email = document.getElementById('lsEmail')?.value?.trim() || '';
+  const message = document.getElementById('lsMessage')?.value?.trim() || '';
+  const statusEl = document.getElementById('lsStatus');
+  const submitBtn = document.getElementById('lsSubmitBtn');
+
+  if(!firstName || !lastName || !phone || !email || message.length < 10){
+    if(statusEl){
+      statusEl.className = 'live-support-status error';
+      statusEl.textContent = 'Lütfen tüm alanları doldurun (mesaj min. 10 karakter).';
+    }
+    return;
+  }
+
+  if(submitBtn) submitBtn.disabled = true;
+  if(statusEl){
+    statusEl.className = 'live-support-status';
+    statusEl.textContent = 'Mesajınız gönderiliyor...';
+  }
+
+  try{
+    const res = await fetchWithApiFallback(LIVE_SUPPORT_ENDPOINT, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ action:'create', firstName, lastName, phone, email, message, channel:'site-live-support' })
+    });
+    const payload = await res.json().catch(()=>({}));
+    if(!res.ok){
+      throw new Error(payload?.error || 'Mesaj gönderilemedi.');
+    }
+    if(statusEl){
+      statusEl.className = 'live-support-status success';
+      statusEl.textContent = `Mesajınız alındı. Talep numaranız: ${payload.ticketNo || '-'}. En kısa sürede e-posta ile dönüş yapacağız.`;
+    }
+    document.getElementById('liveSupportForm')?.reset();
+  }catch(err){
+    if(statusEl){
+      statusEl.className = 'live-support-status error';
+      statusEl.textContent = err.message || 'Bir hata oluştu, lütfen tekrar deneyin.';
+    }
+  }finally{
+    if(submitBtn) submitBtn.disabled = false;
+  }
+}
+
+function openLiveSupportFromCta(event){
+  if(event) event.preventDefault();
+  go('contact');
+  setTimeout(()=>{
+    const card = document.querySelector('.live-support-card');
+    if(card){
+      card.scrollIntoView({behavior:'smooth', block:'center'});
+      card.style.boxShadow = '0 0 0 3px rgba(201,168,76,0.35), 0 20px 40px rgba(0,0,0,0.3)';
+      setTimeout(()=>{ card.style.boxShadow=''; }, 1800);
+    }
+    document.getElementById('lsFirstName')?.focus();
+  }, 120);
+}
+
 async function loadFromYouShowcaseFromApi(){
   try{
     const res = await fetchWithApiFallback('/api/from-you-showcase', { cache:'no-store' });
