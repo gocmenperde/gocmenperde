@@ -278,6 +278,17 @@ tbody tr:hover td{background:#fdfcf8}
 .icon-btn.view{background:var(--blue-light);color:var(--blue)}.icon-btn.view:hover{background:var(--blue);color:white}
 .icon-btn.fav{background:rgba(231,76,60,0.1);color:#e74c3c}.icon-btn.fav:hover{background:#e74c3c;color:white}
 .icon-btn.locked{background:rgba(0,0,0,0.04);color:#ccc;cursor:not-allowed}
+.live-support-list{display:grid;gap:12px}
+.live-support-item{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow-sm)}
+.live-support-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.live-support-meta h3{font-size:1.02rem;color:#1e2337}
+.live-support-meta p{font-size:0.76rem;color:var(--slate-light);margin-top:5px}
+.live-support-msg{background:#f8fafc;border:1px solid #e7edf7;border-radius:10px;padding:12px;white-space:pre-wrap;font-size:0.84rem;color:#22304a;line-height:1.6}
+.live-support-reply{margin-top:12px;padding-top:12px;border-top:1px dashed #dbe2f2}
+.live-support-reply textarea{width:100%;min-height:92px;margin-top:8px;padding:10px 12px;border:1.5px solid var(--border-2);border-radius:10px;resize:vertical}
+.live-support-reply input{width:100%;padding:10px 12px;border:1.5px solid var(--border-2);border-radius:10px}
+.live-support-reply-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px;align-items:start}
+@media(max-width:700px){.live-support-reply-row{grid-template-columns:1fr}}
 
 /* ──────────── MODAL ──────────── */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)}
@@ -639,6 +650,7 @@ tbody tr:hover td{background:#fdfcf8}
       </div>
       <div class="sidebar-section">
         <div class="sidebar-section-label">Sistem</div>
+        <div class="nav-item" onclick="showPage('live-support');loadLiveSupportMessages()"><i class="fas fa-headset"></i> Canlı Destek <span class="nav-badge" id="liveSupportBadge" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('notifications')"><i class="fas fa-bell"></i> Bildirimler</div>
         <div class="nav-item" onclick="showPage('settings')"><i class="fas fa-gear"></i> Ayarlar</div>
       </div>
@@ -1222,6 +1234,17 @@ Işık: Yarı Geçirgen"></textarea></div>
       </div>
     </div>
   </div>
+</div>
+
+<!-- ══ CANLI DESTEK ══ -->
+
+<div class="page" id="page-live-support">
+  <div class="breadcrumb"><i class="fas fa-home"></i> <span>Canlı Destek</span></div>
+  <div class="page-header">
+    <div><h1>Canlı Destek <em>Hattı</em></h1><p>Siteden gelen müşteri mesajlarını burada görüntüleyip e-posta ile yanıtlayın.</p></div>
+    <button class="btn btn-outline btn-sm" onclick="loadLiveSupportMessages()"><i class="fas fa-sync"></i> Yenile</button>
+  </div>
+  <div id="liveSupportList" class="live-support-list"></div>
 </div>
 
 <!-- ══ BİLDİRİMLER ══ -->
@@ -2452,6 +2475,7 @@ function showPage(id){
   if(id==='showcase') renderShowcaseAdminPage();
   if(id==='fromyou') renderFromYouAdminPage();
   if(id==='notifications') renderNotifs();
+  if(id==='live-support') loadLiveSupportMessages();
   if(id==='settings'){ renderFooterLogoRows(); }
 }
 function handleStatCardKey(event, target, filter){
@@ -2493,6 +2517,114 @@ function syncResponsiveTableLabels(root=document){
     });
   });
 }
+
+let LIVE_SUPPORT_ITEMS = [];
+
+function escapeAdminHtml(value=''){
+  return String(value)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#39;');
+}
+
+function renderLiveSupportMessages(){
+  const root = document.getElementById('liveSupportList');
+  if(!root) return;
+  if(!Array.isArray(LIVE_SUPPORT_ITEMS) || !LIVE_SUPPORT_ITEMS.length){
+    root.innerHTML = `<div class="empty-state"><i class="fas fa-headset"></i><p>Henüz canlı destek mesajı yok.</p></div>`;
+    return;
+  }
+
+  root.innerHTML = LIVE_SUPPORT_ITEMS.map((item)=>{
+    const statusClass = item.status === 'replied' ? 'badge-active' : 'badge-pending';
+    const statusText = item.status === 'replied' ? 'Yanıtlandı' : 'Yeni';
+    const createdLabel = item.createdAt ? new Date(item.createdAt).toLocaleString('tr-TR') : '-';
+    const repliedBlock = item.replyMessage
+      ? `<div class="live-support-reply"><b style="font-size:.76rem;letter-spacing:1.1px;text-transform:uppercase;color:#51607b">Son Yanıt</b><div class="live-support-msg" style="margin-top:8px">${escapeAdminHtml(item.replyMessage)}</div></div>`
+      : '';
+
+    return `
+      <article class="live-support-item">
+        <div class="live-support-head">
+          <div class="live-support-meta">
+            <h3>${escapeAdminHtml(item.fullName || '-')} <span class="badge ${statusClass}" style="margin-left:8px">${statusText}</span></h3>
+            <p>${escapeAdminHtml(item.ticketNo || '-')} · ${createdLabel} · ${escapeAdminHtml(item.phone || '-')} · ${escapeAdminHtml(item.email || '-')}</p>
+          </div>
+        </div>
+        <div class="live-support-msg">${escapeAdminHtml(item.message || '-')}</div>
+        ${repliedBlock}
+        <div class="live-support-reply">
+          <label style="font-size:.7rem;letter-spacing:1.1px;text-transform:uppercase;color:#7082a1">Yanıt Başlığı</label>
+          <input id="replySubject-${item.id}" type="text" value="${escapeAdminHtml(item.replySubject || `Göçmen Perde canlı destek dönüşü · ${item.ticketNo || ''}`)}">
+          <label style="font-size:.7rem;letter-spacing:1.1px;text-transform:uppercase;color:#7082a1;margin-top:8px;display:block">Yanıt Mesajı</label>
+          <textarea id="replyMessage-${item.id}" placeholder="Müşteriye göndermek istediğiniz premium mesajı yazın...">${escapeAdminHtml(item.replyMessage || '')}</textarea>
+          <div class="live-support-reply-row">
+            <small style="color:var(--slate-light)">Yanıt gönderildiğinde müşteriye e-posta olarak ulaşır.</small>
+            <button class="btn btn-primary btn-sm" onclick="sendLiveSupportReply(${Number(item.id)})"><i class="fas fa-paper-plane"></i> Yanıtı Mail Olarak Gönder</button>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function updateLiveSupportBadge(){
+  const badge = document.getElementById('liveSupportBadge');
+  if(!badge) return;
+  const pending = LIVE_SUPPORT_ITEMS.filter(item=>item.status !== 'replied').length;
+  badge.style.display = pending > 0 ? 'inline-flex' : 'none';
+  badge.textContent = String(pending);
+}
+
+async function loadLiveSupportMessages(){
+  const root = document.getElementById('liveSupportList');
+  if(root){
+    root.innerHTML = `<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Canlı destek mesajları yükleniyor...</p></div>`;
+  }
+  try{
+    const res = await apiFetch('/api/live-support', { headers:{ 'x-admin-key': getAdminApiKey() } });
+    const payload = await res.json().catch(()=>({}));
+    if(!res.ok){
+      throw new Error(payload?.error || 'Canlı destek mesajları alınamadı');
+    }
+    LIVE_SUPPORT_ITEMS = Array.isArray(payload?.items) ? payload.items : [];
+    updateLiveSupportBadge();
+    renderLiveSupportMessages();
+  }catch(err){
+    if(root){
+      root.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>${escapeAdminHtml(err.message || 'Bir hata oluştu')}</p></div>`;
+    }
+    aToast(err.message || 'Canlı destek yüklenemedi');
+  }
+}
+
+async function sendLiveSupportReply(id){
+  const subject = document.getElementById(`replySubject-${id}`)?.value?.trim() || '';
+  const replyMessage = document.getElementById(`replyMessage-${id}`)?.value?.trim() || '';
+  if(!subject || replyMessage.length < 5){
+    aToast('Başlık ve en az 5 karakter yanıt zorunludur.');
+    return;
+  }
+
+  try{
+    const res = await apiFetch('/api/live-support', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'x-admin-key': getAdminApiKey() },
+      body: JSON.stringify({ action:'reply', id, subject, replyMessage })
+    });
+    const payload = await res.json().catch(()=>({}));
+    if(!res.ok){
+      throw new Error(payload?.error || 'Yanıt gönderilemedi');
+    }
+    aToast(payload?.mailSent ? '✓ Müşteriye e-posta ile yanıt gönderildi.' : 'Yanıt kaydedildi ancak mail servisinde sorun olabilir.','success');
+    await loadLiveSupportMessages();
+  }catch(err){
+    aToast(err.message || 'Yanıt gönderilemedi');
+  }
+}
+
 
 // ════════════════════════════════════
 //  PRODUCTS
@@ -5438,6 +5570,7 @@ async function initAdmin(){
   renderCustomTemplateButtons();
   renderCustomTemplateButtons('bulk');
   renderNotifs();
+  loadLiveSupportMessages();
   updateTokenStatus();
   const favs=getFavs();
   const el=document.getElementById('statFavs');
