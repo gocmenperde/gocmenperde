@@ -4690,10 +4690,19 @@ function setProductDeepLink(productId){
   const id = String(productId || '').trim();
   if(!id) return;
   const snapshot = captureModalReturnState();
+  const fallbackReturnState = {
+    section: 'products',
+    scrollY: Math.max(0, window.scrollY || 0)
+  };
   if(!modalReturnState) modalReturnState = snapshot;
-  const fromSection = modalReturnState?.section || snapshot.section;
-  const fromScroll = modalReturnState?.scrollY ?? snapshot.scrollY;
+  const fromSection = resolveSectionId(modalReturnState?.section || snapshot.section) === 'products'
+    ? 'products'
+    : fallbackReturnState.section;
+  const fromScroll = modalReturnState?.scrollY ?? snapshot.scrollY ?? fallbackReturnState.scrollY;
   const url = new URL(window.location.href);
+  if(resolveSectionId(url.hash.replace(/^#/, '')) !== 'products'){
+    url.hash = 'products';
+  }
   const currentId = String(url.searchParams.get('product') || '').trim();
   const currentState = window.history.state || {};
   const nextState = { ...(currentState || {}), product:id, fromSection, fromScroll };
