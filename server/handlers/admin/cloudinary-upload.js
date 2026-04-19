@@ -1,31 +1,18 @@
 const crypto = require('crypto');
 
+// Bu key sabit kalabilir veya bunu da env'ye taşıyabilirsin
 const ADMIN_API_KEY = 'gocmen1993';
 
 /**
- * Cloudinary yapılandırmasını güvenli bir şekilde okur.
- * Vercel'deki Environment Variables alanından beslenir.
+ * Vercel ortam değişkenlerini en güvenli ve statik şekilde okur.
  */
 function readCloudinaryConfig() {
-  // Next.js'in build sırasında bu değerleri statik olarak koda gömebilmesi için 
-  // direkt process.env üzerinden erişim sağlıyoruz.
+  // Next.js build sırasında process.env.DEGISKEN_ADI şeklinde açık yazımı tercih eder.
   const cloudName = (process.env.CLOUDINARY_CLOUD_NAME || '').trim();
   const apiKey = (process.env.CLOUDINARY_API_KEY || '').trim();
   const apiSecret = (process.env.CLOUDINARY_API_SECRET || process.env.API_SECRET || '').trim();
 
-  return {
-    cloudName,
-    apiKey,
-    apiSecret
-  };
-}
-
-function getMissingConfigKeys(config) {
-  const missing = [];
-  if (!config.cloudName) missing.push('CLOUDINARY_CLOUD_NAME');
-  if (!config.apiKey) missing.push('CLOUDINARY_API_KEY');
-  if (!config.apiSecret) missing.push('CLOUDINARY_API_SECRET');
-  return missing;
+  return { cloudName, apiKey, apiSecret };
 }
 
 function sanitizeFileName(value) {
@@ -39,10 +26,11 @@ function sanitizeFileName(value) {
 }
 
 function buildPublicId(prefix, fileName) {
-  const safePrefix = String(prefix || 'image').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40) || 'image';
+  const safePrefix = String(prefix || 'product').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
   const stamp = Date.now();
   const randomPart = crypto.randomUUID().slice(0, 8);
   const baseName = sanitizeFileName(fileName).replace(/\.[^.]+$/, '');
+  
   return `gocmenperde/${safePrefix}/${stamp}-${randomPart}-${baseName}`;
 }
 
@@ -57,42 +45,47 @@ function createSignature(params, apiSecret) {
 }
 
 module.exports = async function handler(req, res) {
+  // CORS Ayarları
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
-  
+
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  // Yetki Kontrolü
   if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-    return res.status(403).json({ error: 'Yetkisiz.' });
+    return res.status(403).json({ error: 'Yetkisiz erişim.' });
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Desteklenmeyen method.' });
+    return res.status(405).json({ error: 'Sadece POST desteklenir.' });
   }
 
+  // Yapılandırmayı oku
   const config = readCloudinaryConfig();
-  const missingKeys = getMissingConfigKeys(config);
 
-  if (missingKeys.length > 0) {
-    console.error('[cloudinary-upload] Eksik yapılandırma:', missingKeys);
-    return res.status(503).json({
-      error: 'Sistem yapılandırması eksik (Env vars).',
-      details: missingKeys
+  // Eksik değişken kontrolü (Hata ayıklama için detaylı log bırakır)
+  if (!config.cloudName || !config.apiKey || !config.apiSecret) {
+    console.error('[Config Error] Eksik Değişkenler:', {
+      cloudName: !!config.cloudName,
+      apiKey: !!config.apiKey,
+      apiSecret: !!config.apiSecret
     });
+    return res.status(503).json({ error: 'Sunucu yapılandırması eksik. Lütfen Vercel Env ayarlarını kontrol edin.' });
   }
 
   const { dataUrl, fileName, prefix } = req.body;
 
   if (!dataUrl || !dataUrl.startsWith('data:image/')) {
-    return res.status(400).json({ error: 'Geçersiz görsel verisi.' });
+    return res.status(400).json({ error: 'Geçersiz görsel formatı (Base64 dataUrl gerekli).' });
   }
 
   try {
     const timestamp = Math.floor(Date.now() / 1000);
     const folder = 'gocmenperde';
-    const publicId = buildPublicId(prefix || 'product', fileName || 'image');
-    
+    const publicId = buildPublicId(prefix, fileName);
+
+    // İmza (Signature) Parametreleri
     const signParams = {
       folder,
       public_id: publicId,
@@ -101,6 +94,7 @@ module.exports = async function handler(req, res) {
 
     const signature = createSignature(signParams, config.apiSecret);
 
+    // Cloudinary'ye gönderilecek Form verisi
     const formData = new FormData();
     formData.append('file', dataUrl);
     formData.append('api_key', config.apiKey);
@@ -117,20 +111,20 @@ module.exports = async function handler(req, res) {
       }
     );
 
-    const payload = await cloudinaryRes.json();
-    
+    const result = await cloudinaryRes.json();
+
     if (!cloudinaryRes.ok) {
-      return res.status(502).json({ error: payload?.error?.message || 'Cloudinary hatası.' });
+      throw new Error(result.error?.message || 'Cloudinary yükleme hatası.');
     }
 
     return res.status(200).json({
       success: true,
-      imageUrl: payload.secure_url || payload.url,
-      publicId: payload.public_id
+      imageUrl: result.secure_url || result.url,
+      publicId: result.public_id
     });
 
   } catch (err) {
-    console.error('[cloudinary-upload] Hata:', err);
-    return res.status(500).json({ error: `Sunucu hatası: ${err.message}` });
+    console.error('[Upload Error]:', err.message);
+    return res.status(500).json({ error: err.message });
   }
 };
