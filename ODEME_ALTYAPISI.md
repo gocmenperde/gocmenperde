@@ -60,3 +60,18 @@ Bu repo artık kartla ödemeyi **PayTR iFrame v2 token akışı** ile başlataca
 - Callback endpoint (hash doğrulama): `POST /api/paytr-callback`
 - İşlem dökümü: `POST /api/paytr-report?action=transaction-report`
 - İade: `POST /api/paytr-refund?action=refund`
+
+## 6) Vercel değişken güncelleme sonrası yeniden bağlama / doğrulama
+
+Ortam değişkeni değiştirdikten sonra çalışan deployment eski env ile kalabilir. Aşağıdaki adımları sırayla uygulayın:
+
+1. Projeyi tekrar linkleyin:
+   - `vercel link --yes`
+2. Uzak env'i local cache'e çekin (isteğe bağlı ama önerilir):
+   - `vercel env pull .env.vercel`
+3. Yeni deployment başlatın:
+   - `vercel --prod`
+4. Üretim fonksiyon loglarından doğrulayın:
+   - `vercel logs <proje-url> --since 1h`
+
+Not: Cloudinary için `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` değerleri **Production** ortamına atanmış olmalı ve değişiklikten sonra mutlaka yeni deploy alınmalıdır.
