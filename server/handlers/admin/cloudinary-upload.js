@@ -3,12 +3,38 @@ const crypto = require('crypto');
 const ADMIN_API_KEY = 'gocmen1993';
 
 function readCloudinaryConfig() {
-  const cloudName = String(process.env.CLOUDINARY_CLOUD_NAME || '').trim();
-  const apiKey = String(process.env.CLOUDINARY_API_KEY || '').trim();
-  const apiSecret = String(process.env.CLOUDINARY_API_SECRET || '').trim();
+  const cloudName = String(process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD || '').trim();
+  const apiKey = String(process.env.CLOUDINARY_API_KEY || process.env.CLOUDINARY_KEY || '').trim();
+  const apiSecret = String(
+    process.env.CLOUDINARY_API_SECRET
+    || process.env.API_SECRET
+    || process.env.CLOUDINARY_SECRET
+    || ''
+  ).trim();
 
-  if (!cloudName || !apiKey || !apiSecret) return null;
   return { cloudName, apiKey, apiSecret };
+}
+
+function getMissingConfigKeys(config) {
+  const missing = [];
+  if (!config.cloudName) missing.push('CLOUDINARY_CLOUD_NAME');
+  if (!config.apiKey) missing.push('CLOUDINARY_API_KEY');
+  if (!config.apiSecret) missing.push('CLOUDINARY_API_SECRET (veya API_SECRET)');
+  return missing;
+}
+
+function resolveUploadBody(reqBody) {
+  const rawBody = reqBody && typeof reqBody === 'object' ? reqBody : {};
+  const dataUrl = String(
+    rawBody.dataUrl
+    || rawBody.file
+    || rawBody.image
+    || (Array.isArray(rawBody.files) ? rawBody.files[0] : '')
+    || ''
+  ).trim();
+  const fileName = String(rawBody.fileName || rawBody.filename || rawBody.name || 'image');
+  const prefix = String(rawBody.prefix || 'image');
+  return { dataUrl, fileName, prefix };
 }
 
 function sanitizeFileName(value) {
@@ -54,16 +80,17 @@ module.exports = async function handler(req, res) {
   }
 
   const config = readCloudinaryConfig();
-  if (!config) {
-    return res.status(500).json({ error: 'Cloudinary ortam değişkenleri eksik.' });
+  const missingConfig = getMissingConfigKeys(config);
+  if (missingConfig.length) {
+    return res.status(500).json({
+      error: `Cloudinary ortam değişkenleri eksik: ${missingConfig.join(', ')}`,
+    });
   }
 
-  const dataUrl = String(req.body?.dataUrl || '').trim();
-  const fileName = String(req.body?.fileName || 'image');
-  const prefix = String(req.body?.prefix || 'image');
+  const { dataUrl, fileName, prefix } = resolveUploadBody(req.body);
 
   if (!dataUrl.startsWith('data:image/')) {
-    return res.status(400).json({ error: 'Geçersiz görsel verisi.' });
+    return res.status(400).json({ error: 'Geçersiz görsel verisi. dataUrl veya file alanı data:image/* formatında olmalı.' });
   }
 
   try {
