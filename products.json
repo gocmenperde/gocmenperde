@@ -1,5 +1,53 @@
 [
   {
+    "id": "lazer-kesim-stor-perde-1776627830510-562",
+    "name": "Lazer Kesim Stor Perde",
+    "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
+    "image": "resimler/1776627720485-product-0-728e9313-eefa-4d2c-8fbc-509234b4cfb5-1ebe3453-b1bc-48b5-8ff5-2ff17e418348.jpeg",
+    "images": [
+      "resimler/1776627720485-product-0-728e9313-eefa-4d2c-8fbc-509234b4cfb5-1ebe3453-b1bc-48b5-8ff5-2ff17e418348.jpeg",
+      "resimler/1776627722709-product-1-400c3510-0d5d-41e0-88a2-0d72e4155eba-c7f19fef-c689-48e6-860e-4c45f65febb2.jpeg"
+    ],
+    "price": 650,
+    "oldPrice": 900,
+    "cat": "stor-perde",
+    "unit": "m2",
+    "isMeter": false,
+    "isSquareMeter": true,
+    "features": "",
+    "badge": "%28 İNDİRİM",
+    "discountType": "percent",
+    "discountValue": null,
+    "stock": 53,
+    "serialNumber": null,
+    "barcode": null,
+    "seoKeywords": [
+      "Stor",
+      "Stor Perde",
+      "perde",
+      "stor",
+      "stor perde"
+    ],
+    "isLiveShowcase": true,
+    "isFeatured": true,
+    "active": true,
+    "specs": {
+      "• Pürüzsüz Kenarlar": "Lazer kesim sırasında yüksek ısı kullanıldığı için kumaşın lifleri kesim anında mühürlenir. Bu durum, kumaşın kenarlarında atmayı, sökülmeyi veya ipliklenmeyi tamamen engeller.",
+      "• Kumaş Türleri": "Genellikle polyester bazlı kumaşlar tercih edilir. Çünkü sentetik lifler lazer ısısına mükemmel tepki verir. Ayrıca screen (delikli), karartma (blackout) veya simli kumaşlar üzerine de uygulanabilir.",
+      "• Hassas Desenleme": "Bilgisayar destekli (CNC) lazer sistemleri sayesinde, el işçiliğiyle imkansız olan çok ince ve karmaşık geometrik desenler kumaş üzerine işlenebilir.",
+      "• Mekanizma Yapısı": "Genellikle 32 mm veya 38 mm çapında alüminyum borular ve dayanıklı plastik/metal zincir mekanizmaları ile çalışır. Motorlu (kumandalı) sistemlere tam uyumludur."
+    },
+    "care": {
+      "Madde 1": "Günlük Temizlik",
+      "• Toz Alma": "Haftada bir kez yumuşak bir toz alma püskülü veya mikrofiber bezle tozunu almanız yeterlidir.",
+      "• Vakum": "Elektrikli süpürgenizin en düşük emiş gücü ve döşeme ucuyla (fırçalı başlık), desenlere zarar vermeden nazikçe üzerinden geçebilirsiniz.",
+      "Madde 2": "Derinlemesine Temizlik",
+      "• Nemli Bezle Silme": "Lazer kesim kanallarına zarar vermemek için perdenizi yerinden çıkarmadan, ılık su ve çok az miktarda doğal sabun (veya perde şampuanı) karıştırılmış nemli bir bezle silebilirsiniz.",
+      "• Kimyasaldan Kaçının": "Çamaşır suyu veya ağır kimyasal çözücüler, lazerle mühürlenmiş kenarların yapısını bozabilir ve kumaş renginde solma yapabilir.",
+      "• Kurutma": "Temizlik sonrası perdeyi tamamen aşağı indirerek kendi kendine kurumasını bekleyin. Kurumadan rulo haline getirmek, nemin desenli bölgelerde koku veya leke yapmasına neden olabilir."
+    }
+  },
+  {
     "id": "fon-perde-modern-cizgili-desen-mavi-1776374886960-142",
     "name": "Fon Perde Modern Çizgili Desen Mavi",
     "desc": "Evinizin atmosferini anında değiştirecek, modern hatları ve özgün dokusuyla öne çıkan bu fon perde; zarafeti ve kaliteyi bir araya getiriyor. Kumaş üzerindeki yatay dalga formundaki özel saçak (püskül) detayları, mekanınıza derinlik ve dinamizm katar.",
@@ -2048,7 +2096,7 @@
     ],
     "price": 300,
     "oldPrice": 400,
-    "cat": "ormetulperde",
+    "cat": "tul-perde",
     "unit": "mt",
     "isMeter": true,
     "isSquareMeter": false,
@@ -2087,7 +2135,7 @@
     ],
     "price": 300,
     "oldPrice": 400,
-    "cat": "ormetulperde",
+    "cat": "tul-perde",
     "unit": "mt",
     "isMeter": true,
     "isSquareMeter": false,
