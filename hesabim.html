@@ -1446,10 +1446,14 @@ function bindSmartBackLink(selector, fallback='/'){
 bindSmartBackLink('.gp-back','/');
 
 const token = localStorage.getItem('token') || localStorage.getItem('gp_token');
-const user = (() => { try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; } })();
+let user = (() => { try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; } })();
 
-if (!token || !user) {
-    window.location.href = '/hesap.html';
+if (!token) {
+    const nextPath = encodeURIComponent('/hesabim.html');
+    window.location.href = `/hesap.html?next=${nextPath}`;
+}
+if (token && !user) {
+    user = { ad_soyad: '', email: '', created_at: null };
 }
 
 // Init user display
@@ -2231,6 +2235,9 @@ async function loadProfile() {
         const r = await apiFetch('/api/auth?action=profile', { headers: authHeaders() });
         const data = await r.json();
         if (data.user) {
+            user = data.user;
+            localStorage.setItem('user', JSON.stringify(data.user));
+            initUserDisplay();
             document.getElementById('pName').value = data.user.ad_soyad || '';
             document.getElementById('pEmail').value = data.user.email || '';
             document.getElementById('pPhone').value = String(data.user.telefon || '').replace(/\D/g, '').replace(/^0/, '').slice(0, 10);

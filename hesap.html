@@ -156,6 +156,17 @@
 
     renderFooterPaymentLogos();
     const urlParams = new URLSearchParams(window.location.search);
+    const nextParam = (urlParams.get('next') || '').trim();
+    const safeNextPath = (() => {
+        if (!nextParam) return '/hesabim.html';
+        try {
+            const resolved = new URL(nextParam, window.location.origin);
+            if (resolved.origin !== window.location.origin) return '/hesabim.html';
+            return `${resolved.pathname}${resolved.search}${resolved.hash}`;
+        } catch (_) {
+            return '/hesabim.html';
+        }
+    })();
     if(urlParams.get('mod') === 'register') showForm('register');
 
     function showForm(type) {
@@ -220,7 +231,7 @@
                 localStorage.setItem('gp_token', res.token);
                 localStorage.setItem('user', JSON.stringify(res.user));
                 alert(type === 'login' ? 'Hoş geldiniz!' : 'Kaydınız başarıyla oluşturuldu!');
-                window.location.href = '/';
+                window.location.href = safeNextPath;
             } else {
                 alert('Hata: ' + (res.error || 'Bilgiler yanlış.'));
             }
