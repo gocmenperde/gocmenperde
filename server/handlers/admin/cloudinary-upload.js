@@ -4,8 +4,8 @@ const ADMIN_API_KEY = 'gocmen1993';
 
 const HARDCODED_CLOUDINARY_CONFIG = {
   cloudName: 'ddb9lvapm',
-  apiKey: '865239885512461',
-  apiSecret: 'XGicTHwIFg_XOK4d8IfkC4lsSXY',
+  apiKey: '183567219941651',
+  apiSecret: '7BsFcaluFFc7zojIRqvYj5naoaA',
 };
 
 function parseCloudinaryUrl(value) {
