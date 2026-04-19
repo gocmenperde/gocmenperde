@@ -802,6 +802,12 @@ async function resolveOrderLookup(rawValue) {
     return { ok: true, orderId: persistedOrderId };
   }
   const PG_INT_MAX = 2147483647;
+  if (digits.length === ORDER_NO_DIGITS) {
+    const embeddedOrderId = Number(digits.slice(0, 7));
+    if (Number.isInteger(embeddedOrderId) && embeddedOrderId > 0 && embeddedOrderId <= PG_INT_MAX) {
+      return { ok: true, orderId: embeddedOrderId };
+    }
+  }
   if (digits.length > String(PG_INT_MAX).length) {
     return { ok: false, orderId: 0 };
   }
@@ -832,14 +838,14 @@ function generateOrderNo(orderId, store, currentKey) {
       .map(([, value]) => String(value?.orderNo || '').replace(/\D+/g, ''))
       .filter((value) => value.length === ORDER_NO_DIGITS)
   );
-  const suffix = String(Math.floor(Math.random() * 100000)).padStart(5, '0');
+  const safeOrderId = Math.max(1, Number(orderId) || 1);
+  const idPart = String(safeOrderId).padStart(7, '0').slice(-7);
   const timePart = Date.now().toString().slice(-7);
-  const idPart = String(Math.max(1, Number(orderId) || 1)).padStart(2, '0').slice(-2);
-  let candidate = `${timePart}${idPart}${suffix}`;
+  let candidate = `${idPart}${timePart}`;
   let tries = 0;
   while (used.has(candidate) && tries < 20) {
     tries += 1;
-    candidate = `${Date.now().toString().slice(-7)}${String(Math.floor(Math.random() * 10000000)).padStart(7, '0')}`;
+    candidate = `${idPart}${String(Date.now() + tries).slice(-7)}`;
   }
   return candidate.slice(0, ORDER_NO_DIGITS);
 }

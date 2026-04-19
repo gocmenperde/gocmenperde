@@ -1300,7 +1300,7 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
     <i class="fas fa-check-circle"></i>
     <h2>Siparişiniz Oluşturuldu!</h2>
     <p id="successModalMessage">Siparişiniz tarafımıza iletildi. WhatsApp'a yönlendiriliyorsunuz...</p>
-    <button class="btn-primary" onclick="document.getElementById('successModal').classList.remove('open');go('home')">Anasayfaya Dön</button>
+    <button class="btn-primary" onclick="closeOrderSuccessModal()">Geri Dön</button>
   </div>
 </div>
 
@@ -2493,7 +2493,9 @@ async function submitLiveSupport(event){
 
 async function queryOrderTracking(){
   const orderNoInput = document.getElementById('orderTrackNo');
-  const orderNo = (orderNoInput?.value || '').replace(/\D/g,'');
+  const typedOrderNo = (orderNoInput?.value || '').replace(/\D/g,'');
+  const cachedOrderNo = String(sessionStorage.getItem('gp_last_order_no') || '').replace(/\D/g,'');
+  const orderNo = typedOrderNo || cachedOrderNo;
   if(orderNoInput) orderNoInput.value = orderNo;
   const output = document.getElementById('supportQueryResult');
   if(!orderNo){
@@ -2509,9 +2511,13 @@ async function queryOrderTracking(){
     const history = Array.isArray(order?.tracking?.history) ? order.tracking.history : [];
     const rows = history.slice().reverse().map(item=>`<li><b>${item.status || '-'}</b> · ${formatSupportDate(item.at)}${item.note ? ` — ${item.note}` : ''}</li>`).join('');
     const code = order?.tracking?.code ? `<div><b>Kargo Takip Kodu:</b> ${order.tracking.code}</div>` : '';
+    const resolvedOrderNo = String(order.order_no || order.id || '-');
+    if(/^\d+$/.test(resolvedOrderNo)){
+      sessionStorage.setItem('gp_last_order_no', resolvedOrderNo);
+    }
     if(output){
       output.className='support-query-result success';
-      output.innerHTML = `<div><b>Sipariş No: ${order.order_no || order.id || '-'}</b> · Durum: <b>${order.durum || '-'}</b></div>${code}${rows ? `<ol class="support-track-list">${rows}</ol>` : ''}`;
+      output.innerHTML = `<div><b>Sipariş No: ${resolvedOrderNo}</b> · Durum: <b>${order.durum || '-'}</b></div>${code}${rows ? `<ol class="support-track-list">${rows}</ol>` : ''}`;
     }
   }catch(err){
     if(output){ output.className='support-query-result error'; output.textContent=err.message || 'Sorgu başarısız.'; }
@@ -6528,13 +6534,21 @@ function formatSupportPhoneForDisplay(value=''){
 }
 function showOrderSuccessModal(orderNo=''){
   const msgEl = document.getElementById('successModalMessage');
+  const normalizedOrderNo = String(orderNo || '').replace(/\D/g,'');
+  if(normalizedOrderNo){
+    sessionStorage.setItem('gp_last_order_no', normalizedOrderNo);
+  }
   if(msgEl){
-    const safeOrderNo = String(orderNo || '').replace(/\D/g,'');
-    msgEl.textContent = safeOrderNo
-      ? `Sipariş numaranız: ${safeOrderNo}. Bu numarayla siparişinizi sorgulayabilirsiniz. WhatsApp'a yönlendiriliyorsunuz...`
+    msgEl.textContent = normalizedOrderNo
+      ? `Sipariş numaranız: ${normalizedOrderNo}. Bu numarayla siparişinizi sorgulayabilirsiniz. WhatsApp'a yönlendiriliyorsunuz...`
       : 'Siparişiniz tarafımıza iletildi. WhatsApp\'a yönlendiriliyorsunuz...';
   }
   document.getElementById('successModal').classList.add('open');
+}
+
+function closeOrderSuccessModal(){
+  document.getElementById('successModal')?.classList.remove('open');
+  goBackSmart('products');
 }
 
 // ── Ödeme ──
