@@ -5127,6 +5127,7 @@ async function uploadImageToCloudinary(file,{prefix='image'}={}){
     headers:{'Content-Type':'application/json','x-admin-key':getAdminApiKey()},
     body:JSON.stringify({
       dataUrl,
+      file:dataUrl,
       fileName:optimized.name || file.name || 'image',
       prefix
     })
@@ -5169,6 +5170,9 @@ async function uploadImagesWithConcurrency(files, {prefix='image', concurrency=2
     }
   });
   await Promise.all(workers);
+  if(!uploaded.filter(Boolean).length && errors.length){
+    throw new Error(errors[0] || 'Cloudinary yüklemesi başarısız.');
+  }
   return {uploaded:uploaded.filter(Boolean), errors};
 }
 function getGithubToken(){return localStorage.getItem('gh_token');}
