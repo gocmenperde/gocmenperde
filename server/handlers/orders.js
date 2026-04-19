@@ -739,8 +739,14 @@ async function resolveOrderLookup(rawValue) {
   if (matchByOrderNo) {
     return { ok: true, orderId: Number(matchByOrderNo[0]) };
   }
+  const PG_INT_MAX = 2147483647;
+  if (digits.length > String(PG_INT_MAX).length) {
+    return { ok: false, orderId: 0 };
+  }
   const maybeId = Number(digits);
-  if (!Number.isInteger(maybeId) || maybeId <= 0) return { ok: false, orderId: 0 };
+  if (!Number.isInteger(maybeId) || maybeId <= 0 || maybeId > PG_INT_MAX) {
+    return { ok: false, orderId: 0 };
+  }
   return { ok: true, orderId: maybeId };
 }
 
