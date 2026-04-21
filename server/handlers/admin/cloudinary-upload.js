@@ -47,11 +47,31 @@ function pickFirstEnvValue(keys) {
   return '';
 }
 
+function pickFromMatchingEnvKeys(patterns) {
+  const regexList = Array.isArray(patterns) ? patterns : [];
+  const envEntries = Object.entries(process.env || {});
+
+  for (const [key, rawValue] of envEntries) {
+    if (!regexList.some((regex) => regex && regex.test(key))) continue;
+    const value = normalizeEnvValue(rawValue);
+    if (value) return value;
+  }
+
+  return '';
+}
+
+function listMatchingEnvKeys(patterns) {
+  const regexList = Array.isArray(patterns) ? patterns : [];
+  return Object.keys(process.env || {}).filter((key) => regexList.some((regex) => regex && regex.test(key)));
+}
+
 function readCloudinaryConfig() {
   const cloudinaryUrl = pickFirstEnvValue([
     'CLOUDINARY_URL',
     'CLOUDINARY_API_URL',
     'NEXT_PUBLIC_CLOUDINARY_URL',
+  ]) || pickFromMatchingEnvKeys([
+    /cloudinary.*url/i,
   ]);
   const parsedFromUrl = parseCloudinaryUrl(cloudinaryUrl);
 
@@ -61,12 +81,17 @@ function readCloudinaryConfig() {
     'CLOUD_NAME',
     'NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME',
     'NEXT_PUBLIC_CLOUDINARY_CLOUDNAME',
+  ]) || pickFromMatchingEnvKeys([
+    /cloudinary.*cloud.*name/i,
+    /^cloud_name$/i,
   ]) || parsedFromUrl?.cloudName || '';
 
   const apiKey = pickFirstEnvValue([
     'CLOUDINARY_API_KEY',
     'API_KEY',
     'NEXT_PUBLIC_CLOUDINARY_API_KEY',
+  ]) || pickFromMatchingEnvKeys([
+    /cloudinary.*api.*key/i,
   ]) || parsedFromUrl?.apiKey || '';
 
   const apiSecret = pickFirstEnvValue([
@@ -74,6 +99,10 @@ function readCloudinaryConfig() {
     'CLOUDINARY_SECRET',
     'API_SECRET',
     'NEXT_PUBLIC_CLOUDINARY_API_SECRET',
+  ]) || pickFromMatchingEnvKeys([
+    /cloudinary.*api.*secret/i,
+    /cloudinary.*secret/i,
+    /^api_secret$/i,
   ]) || parsedFromUrl?.apiSecret || '';
 
   return { cloudName, apiKey, apiSecret, hasCloudinaryUrl: Boolean(parsedFromUrl) };
@@ -161,6 +190,12 @@ module.exports = async function handler(req, res) {
   const missingConfig = getMissingConfigKeys(cloudinaryConfig);
   if (missingConfig.length) {
     const nodeEnv = String(process.env.NODE_ENV || 'unknown').trim();
+    const detectedCloudinaryEnvKeys = listMatchingEnvKeys([
+      /cloudinary/i,
+      /^cloud_name$/i,
+      /^api_key$/i,
+      /^api_secret$/i,
+    ]);
     console.error('[cloudinary-upload] Cloudinary env değişkenleri eksik veya undefined.', {
       missing: missingConfig,
       nodeEnv,
@@ -170,6 +205,7 @@ module.exports = async function handler(req, res) {
       hasApiSecret: Boolean(pickFirstEnvValue(['CLOUDINARY_API_SECRET', 'CLOUDINARY_SECRET', 'API_SECRET', 'NEXT_PUBLIC_CLOUDINARY_API_SECRET'])),
       hasCloudinaryUrl: Boolean(pickFirstEnvValue(['CLOUDINARY_URL', 'CLOUDINARY_API_URL', 'NEXT_PUBLIC_CLOUDINARY_URL'])),
       cloudinaryUrlParsable: cloudinaryConfig.hasCloudinaryUrl,
+      detectedCloudinaryEnvKeys,
       hint: 'Vercel Project Settings > Environment Variables alanındaki değerlerin ilgili ortama (Production/Preview) atanıp redeploy edildiğini doğrulayın. Server-side endpoint için NEXT_PUBLIC_ prefix zorunlu değildir. CLOUDINARY_URL kullanıyorsanız format cloudinary://API_KEY:API_SECRET@CLOUD_NAME olmalıdır.',
     });
 
