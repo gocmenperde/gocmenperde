@@ -73,7 +73,6 @@ function readCloudinaryConfig() {
     'CLOUDINARY_API_SECRET',
     'CLOUDINARY_SECRET',
     'API_SECRET',
-    'NEXT_PUBLIC_CLOUDINARY_API_SECRET',
   ]) || parsedFromUrl?.apiSecret || '';
 
   return { cloudName, apiKey, apiSecret, hasCloudinaryUrl: Boolean(parsedFromUrl) };
@@ -167,10 +166,10 @@ module.exports = async function handler(req, res) {
       vercelEnv: process.env.VERCEL_ENV || null,
       hasCloudName: Boolean(pickFirstEnvValue(['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_CLOUDNAME', 'CLOUD_NAME', 'NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME', 'NEXT_PUBLIC_CLOUDINARY_CLOUDNAME'])),
       hasApiKey: Boolean(pickFirstEnvValue(['CLOUDINARY_API_KEY', 'API_KEY', 'NEXT_PUBLIC_CLOUDINARY_API_KEY'])),
-      hasApiSecret: Boolean(pickFirstEnvValue(['CLOUDINARY_API_SECRET', 'CLOUDINARY_SECRET', 'API_SECRET', 'NEXT_PUBLIC_CLOUDINARY_API_SECRET'])),
+      hasApiSecret: Boolean(pickFirstEnvValue(['CLOUDINARY_API_SECRET', 'CLOUDINARY_SECRET', 'API_SECRET'])),
       hasCloudinaryUrl: Boolean(pickFirstEnvValue(['CLOUDINARY_URL', 'CLOUDINARY_API_URL', 'NEXT_PUBLIC_CLOUDINARY_URL'])),
       cloudinaryUrlParsable: cloudinaryConfig.hasCloudinaryUrl,
-      hint: 'Vercel Project Settings > Environment Variables alanındaki değerlerin ilgili ortama (Production/Preview) atanıp redeploy edildiğini doğrulayın. Server-side endpoint için NEXT_PUBLIC_ prefix zorunlu değildir. CLOUDINARY_URL kullanıyorsanız format cloudinary://API_KEY:API_SECRET@CLOUD_NAME olmalıdır.',
+      hint: 'Vercel Project Settings > Environment Variables alanındaki değerlerin ilgili ortama (Production/Preview) atanıp redeploy edildiğini doğrulayın. CLOUDINARY_API_SECRET için NEXT_PUBLIC_ prefix kullanmayın (public olur). CLOUDINARY_URL kullanıyorsanız format cloudinary://API_KEY:API_SECRET@CLOUD_NAME olmalıdır.',
     });
 
     return res.status(503).json({
