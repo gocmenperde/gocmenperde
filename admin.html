@@ -5115,28 +5115,42 @@ async function optimizeImageFile(file,{maxWidth=IMAGE_MAX_WIDTH,quality=IMAGE_QU
   return new File([blob], `${base}.webp`, {type:'image/webp'});
 }
 async function uploadImageToCloudinary(file,{prefix='image'}={}){
-  const optimized=await optimizeImageFile(file);
-  const dataUrl=await new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onload=e=>resolve(String(e.target?.result||''));
-    reader.onerror=()=>reject(new Error('Dosya okunamadı'));
-    reader.readAsDataURL(optimized);
-  });
-  const res=await apiFetch('/api/admin/cloudinary-upload',{
+  const optimized=await optimizeImageFile(file,{maxWidth:1800,quality:0.72});
+
+  const signRes=await apiFetch('/api/admin/cloudinary-upload',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-admin-key':getAdminApiKey()},
     body:JSON.stringify({
-      dataUrl,
-      file:dataUrl,
       fileName:optimized.name || file.name || 'image',
       prefix
     })
-  }, 25000);
-  const payload=await res.json().catch(()=>({}));
-  if(!res.ok){
-    throw new Error(payload?.error || 'Cloudinary yükleme hatası');
+  }, 15000);
+  const signPayload=await signRes.json().catch(()=>({}));
+  if(!signRes.ok){
+    throw new Error(signPayload?.error || 'Cloudinary imza alma hatası');
   }
-  const imageUrl=String(payload?.imageUrl || '').trim();
+
+  const endpoint=String(signPayload?.uploadEndpoint || '').trim();
+  const params=signPayload?.params && typeof signPayload.params==='object' ? signPayload.params : null;
+  if(!endpoint || !params?.signature || !params?.api_key){
+    throw new Error('Cloudinary imza yanıtı geçersiz');
+  }
+
+  const formData=new FormData();
+  formData.append('file', optimized);
+  formData.append('api_key', String(params.api_key));
+  formData.append('timestamp', String(params.timestamp));
+  formData.append('folder', String(params.folder));
+  formData.append('public_id', String(params.public_id));
+  formData.append('signature', String(params.signature));
+
+  const uploadRes=await fetch(endpoint,{method:'POST',body:formData});
+  const uploadPayload=await uploadRes.json().catch(()=>({}));
+  if(!uploadRes.ok){
+    throw new Error(uploadPayload?.error?.message || uploadPayload?.error || 'Cloudinary yükleme hatası');
+  }
+
+  const imageUrl=String(uploadPayload?.secure_url || uploadPayload?.url || '').trim();
   if(!imageUrl) throw new Error('Cloudinary görsel URL dönmedi');
   return imageUrl;
 }

@@ -1,8 +1,7 @@
-
 const crypto = require('crypto');
 
 const ADMIN_API_KEY = String(process.env.ADMIN_API_KEY || process.env.X_ADMIN_KEY || '').trim();
-const MAX_DATA_URL_SIZE_BYTES = 12 * 1024 * 1024; // ~12MB
+const MAX_DATA_URL_SIZE_BYTES = 4 * 1024 * 1024; // Vercel payload limitlerine yaklaşmamak için düşük tutuldu
 const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg','image/jpg','image/png','image/webp','image/avif','image/gif']);
 
 function parseCloudinaryUrl(value) {
@@ -167,28 +166,42 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const { dataUrl, fileName, prefix } = resolveUploadBody(req.body);
-
-  if (!dataUrl.startsWith('data:image/')) {
-    return res.status(400).json({ error: 'Geçersiz görsel verisi. dataUrl veya file alanı data:image/* formatında olmalı.' });
-  }
-
-  const mimeType = extractMimeTypeFromDataUrl(dataUrl);
-  if (!ALLOWED_IMAGE_MIME_TYPES.has(mimeType)) {
-    return res.status(400).json({ error: 'Desteklenmeyen görsel formatı. JPG, PNG, WEBP, AVIF veya GIF kullanın.' });
-  }
-
-  if (Buffer.byteLength(dataUrl, 'utf8') > MAX_DATA_URL_SIZE_BYTES) {
-    return res.status(413).json({ error: 'Görsel çok büyük. Lütfen daha düşük boyutlu bir dosya yükleyin.' });
-  }
-
   try {
+    const { dataUrl, fileName, prefix } = resolveUploadBody(req.body);
     const timestamp = Math.floor(Date.now() / 1000);
     const folder = 'gocmenperde';
     const publicId = buildPublicId(prefix, fileName);
     const signParams = { folder, public_id: publicId, timestamp };
     const cloudinaryConnection = buildCloudinaryConnection(cloudinaryConfig);
     const signature = createSignature(signParams, cloudinaryConnection.api_secret);
+
+    if (!dataUrl) {
+      return res.status(200).json({
+        success: true,
+        directUpload: true,
+        uploadEndpoint: cloudinaryConnection.upload_endpoint,
+        params: {
+          api_key: cloudinaryConnection.api_key,
+          timestamp,
+          folder,
+          public_id: publicId,
+          signature,
+        },
+      });
+    }
+
+    if (!dataUrl.startsWith('data:image/')) {
+      return res.status(400).json({ error: 'Geçersiz görsel verisi. dataUrl veya file alanı data:image/* formatında olmalı.' });
+    }
+
+    const mimeType = extractMimeTypeFromDataUrl(dataUrl);
+    if (!ALLOWED_IMAGE_MIME_TYPES.has(mimeType)) {
+      return res.status(400).json({ error: 'Desteklenmeyen görsel formatı. JPG, PNG, WEBP, AVIF veya GIF kullanın.' });
+    }
+
+    if (Buffer.byteLength(dataUrl, 'utf8') > MAX_DATA_URL_SIZE_BYTES) {
+      return res.status(413).json({ error: 'Görsel çok büyük. Lütfen daha düşük boyutlu bir dosya yükleyin.' });
+    }
 
     const formData = new FormData();
     formData.append('file', dataUrl);
