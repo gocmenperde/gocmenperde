@@ -162,6 +162,11 @@ img,video,canvas,svg{max-width:100%}
 .home-promo-close:hover{background:#fff}
 @media(max-width:640px){.home-promo-modal{padding:12px}.home-promo-shell{min-height:70vh;border-radius:18px}.home-promo-card{padding:20px 16px;border-radius:16px}.home-promo-features{grid-template-columns:1fr;}}
 
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(122,88,255,.16),transparent 34%),radial-gradient(circle at 78% 16%,rgba(212,175,83,.24),transparent 36%),radial-gradient(circle at 50% 86%,rgba(46,122,255,.12),transparent 40%);mix-blend-mode:screen;pointer-events:none;animation:heroAura 12s linear infinite alternate}
+@keyframes heroAura{0%{transform:translate3d(-1%,0,0) scale(1)}100%{transform:translate3d(1.8%,-1%,0) scale(1.03)}}
+.signature-banner,.hero-actions,.campaign-card,.product-card{will-change:transform}
+.signature-banner:hover,.hero-actions:hover,.campaign-card:hover,.product-card:hover{transform:translateY(-2px)}
+
 /* ── Header ── */
 .mini-cart,.search-bar,.favorite-bar{position:fixed;top:75px;right:5%;width:90%;max-width:400px;background:white;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);z-index:1000;display:none;padding:20px;max-height:70vh;overflow-y:auto}
 .mini-cart.open,.search-bar.open,.favorite-bar.open{display:block}
@@ -378,7 +383,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .floating-cta .cta-call{background:#fff;color:var(--ink);border:1px solid var(--border)}
 .floating-cta .cta-live{background:linear-gradient(135deg,#1f3c88,#5f72bd);color:#fff;border:1px solid rgba(255,255,255,.35)}
 @media(max-width:640px){.floating-cta a span{display:none}.floating-cta a{width:44px;height:44px;justify-content:center;padding:0}}
-@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.cursor-dot,.cursor-ring{display:none!important}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}body{cursor:auto!important}.cursor-dot,.cursor-ring{display:none!important}}
 .from-you-card{position:relative;overflow:hidden;border-radius:20px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);backdrop-filter:blur(4px);min-height:320px;box-shadow:0 20px 40px rgba(0,0,0,0.22);transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease}
 .from-you-card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 28px 50px rgba(0,0,0,0.32);border-color:rgba(242,210,122,0.55)}
 .from-you-card img{width:100%;height:100%;object-fit:cover;display:block}
