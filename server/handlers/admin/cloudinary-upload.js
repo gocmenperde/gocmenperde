@@ -170,11 +170,11 @@ module.exports = async function handler(req, res) {
       hasApiSecret: Boolean(pickFirstEnvValue(['CLOUDINARY_API_SECRET', 'CLOUDINARY_SECRET', 'API_SECRET', 'NEXT_PUBLIC_CLOUDINARY_API_SECRET'])),
       hasCloudinaryUrl: Boolean(pickFirstEnvValue(['CLOUDINARY_URL', 'CLOUDINARY_API_URL', 'NEXT_PUBLIC_CLOUDINARY_URL'])),
       cloudinaryUrlParsable: cloudinaryConfig.hasCloudinaryUrl,
-      hint: 'Vercel Project Settings > Environment Variables alanındaki değerlerin ilgili ortama (Production/Preview) atanıp redeploy edildiğini doğrulayın. CLOUDINARY_URL kullanıyorsanız format cloudinary://API_KEY:API_SECRET@CLOUD_NAME olmalıdır.',
+      hint: 'Vercel Project Settings > Environment Variables alanındaki değerlerin ilgili ortama (Production/Preview) atanıp redeploy edildiğini doğrulayın. Server-side endpoint için NEXT_PUBLIC_ prefix zorunlu değildir. CLOUDINARY_URL kullanıyorsanız format cloudinary://API_KEY:API_SECRET@CLOUD_NAME olmalıdır.',
     });
 
     return res.status(503).json({
-      error: 'Görsel yükleme servisi şu an yapılandırılamadı. Sunucu loglarını kontrol edin.',
+      error: 'Görsel yükleme servisi şu an yapılandırılamadı. Değişken adları doğruysa son deploy sonrası logları kontrol edin.',
     });
   }
 
