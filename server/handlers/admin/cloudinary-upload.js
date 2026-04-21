@@ -1,13 +1,9 @@
 
 const crypto = require('crypto');
 
-const ADMIN_API_KEY = 'gocmen1993';
-
-const HARDCODED_CLOUDINARY_CONFIG = {
-  cloudName: 'ddb9lvapm',
-  apiKey: '183567219941651',
-  apiSecret: '7BsFcaluFFc7zojIRqvYj5naoaA',
-};
+const ADMIN_API_KEY = String(process.env.ADMIN_API_KEY || process.env.X_ADMIN_KEY || '').trim();
+const MAX_DATA_URL_SIZE_BYTES = 12 * 1024 * 1024; // ~12MB
+const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg','image/jpg','image/png','image/webp','image/avif','image/gif']);
 
 function parseCloudinaryUrl(value) {
   const raw = String(value || '').trim();
@@ -51,18 +47,18 @@ function readCloudinaryConfig() {
   const cloudName = pickFirstEnvValue([
     'CLOUDINARY_CLOUD_NAME',
     'CLOUD_NAME',
-  ]) || parsedFromUrl?.cloudName || HARDCODED_CLOUDINARY_CONFIG.cloudName || '';
+  ]) || parsedFromUrl?.cloudName || '';
 
   const apiKey = pickFirstEnvValue([
     'CLOUDINARY_API_KEY',
     'API_KEY',
-  ]) || parsedFromUrl?.apiKey || HARDCODED_CLOUDINARY_CONFIG.apiKey || '';
+  ]) || parsedFromUrl?.apiKey || '';
 
   const apiSecret = pickFirstEnvValue([
     'CLOUDINARY_API_SECRET',
     'CLOUDINARY_SECRET',
     'API_SECRET',
-  ]) || parsedFromUrl?.apiSecret || HARDCODED_CLOUDINARY_CONFIG.apiSecret || '';
+  ]) || parsedFromUrl?.apiSecret || '';
 
   return { cloudName, apiKey, apiSecret, hasCloudinaryUrl: Boolean(parsedFromUrl) };
 }
@@ -113,7 +109,12 @@ function buildPublicId(prefix, fileName) {
   const stamp = Date.now();
   const randomPart = crypto.randomUUID().slice(0, 8);
   const baseName = sanitizeFileName(fileName).replace(/\.[^.]+$/, '');
-  return `gocmenperde/${safePrefix}/${stamp}-${randomPart}-${baseName}`;
+  return `${safePrefix}/${stamp}-${randomPart}-${baseName}`;
+}
+
+function extractMimeTypeFromDataUrl(dataUrl) {
+  const match = /^data:([^;,]+);base64,/i.exec(String(dataUrl || ''));
+  return String(match?.[1] || '').toLowerCase();
 }
 
 function createSignature(params, apiSecret) {
@@ -128,9 +129,14 @@ function createSignature(params, apiSecret) {
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  if (!ADMIN_API_KEY) {
+    return res.status(503).json({ error: 'ADMIN_API_KEY sunucu ortam değişkeni eksik.' });
+  }
 
   if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
     return res.status(403).json({ error: 'Yetkisiz.' });
@@ -165,6 +171,15 @@ module.exports = async function handler(req, res) {
 
   if (!dataUrl.startsWith('data:image/')) {
     return res.status(400).json({ error: 'Geçersiz görsel verisi. dataUrl veya file alanı data:image/* formatında olmalı.' });
+  }
+
+  const mimeType = extractMimeTypeFromDataUrl(dataUrl);
+  if (!ALLOWED_IMAGE_MIME_TYPES.has(mimeType)) {
+    return res.status(400).json({ error: 'Desteklenmeyen görsel formatı. JPG, PNG, WEBP, AVIF veya GIF kullanın.' });
+  }
+
+  if (Buffer.byteLength(dataUrl, 'utf8') > MAX_DATA_URL_SIZE_BYTES) {
+    return res.status(413).json({ error: 'Görsel çok büyük. Lütfen daha düşük boyutlu bir dosya yükleyin.' });
   }
 
   try {
