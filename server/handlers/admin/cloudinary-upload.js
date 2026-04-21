@@ -26,10 +26,17 @@ function parseCloudinaryUrl(value) {
 function normalizeEnvValue(value) {
   if (value === undefined || value === null) return '';
 
-  return String(value)
+  const normalized = String(value)
     .trim()
     .replace(/^['"]+|['"]+$/g, '')
     .trim();
+
+  if (!normalized) return '';
+
+  const lowered = normalized.toLowerCase();
+  if (lowered === 'undefined' || lowered === 'null') return '';
+
+  return normalized;
 }
 
 function pickFirstEnvValue(keys) {
@@ -41,23 +48,32 @@ function pickFirstEnvValue(keys) {
 }
 
 function readCloudinaryConfig() {
-  const cloudinaryUrl = pickFirstEnvValue(['CLOUDINARY_URL', 'CLOUDINARY_API_URL']);
+  const cloudinaryUrl = pickFirstEnvValue([
+    'CLOUDINARY_URL',
+    'CLOUDINARY_API_URL',
+    'NEXT_PUBLIC_CLOUDINARY_URL',
+  ]);
   const parsedFromUrl = parseCloudinaryUrl(cloudinaryUrl);
 
   const cloudName = pickFirstEnvValue([
     'CLOUDINARY_CLOUD_NAME',
+    'CLOUDINARY_CLOUDNAME',
     'CLOUD_NAME',
+    'NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME',
+    'NEXT_PUBLIC_CLOUDINARY_CLOUDNAME',
   ]) || parsedFromUrl?.cloudName || '';
 
   const apiKey = pickFirstEnvValue([
     'CLOUDINARY_API_KEY',
     'API_KEY',
+    'NEXT_PUBLIC_CLOUDINARY_API_KEY',
   ]) || parsedFromUrl?.apiKey || '';
 
   const apiSecret = pickFirstEnvValue([
     'CLOUDINARY_API_SECRET',
     'CLOUDINARY_SECRET',
     'API_SECRET',
+    'NEXT_PUBLIC_CLOUDINARY_API_SECRET',
   ]) || parsedFromUrl?.apiSecret || '';
 
   return { cloudName, apiKey, apiSecret, hasCloudinaryUrl: Boolean(parsedFromUrl) };
@@ -149,10 +165,10 @@ module.exports = async function handler(req, res) {
       missing: missingConfig,
       nodeEnv,
       vercelEnv: process.env.VERCEL_ENV || null,
-      hasCloudName: Boolean(process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUD_NAME),
-      hasApiKey: Boolean(process.env.CLOUDINARY_API_KEY || process.env.API_KEY),
-      hasApiSecret: Boolean(process.env.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_SECRET || process.env.API_SECRET),
-      hasCloudinaryUrl: Boolean(process.env.CLOUDINARY_URL || process.env.CLOUDINARY_API_URL),
+      hasCloudName: Boolean(pickFirstEnvValue(['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_CLOUDNAME', 'CLOUD_NAME', 'NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME', 'NEXT_PUBLIC_CLOUDINARY_CLOUDNAME'])),
+      hasApiKey: Boolean(pickFirstEnvValue(['CLOUDINARY_API_KEY', 'API_KEY', 'NEXT_PUBLIC_CLOUDINARY_API_KEY'])),
+      hasApiSecret: Boolean(pickFirstEnvValue(['CLOUDINARY_API_SECRET', 'CLOUDINARY_SECRET', 'API_SECRET', 'NEXT_PUBLIC_CLOUDINARY_API_SECRET'])),
+      hasCloudinaryUrl: Boolean(pickFirstEnvValue(['CLOUDINARY_URL', 'CLOUDINARY_API_URL', 'NEXT_PUBLIC_CLOUDINARY_URL'])),
       cloudinaryUrlParsable: cloudinaryConfig.hasCloudinaryUrl,
       hint: 'Vercel Project Settings > Environment Variables alanındaki değerlerin ilgili ortama (Production/Preview) atanıp redeploy edildiğini doğrulayın. CLOUDINARY_URL kullanıyorsanız format cloudinary://API_KEY:API_SECRET@CLOUD_NAME olmalıdır.',
     });
