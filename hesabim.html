@@ -1274,39 +1274,39 @@
                 <div class="gp-form">
                     <div>
                         <label class="form-label">Adres Başlığı</label>
-                        <input type="text" id="aBaslik" class="gp-input" placeholder="Ev, İş, Yazlık...">
+                        <input type="text" id="aBaslik" class="gp-input" placeholder="Ev, İş, Yazlık..." oninput="refreshAddressSaveButtonState()">
                     </div>
                     <div class="form-row-2">
                         <div>
                             <label class="form-label">Mahalle</label>
-                            <select id="aMahalle" class="gp-input" onchange="onAddressNeighborhoodChanged(this.value)">
-                                <option value="">Mahalle seçin</option>
+                            <select id="aMahalle" class="gp-input" onchange="onAddressNeighborhoodChanged(this.value)" disabled>
+                                <option value="">Mahalle Seçiniz</option>
                             </select>
                         </div>
                         <div>
                             <label class="form-label">Sokak / Cadde</label>
-                            <select id="aSokak" class="gp-input">
-                                <option value="">Önce mahalle seçin</option>
+                            <select id="aSokak" class="gp-input" onchange="refreshAddressSaveButtonState()" disabled>
+                                <option value="">Sokak/Cadde Seçiniz</option>
                             </select>
                         </div>
                         <div>
                             <label class="form-label">Kapı / Daire No</label>
-                            <input type="text" id="aKapiNo" class="gp-input" placeholder="No: 3/A, Daire 5">
+                            <input type="text" id="aKapiNo" class="gp-input" placeholder="No: 3/A, Daire 5" oninput="refreshAddressSaveButtonState()">
                         </div>
                         <div>
                             <label class="form-label">İlçe</label>
-                            <select id="aIlce" class="gp-input" onchange="onAddressDistrictChanged(this.value)">
-                                <option value="">Önce il seçin</option>
+                            <select id="aIlce" class="gp-input" onchange="onAddressDistrictChanged(this.value)" disabled>
+                                <option value="">İlçe Seçiniz</option>
                             </select>
                         </div>
                     </div>
                     <div>
                         <label class="form-label">İl</label>
                         <select id="aIl" class="gp-input" onchange="onAddressCityChanged(this.value)">
-                            <option value="">İl seçin</option>
+                            <option value="">İl Seçiniz</option>
                         </select>
                     </div>
-                    <button class="gp-btn" onclick="addAddress()"><i class="fas fa-save"></i> Adresi Kaydet</button>
+                    <button id="addAddressBtn" class="gp-btn" onclick="addAddress()" disabled><i class="fas fa-save"></i> Adresi Kaydet</button>
                 </div>
             </div>
         </div>
@@ -2032,10 +2032,30 @@ function getNeighborhoodStreets(neighborhood) {
     return uniqAddressValues(addressStreetMap[matchKey] || []);
 }
 
+function setAddressSelectState(el, placeholder, disabled = true) {
+    if (!el) return;
+    const safe = escapeAddressOption(placeholder);
+    el.innerHTML = `<option value="">${safe}</option>`;
+    el.disabled = !!disabled;
+    el.value = '';
+}
+
+function refreshAddressSaveButtonState() {
+    const saveBtn = document.getElementById('addAddressBtn');
+    if (!saveBtn) return;
+    const baslik = document.getElementById('aBaslik')?.value?.trim() || '';
+    const mahalle = document.getElementById('aMahalle')?.value?.trim() || '';
+    const sokak = document.getElementById('aSokak')?.value?.trim() || '';
+    const kapiNo = document.getElementById('aKapiNo')?.value?.trim() || '';
+    const ilce = document.getElementById('aIlce')?.value?.trim() || '';
+    const il = document.getElementById('aIl')?.value?.trim() || '';
+    saveBtn.disabled = !(baslik && mahalle && sokak && kapiNo && ilce && il);
+}
+
 async function initAddressLocationData() {
     const cityEl = document.getElementById('aIl');
+    const districtEl = document.getElementById('aIlce');
     if (!cityEl) return;
-    const currentCityValue = cityEl.value.trim();
     try {
         const r = await fetch('https://turkiyeapi.dev/api/v1/provinces');
         if (!r.ok) throw new Error('İller alınamadı');
@@ -2052,45 +2072,42 @@ async function initAddressLocationData() {
     } catch (_) {
         addressCityDistrictMap = {};
     }
+    setAddressSelectState(districtEl, 'İlçe Seçiniz', true);
+    resetAddressNeighborhoodAndStreet();
     const cityOptions = uniqAddressValues(Object.keys(addressCityDistrictMap));
-    cityEl.innerHTML = '<option value="">İl seçin</option>' + cityOptions.map((city) => {
+    cityEl.innerHTML = '<option value="">İl Seçiniz</option>' + cityOptions.map((city) => {
         const safe = escapeAddressOption(city);
         return `<option value="${safe}">${safe}</option>`;
     }).join('');
-
-    const defaultCity = [currentCityValue, cityEl.dataset.defaultValue, 'Bursa']
-        .map((value) => String(value || '').trim())
-        .find((value) => value && cityOptions.includes(value)) || '';
-    if (!defaultCity) return;
-    cityEl.value = defaultCity;
-    await onAddressCityChanged(defaultCity);
+    cityEl.value = '';
+    refreshAddressSaveButtonState();
 }
 
 function resetAddressNeighborhoodAndStreet() {
     const mahalleEl = document.getElementById('aMahalle');
     const sokakEl = document.getElementById('aSokak');
-    if (mahalleEl) mahalleEl.innerHTML = '<option value="">Önce ilçe seçin</option>';
-    if (sokakEl) sokakEl.innerHTML = '<option value="">Önce mahalle seçin</option>';
+    setAddressSelectState(mahalleEl, 'Mahalle Seçiniz', true);
+    setAddressSelectState(sokakEl, 'Sokak/Cadde Seçiniz', true);
 }
 
 async function onAddressCityChanged(city) {
     const ilceEl = document.getElementById('aIlce');
     if (!ilceEl) return;
-    const currentDistrictValue = ilceEl.value.trim();
     const districts = uniqAddressValues(addressCityDistrictMap[city] || []);
-    ilceEl.innerHTML = '<option value="">İlçe seçin</option>' + districts.map((districtName) => {
+    addressStreetMap = {};
+    resetAddressNeighborhoodAndStreet();
+    if (!city) {
+        setAddressSelectState(ilceEl, 'İlçe Seçiniz', true);
+        refreshAddressSaveButtonState();
+        return;
+    }
+    ilceEl.innerHTML = '<option value="">İlçe Seçiniz</option>' + districts.map((districtName) => {
         const safe = escapeAddressOption(districtName);
         return `<option value="${safe}">${safe}</option>`;
     }).join('');
-    addressStreetMap = {};
-    resetAddressNeighborhoodAndStreet();
-
-    const defaultDistrict = [currentDistrictValue, ilceEl.dataset.defaultValue, 'Osmangazi']
-        .map((value) => String(value || '').trim())
-        .find((value) => value && districts.includes(value)) || '';
-    if (!defaultDistrict) return;
-    ilceEl.value = defaultDistrict;
-    await onAddressDistrictChanged(defaultDistrict);
+    ilceEl.value = '';
+    ilceEl.disabled = false;
+    refreshAddressSaveButtonState();
 }
 
 async function onAddressDistrictChanged(district) {
@@ -2100,11 +2117,13 @@ async function onAddressDistrictChanged(district) {
     if (!city || !district || !mahalleEl) {
         addressStreetMap = {};
         resetAddressNeighborhoodAndStreet();
+        refreshAddressSaveButtonState();
         return;
     }
     addressStreetMap = {};
+    mahalleEl.disabled = true;
     mahalleEl.innerHTML = '<option value="">Mahalleler yükleniyor...</option>';
-    if (sokakEl) sokakEl.innerHTML = '<option value="">Önce mahalle seçin</option>';
+    if (sokakEl) setAddressSelectState(sokakEl, 'Sokak/Cadde Seçiniz', true);
     try {
         const endpoint = `/api/address-data?city=${encodeURIComponent(city)}&district=${encodeURIComponent(district)}`;
         const r = await fetch(endpoint);
@@ -2112,16 +2131,20 @@ async function onAddressDistrictChanged(district) {
         const payload = await r.json();
         addressStreetMap = normalizeStreetMap(payload?.streetsByNeighborhood || {});
         const neighborhoods = uniqAddressValues((payload?.neighborhoods || []).map(normalizeAddressOptionValue));
-        mahalleEl.innerHTML = '<option value="">Mahalle seçin</option>' + neighborhoods.map((name) => {
+        mahalleEl.innerHTML = '<option value="">Mahalle Seçiniz</option>' + neighborhoods.map((name) => {
             const safe = escapeAddressOption(name);
             return `<option value="${safe}">${safe}</option>`;
         }).join('');
-        if (sokakEl) sokakEl.innerHTML = '<option value="">Önce mahalle seçin</option>';
+        mahalleEl.value = '';
+        mahalleEl.disabled = false;
+        if (sokakEl) setAddressSelectState(sokakEl, 'Sokak/Cadde Seçiniz', true);
     } catch (_) {
         addressStreetMap = {};
         mahalleEl.innerHTML = '<option value="">Mahalle bulunamadı</option>';
+        mahalleEl.disabled = true;
         if (sokakEl) sokakEl.innerHTML = '<option value="">Sokak/Cadde bulunamadı</option>';
     }
+    refreshAddressSaveButtonState();
 }
 
 async function onAddressNeighborhoodChanged(neighborhood) {
@@ -2129,15 +2152,20 @@ async function onAddressNeighborhoodChanged(neighborhood) {
     const city = document.getElementById('aIl')?.value?.trim() || '';
     const district = document.getElementById('aIlce')?.value?.trim() || '';
     if (!sokakEl || !neighborhood) {
-        if (sokakEl) sokakEl.innerHTML = '<option value="">Önce mahalle seçin</option>';
+        if (sokakEl) setAddressSelectState(sokakEl, 'Sokak/Cadde Seçiniz', true);
+        refreshAddressSaveButtonState();
         return;
     }
+    sokakEl.disabled = true;
     const cachedValues = getNeighborhoodStreets(neighborhood);
     if (cachedValues.length) {
-        sokakEl.innerHTML = '<option value="">Sokak/Cadde seçin</option>' + cachedValues.map((streetName) => {
+        sokakEl.innerHTML = '<option value="">Sokak/Cadde Seçiniz</option>' + cachedValues.map((streetName) => {
             const safe = escapeAddressOption(streetName);
             return `<option value="${safe}">${safe}</option>`;
         }).join('');
+        sokakEl.value = '';
+        sokakEl.disabled = false;
+        refreshAddressSaveButtonState();
         return;
     }
     try {
@@ -2149,15 +2177,21 @@ async function onAddressNeighborhoodChanged(neighborhood) {
         addressStreetMap[neighborhood] = streets;
         if (!streets.length) {
             sokakEl.innerHTML = '<option value="">Sokak/Cadde bulunamadı</option>';
+            sokakEl.disabled = true;
+            refreshAddressSaveButtonState();
             return;
         }
-        sokakEl.innerHTML = '<option value="">Sokak/Cadde seçin</option>' + streets.map((streetName) => {
+        sokakEl.innerHTML = '<option value="">Sokak/Cadde Seçiniz</option>' + streets.map((streetName) => {
             const safe = escapeAddressOption(streetName);
             return `<option value="${safe}">${safe}</option>`;
         }).join('');
+        sokakEl.value = '';
+        sokakEl.disabled = false;
     } catch (_) {
         sokakEl.innerHTML = '<option value="">Sokak/Cadde bulunamadı</option>';
+        sokakEl.disabled = true;
     }
+    refreshAddressSaveButtonState();
 }
 
 async function loadAddresses() {
@@ -2204,7 +2238,8 @@ async function addAddress() {
         document.getElementById('aBaslik').value = '';
         document.getElementById('aKapiNo').value = '';
         document.getElementById('aIl').value = '';
-        onAddressCityChanged('');
+        await onAddressCityChanged('');
+        refreshAddressSaveButtonState();
         showToast('✓ Adres eklendi');
         loadAddresses();
     } else {
