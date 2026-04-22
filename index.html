@@ -6149,8 +6149,16 @@ function onDistrictChanged(value){
     districtOtherEl.classList.add('hidden');
     districtOtherEl.value = '';
   }
-  loadNeighborhoodAndStreetData();
+  const selectedDistrict = value === 'diger' ? (districtOtherEl.value || '').trim() : String(value || '').trim();
+  STREET_MAP = {};
+  populateNeighborhoodOptions([]);
+  fetchNeighborhoods(selectedDistrict);
   syncAddressFromParts();
+}
+
+async function fetchNeighborhoods(selectedDistrict){
+  console.log('Seçilen İlçe:', selectedDistrict);
+  await loadNeighborhoodAndStreetData();
 }
 
 function resetNeighborhoodAndStreetSelectors(){
@@ -6371,6 +6379,7 @@ async function loadNeighborhoodAndStreetData(){
       const res = await fetch(endpoint, { signal: neighborhoodFetchController.signal });
       if(!res.ok) throw new Error('Mahalle/sokak verisi alınamadı');
       const payload = await res.json();
+      console.log('Gelen Mahalleler:', payload?.neighborhoods || []);
       if(requestSeq !== activeNeighborhoodRequestSeq) return;
       STREET_MAP = payload?.streetsByNeighborhood || {};
       const neighborhoods = Array.isArray(payload?.neighborhoods) ? payload.neighborhoods : [];
