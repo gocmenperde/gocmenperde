@@ -2970,8 +2970,8 @@ function renderProductsFeaturedBanner(){
 function getRenderableProductsByIds(ids=[]){
   const list = normalizeSelectedProductIds(ids, 12)
     .map((id)=>PRODUCTS.find((p)=>String(p.id)===String(id)))
-    .filter((p)=>p && p.active);
-  return list.length ? list : PRODUCTS.filter(p=>p.active).slice(0, 8);
+    .filter((p)=>p && p.active !== false);
+  return list.length ? list : PRODUCTS.filter(p=>p?.active !== false).slice(0, 8);
 }
 
 function scrollPremiumPanel(panelId, direction=1){
@@ -3225,7 +3225,7 @@ const REVIEW_TEXTS = [
   'Beklediğimden kaliteli ve kullanışlı bir ürün oldu.'
 ];
 const PRODUCTS_CACHE_KEY = 'gp_products_cache_v2';
-const PRODUCTS_CACHE_TTL_MS = 1000 * 30;
+const PRODUCTS_CACHE_TTL_MS = 1000 * 60 * 10;
 const GITHUB_RAW_PRODUCTS_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/products.json';
 const GITHUB_RAW_CATEGORIES_URL = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/categories.json';
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main';
@@ -3454,9 +3454,16 @@ async function loadProducts({forceRefresh=false} = {}){
           fresh = await fallbackLocalRes.json();
         }
       }
-      writeProductsToCache(fresh);
+      if(!Array.isArray(fresh) || !fresh.length){
+        throw new Error('Ürün listesi boş döndü');
+      }
+      const normalizedFresh = fresh.map(normalizeProductCatalog).filter((item)=>item && item.active !== false);
+      if(!normalizedFresh.length){
+        throw new Error('Aktif ürün bulunamadı');
+      }
+      writeProductsToCache(normalizedFresh);
       await loadPremiumShowcaseFromApi();
-      renderProductState(fresh, {withObserver:true});
+      renderProductState(normalizedFresh, {withObserver:true});
       restoreProductsViewState({respectCategoryQuery:true});
       applyFilters();
       productsLoadedOnce = true;
@@ -3939,6 +3946,7 @@ function normalizeProductCatalog(product){
     next.isSquareMeter = true;
     next.isMeter = false;
   }
+  next.active = next.active !== false;
   next.barcode = String(next.barcode || next.barkod || '').trim() || null;
   next.seoKeywords = Array.isArray(next.seoKeywords)
     ? next.seoKeywords.map(x=>String(x || '').trim()).filter(Boolean)
@@ -4306,7 +4314,7 @@ function buildCard(p, index=0){
 
 function renderProducts(list){
   const grid = document.getElementById('productsGrid');
-  const active = list.filter(p => p.active);
+  const active = list.filter(p => p?.active !== false);
   if(!active.length){
     grid.innerHTML = '<div class="products-loading" style="grid-column:1/-1">Bu kriterlere uygun ürün bulunamadı.</div>';
     return;
@@ -4540,7 +4548,7 @@ function applyFilters(){
 
   let filtered = PRODUCTS.filter(p => {
     const social = getProductSocial(p.id);
-    if(!p.active) return false;
+    if(p?.active === false) return false;
     const haystack = `${p.name || ''} ${p.desc || ''} ${p.cat || ''} ${p.features || ''} ${p.serialNumber || ''} ${p.barcode || ''} ${Array.isArray(p.seoKeywords)?p.seoKeywords.join(' '):''}`.toLocaleLowerCase('tr');
     if(search && !haystack.includes(search)) return false;
     if(p.price < minP || p.price > maxP) return false;
