@@ -63,6 +63,15 @@ module.exports = async function handler(req, res) {
     const isAllowedEmailDomain = (email = '') => /@(gmail\.com|hotmail\.com)$/i.test(String(email).trim());
     const isStrongPassword = (sifre = '') => /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(String(sifre));
 
+    if (action === 'admin-login' && req.method === 'POST') {
+      const { key } = req.body || {};
+      if (!process.env.ADMIN_API_KEY) return res.status(500).json({ error: 'Admin yapılandırılmamış.' });
+      if (String(key).trim() !== process.env.ADMIN_API_KEY) {
+        return res.status(401).json({ error: 'Yetkisiz.' });
+      }
+      return res.status(200).json({ success: true, token: process.env.ADMIN_API_KEY });
+    }
+
     if (action === 'register' && req.method === 'POST') {
       const { ad_soyad, email, telefon, sifre } = req.body || {};
       if (!ad_soyad || !email || !sifre)

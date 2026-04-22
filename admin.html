@@ -1719,29 +1719,40 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
 const ADMIN_PASS_KEY = 'gp_admin_pass';
 const ADMIN_SESSION_KEY = 'gp_admin_session_v1';
 const ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
-const ADMIN_PASS_FALLBACKS = [];
 function getStoredPass(){ return (localStorage.getItem(ADMIN_PASS_KEY) || '').trim(); }
-function isValidAdminPassword(pass){
-  const candidate = (pass || '').trim();
-  if(!candidate) return false;
-  const pool = new Set([getStoredPass(), ...ADMIN_PASS_FALLBACKS].filter(Boolean));
-  return pool.has(candidate);
+function getAdminApiKey(){
+  return localStorage.getItem('admin_api_key') || sessionStorage.getItem('admin_api_key') || '';
 }
-function getAdminApiKey(){ return localStorage.getItem('admin_api_key') || ''; }
 if(window.location.pathname === '/admin/login'){
   window.history.replaceState({}, '', '/admin.html');
 }
 
-function doLogin(){
+async function doLogin(){
   const e = (document.getElementById('loginEmail').value || '').trim().toLowerCase();
   const p = (document.getElementById('loginPass').value || '').trim();
-  if(e === ADMIN_EMAIL && isValidAdminPassword(p)){
+  const err = document.getElementById('loginError');
+  if(e !== ADMIN_EMAIL || !p){
+    err.style.display = 'block';
+    return;
+  }
+  try{
+    const response = await fetch('/api/auth?action=admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ key: p })
+    });
+    const data = await response.json().catch(()=>({}));
+    if(!response.ok || !data?.token){
+      throw new Error(data?.error || 'Yetkisiz.');
+    }
+    localStorage.setItem('admin_api_key', String(data.token));
+    sessionStorage.setItem('admin_api_key', String(data.token));
     sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
     document.getElementById('loginScreen').classList.add('hide');
     document.getElementById('adminApp').classList.add('show');
+    err.style.display = 'none';
     initAdmin();
-  } else {
-    const err = document.getElementById('loginError');
+  } catch(_error){
     err.style.display = 'block';
     document.getElementById('loginEmail').value = '';
     document.getElementById('loginPass').value = '';
@@ -1752,6 +1763,7 @@ function doLogin(){
 }
 function logout(){
   sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  sessionStorage.removeItem('admin_api_key');
   adminInitialized = false;
   document.getElementById('loginScreen').classList.remove('hide');
   document.getElementById('adminApp').classList.remove('show');

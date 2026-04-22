@@ -14,21 +14,37 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 60,
+  max: 120,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    const ip = req.ip || '';
+    return ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.');
+  },
   message: { error: 'Çok fazla istek. Lütfen biraz bekleyin.' },
 });
-const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 10 });
-const paymentLimiter = rateLimit({ windowMs: 60 * 1000, max: 10 });
+const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
+const paymentLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.resolve(__dirname, '..')));
+app.use(
+  express.static(path.resolve(__dirname, '..'), {
+    setHeaders: (res, filePath) => {
+      if (/\.(json|html|js|css)$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      }
+    },
+  })
+);
 
-app.use('/api/orders', orderLimiter);
-app.use('/api/payment', paymentLimiter);
-app.use('/api', apiLimiter);
+if (!process.env.VERCEL) {
+  app.use('/api/orders', orderLimiter);
+  app.use('/api/payment', paymentLimiter);
+  app.use('/api', apiLimiter);
+}
 
 const routerHandler = require('../api/router');
 app.all('/api/*', async (req, res) => {
