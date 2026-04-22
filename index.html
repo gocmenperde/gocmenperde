@@ -3331,6 +3331,8 @@ async function loadProducts({forceRefresh=false} = {}){
       writeProductsToCache(fresh);
       await loadPremiumShowcaseFromApi();
       renderProductState(fresh, {withObserver:true});
+      restoreProductsViewState({respectCategoryQuery:true});
+      applyFilters();
       productsLoadedOnce = true;
       handleInitialProductDeepLink();
     } catch(e){
@@ -3339,6 +3341,8 @@ async function loadProducts({forceRefresh=false} = {}){
       const fallbackProducts = staleCache.length ? staleCache : legacyCache;
       if(fallbackProducts.length){
         renderProductState(fallbackProducts, {withObserver:true});
+        restoreProductsViewState({respectCategoryQuery:true});
+        applyFilters();
         productsLoadedOnce = true;
       } else if(!productsLoadedOnce){
         document.getElementById('productsGrid').innerHTML = '<div class="products-loading">Ürünler yüklenemedi. Sayfayı yenileyin.</div>';
@@ -4276,6 +4280,7 @@ function applyFilters(){
   updateTopProductRail(filtered);
   initObserver();
   syncCategoryQueryParamWithFilters();
+  persistProductsViewState();
 }
 
 // ── Modal ──
@@ -5121,6 +5126,11 @@ window.addEventListener('load',()=>{
   runSafely('handlePaymentReturnState', ()=>handlePaymentReturnState());
 });
 window.addEventListener('pagehide',()=>{ sessionStorage.setItem('gp_fast_resume','1'); });
+try{
+  if('scrollRestoration' in window.history){
+    window.history.scrollRestoration = 'manual';
+  }
+}catch(_){}
 window.addEventListener('pageshow',(ev)=>{
   if(ev.persisted) hideLoader(true);
   recoverUIAfterResume();
@@ -5154,6 +5164,9 @@ window.addEventListener('storage',(event)=>{
 let suppressNextHashChange = false;
 const LAST_SECTION_STORAGE_KEY = 'gp_last_section';
 const SECTION_SCROLL_STORAGE_KEY = 'gp_section_scroll_positions';
+const PRODUCTS_VIEW_STATE_KEY = 'gp_products_view_state_v1';
+let pendingProductsScrollRestore = null;
+let productsScrollPersistRaf = 0;
 
 function getRememberedSection(){
   try{
@@ -5195,6 +5208,105 @@ function getSavedSectionScroll(sectionId){
   return Number.isFinite(y) && y >= 0 ? y : 0;
 }
 
+function readProductsViewState(){
+  try{
+    const parsed = JSON.parse(sessionStorage.getItem(PRODUCTS_VIEW_STATE_KEY) || '{}');
+    if(parsed && typeof parsed === 'object') return parsed;
+  }catch(_){}
+  return {};
+}
+
+function writeProductsViewState(state = {}){
+  try{
+    sessionStorage.setItem(PRODUCTS_VIEW_STATE_KEY, JSON.stringify(state || {}));
+  }catch(_){}
+}
+
+function captureProductsViewState(){
+  const selectedCategories = CATEGORIES
+    .map(c=>String(c?.key || '').trim())
+    .filter(key => key && document.getElementById('cat-'+key)?.checked);
+  return {
+    search: String(document.getElementById('searchInput')?.value || ''),
+    sort: String(document.getElementById('sortSelect')?.value || 'popular'),
+    minPrice: String(document.getElementById('minPrice')?.value || ''),
+    maxPrice: String(document.getElementById('maxPrice')?.value || ''),
+    catAll: !!(document.getElementById('cat-all')?.checked ?? true),
+    categories: selectedCategories,
+    featKarartma: !!document.getElementById('feat-karartma')?.checked,
+    featUtu: !!document.getElementById('feat-utu')?.checked,
+    featPremium: !!document.getElementById('feat-premium')?.checked,
+    topRatedOnly: !!document.getElementById('topRatedOnly')?.checked,
+    mostReviewedOnly: !!document.getElementById('mostReviewedOnly')?.checked,
+    bestSellerOnly: !!document.getElementById('bestSellerOnly')?.checked,
+    scrollY: Math.max(0, window.scrollY || 0),
+    updatedAt: Date.now()
+  };
+}
+
+function persistProductsViewState(){
+  writeProductsViewState(captureProductsViewState());
+}
+
+function scheduleProductsScrollRestore(scrollY){
+  const targetY = Number(scrollY);
+  if(!Number.isFinite(targetY) || targetY < 0) return;
+  pendingProductsScrollRestore = targetY;
+  requestAnimationFrame(()=>{
+    if(pendingProductsScrollRestore == null) return;
+    const currentSection = document.querySelector('.section.active')?.id || getSectionFromLocation();
+    if(currentSection !== 'products') return;
+    const top = Number(pendingProductsScrollRestore) || 0;
+    pendingProductsScrollRestore = null;
+    window.scrollTo({ top, behavior:'auto' });
+    saveSectionScroll('products', top);
+  });
+}
+
+function restoreProductsViewState({respectCategoryQuery=true} = {}){
+  const state = readProductsViewState();
+  if(!state || typeof state !== 'object') return false;
+  const params = new URLSearchParams(window.location.search || '');
+  const hasCategoryInUrl = !!normalizeCategoryKey(params.get('category') || '');
+  const shouldRestoreCategories = !(respectCategoryQuery && hasCategoryInUrl);
+
+  const searchInput = document.getElementById('searchInput');
+  const sortSelect = document.getElementById('sortSelect');
+  const minPrice = document.getElementById('minPrice');
+  const maxPrice = document.getElementById('maxPrice');
+  if(searchInput) searchInput.value = String(state.search || '');
+  if(sortSelect) sortSelect.value = String(state.sort || 'popular');
+  if(minPrice) minPrice.value = String(state.minPrice || '');
+  if(maxPrice) maxPrice.value = String(state.maxPrice || '');
+  if(shouldRestoreCategories){
+    const catAllEl = document.getElementById('cat-all');
+    const categories = Array.isArray(state.categories) ? state.categories.map(normalizeCategoryKey).filter(Boolean) : [];
+    const hasSpecificCategories = !state.catAll && categories.length > 0;
+    if(catAllEl) catAllEl.checked = !hasSpecificCategories;
+    CATEGORIES.forEach((cat)=>{
+      const el = document.getElementById('cat-'+cat.key);
+      if(!el) return;
+      el.checked = hasSpecificCategories ? categories.includes(cat.key) : false;
+    });
+  }
+  const featKar = document.getElementById('feat-karartma');
+  const featUtu = document.getElementById('feat-utu');
+  const featPrem = document.getElementById('feat-premium');
+  const topRatedOnly = document.getElementById('topRatedOnly');
+  const mostReviewedOnly = document.getElementById('mostReviewedOnly');
+  const bestSellerOnly = document.getElementById('bestSellerOnly');
+  if(featKar) featKar.checked = !!state.featKarartma;
+  if(featUtu) featUtu.checked = !!state.featUtu;
+  if(featPrem) featPrem.checked = !!state.featPremium;
+  if(topRatedOnly) topRatedOnly.checked = !!state.topRatedOnly;
+  if(mostReviewedOnly) mostReviewedOnly.checked = !!state.mostReviewedOnly;
+  if(bestSellerOnly) bestSellerOnly.checked = !!state.bestSellerOnly;
+  if(Number.isFinite(Number(state.scrollY)) && Number(state.scrollY) >= 0){
+    scheduleProductsScrollRestore(Number(state.scrollY));
+  }
+  return true;
+}
+
 function applySectionState(id, {scroll=true} = {}){
   const targetId = document.getElementById(id) ? id : 'home';
   try{
@@ -5204,6 +5316,7 @@ function applySectionState(id, {scroll=true} = {}){
   const currentActive = document.querySelector('.section.active')?.id;
   if(currentActive){
     saveSectionScroll(currentActive, window.scrollY || 0);
+    if(currentActive === 'products') persistProductsViewState();
   }
   const scrollMode = scroll === false ? 'none' : (scroll === 'restore' ? 'restore' : 'top');
   if(currentActive === targetId && scrollMode === 'none'){
@@ -5342,11 +5455,27 @@ function go(id){
     ensureMobileNavInteractive();
     if(nextId !== 'products') skipNextProductsReset = false;
     if(nextId === 'products'){
+      const rememberedState = readProductsViewState();
+      const hasRememberedFilters = !!(
+        rememberedState &&
+        (
+          String(rememberedState.search || '').trim() ||
+          String(rememberedState.minPrice || '').trim() ||
+          String(rememberedState.maxPrice || '').trim() ||
+          (Array.isArray(rememberedState.categories) && rememberedState.categories.length) ||
+          rememberedState.featKarartma ||
+          rememberedState.featUtu ||
+          rememberedState.featPremium ||
+          rememberedState.topRatedOnly ||
+          rememberedState.mostReviewedOnly ||
+          rememberedState.bestSellerOnly
+        )
+      );
       if(skipNextProductsReset){
         skipNextProductsReset = false;
       } else {
         const hasCategoryParam = new URLSearchParams(window.location.search || '').has('category');
-        if(!hasCategoryParam){
+        if(!hasCategoryParam && !hasRememberedFilters){
           resetCategorySelectionToAll();
         }
       }
@@ -5356,6 +5485,10 @@ function go(id){
       window.location.hash = nextId;
     }
     applySectionState(nextId, {scroll:true});
+    if(nextId === 'products'){
+      restoreProductsViewState({respectCategoryQuery:true});
+      applyFilters();
+    }
   }catch(err){
     console.error('[nav] go failed:', err);
     const fallbackId = resolveSectionId(id);
@@ -5393,8 +5526,23 @@ window.addEventListener('hashchange',()=>{
   sendVisitEvent({heartbeat:false});
 });
 
+window.addEventListener('scroll', ()=>{
+  const currentSection = document.querySelector('.section.active')?.id || getSectionFromLocation();
+  if(currentSection !== 'products') return;
+  if(productsScrollPersistRaf) return;
+  productsScrollPersistRaf = requestAnimationFrame(()=>{
+    productsScrollPersistRaf = 0;
+    persistProductsViewState();
+    saveSectionScroll('products', window.scrollY || 0);
+  });
+}, { passive:true });
+
 document.querySelectorAll('.section').forEach(s=>{ if(!s.classList.contains('active')) s.style.display='none'; });
 applySectionState(getSectionFromLocation(), {scroll:false});
+if((document.querySelector('.section.active')?.id || getSectionFromLocation()) === 'products'){
+  restoreProductsViewState({respectCategoryQuery:true});
+  applyFilters();
+}
 
 // ── Favoriler ──
 let favorites = [];
