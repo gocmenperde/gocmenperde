@@ -159,21 +159,34 @@ async function sendTransactionalEmail({ to, subject, html }) {
 
 function buildAdminNotifyTemplate(item) {
   return `
-  <div style="font-family:Inter,Segoe UI,Arial,sans-serif;background:#eff3fb;padding:28px 14px">
-    <div style="max-width:720px;margin:0 auto;background:#ffffff;border-radius:20px;border:1px solid #dde5f5;overflow:hidden;box-shadow:0 24px 55px rgba(15,23,42,.12)">
-      <div style="padding:24px 26px;background:radial-gradient(circle at 85% 5%,rgba(201,168,76,.24),transparent 45%),linear-gradient(140deg,#0f172a,#1e293b 58%,#19253e);color:#fff">
-        <div style="display:inline-block;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06)">Canlı Destek · Yeni Talep</div>
-        <h2 style="margin:12px 0 0;font-size:25px;line-height:1.25">Yeni müşteri mesajı geldi</h2>
-        <p style="margin:8px 0 0;color:rgba(255,255,255,.82);font-size:14px">Hızlı aksiyon için detaylar aşağıdadır.</p>
+  <div style="margin:0;padding:24px 12px;background:#f9f9f9;font-family:Inter,'Segoe UI',Roboto,Arial,sans-serif;color:#1a1f36">
+    <div style="max-width:680px;width:100%;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #eceff4;overflow:hidden;box-shadow:0 10px 26px rgba(15,23,42,.08)">
+      <div style="padding:18px 20px;background:#1f2937;color:#ffffff">
+        <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.78;font-weight:600">Göçmen Perde • Canlı Destek</div>
+        <h2 style="margin:8px 0 0;font-size:23px;line-height:1.3;font-weight:600;color:#ffffff !important">Yeni Canlı Destek Talebi</h2>
       </div>
-      <div style="padding:24px 26px;color:#0f172a;line-height:1.7;font-size:14px">
-        <table role="presentation" style="width:100%;border-collapse:separate;border-spacing:0 8px">
-          <tr><td style="width:140px;color:#64748b;font-weight:600">Talep No</td><td style="font-weight:700;color:#0f172a">${escapeHtml(item.ticketNo)}</td></tr>
-          <tr><td style="color:#64748b;font-weight:600">Ad Soyad</td><td>${escapeHtml(item.fullName)}</td></tr>
-          <tr><td style="color:#64748b;font-weight:600">Telefon</td><td>${escapeHtml(item.phone)}</td></tr>
-          <tr><td style="color:#64748b;font-weight:600">E-posta</td><td><a href="mailto:${escapeHtml(item.email)}" style="color:#1d4ed8;text-decoration:none">${escapeHtml(item.email)}</a></td></tr>
+      <div style="padding:20px">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.7">
+          <tr>
+            <td style="width:130px;color:#6b7280;font-weight:600;padding:3px 0;vertical-align:top">Talep No</td>
+            <td style="color:#111827;font-weight:700;padding:3px 0">${escapeHtml(item.ticketNo)}</td>
+          </tr>
+          <tr>
+            <td style="color:#6b7280;font-weight:600;padding:3px 0;vertical-align:top">Ad Soyad</td>
+            <td style="color:#111827;padding:3px 0">${escapeHtml(item.fullName)}</td>
+          </tr>
+          <tr>
+            <td style="color:#6b7280;font-weight:600;padding:3px 0;vertical-align:top">Telefon</td>
+            <td style="color:#111827;padding:3px 0">${escapeHtml(item.phone)}</td>
+          </tr>
+          <tr>
+            <td style="color:#6b7280;font-weight:600;padding:3px 0;vertical-align:top">E-posta</td>
+            <td style="padding:3px 0"><a href="mailto:${escapeHtml(item.email)}" style="color:#111827;text-decoration:none">${escapeHtml(item.email)}</a></td>
+          </tr>
         </table>
-        <div style="margin-top:16px;padding:16px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;white-space:pre-wrap;color:#1e293b;font-size:14px">${escapeHtml(item.message)}</div>
+        <div style="margin-top:16px;padding:14px 16px;border-radius:10px;background:#f4f4f4;border:1px solid #ebebeb;color:#1a1f36;white-space:pre-wrap;font-size:14px;line-height:1.75">
+          <span style="display:block;font-size:22px;line-height:1;color:#6b7280;margin-bottom:6px">“</span>${escapeHtml(item.message)}
+        </div>
       </div>
     </div>
   </div>`;
