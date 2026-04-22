@@ -15,18 +15,6 @@ module.exports = async function handler(req, res) {
   try {
     if (action === 'all' && req.method === 'GET') {
       const result = await pool.query(`
-        SELECT
-          m.id,
-          m.ad_soyad AS ad,
-          m.email,
-          COALESCE(NULLIF(m.telefon, ''), '-') AS telefon,
-          m.created_at,
-          COALESCE(COUNT(s.id), 0)::int AS siparis_sayisi,
-          COALESCE(SUM(s.toplam), 0)::numeric AS toplam_harcama
-        FROM musteriler m
-        LEFT JOIN siparisler s ON s.musteri_id = m.id
-        GROUP BY m.id, m.ad_soyad, m.email, m.telefon, m.created_at
-        ORDER BY m.created_at DESC
         WITH uyeler AS (
           SELECT
             m.id::text AS id,
