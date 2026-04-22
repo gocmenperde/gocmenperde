@@ -1,8 +1,9 @@
 const { verifyAuthToken } = require('../lib/_auth-utils');
-
 const { pool } = require('../lib/_db');
 const { sendResendEmail } = require('../lib/_resend-mail');
-const ADMIN_API_KEY = 'gocmen1993';
+const { applyCors } = require('../lib/_cors');
+
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 const ORDER_STATUSES = ['Beklemede', 'Hazırlanıyor', 'Kargoya Verildi', 'Yolda', 'Dağıtımda', 'Teslim Edildi', 'İptal'];
 const ORDER_STATUS_ALIASES = {
   beklemede: 'Beklemede',
@@ -22,10 +23,7 @@ let cachedOrderNoColumn = null;
 let inMemoryTrackingStore = {};
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-key');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (applyCors(req, res, { allowAdminHeaders: true })) return;
 
   const { action } = req.query;
 
@@ -97,7 +95,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'all' && req.method === 'GET') {
-      if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
+      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
         return res.status(403).json({ error: 'Yetkisiz.' });
       }
       const result = await pool.query('SELECT * FROM siparisler ORDER BY created_at DESC');
@@ -124,7 +122,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'update-status' && req.method === 'POST') {
-      if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
+      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
         return res.status(403).json({ error: 'Yetkisiz.' });
       }
       const { id, durum, trackingNote, trackingCode } = req.body || {};

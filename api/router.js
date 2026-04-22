@@ -1,66 +1,36 @@
-// api/router.js veya ana server dosyanın EN ÜSTÜNE ekle
 const fs = require('fs');
 const path = require('path');
 
 if (process.env.NODE_ENV !== 'production' && typeof process.loadEnvFile === 'function') {
   const envPath = path.resolve(__dirname, '..', '.env');
-  if (fs.existsSync(envPath)) {
-    process.loadEnvFile(envPath);
-  }
+  if (fs.existsSync(envPath)) process.loadEnvFile(envPath);
 }
 
-// PayTR değişkenlerini burada bir kez konsola yazdır ki yüklendiğini gör
-console.log("Sistem Başlatıldı - PayTR ID:", process.env.PAYTR_MERCHANT_ID ? "OK" : "YOK");
-const auth = require('../server/handlers/auth');
-const customer = require('../server/handlers/customer');
-const customers = require('../server/handlers/customers');
-const favorites = require('../server/handlers/favorites');
-const orders = require('../server/handlers/orders');
-const payment = require('../server/handlers/payment');
-const paytrCallback = require('../server/handlers/paytr-callback');
-const paytrRefund = require('../server/handlers/paytr-refund');
-const paytrReport = require('../server/handlers/paytr-report');
-const sliderAds = require('../server/handlers/slider-ads');
-const adminSliderAds = require('../server/handlers/admin/slider-ads');
-const cloudinaryUpload = require('../server/handlers/admin/cloudinary-upload');
-const fromYouShowcase = require('../server/handlers/from-you-showcase');
-const adminFromYouShowcase = require('../server/handlers/admin/from-you-showcase');
-const slider = require('../server/handlers/slider');
-const visits = require('../server/handlers/visits');
-const addressData = require('../server/handlers/address-data');
-const stockAlerts = require('../server/handlers/stock-alerts');
-const campaigns = require('../server/handlers/campaigns');
-const adminCampaigns = require('../server/handlers/admin/campaigns');
-const premiumShowcase = require('../server/handlers/premium-showcase');
-const liveSupport = require('../server/handlers/live-support');
-const measureGuide = require('../server/handlers/measure-guide');
-const adminMeasureGuide = require('../server/handlers/admin/measure-guide');
-
 const ROUTES = {
-  'auth': auth,
-  'customer': customer,
-  'customers': customers,
-  'favorites': favorites,
-  'orders': orders,
-  'payment': payment,
-  'paytr-callback': paytrCallback,
-  'paytr-refund': paytrRefund,
-  'paytr-report': paytrReport,
-  'slider-ads': sliderAds,
-  'admin/slider-ads': adminSliderAds,
-  'admin/cloudinary-upload': cloudinaryUpload,
-  'from-you-showcase': fromYouShowcase,
-  'admin/from-you-showcase': adminFromYouShowcase,
-  'slider': slider,
-  'visits': visits,
-  'address-data': addressData,
-  'stock-alerts': stockAlerts,
-  'campaigns': campaigns,
-  'admin/campaigns': adminCampaigns,
-  'premium-showcase': premiumShowcase,
-  'live-support': liveSupport,
-  'measure-guide': measureGuide,
-  'admin/measure-guide': adminMeasureGuide,
+  auth: () => require('../server/handlers/auth'),
+  customer: () => require('../server/handlers/customer'),
+  customers: () => require('../server/handlers/customers'),
+  favorites: () => require('../server/handlers/favorites'),
+  orders: () => require('../server/handlers/orders'),
+  payment: () => require('../server/handlers/payment'),
+  'paytr-callback': () => require('../server/handlers/paytr-callback'),
+  'paytr-refund': () => require('../server/handlers/paytr-refund'),
+  'paytr-report': () => require('../server/handlers/paytr-report'),
+  'slider-ads': () => require('../server/handlers/slider-ads'),
+  'admin/slider-ads': () => require('../server/handlers/admin/slider-ads'),
+  'admin/cloudinary-upload': () => require('../server/handlers/admin/cloudinary-upload'),
+  'from-you-showcase': () => require('../server/handlers/from-you-showcase'),
+  'admin/from-you-showcase': () => require('../server/handlers/admin/from-you-showcase'),
+  slider: () => require('../server/handlers/slider'),
+  visits: () => require('../server/handlers/visits'),
+  'address-data': () => require('../server/handlers/address-data'),
+  'stock-alerts': () => require('../server/handlers/stock-alerts'),
+  campaigns: () => require('../server/handlers/campaigns'),
+  'admin/campaigns': () => require('../server/handlers/admin/campaigns'),
+  'premium-showcase': () => require('../server/handlers/premium-showcase'),
+  'live-support': () => require('../server/handlers/live-support'),
+  'measure-guide': () => require('../server/handlers/measure-guide'),
+  'admin/measure-guide': () => require('../server/handlers/admin/measure-guide'),
 };
 
 module.exports = async function handler(req, res) {
@@ -68,11 +38,12 @@ module.exports = async function handler(req, res) {
   const parsedUrl = new URL(reqUrl, 'http://localhost');
   const routeParam = parsedUrl.searchParams.get('route') || '';
   const route = String(routeParam).replace(/^\/+|\/+$/g, '');
-  const endpoint = ROUTES[route];
+  const loader = ROUTES[route];
 
-  if (!endpoint) {
+  if (!loader) {
     return res.status(404).json({ error: 'API endpoint bulunamadı.' });
   }
 
+  const endpoint = loader();
   return endpoint(req, res);
 };

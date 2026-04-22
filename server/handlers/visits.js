@@ -1,13 +1,11 @@
 
 const { pool } = require('../lib/_db');
-const ADMIN_API_KEY = 'gocmen1993';
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+const { applyCors } = require('../lib/_cors');
 let schemaReady = false;
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (applyCors(req, res, { allowAdminHeaders: true })) return;
 
   try {
     await ensureSchema();
@@ -50,7 +48,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'stats' && req.method === 'GET') {
-      if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
+      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
         return res.status(403).json({ error: 'Yetkisiz.' });
       }
 

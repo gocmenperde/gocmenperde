@@ -23,9 +23,11 @@ const buildPoolConfig = (dbUrl) => {
 
   if (!dbUrl) {
     return {
-      max: Number(process.env.PG_POOL_MAX || 12),
+      max: Number(process.env.PG_POOL_MAX || 5),
       idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS || 10000),
       connectionTimeoutMillis: Number(process.env.PG_CONNECT_TIMEOUT_MS || 5000),
+      statement_timeout: Number(process.env.PG_STATEMENT_TIMEOUT_MS || 8000),
+      query_timeout: Number(process.env.PG_QUERY_TIMEOUT_MS || 10000),
       ssl: pgSslEnv === 'true' ? { rejectUnauthorized: false } : undefined,
     };
   }
@@ -35,9 +37,11 @@ const buildPoolConfig = (dbUrl) => {
     console.warn('DATABASE_URL parse edilemedi, connectionString ile devam ediliyor.');
     return {
       connectionString: dbUrl,
-      max: Number(process.env.PG_POOL_MAX || 12),
+      max: Number(process.env.PG_POOL_MAX || 5),
       idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS || 10000),
       connectionTimeoutMillis: Number(process.env.PG_CONNECT_TIMEOUT_MS || 5000),
+      statement_timeout: Number(process.env.PG_STATEMENT_TIMEOUT_MS || 8000),
+      query_timeout: Number(process.env.PG_QUERY_TIMEOUT_MS || 10000),
       ssl: pgSslEnv === 'true' ? { rejectUnauthorized: false } : undefined,
     };
   }
@@ -53,9 +57,11 @@ const buildPoolConfig = (dbUrl) => {
     database: parsedUrl.pathname.replace(/^\//, ''),
     user: decodeURIComponent(parsedUrl.username || ''),
     password: decodeURIComponent(parsedUrl.password || ''),
-    max: Number(process.env.PG_POOL_MAX || 12),
+    max: Number(process.env.PG_POOL_MAX || 5),
     idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS || 10000),
     connectionTimeoutMillis: Number(process.env.PG_CONNECT_TIMEOUT_MS || 5000),
+      statement_timeout: Number(process.env.PG_STATEMENT_TIMEOUT_MS || 8000),
+      query_timeout: Number(process.env.PG_QUERY_TIMEOUT_MS || 10000),
     ssl: sslEnabled ? { rejectUnauthorized: sslMode === 'verify-full' } : undefined,
   };
 

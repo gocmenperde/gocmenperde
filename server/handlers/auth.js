@@ -5,6 +5,7 @@ const loginAttempts = new Map();
 const MAX_ATTEMPTS = 7;
 const WINDOW_MS = 1000 * 60 * 10;
 
+const { applyCors } = require('../lib/_cors');
 async function listUserAddresses(userId) {
   const hasAddressTable = await pool.query(
     "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'adresler') AS exists"
@@ -54,10 +55,7 @@ async function listUserAddresses(userId) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (applyCors(req, res)) return;
 
   const { action } = req.query;
 

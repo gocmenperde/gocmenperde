@@ -1,11 +1,9 @@
 const { pool } = require('../lib/_db');
 const { verifyAuthToken } = require('../lib/_auth-utils');
 
+const { applyCors } = require('../lib/_cors');
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (applyCors(req, res)) return;
 
   const user = verifyAuthToken(req);
   const { action } = req.query;

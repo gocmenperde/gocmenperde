@@ -6,6 +6,7 @@ const ORDER_ID_MAX_LENGTH = 64;
 const REFERENCE_NO_MAX_LENGTH = 64;
 const REFERENCE_NO_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
+const { applyCors } = require('../lib/_cors');
 function normalizeRefundAmount(value) {
   if (value === undefined || value === null) return null;
   const str = String(value).trim().replace(',', '.');
@@ -16,11 +17,7 @@ function normalizeRefundAmount(value) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (applyCors(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Sadece POST desteklenir.' });
   }
