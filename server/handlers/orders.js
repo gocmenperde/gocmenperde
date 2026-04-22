@@ -15,7 +15,6 @@ const ORDER_STATUS_ALIASES = {
   teslimedildi: 'Teslim Edildi',
   iptal: 'İptal',
 };
-const DEFAULT_ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
 const TRACKING_DIR = path.join(process.cwd(), 'server', '.data');
 const TRACKING_FILE = path.join(TRACKING_DIR, 'order-tracking.json');
 const ORDER_NO_DIGITS = 14;
@@ -289,12 +288,16 @@ async function sendOrderCreatedEmails({ orderId, orderNo, customer, note, paymen
     }));
   }
 
-  const adminEmail = process.env.ADMIN_ORDER_EMAIL || DEFAULT_ADMIN_EMAIL;
-  jobs.push(sendTransactionalEmail({
-    to: adminEmail,
-    subject: `Yeni Sipariş #${orderId} — ${customer.name}`,
-    html: adminHtml,
-  }));
+  const adminEmail = String(process.env.ADMIN_ORDER_EMAIL || '').trim();
+  if (adminEmail) {
+    jobs.push(sendTransactionalEmail({
+      to: adminEmail,
+      subject: `Yeni Sipariş #${orderId} — ${customer.name}`,
+      html: adminHtml,
+    }));
+  } else {
+    console.warn('ADMIN_ORDER_EMAIL tanımlı değil. Admin bilgilendirme e-postası atlandı.');
+  }
 
   const results = await Promise.all(jobs);
   const sent = results.filter((result) => result.ok).length;
@@ -634,10 +637,8 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
-const FALLBACK_RESEND_API_KEY = 're_c4EEGk7p_KvYLe2RR19gjuBkyd354v1Td';
-
 async function sendTransactionalEmail({ to, subject, html }) {
-  const apiKey = String(process.env.RESEND_API_KEY || FALLBACK_RESEND_API_KEY || '').trim();
+  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
   const from = resolveFromAddress();
   if (!apiKey) {
     console.warn('RESEND_API_KEY tanımlı değil. E-posta gönderimi atlandı.');
@@ -685,8 +686,7 @@ async function sendTransactionalEmail({ to, subject, html }) {
 
 function resolveFromAddress() {
   const configuredFrom = String(process.env.ORDER_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || '').trim();
-  const fallbackFrom = 'Göçmen Perde <noreply@gocmenperde.com.tr>';
-  const from = configuredFrom || fallbackFrom;
+  const from = configuredFrom;
   const emailMatch = from.match(/<?([^<>\s]+@[^<>\s]+)>?$/);
   const email = emailMatch ? emailMatch[1].toLowerCase() : '';
 

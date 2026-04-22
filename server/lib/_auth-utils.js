@@ -1,8 +1,18 @@
 const crypto = require('crypto');
 
-const TOKEN_SECRET = String(process.env.AUTH_TOKEN_SECRET || 'gocmenperde-token-secret-change-me').trim();
+const TOKEN_SECRET = String(process.env.JWT_SECRET || process.env.AUTH_TOKEN_SECRET || '').trim();
 const TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 14;
 const LEGACY_SALT = 'gocmen_salt_2024';
+let warnedMissingTokenSecret = false;
+
+function ensureTokenSecret() {
+  if (TOKEN_SECRET) return true;
+  if (!warnedMissingTokenSecret) {
+    warnedMissingTokenSecret = true;
+    console.warn('JWT_SECRET (veya AUTH_TOKEN_SECRET) tanımlı değil. Token doğrulama/devamlılık sorunları yaşanabilir.');
+  }
+  return false;
+}
 
 function base64urlEncode(value) {
   return Buffer.from(value).toString('base64url');
@@ -20,12 +30,14 @@ function safeEqual(a, b) {
 }
 
 function signPayload(payload) {
+  if (!ensureTokenSecret()) return '';
   const body = base64urlEncode(JSON.stringify(payload));
   const signature = crypto.createHmac('sha256', TOKEN_SECRET).update(body).digest('base64url');
   return `${body}.${signature}`;
 }
 
 function verifySignedToken(token) {
+  if (!ensureTokenSecret()) return null;
   if (!token || typeof token !== 'string' || !token.includes('.')) return null;
   const [body, signature] = token.split('.');
   if (!body || !signature) return null;
