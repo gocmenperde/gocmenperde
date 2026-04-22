@@ -398,7 +398,12 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .products-layout{width:min(1680px,98%);margin:0 auto;padding:36px 20px 44px;display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:start}
 @media(max-width:900px){.products-layout{grid-template-columns:1fr;padding:20px}}
 .filters-panel{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:28px;position:sticky;top:95px}
-@media(max-width:900px){.filters-panel{display:none}.filters-panel.open{display:block;position:relative;top:0}}
+.filters-drawer-overlay{position:fixed;inset:0;background:rgba(11,18,32,.45);z-index:12300;display:none}
+.filters-drawer-overlay.open{display:block}
+@media(max-width:900px){
+  .filters-panel{display:none}
+  .filters-panel.open{display:block;position:fixed;top:0;right:0;bottom:0;width:min(88vw,380px);z-index:12310;border-radius:18px 0 0 18px;overflow:auto;padding:22px 18px 110px;box-shadow:-18px 0 42px rgba(17,28,58,.24)}
+}
 .filter-group{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
 .filter-group:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
 .filter-title{font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--ink);font-weight:600;margin-bottom:12px}
@@ -426,9 +431,13 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .fav-btn{position:absolute;top:14px;right:14px;width:36px;height:36px;background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--slate);transition:var(--transition);z-index:10}
 .fav-btn.active{color:#c0392b;background:rgba(255,255,255,0.95)}.fav-btn:hover{transform:scale(1.1)}
 .product-card:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:var(--gold-light)}
-.product-img-wrap{position:relative;height:240px;overflow:hidden;background:var(--cream);cursor:pointer}
-@media(max-width:600px){.product-img-wrap{height:160px}}
-.product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s}
+.product-img-wrap{position:relative;overflow:hidden;background:#f5f5f5;cursor:pointer;aspect-ratio:4/3}
+.product-img-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,#f4f1eb 8%,#ebe5d9 18%,#f4f1eb 33%);background-size:200% 100%;animation:skeletonPulse 1.2s linear infinite}
+@keyframes skeletonPulse{to{background-position-x:-200%}}
+@media(max-width:600px){.product-img-wrap{aspect-ratio:1/1}}
+.product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s,filter .45s ease,opacity .35s ease;filter:blur(16px);opacity:.7;background:#f5f5f5}
+.product-img-wrap img.img-loaded{filter:blur(0);opacity:1}
+.product-img-wrap:has(img.img-loaded)::before{opacity:0;transition:opacity .35s ease}
 .product-card:hover .product-img-wrap img{transform:scale(1.07)}
 .product-media-open{all:unset;display:block;width:100%;height:100%;cursor:pointer}
 .product-media-open img{width:100%;height:100%;object-fit:cover;display:block}
@@ -455,13 +464,18 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .product-price{display:flex;flex-direction:column;gap:2px}
 .old-price{text-decoration:line-through;color:#a0a0a0;font-size:0.82rem}
 .current-price{color:#c0392b;font-weight:700;font-size:1.1rem;font-family:var(--ff-display)}
+.bursa-badge{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:4px 8px;border-radius:999px;font-size:.58rem;letter-spacing:.7px;text-transform:uppercase;background:rgba(212,175,83,.18);border:1px solid rgba(212,175,83,.44);color:#6f511d;font-weight:700}
 .price-unit{font-size:0.72rem;color:var(--slate);font-family:var(--ff-body)}
 .qty-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .qty-input{width:48px;height:36px;text-align:center;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;color:var(--ink);background:var(--cream);font-family:var(--ff-body)}
 @media(max-width:600px){.qty-input{width:40px;height:32px;font-size:0.8rem}}
 .qty-input.dimension-input{width:72px}
+.measure-tooltip-btn{width:26px;height:26px;border:none;border-radius:999px;background:#eef1f7;color:#1f2941;cursor:pointer;font-weight:700}
 .qty-input.pile-select{width:auto;min-width:112px;padding:0 8px;font-size:0.7rem}
 .qty-help-text{font-size:0.66rem;color:var(--slate);display:block;min-width:150px}
+.pile-preview-tag{display:inline-flex;align-items:center;gap:6px;font-size:.64rem;padding:4px 8px;border-radius:999px;border:1px solid rgba(70,94,150,.2);background:#f4f7ff;color:#2f3f64}
+.shipping-note{display:block;margin-top:8px;font-size:.62rem;color:#4f5b78}
+.social-proof{margin:6px 0 0;font-size:.66rem;color:#5f6679}
 @media(max-width:600px){
   .qty-wrap{gap:5px;width:100%}
   .qty-input.dimension-input{width:86px;font-size:0.75rem}
@@ -740,6 +754,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-spec-row:last-child{border-bottom:none}
 .modal-spec-key{color:var(--slate)}.modal-spec-val{color:var(--ink);font-weight:600;text-align:right}
 .modal-add-wrap{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px;border-radius:16px;background:linear-gradient(135deg,#ffffff,#faf7f1);border:1px solid rgba(201,168,76,0.2);box-shadow:0 10px 24px rgba(15,14,13,0.06)}
+.modal-quick-buy-bar{display:none}
 .modal-qty-input{width:58px;height:44px;text-align:center;border:1px solid #e3dfd6;border-radius:10px;font-size:1rem;font-family:var(--ff-body);background:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,0.8)}
 .modal-qty-input.dimension-input{width:95px}
 .modal-qty-input.pile-select{width:auto;min-width:190px;padding:0 10px;font-size:0.8rem}
@@ -776,6 +791,10 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .modal-img-stage{height:38dvh;min-height:250px;max-height:340px}
   .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(190px + env(safe-area-inset-bottom))}
   .modal-add-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;margin:0;padding:12px 12px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#fff 0%,#f9f6ef 100%);border-top:1px solid rgba(201,168,76,0.25);border-radius:18px 18px 0 0;box-shadow:0 -14px 28px rgba(17,28,58,.16)}
+  .modal-quick-buy-bar{position:fixed;left:10px;right:10px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:45;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(70,94,150,.2);box-shadow:0 10px 22px rgba(17,28,58,.16)}
+  .modal-quick-buy-bar b{font-size:.74rem;color:#1f2941}
+  .modal-quick-buy-bar span{font-size:.68rem;color:#606a84}
+  .modal-quick-buy-bar button{border:none;background:#1f2941;color:#fff;border-radius:999px;padding:8px 12px;font-size:.64rem;letter-spacing:.8px}
   .modal-add-wrap .modal-add-btn{font-size:0.78rem}
   .modal-review-form{grid-template-columns:1fr}
   .modal-reviews-wrap{margin-bottom:16px}
@@ -892,6 +911,10 @@ footer span{color:var(--gold)}
 .image-viewer-hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:rgba(15,14,13,0.72);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:6px 12px;border-radius:999px;font-size:0.65rem;letter-spacing:1px}
 .image-viewer-thumbs-wrap{width:min(1200px,100%);margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);border-radius:14px;backdrop-filter:blur(6px)}
 .image-viewer-thumbs-wrap .modal-thumbs{padding:0}
+.measure-help-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(9,12,20,.68);z-index:12650;padding:18px}
+.measure-help-modal.open{display:flex}
+.measure-help-card{width:min(640px,95vw);background:#fff;border-radius:16px;padding:16px;box-shadow:0 24px 50px rgba(0,0,0,.24)}
+.measure-help-card img{width:100%;max-height:70vh;object-fit:contain;border-radius:10px;background:#f5f5f5}
 @media(max-width:700px){.image-viewer-overlay{padding:12px}.image-viewer-stage{height:min(66vh,520px)}.image-viewer-hint{font-size:0.6rem;padding:5px 10px}}
 .cart-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.22);z-index:13030;display:none;pointer-events:auto}
 .cart-sheet-overlay.open{display:block}
@@ -926,7 +949,7 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
 .top-product-slider-track::-webkit-scrollbar{height:8px}
 .top-product-slider-track::-webkit-scrollbar-thumb{background:rgba(34,45,78,.22);border-radius:999px}
 .top-product-card{min-width:220px;max-width:220px;background:#fff;border:1px solid rgba(34,45,78,.12);border-radius:14px;overflow:hidden;box-shadow:0 8px 20px rgba(17,28,58,.08);display:flex;flex-direction:column}
-.top-product-card img{width:100%;height:140px;object-fit:cover;background:#f0f2f7}
+.top-product-card img{width:100%;height:140px;object-fit:cover;background:#f5f5f5}
 .top-product-card-body{padding:10px 11px;display:flex;flex-direction:column;gap:8px}
 .top-product-card-name{font-size:.8rem;font-weight:700;color:#1f2941;min-height:34px}
 .top-product-card-price{display:flex;align-items:flex-end;gap:6px}
@@ -1034,7 +1057,8 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 .hero-ad-viewport::-webkit-scrollbar{height:8px}
 .hero-ad-viewport::-webkit-scrollbar-thumb{background:rgba(213,163,63,.38);border-radius:999px}
 .hero-ad-card{position:relative;scroll-snap-align:start;overflow:hidden;background:#f4f6fb;text-decoration:none;color:#fff;display:block;min-width:0;min-height:340px;aspect-ratio:16/9}
-.hero-ad-card img{width:100%;height:100%;min-height:340px;object-fit:cover;object-position:var(--crop-x,50%) var(--crop-y,50%);display:block;transform:scale(var(--crop-zoom,1.08));transition:transform .55s ease;background:#0d111d}
+.hero-ad-card img{width:100%;height:100%;min-height:340px;object-fit:cover;object-position:var(--crop-x,50%) var(--crop-y,50%);display:block;transform:scale(var(--crop-zoom,1.08));transition:transform .55s ease,filter .45s ease,opacity .35s ease;background:#f5f5f5;filter:blur(14px);opacity:.72}
+.hero-ad-card img.img-loaded{filter:blur(0);opacity:1}
 .hero-ad-card:hover img{transform:scale(1.06)}
 .hero-ad-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,9,18,.08) 18%,rgba(6,9,18,.66) 100%);z-index:1;pointer-events:none}
 .hero-ad-copy{position:absolute;left:20px;right:20px;bottom:18px;z-index:3;display:grid;gap:10px;justify-items:center;text-align:center}
@@ -1578,7 +1602,8 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 
 <!-- ÜRÜNLER -->
 <section id="products" class="section">
-  <button class="mobile-filter-toggle" onclick="document.getElementById('filtersPanel').classList.toggle('open')"><i class="fas fa-filter"></i> Filtreleri Aç/Kapat</button>
+  <button class="mobile-filter-toggle" onclick="toggleFiltersDrawer(true)"><i class="fas fa-filter"></i> Filtreleri Aç</button>
+  <div class="filters-drawer-overlay" id="filtersDrawerOverlay" onclick="toggleFiltersDrawer(false)"></div>
 
   <!-- Son Görüntülenenler -->
   <div class="recently-viewed" id="recentlyViewedSection" style="display:none">
@@ -1613,6 +1638,23 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
         <div class="filter-option"><input type="checkbox" id="feat-karartma" onchange="applyFilters()"><label for="feat-karartma">Karartma Özellikli</label></div>
         <div class="filter-option"><input type="checkbox" id="feat-utu" onchange="applyFilters()"><label for="feat-utu">Ütü İstemez</label></div>
         <div class="filter-option"><input type="checkbox" id="feat-premium" onchange="applyFilters()"><label for="feat-premium">Premium Seri</label></div>
+      </div>
+      <div class="filter-group">
+        <h4 class="filter-title">Renk</h4>
+        <div class="filter-option"><input type="checkbox" id="color-krem" onchange="applyFilters()"><label for="color-krem">Krem / Ekru</label></div>
+        <div class="filter-option"><input type="checkbox" id="color-beyaz" onchange="applyFilters()"><label for="color-beyaz">Beyaz</label></div>
+        <div class="filter-option"><input type="checkbox" id="color-antrasit" onchange="applyFilters()"><label for="color-antrasit">Antrasit</label></div>
+      </div>
+      <div class="filter-group">
+        <h4 class="filter-title">Kumaş Türü</h4>
+        <div class="filter-option"><input type="checkbox" id="fabric-keten" onchange="applyFilters()"><label for="fabric-keten">Keten</label></div>
+        <div class="filter-option"><input type="checkbox" id="fabric-tul" onchange="applyFilters()"><label for="fabric-tul">Tül</label></div>
+        <div class="filter-option"><input type="checkbox" id="fabric-fon" onchange="applyFilters()"><label for="fabric-fon">Fon</label></div>
+      </div>
+      <div class="filter-group">
+        <h4 class="filter-title">Kullanım Alanı</h4>
+        <div class="filter-option"><input type="checkbox" id="usage-salon" onchange="applyFilters()"><label for="usage-salon">Salon</label></div>
+        <div class="filter-option"><input type="checkbox" id="usage-yatak" onchange="applyFilters()"><label for="usage-yatak">Yatak Odası</label></div>
       </div>
       <div class="filter-group">
         <h4 class="filter-title">Puan & Popülerlik</h4>
@@ -2037,6 +2079,10 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
         </div>
       </div>
       <div class="modal-add-wrap" id="mAddWrap"></div>
+      <div class="modal-quick-buy-bar" id="modalQuickBuyBar">
+        <div><b id="modalQuickBuyName">Hızlı Satın Al</b><span id="modalQuickBuyPrice">Ürün seçiniz</span></div>
+        <button type="button" onclick="scrollModalToAdd()">Sepete Ekle</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2055,6 +2101,15 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
   </div>
   <div class="image-viewer-thumbs-wrap" onclick="event.stopPropagation()">
     <div class="modal-thumbs" id="viewerThumbs"></div>
+  </div>
+</div>
+<div class="measure-help-modal" id="measureHelpModal" onclick="closeMeasureHelp(event)">
+  <div class="measure-help-card" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
+      <strong>Doğru Ölçü Nasıl Alınır?</strong>
+      <button type="button" class="image-viewer-btn" onclick="closeMeasureHelp()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <img src="resimler/foto2.jpg" alt="Perde ölçü alma rehberi" loading="lazy" decoding="async">
   </div>
 </div>
 
@@ -2131,6 +2186,11 @@ const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
 const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
 const FROM_YOU_SHOWCASE_LEGACY_KEYS = ['gp_from_you_showcase', 'from_you_showcase', 'gp_sizden_gelenler_v1'];
 const FROM_YOU_RENDERED_MAP = {};
+const UX_COPY_KEY = 'gp_ux_copy_v1';
+const DEFAULT_UX_COPY = {
+  shippingNote: '3-5 İş Gününde Kargoda',
+  bursaBadge: 'Kaliteli Bursa İşçiliği'
+};
 let fromYouShowcaseApiItems = null;
 const DEFAULT_INSTALLATION_SHOWCASE = [
   {src:'resimler/foto1.jpg',title:'Salon Tül Uygulaması',desc:'Özel ölçü tül perde montajı ile ferah salon görünümü.',label:'Salon Tül'},
@@ -4026,6 +4086,25 @@ function processRestockNotifications(products){
   }catch(_){ }
 }
 
+function getUxCopy(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(UX_COPY_KEY) || '{}');
+    return {
+      shippingNote: String(raw.shippingNote || DEFAULT_UX_COPY.shippingNote).trim(),
+      bursaBadge: String(raw.bursaBadge || DEFAULT_UX_COPY.bursaBadge).trim()
+    };
+  }catch(_){
+    return DEFAULT_UX_COPY;
+  }
+}
+
+function getSocialProofCount(productId){
+  const social = getProductSocial(productId);
+  if(Number(social.salesCount) > 0) return Math.max(6, Math.min(38, Number(social.salesCount)));
+  const seed = String(productId || '').split('').reduce((s,ch)=>s+ch.charCodeAt(0),0);
+  return 10 + (seed % 14);
+}
+
 function buildCard(p, index=0){
   const qid = 'q-' + p.id;
   const wid = 'w-' + p.id;
@@ -4047,10 +4126,14 @@ function buildCard(p, index=0){
   const stockLabel = outOfStock ? 'Tükendi' : (stockCount <= 5 ? `Son ${stockCount} stok` : `Stokta: ${stockCount}`);
   const stockClass = outOfStock || stockCount <= 5 ? 'stock-low' : 'stock-ok';
   const variantLabel = String(p.serialNumber || p.variant || '').trim();
+  const uxCopy = getUxCopy();
+  const socialProof = getSocialProofCount(p.id);
   const priceHTML = p.oldPrice
     ? `<span class="old-price">${p.oldPrice.toLocaleString('tr-TR')} TL</span>
-       <span class="current-price">${p.price.toLocaleString('tr-TR')} TL <span class="price-unit">/ ${p.unit}</span></span>`
-    : `<span class="current-price">${p.price.toLocaleString('tr-TR')} TL <span class="price-unit">/ ${p.unit}</span></span>`;
+       <span class="current-price">${p.price.toLocaleString('tr-TR')} TL <span class="price-unit">/ ${p.unit}</span></span>
+       <span class="bursa-badge"><i class="fas fa-award"></i>${uxCopy.bursaBadge}</span>`
+    : `<span class="current-price">${p.price.toLocaleString('tr-TR')} TL <span class="price-unit">/ ${p.unit}</span></span>
+       <span class="bursa-badge"><i class="fas fa-award"></i>${uxCopy.bursaBadge}</span>`;
 
   const addBtn = outOfStock
     ? buildOutOfStockActions(p.id, p.name)
@@ -4058,11 +4141,13 @@ function buildCard(p, index=0){
     ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="qty-input" id="${qid}" value="0" readonly onclick="event.stopPropagation()">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="qty-input" id="${qid}" value="1" ${meterProduct ? `title="Virgüllü değer girebilirsiniz"` : ''} onclick="event.stopPropagation()">`}
     ${requireWidth ? `<input type="text" inputmode="decimal" class="qty-input dimension-input" id="${wid}" placeholder="En (m)" onclick="event.stopPropagation()">` : ''}
     ${requireHeight ? `<input type="text" inputmode="decimal" class="qty-input dimension-input" id="${hid}" placeholder="Boy (m)" onclick="event.stopPropagation()">` : ''}
-    ${pleatedMeterProduct ? `<select class="qty-input pile-select" id="pile-${p.id}" onclick="event.stopPropagation()"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select>` : ''}
-    ${squareProduct ? `<span id="${pid}" class="qty-help-text">En ve boy çarpılarak m² hesaplanır (en 1 m altındaysa 1 m alınır)</span>` : ''}
-    ${pleatedMeterProduct ? `<span id="${pid}" class="qty-help-text">Pileye göre en ölçüsü hesaplanır: 1:2 / 1:2.5 / 1:3 (boy fiyatı etkilemez)</span>` : ''}
-    ${meterDimensionsProduct ? `<span id="${pid}" class="qty-help-text">En ve boy çarpılarak metre hesaplanır (en 1 m altındaysa 1 m alınır)</span>` : ''}
+    ${(requireWidth || requireHeight) ? `<button type="button" class="measure-tooltip-btn" onclick="event.stopPropagation();openMeasureHelp()" title="Doğru ölçü nasıl alınır?">?</button>` : ''}
+    ${pleatedMeterProduct ? `<select class="qty-input pile-select" id="pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
+    ${squareProduct ? `<span id="${pid}" class="qty-help-text">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
+    ${pleatedMeterProduct ? `<span id="${pid}" class="qty-help-text">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
+    ${meterDimensionsProduct ? `<span id="${pid}" class="qty-help-text">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
     <button type="button" class="add-btn" onclick="event.stopPropagation();addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','pile-${p.id}')">Sepete Ekle</button>
+    <span class="shipping-note">${uxCopy.shippingNote}</span>
   </div>`;
 
   const showCampaignSlot = index % 4 === 1;
@@ -4089,6 +4174,7 @@ function buildCard(p, index=0){
         <span class="meta-chip ${stockClass}"><i class="fas fa-box"></i>${stockLabel}</span>
       </div>
       <div class="product-rating"><span class="stars">${renderStarText(social.avgRating)}</span><b>${social.avgRating.toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1})}</b><span>(${social.reviewCount} yorum)</span></div>
+      <div class="social-proof"><i class="fas fa-fire"></i> Son 24 saatte ${socialProof} kişi inceledi</div>
       <div class="product-bottom">
         <div class="product-price">${priceHTML}</div>
         ${addBtn}
@@ -4212,6 +4298,35 @@ function openModalSearchResult(productId){
   trackRecentlyViewed(productId);
 }
 
+function updatePilePreview(productId, value){
+  const map = {seyrek:'Seyrek Pile', orta:'Orta Pile', sik:'Sık Pile'};
+  const el = document.getElementById(`pile-preview-${productId}`);
+  if(el) el.textContent = map[value] || 'Orta Pile';
+}
+
+function openMeasureHelp(){
+  document.getElementById('measureHelpModal')?.classList.add('open');
+}
+function closeMeasureHelp(event){
+  if(event && event.target && event.target.id !== 'measureHelpModal') return;
+  document.getElementById('measureHelpModal')?.classList.remove('open');
+}
+
+function toggleFiltersDrawer(forceOpen){
+  const panel = document.getElementById('filtersPanel');
+  const overlay = document.getElementById('filtersDrawerOverlay');
+  if(!panel || !overlay) return;
+  const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !panel.classList.contains('open');
+  panel.classList.toggle('open', shouldOpen);
+  overlay.classList.toggle('open', shouldOpen);
+}
+
+function scrollModalToAdd(){
+  const wrap = document.getElementById('mAddWrap');
+  if(!wrap) return;
+  wrap.scrollIntoView({behavior:'smooth', block:'end'});
+}
+
 
 // ── Filtreler ──
 function applyFilters(){
@@ -4235,6 +4350,9 @@ function applyFilters(){
   const featKar  = document.getElementById('feat-karartma')?.checked;
   const featUtu  = document.getElementById('feat-utu')?.checked;
   const featPrem = document.getElementById('feat-premium')?.checked;
+  const colorFilters = ['krem','beyaz','antrasit'].filter((c)=>document.getElementById(`color-${c}`)?.checked);
+  const fabricFilters = ['keten','tul','fon'].filter((f)=>document.getElementById(`fabric-${f}`)?.checked);
+  const usageFilters = ['salon','yatak'].filter((u)=>document.getElementById(`usage-${u}`)?.checked);
   const topRatedOnly = document.getElementById('topRatedOnly')?.checked;
   const mostReviewedOnly = document.getElementById('mostReviewedOnly')?.checked;
   const bestSellerOnly = document.getElementById('bestSellerOnly')?.checked;
@@ -4253,6 +4371,20 @@ function applyFilters(){
     if(featKar && !f.includes('karartma')) return false;
     if(featUtu && !f.includes('utu')) return false;
     if(featPrem && !f.includes('premium')) return false;
+    if(colorFilters.length){
+      const colorText = `${p.name || ''} ${p.desc || ''}`.toLocaleLowerCase('tr');
+      if(!colorFilters.some((c)=>colorText.includes(c))) return false;
+    }
+    if(fabricFilters.length){
+      const fabricText = `${p.name || ''} ${p.cat || ''}`.toLocaleLowerCase('tr');
+      const normalized = fabricFilters.map((f)=>f==='tul'?'tül':f);
+      if(!normalized.some((f)=>fabricText.includes(f))) return false;
+    }
+    if(usageFilters.length){
+      const usageText = `${p.desc || ''} ${(p.specs && JSON.stringify(p.specs)) || ''}`.toLocaleLowerCase('tr');
+      const normalized = usageFilters.map((u)=>u==='yatak'?'yatak odası':'salon');
+      if(!normalized.some((u)=>usageText.includes(u))) return false;
+    }
     if(topRatedOnly && social.avgRating < 4.7) return false;
     if(mostReviewedOnly && social.reviewCount < 10) return false;
     if(bestSellerOnly && social.salesCount < 260) return false;
@@ -4281,6 +4413,7 @@ function applyFilters(){
   initObserver();
   syncCategoryQueryParamWithFilters();
   persistProductsViewState();
+  if(window.innerWidth <= 900) toggleFiltersDrawer(false);
 }
 
 // ── Modal ──
@@ -4506,6 +4639,7 @@ function openModalFromProduct(id){
   currentModalProductId = id;
   trackRecentlyViewed(id);
   const social = getProductSocial(id);
+  const uxCopy = getUxCopy();
   currentModalImages = getProductImages(p);
   currentModalImageIndex = 0;
   modalBrokenImageMap = new Set();
@@ -4525,11 +4659,11 @@ function openModalFromProduct(id){
   const unitStr   = p.unit !== 'adet' ? ' / ' + p.unit : '';
   if(p.oldPrice && p.oldPrice > p.price){
     const pct = Math.round((1-p.price/p.oldPrice)*100);
-    priceWrap.innerHTML = `<div class="modal-old-price">${p.oldPrice.toLocaleString('tr-TR')} TL</div><div class="modal-current-price">${p.price.toLocaleString('tr-TR')} TL<span class="modal-price-unit">${unitStr}</span></div>`;
+    priceWrap.innerHTML = `<div class="modal-old-price">${p.oldPrice.toLocaleString('tr-TR')} TL</div><div class="modal-current-price">${p.price.toLocaleString('tr-TR')} TL<span class="modal-price-unit">${unitStr}</span></div><span class="bursa-badge"><i class="fas fa-award"></i>${uxCopy.bursaBadge}</span>`;
     discBadge.innerText = '%'+pct+' İNDİRİM';
     discBadge.classList.remove('hidden');
   } else {
-    priceWrap.innerHTML = `<div class="modal-normal-price">${p.price.toLocaleString('tr-TR')} TL<span class="modal-price-unit">${unitStr}</span></div>`;
+    priceWrap.innerHTML = `<div class="modal-normal-price">${p.price.toLocaleString('tr-TR')} TL<span class="modal-price-unit">${unitStr}</span></div><span class="bursa-badge"><i class="fas fa-award"></i>${uxCopy.bursaBadge}</span>`;
     discBadge.classList.add('hidden');
   }
 
@@ -4580,16 +4714,23 @@ function openModalFromProduct(id){
     ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly onclick="event.stopPropagation()">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1" onclick="event.stopPropagation()">`}
     ${requireWidth ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${wid}" placeholder="En (m)" onclick="event.stopPropagation()">` : ''}
     ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${hid}" placeholder="Boy (m)" onclick="event.stopPropagation()">` : ''}
-    ${pleatedMeterProduct ? `<select class="modal-qty-input pile-select" id="modal-pile-${p.id}" onclick="event.stopPropagation()"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select>` : ''}
-    ${squareProduct ? `<span id="${pid}" class="modal-inline-help">En ve boy çarpılarak m² hesaplanır (en 1 m altındaysa 1 m alınır)</span>` : ''}
-    ${pleatedMeterProduct ? `<span id="${pid}" class="modal-inline-help">Pileye göre en ölçüsü hesaplanır: 1:2 / 1:2.5 / 1:3 (boy fiyatı etkilemez)</span>` : ''}
-    ${meterDimensionsProduct ? `<span id="${pid}" class="modal-inline-help">En ve boy çarpılarak metre hesaplanır (en 1 m altındaysa 1 m alınır)</span>` : ''}
+    ${(requireWidth || requireHeight) ? `<button type="button" class="measure-tooltip-btn" onclick="event.stopPropagation();openMeasureHelp()" title="Doğru ölçü nasıl alınır?">?</button>` : ''}
+    ${pleatedMeterProduct ? `<select class="modal-qty-input pile-select" id="modal-pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('modal-${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-modal-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
+    ${squareProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
+    ${pleatedMeterProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
+    ${meterDimensionsProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
     ${outOfStock
       ? `<button type="button" class="modal-add-btn" style="background:#6b7280" disabled>Tükendi</button><button type="button" class="modal-add-btn" onclick="subscribeStockAlert('${p.id}','${String(p.name||'').replace(/'/g, "\\'")}')">Gelince Haber Ver</button>`
       : `<button type="button" class="modal-add-btn" onclick="addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','modal-pile-${p.id}')"><i class="fas fa-bag-shopping" style="margin-right:8px"></i>Sepete Ekle</button>`}
+    <a href="https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Merhaba, ${p.name} ürünü için canlı destek rica ediyorum: ${location.origin}${location.pathname}?product=${p.id}`)}" target="_blank" rel="noopener" class="modal-add-btn" style="text-decoration:none;background:#25D366;color:#fff"><i class="fab fa-whatsapp" style="margin-right:8px"></i>Canlı Destek</a>
+    <span class="shipping-note">${uxCopy.shippingNote}</span>
     <button type="button" onclick="toggleFavoriteById('${p.id}')" id="modal-fav-btn" style="width:42px;height:42px;border-radius:10px;border:1px solid var(--border);background:${isFav?'#fff0f0':'white'};cursor:pointer;color:${isFav?'#c0392b':'var(--slate)'};display:flex;align-items:center;justify-content:center;font-size:1rem;transition:0.2s;flex-shrink:0">
       <i class="${isFav?'fas':'far'} fa-heart"></i>
     </button>`;
+  const quickName = document.getElementById('modalQuickBuyName');
+  const quickPrice = document.getElementById('modalQuickBuyPrice');
+  if(quickName) quickName.textContent = p.name;
+  if(quickPrice) quickPrice.textContent = `${(Number(p.price)||0).toLocaleString('tr-TR')} TL • ${uxCopy.shippingNote}`;
   if(squareProduct){
     bindSquareMeterAutoCalc(p, qid, wid, hid, pid);
   } else if(pleatedMeterProduct){
@@ -7492,16 +7633,30 @@ function updateFloatingCta(activeSection='home'){
 // ── Görsel Performansı ──
 function optimizeImageLoading(scope = document){
   scope.querySelectorAll('img').forEach((img, idx)=>{
-    const aboveFold = idx < 2 && !img.closest('.modal-overlay,.gallery-section,.reviews-section,#products,#from-you');
+    const heroImage = !!img.closest('.hero-ad-card,.hero,.home-promo-shell');
+    const aboveFold = (idx < 2 || heroImage) && !img.closest('.modal-overlay,.gallery-section,.reviews-section,#products,#from-you');
     if(!img.hasAttribute('decoding')) img.decoding = 'async';
     if(!img.hasAttribute('fetchpriority')) img.setAttribute('fetchpriority', aboveFold ? 'high' : 'low');
     if(!img.hasAttribute('loading')) img.loading = aboveFold ? 'eager' : 'lazy';
+    if(!img.complete){
+      img.classList.remove('img-loaded');
+      img.addEventListener('load', ()=>img.classList.add('img-loaded'), {once:true});
+      img.addEventListener('error', ()=>img.classList.add('img-loaded'), {once:true});
+    }else{
+      img.classList.add('img-loaded');
+    }
   });
 }
 document.addEventListener('DOMContentLoaded', ()=>{
   runSafely('initAddressSelectors', ()=>initAddressSelectors());
   runSafely('loadHomeSlider', ()=>loadHomeSlider());
   optimizeImageLoading();
+  document.addEventListener('keydown', (event)=>{
+    if(event.key === 'Escape'){
+      toggleFiltersDrawer(false);
+      closeMeasureHelp();
+    }
+  });
   const mo = new MutationObserver((mutations)=>{
     mutations.forEach((m)=>{
       m.addedNodes.forEach((node)=>{
