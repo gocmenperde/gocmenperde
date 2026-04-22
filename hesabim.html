@@ -2124,26 +2124,30 @@ async function onAddressCityChanged(city) {
 }
 
 async function onAddressDistrictChanged(district) {
+    const selectedDistrict = String(district || '').trim();
+    console.log('Seçilen İlçe:', selectedDistrict);
     const city = document.getElementById('aIl')?.value?.trim() || '';
     const mahalleEl = document.getElementById('aMahalle');
     const sokakEl = document.getElementById('aSokak');
-    if (!city || !district || !mahalleEl) {
+    if (!city || !selectedDistrict || !mahalleEl) {
         addressStreetMap = {};
         resetAddressNeighborhoodAndStreet();
         refreshAddressSaveButtonState();
         return;
     }
+    setAddressSelectState(mahalleEl, 'Mahalle Seçiniz', true);
     addressStreetMap = {};
     mahalleEl.disabled = true;
     mahalleEl.innerHTML = '<option value="">Mahalleler Yükleniyor...</option>';
     if (sokakEl) setAddressSelectState(sokakEl, 'Sokak/Cadde Seçiniz', true);
     try {
         // API district parametresinde ilçe adını bekliyor (ID değil).
-        const endpoint = `/api/address-data?city=${encodeURIComponent(city)}&district=${encodeURIComponent(district)}`;
-        console.log('[address-data] Mahalle isteği gönderiliyor', { city, district, endpoint });
+        const endpoint = `/api/address-data?city=${encodeURIComponent(city)}&district=${encodeURIComponent(selectedDistrict)}`;
+        console.log('[address-data] Mahalle isteği gönderiliyor', { city, district: selectedDistrict, endpoint });
         const r = await fetch(endpoint);
         if (!r.ok) throw new Error('Mahalleler alınamadı');
         const payload = await r.json();
+        console.log('Gelen Mahalleler:', payload?.neighborhoods || []);
         addressStreetMap = normalizeStreetMap(payload?.streetsByNeighborhood || {});
         const neighborhoodOptions = (Array.isArray(payload?.neighborhoods) ? payload.neighborhoods : [])
             .map((entry) => normalizeAddressOption(entry))
@@ -2156,7 +2160,7 @@ async function onAddressDistrictChanged(district) {
             return true;
         });
         if (!uniqueNeighborhoodOptions.length) {
-            console.log('[address-data] Mahalle listesi boş döndü', { city, district, payload });
+            console.log('[address-data] Mahalle listesi boş döndü', { city, district: selectedDistrict, payload });
         }
         mahalleEl.innerHTML = '<option value="">Mahalle Seçiniz</option>' + uniqueNeighborhoodOptions.map((item) => {
             const safeValue = escapeAddressOption(item.value);
@@ -2167,7 +2171,7 @@ async function onAddressDistrictChanged(district) {
         mahalleEl.disabled = false;
         if (sokakEl) setAddressSelectState(sokakEl, 'Sokak/Cadde Seçiniz', true);
     } catch (err) {
-        console.log('[address-data] Mahalle verisi alınırken hata oluştu', { city, district, error: err });
+        console.log('[address-data] Mahalle verisi alınırken hata oluştu', { city, district: selectedDistrict, error: err });
         addressStreetMap = {};
         mahalleEl.innerHTML = '<option value="">Mahalle bulunamadı</option>';
         mahalleEl.disabled = true;
