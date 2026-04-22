@@ -592,9 +592,11 @@ function buildOrderEmailHtml({ title, subtitle, accent, orderNo = '', customer, 
           <a href="${escapeHtml(customerOrdersUrl)}" style="display:inline-block;padding:12px 24px;border-radius:10px;background:#1a1f36;color:#ffffff !important;font-size:14px;font-weight:600;text-decoration:none">Müşteri Paneline Git</a>
         </div>
       </div>
-      <div style="padding:14px 20px 20px;text-align:center;color:#8a93a6;font-size:12px;line-height:1.6;background:#ffffff">
+      <div style="padding:14px 20px 20px;text-align:center;color:#888888;font-size:12px;line-height:1.6;background:#ffffff">
         Göçmen Perde • Bursa, Türkiye<br />
-        +90 (000) 000 00 00 • destek@gocmenperde.com
+        <a href="tel:+905012110958" style="color:#888888;text-decoration:none">+90 501 211 09 58</a>
+        <span style="opacity:.65"> • </span>
+        <a href="mailto:muhammedeminturk.16@gmail.com" style="color:#888888;text-decoration:none">muhammedeminturk.16@gmail.com</a>
       </div>
     </div>
   </div>`;
