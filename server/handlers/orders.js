@@ -3,6 +3,7 @@ const fs = require('fs/promises');
 const path = require('path');
 
 const { pool } = require('../lib/_db');
+const { sendResendEmail } = require('../lib/_resend-mail');
 const ADMIN_API_KEY = 'gocmen1993';
 const ORDER_STATUSES = ['Beklemede', 'Hazırlanıyor', 'Kargoya Verildi', 'Yolda', 'Dağıtımda', 'Teslim Edildi', 'İptal'];
 const ORDER_STATUS_ALIASES = {
@@ -638,64 +639,14 @@ function escapeHtml(value) {
 }
 
 async function sendTransactionalEmail({ to, subject, html }) {
-  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
-  const from = resolveFromAddress();
-  if (!apiKey) {
-    console.warn('RESEND_API_KEY tanımlı değil. E-posta gönderimi atlandı.');
-    return { ok: false, skipped: true, reason: 'missing_api_key' };
-  }
   if (!to) {
     return { ok: false, skipped: true, reason: 'missing_recipient' };
   }
-  if (!from) {
-    return { ok: false, skipped: true, reason: 'invalid_from_address' };
+  const result = await sendResendEmail({ to, subject, html });
+  if (!result.ok) {
+    console.warn('Mail gönderilemedi:', result.reason || 'mail_error', result.status || '', result.error || '');
   }
-
-  try {
-    if (from.includes('onboarding@resend.dev')) {
-      console.warn(
-        'ORDER_FROM_EMAIL onboarding@resend.dev olarak ayarlı. Bu adres test amaçlıdır; üretimde doğrulanmış domain adresi kullanın.'
-      );
-    }
-
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from,
-        to: [to],
-        subject,
-        html,
-      }),
-    });
-
-    if (!response.ok) {
-      const body = await response.text();
-      console.warn('Mail gönderilemedi:', response.status, body);
-      return { ok: false, skipped: false, status: response.status };
-    }
-    return { ok: true, skipped: false };
-  } catch (err) {
-    console.warn('Mail servisi hatası:', err.message);
-    return { ok: false, skipped: false, error: err.message };
-  }
-}
-
-function resolveFromAddress() {
-  const configuredFrom = String(process.env.ORDER_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || '').trim();
-  const from = configuredFrom;
-  const emailMatch = from.match(/<?([^<>\s]+@[^<>\s]+)>?$/);
-  const email = emailMatch ? emailMatch[1].toLowerCase() : '';
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    console.warn('ORDER_FROM_EMAIL geçersiz. Örn: "Göçmen Perde <bilgi@gocmenperde.com.tr>"');
-    return '';
-  }
-
-  return from;
+  return result;
 }
 
 

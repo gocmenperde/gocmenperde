@@ -1,6 +1,7 @@
 const fs = require('fs/promises');
 const path = require('path');
 const { pool } = require('../lib/_db');
+const { sendResendEmail, normalizeRecipients, normalizeEmail } = require('../lib/_resend-mail');
 
 const FILE_NAME = 'live-support-messages.json';
 const ADMIN_API_KEY = 'gocmen1993';
@@ -61,12 +62,6 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
-}
-
-function normalizeEmail(value) {
-  const email = String(value || '').trim().toLowerCase();
-  if (!email) return '';
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
 }
 
 function normalizePhone(value) {
@@ -154,61 +149,12 @@ async function writeItems(items) {
   await fs.writeFile(filePath, JSON.stringify(items, null, 2), 'utf8');
 }
 
-function resolveFromAddress() {
-  const configuredFrom = String(process.env.ORDER_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || '').trim();
-  const from = configuredFrom;
-  const emailMatch = from.match(/<?([^<>\s]+@[^<>\s]+)>?$/);
-  const email = emailMatch ? emailMatch[1].toLowerCase() : '';
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return '';
-  return from;
-}
-
-function normalizeRecipients(to) {
-  const list = Array.isArray(to) ? to : [to];
-  const clean = list
-    .map((item) => normalizeEmail(item))
-    .filter(Boolean);
-  return Array.from(new Set(clean));
-}
-
 async function sendTransactionalEmail({ to, subject, html }) {
-  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
-  const from = resolveFromAddress();
   const recipients = normalizeRecipients(to);
-  if (!apiKey) {
-    return { ok: false, skipped: true, reason: 'missing_api_key' };
-  }
-  if (!from) {
-    return { ok: false, skipped: true, reason: 'invalid_from_address' };
-  }
   if (!recipients.length) {
     return { ok: false, skipped: true, reason: 'missing_recipient' };
   }
-
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from,
-        to: recipients,
-        subject,
-        html,
-      }),
-    });
-
-    if (!response.ok) {
-      const body = await response.text();
-      return { ok: false, skipped: false, reason: 'provider_error', error: `${response.status}: ${body.slice(0, 220)}` };
-    }
-
-    return { ok: true, skipped: false };
-  } catch (err) {
-    return { ok: false, skipped: false, reason: 'mail_error', error: err.message || 'mail_error' };
-  }
+  return sendResendEmail({ to: recipients, subject, html });
 }
 
 function buildAdminNotifyTemplate(item) {

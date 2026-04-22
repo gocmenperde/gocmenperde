@@ -1,5 +1,6 @@
 const fs = require('fs/promises');
 const path = require('path');
+const { sendResendEmail, normalizeEmail } = require('../lib/_resend-mail');
 
 const FILE_PATH = path.join(__dirname, '..', 'data', 'stock-alerts.json');
 
@@ -18,46 +19,8 @@ async function writeAlerts(alerts) {
   await fs.writeFile(FILE_PATH, JSON.stringify(alerts, null, 2), 'utf8');
 }
 
-function normalizeEmail(value) {
-  const email = String(value || '').trim().toLowerCase();
-  if (!email) return '';
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
-}
-
-function getFromEmail() {
-  const configuredFrom = String(process.env.ORDER_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || '').trim();
-  if (configuredFrom) return configuredFrom;
-  return 'Göçmen Perde <onboarding@resend.dev>';
-}
-
 async function sendTransactionalEmail({ to, subject, html }) {
-  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
-  if (!apiKey) return { ok: false, error: 'RESEND_API_KEY tanımlı değil' };
-
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: getFromEmail(),
-        to,
-        subject,
-        html,
-      }),
-    });
-
-    if (!response.ok) {
-      const body = await response.text();
-      return { ok: false, error: `Mail gönderilemedi (${response.status}): ${body.slice(0, 240)}` };
-    }
-
-    return { ok: true };
-  } catch (err) {
-    return { ok: false, error: err.message || 'Mail servisi hatası' };
-  }
+  return sendResendEmail({ to, subject, html });
 }
 
 module.exports = async function handler(req, res) {
