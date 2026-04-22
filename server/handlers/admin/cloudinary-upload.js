@@ -133,7 +133,9 @@ function resolveUploadBody(reqBody) {
   ).trim();
   const fileName = String(rawBody.fileName || rawBody.filename || rawBody.name || 'image');
   const prefix = String(rawBody.prefix || 'image');
-  return { dataUrl, fileName, prefix };
+  const mimeType = String(rawBody.mimeType || rawBody.type || '').trim().toLowerCase();
+  const mode = String(rawBody.mode || '').trim().toLowerCase();
+  return { dataUrl, fileName, prefix, mimeType, mode };
 }
 
 function sanitizeFileName(value) {
@@ -167,6 +169,24 @@ function createSignature(params, apiSecret) {
     .join('&');
 
   return crypto.createHash('sha1').update(`${toSign}${apiSecret}`).digest('hex');
+}
+
+function buildSignedUploadPayload({ cloudinaryConfig, fileName, prefix, folder = 'gocmenperde' }) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const publicId = buildPublicId(prefix, fileName);
+  const signParams = { folder, public_id: publicId, timestamp };
+  const cloudinaryConnection = buildCloudinaryConnection(cloudinaryConfig);
+  const signature = createSignature(signParams, cloudinaryConnection.api_secret);
+
+  return {
+    uploadUrl: cloudinaryConnection.upload_endpoint,
+    apiKey: cloudinaryConnection.api_key,
+    timestamp,
+    folder,
+    publicId,
+    signature,
+    cloudName: cloudinaryConnection.cloud_name,
+  };
 }
 
 module.exports = async function handler(req, res) {
@@ -211,14 +231,27 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const { dataUrl, fileName, prefix } = resolveUploadBody(req.body);
+  const { dataUrl, fileName, prefix, mimeType, mode } = resolveUploadBody(req.body);
+
+  if (!dataUrl) {
+    if (mimeType && !ALLOWED_IMAGE_MIME_TYPES.has(mimeType)) {
+      return res.status(400).json({ error: 'Desteklenmeyen görsel formatı. JPG, PNG, WEBP, AVIF veya GIF kullanın.' });
+    }
+
+    const signedUpload = buildSignedUploadPayload({ cloudinaryConfig, fileName, prefix });
+    return res.status(200).json({
+      success: true,
+      mode: mode || 'signed-upload',
+      ...signedUpload,
+    });
+  }
 
   if (!dataUrl.startsWith('data:image/')) {
     return res.status(400).json({ error: 'Geçersiz görsel verisi. dataUrl veya file alanı data:image/* formatında olmalı.' });
   }
 
-  const mimeType = extractMimeTypeFromDataUrl(dataUrl);
-  if (!ALLOWED_IMAGE_MIME_TYPES.has(mimeType)) {
+  const dataUrlMimeType = extractMimeTypeFromDataUrl(dataUrl);
+  if (!ALLOWED_IMAGE_MIME_TYPES.has(dataUrlMimeType)) {
     return res.status(400).json({ error: 'Desteklenmeyen görsel formatı. JPG, PNG, WEBP, AVIF veya GIF kullanın.' });
   }
 
@@ -227,22 +260,17 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const timestamp = Math.floor(Date.now() / 1000);
-    const folder = 'gocmenperde';
-    const publicId = buildPublicId(prefix, fileName);
-    const signParams = { folder, public_id: publicId, timestamp };
-    const cloudinaryConnection = buildCloudinaryConnection(cloudinaryConfig);
-    const signature = createSignature(signParams, cloudinaryConnection.api_secret);
+    const signedUpload = buildSignedUploadPayload({ cloudinaryConfig, fileName, prefix });
 
     const formData = new FormData();
     formData.append('file', dataUrl);
-    formData.append('api_key', cloudinaryConnection.api_key);
-    formData.append('timestamp', String(timestamp));
-    formData.append('folder', folder);
-    formData.append('public_id', publicId);
-    formData.append('signature', signature);
+    formData.append('api_key', signedUpload.apiKey);
+    formData.append('timestamp', String(signedUpload.timestamp));
+    formData.append('folder', signedUpload.folder);
+    formData.append('public_id', signedUpload.publicId);
+    formData.append('signature', signedUpload.signature);
 
-    const cloudinaryRes = await fetch(cloudinaryConnection.upload_endpoint, {
+    const cloudinaryRes = await fetch(signedUpload.uploadUrl, {
       method: 'POST',
       body: formData,
     });
@@ -255,7 +283,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       success: true,
       imageUrl: payload.secure_url || payload.url || '',
-      publicId: payload.public_id || publicId,
+      publicId: payload.public_id || signedUpload.publicId,
     });
   } catch (err) {
     return res.status(500).json({ error: `Cloudinary yükleme başarısız: ${err.message}` });
