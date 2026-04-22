@@ -292,7 +292,12 @@ module.exports = async function handler(req, res) {
           await writeItems(items);
         }
 
-        const notifyEmail = String(process.env.LIVE_SUPPORT_NOTIFY_EMAIL || process.env.ORDER_NOTIFY_EMAIL || DEFAULT_NOTIFY_EMAIL).trim();
+        const notifyEmail = String(
+          process.env.LIVE_SUPPORT_NOTIFY_EMAIL
+          || process.env.ADMIN_ORDER_EMAIL
+          || process.env.ORDER_NOTIFY_EMAIL
+          || DEFAULT_NOTIFY_EMAIL
+        ).trim();
         const mailResult = await sendTransactionalEmail({
           to: notifyEmail,
           subject: `Yeni canlı destek talebi · ${item.ticketNo}`,
