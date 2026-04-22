@@ -1977,7 +1977,7 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
   <div class="modal-box">
     <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-xmark"></i></button>
     <div class="modal-mobile-header" role="toolbar" aria-label="Ürün detay hızlı işlemler">
-      <button class="mh-btn mh-back" type="button" onclick="goBackSmart('products')" title="Geri"><i class="fas fa-chevron-left"></i></button>
+      <button class="mh-btn mh-back" type="button" onclick="handleProductModalBack()" title="Geri"><i class="fas fa-chevron-left"></i></button>
       <label class="mh-search" for="modalSearchInput">
         <i class="fas fa-search"></i>
         <input type="text" id="modalSearchInput" class="modal-search-input" placeholder="Ürün, kategori veya açıklama ara..." oninput="searchProductsFromModal(this.value)" onfocus="searchProductsFromModal(this.value)">
@@ -4831,9 +4831,18 @@ function syncCategoryQueryParamWithFilters(){
   window.history.replaceState(window.history.state || {}, '', `${url.pathname}${url.search}${url.hash}`);
 }
 function handleProductModalBack(){
-  const hasProductParam = new URLSearchParams(window.location.search).has('product');
-  if(hasProductParam && window.history.length > 1){
+  const url = new URL(window.location.href);
+  const productIdFromQuery = String(url.searchParams.get('product') || '').trim();
+  const hasProductParam = !!productIdFromQuery;
+  const stateProductId = String(window.history.state?.product || '').trim();
+  const hasInAppProductHistory = hasProductParam && stateProductId && stateProductId === productIdFromQuery;
+
+  if(hasInAppProductHistory && window.history.length > 1){
     window.history.back();
+    return;
+  }
+  if(hasProductParam){
+    window.location.assign('/');
     return;
   }
   closeProductModal();
