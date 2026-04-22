@@ -6,8 +6,17 @@ function normalizeEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
 }
 
+function splitRecipientInput(value) {
+  if (Array.isArray(value)) return value;
+  if (value == null) return [];
+  return String(value)
+    .split(/[;,\n]/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function normalizeRecipients(to) {
-  const list = Array.isArray(to) ? to : [to];
+  const list = splitRecipientInput(to).flatMap((item) => splitRecipientInput(item));
   const clean = list.map((item) => normalizeEmail(item)).filter(Boolean);
   return Array.from(new Set(clean));
 }
