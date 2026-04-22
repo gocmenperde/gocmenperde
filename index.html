@@ -5482,8 +5482,29 @@ function runSafely(taskName, fn){
 }
 
 let globalCrashHandlingInProgress = false;
+let lastGlobalCrashToastAt = 0;
+
+function normalizeRuntimeErrorMessage(error){
+  if(!error) return '';
+  if(typeof error === 'string') return error.trim();
+  if(typeof error?.message === 'string') return error.message.trim();
+  return String(error).trim();
+}
+
+function shouldIgnoreRuntimeCrash(error){
+  const message = normalizeRuntimeErrorMessage(error);
+  if(!message) return true;
+  if(/ResizeObserver loop limit exceeded/i.test(message)) return true;
+  if(/aborted|AbortError|Load failed|Failed to fetch|NetworkError/i.test(message)) return true;
+  if(/script error\.?/i.test(message)) return true;
+  if(/Non-Error promise rejection captured/i.test(message)) return true;
+  if(message === '[object Event]' || message === '[object Object]') return true;
+  return false;
+}
+
 function handleGlobalRuntimeCrash(error){
   if(globalCrashHandlingInProgress) return;
+  if(shouldIgnoreRuntimeCrash(error)) return;
   globalCrashHandlingInProgress = true;
   console.error('[global-crash]', error);
   try{
@@ -5492,21 +5513,22 @@ function handleGlobalRuntimeCrash(error){
     closeImageViewer();
     toggleFiltersDrawer(false);
   }catch(_){}
-  showToast('Beklenmedik bir hata oluştu. Sayfa yenilenmeden işlem devam ediyor.');
+  const now = Date.now();
+  if(now - lastGlobalCrashToastAt > 15000){
+    showToast('Beklenmedik bir hata oluştu. Sayfa yenilenmeden işlem devam ediyor.');
+    lastGlobalCrashToastAt = now;
+  }
   setTimeout(()=>{
     globalCrashHandlingInProgress = false;
   }, 220);
 }
 
 window.addEventListener('error', (event)=>{
-  const message = String(event?.message || '');
-  if(/ResizeObserver loop limit exceeded/i.test(message)) return;
-  handleGlobalRuntimeCrash(event?.error || message || 'runtime_error');
+  const candidateError = event?.error || event?.message || 'runtime_error';
+  handleGlobalRuntimeCrash(candidateError);
 });
 window.addEventListener('unhandledrejection', (event)=>{
   const reason = event?.reason;
-  const message = String(reason?.message || reason || '');
-  if(/aborted|AbortError|Load failed|Failed to fetch/i.test(message)) return;
   handleGlobalRuntimeCrash(reason || 'unhandled_rejection');
 });
 
