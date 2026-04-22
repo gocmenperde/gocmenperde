@@ -754,9 +754,13 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-spec-row:last-child{border-bottom:none}
 .modal-spec-key{color:var(--slate)}.modal-spec-val{color:var(--ink);font-weight:600;text-align:right}
 .modal-add-wrap{margin-top:16px;display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:linear-gradient(135deg,#ffffff,#faf7f1);border:1px solid rgba(201,168,76,0.2);box-shadow:0 10px 24px rgba(15,14,13,0.06)}
-.modal-add-main-row{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;width:100%}
+.modal-add-main-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:nowrap;width:100%;padding:10px 15px;position:relative;z-index:999}
 .modal-add-extra-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%}
 .modal-quick-buy-bar{display:none}
+.modal-qty-stepper{flex:0 0 100px;height:48px;display:flex;align-items:center;justify-content:space-between;border:1px solid #e3dfd6;border-radius:10px;background:#fff;overflow:hidden}
+.modal-qty-step-btn{width:32px;height:100%;border:none;background:transparent;color:#1f2941;font-size:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-qty-step-btn:hover{background:#f3f4f7}
+.modal-qty-stepper .modal-qty-input{flex:1;height:100%;border:none;border-left:1px solid #ebe7de;border-right:1px solid #ebe7de;border-radius:0;text-align:center;box-shadow:none}
 .modal-qty-input{width:58px;height:44px;text-align:center;border:1px solid #e3dfd6;border-radius:10px;font-size:1rem;font-family:var(--ff-body);background:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,0.8)}
 .modal-add-main-row .modal-qty-input{flex:0 0 auto}
 .modal-qty-input.dimension-input{width:95px}
@@ -798,7 +802,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .modal-quick-buy-bar b{font-size:.74rem;color:#1f2941}
   .modal-quick-buy-bar span{font-size:.68rem;color:#606a84}
   .modal-quick-buy-bar button{border:none;background:#1f2941;color:#fff;border-radius:999px;padding:8px 12px;font-size:.64rem;letter-spacing:.8px}
-  .modal-add-wrap .modal-add-btn{font-size:0.75rem}
+  .modal-add-wrap .modal-add-btn{font-size:14px}
   .modal-add-main-row .modal-add-btn{padding-inline:12px}
   .modal-review-form{grid-template-columns:1fr}
   .modal-reviews-wrap{margin-bottom:16px}
@@ -834,10 +838,12 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .modal-img-stage{flex:1;height:auto;min-height:560px}
   .modal-info-col{min-height:0}
 }
-.modal-add-btn{flex:1;background:var(--ink);color:white;border:none;cursor:pointer;padding:12px 20px;border-radius:10px;font-size:0.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body);margin:0}
+.modal-add-btn{flex:1;background:var(--ink);color:white;border:none;cursor:pointer;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body);margin:0;height:48px;white-space:nowrap}
 .modal-add-main-row .modal-add-btn{flex:1 1 auto;min-width:0}
 .modal-support-btn{display:flex;align-items:center;justify-content:center;text-decoration:none;background:#25D366;color:#fff;min-height:44px}
-.modal-favorite-btn{width:44px;height:44px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:0.2s;flex:0 0 auto;margin:0}
+.modal-favorite-btn{width:48px;height:48px;border-radius:10px;border:1px solid #d7dce9;background:#f8faff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:0.2s;flex:0 0 48px;margin:0}
+.measure-guide-trigger{display:flex;align-items:center;gap:8px;width:100%;border:1px solid #d9dfec;background:#f6f8ff;color:#1f2941;border-radius:10px;padding:10px 12px;font-size:0.8rem;cursor:pointer}
+.measure-guide-trigger i{color:var(--gold)}
 .modal-add-btn:hover{background:var(--gold);color:var(--ink)}
 .mh-search{flex:1;display:flex;align-items:center;gap:8px;height:40px;background:#f1f1f1;border:1px solid #e4e4e4;border-radius:999px;padding:0 12px}
 .mh-search i{font-size:0.9rem;color:var(--gold)}
@@ -920,8 +926,13 @@ footer span{color:var(--gold)}
 .image-viewer-thumbs-wrap .modal-thumbs{padding:0}
 .measure-help-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(9,12,20,.68);z-index:12650;padding:18px}
 .measure-help-modal.open{display:flex}
-.measure-help-card{width:min(640px,95vw);background:#fff;border-radius:16px;padding:16px;box-shadow:0 24px 50px rgba(0,0,0,.24)}
-.measure-help-card img{width:100%;max-height:70vh;object-fit:contain;border-radius:10px;background:#f5f5f5}
+.measure-help-card{width:min(760px,95vw);max-height:86vh;overflow-y:auto;background:#fff;border-radius:16px;padding:16px;box-shadow:0 24px 50px rgba(0,0,0,.24)}
+.measure-help-content{font-size:.86rem;color:#243047;line-height:1.6}
+.measure-help-content h4{font-size:.9rem;margin:10px 0 6px}
+.measure-help-content ul{padding-left:18px}
+.measure-help-gallery{margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.measure-help-gallery img{width:100%;max-height:260px;object-fit:contain;border-radius:10px;background:#f5f5f5;cursor:zoom-in}
+.measure-help-gallery img.zoomed{position:fixed;inset:5vh 5vw;z-index:12670;width:90vw;max-width:90vw;max-height:90vh;background:#0d111acc;padding:8px;object-fit:contain}
 @media(max-width:700px){.image-viewer-overlay{padding:12px}.image-viewer-stage{height:min(66vh,520px)}.image-viewer-hint{font-size:0.6rem;padding:5px 10px}}
 .cart-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.22);z-index:13030;display:none;pointer-events:auto}
 .cart-sheet-overlay.open{display:block}
@@ -2113,10 +2124,11 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 <div class="measure-help-modal" id="measureHelpModal" onclick="closeMeasureHelp(event)">
   <div class="measure-help-card" onclick="event.stopPropagation()">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
-      <strong>Doğru Ölçü Nasıl Alınır?</strong>
+      <strong id="measureHelpTitle">Doğru Ölçü Nasıl Alınır?</strong>
       <button type="button" class="image-viewer-btn" onclick="closeMeasureHelp()"><i class="fas fa-xmark"></i></button>
     </div>
-    <img src="resimler/foto2.jpg" alt="Perde ölçü alma rehberi" loading="lazy" decoding="async">
+    <div id="measureHelpContent" class="measure-help-content">Rehber yükleniyor...</div>
+    <div id="measureHelpGallery" class="measure-help-gallery"></div>
   </div>
 </div>
 
@@ -4149,6 +4161,7 @@ function buildCard(p, index=0){
     ${requireWidth ? `<input type="text" inputmode="decimal" class="qty-input dimension-input" id="${wid}" placeholder="En (m)" onclick="event.stopPropagation()">` : ''}
     ${requireHeight ? `<input type="text" inputmode="decimal" class="qty-input dimension-input" id="${hid}" placeholder="Boy (m)" onclick="event.stopPropagation()">` : ''}
     ${(requireWidth || requireHeight) ? `<button type="button" class="measure-tooltip-btn" onclick="event.stopPropagation();openMeasureHelp()" title="Doğru ölçü nasıl alınır?">?</button>` : ''}
+    ${(requireWidth || requireHeight) ? `<button type="button" class="measure-guide-trigger" onclick="event.stopPropagation();openMeasureHelp()"><i class="fas fa-ruler-combined"></i> Doğru Ölçü Nasıl Alınır?</button>` : ''}
     ${pleatedMeterProduct ? `<select class="qty-input pile-select" id="pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
     ${squareProduct ? `<span id="${pid}" class="qty-help-text">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
     ${pleatedMeterProduct ? `<span id="${pid}" class="qty-help-text">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
@@ -4311,12 +4324,72 @@ function updatePilePreview(productId, value){
   if(el) el.textContent = map[value] || 'Orta Pile';
 }
 
+function adjustQuantityInput(inputId, delta, isMeter){
+  const el = document.getElementById(inputId);
+  if(!el || el.readOnly || el.disabled) return;
+  const raw = String(el.value || '').replace(',', '.');
+  const current = Number(raw) || (isMeter ? 1 : 1);
+  const step = isMeter ? 0.1 : 1;
+  const next = Math.max(step, current + (delta * step));
+  el.value = isMeter ? next.toFixed(1).replace(/\.0$/, '') : String(Math.round(next));
+  el.dispatchEvent(new Event('input', { bubbles:true }));
+}
+
+const fallbackMeasureGuide = {
+  title: 'Doğru Ölçü Nasıl Alınır?',
+  contentHtml: '<p>Ölçü alırken kornişten zemine boy, duvardan duvara en ölçüsü giriniz. Metre cinsinden (ör: 2.45) yazmanız önerilir.</p>',
+  images: [{ url: 'resimler/foto2.jpg', alt: 'Perde ölçü alma rehberi' }]
+};
+let measureGuideState = { ...fallbackMeasureGuide };
+let measureGuideLoaded = false;
+
+async function loadMeasureGuide(){
+  if(measureGuideLoaded) return measureGuideState;
+  try{
+    const res = await fetch('/api/measure-guide');
+    if(!res.ok) throw new Error('rehber alınamadı');
+    const data = await res.json();
+    if(data?.item){
+      measureGuideState = {
+        title: String(data.item.title || fallbackMeasureGuide.title),
+        contentHtml: String(data.item.contentHtml || fallbackMeasureGuide.contentHtml),
+        images: Array.isArray(data.item.images) && data.item.images.length ? data.item.images : fallbackMeasureGuide.images
+      };
+      measureGuideLoaded = true;
+      return measureGuideState;
+    }
+  }catch(err){
+    console.warn('measure guide load failed:', err.message);
+  }
+  measureGuideLoaded = true;
+  return measureGuideState;
+}
+
+function renderMeasureGuide(){
+  const titleEl = document.getElementById('measureHelpTitle');
+  const contentEl = document.getElementById('measureHelpContent');
+  const galleryEl = document.getElementById('measureHelpGallery');
+  if(titleEl) titleEl.textContent = measureGuideState.title || fallbackMeasureGuide.title;
+  if(contentEl) contentEl.innerHTML = measureGuideState.contentHtml || fallbackMeasureGuide.contentHtml;
+  if(galleryEl){
+    const images = Array.isArray(measureGuideState.images) ? measureGuideState.images : [];
+    galleryEl.innerHTML = images.map((img, idx)=>`<img src="${img.url}" alt="${img.alt || `Ölçü rehberi ${idx+1}`}" loading="lazy" decoding="async" onclick="toggleMeasureImageZoom(this)">`).join('');
+  }
+}
+
 function openMeasureHelp(){
+  renderMeasureGuide();
   document.getElementById('measureHelpModal')?.classList.add('open');
+  loadMeasureGuide().then(renderMeasureGuide);
 }
 function closeMeasureHelp(event){
   if(event && event.target && event.target.id !== 'measureHelpModal') return;
   document.getElementById('measureHelpModal')?.classList.remove('open');
+  document.querySelectorAll('#measureHelpGallery img.zoomed').forEach((img)=>img.classList.remove('zoomed'));
+}
+function toggleMeasureImageZoom(imgEl){
+  if(!imgEl) return;
+  imgEl.classList.toggle('zoomed');
 }
 
 function toggleFiltersDrawer(forceOpen){
@@ -4719,7 +4792,11 @@ function openModalFromProduct(id){
   const requireHeight = requiresHeightMeasurement(p);
   document.getElementById('mAddWrap').innerHTML = `
     <div class="modal-add-main-row">
-      ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly onclick="event.stopPropagation()">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1" onclick="event.stopPropagation()">`}
+      <div class="modal-qty-stepper">
+        <button type="button" class="modal-qty-step-btn" onclick="event.stopPropagation();adjustQuantityInput('${qid}',-1,${meterProduct ? 'true' : 'false'})">-</button>
+        ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly onclick="event.stopPropagation()">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1" onclick="event.stopPropagation()">`}
+        <button type="button" class="modal-qty-step-btn" onclick="event.stopPropagation();adjustQuantityInput('${qid}',1,${meterProduct ? 'true' : 'false'})">+</button>
+      </div>
       ${outOfStock
         ? `<button type="button" class="modal-add-btn" style="background:#6b7280" disabled>Tükendi</button>`
         : `<button type="button" class="modal-add-btn" onclick="addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','modal-pile-${p.id}')"><i class="fas fa-bag-shopping" style="margin-right:8px"></i>Sepete Ekle</button>`}
@@ -4731,6 +4808,7 @@ function openModalFromProduct(id){
       ${requireWidth ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${wid}" placeholder="En (m)" onclick="event.stopPropagation()">` : ''}
       ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${hid}" placeholder="Boy (m)" onclick="event.stopPropagation()">` : ''}
       ${(requireWidth || requireHeight) ? `<button type="button" class="measure-tooltip-btn" onclick="event.stopPropagation();openMeasureHelp()" title="Doğru ölçü nasıl alınır?">?</button>` : ''}
+      ${(requireWidth || requireHeight) ? `<button type="button" class="measure-guide-trigger" onclick="event.stopPropagation();openMeasureHelp()"><i class="fas fa-ruler-combined"></i> Doğru Ölçü Nasıl Alınır?</button>` : ''}
       ${pleatedMeterProduct ? `<select class="modal-qty-input pile-select" id="modal-pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('modal-${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-modal-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
       ${squareProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
       ${pleatedMeterProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}

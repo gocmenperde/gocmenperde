@@ -643,6 +643,7 @@ tbody tr:hover td{background:#fdfcf8}
         <div class="nav-item" onclick="showPage('products')"><i class="fas fa-boxes-stacked"></i> Ürün Yönetimi</div>
         <div class="nav-item" onclick="showPage('categories');renderCatTable()"><i class="fas fa-folder-open"></i> Kategoriler</div>
         <div class="nav-item" onclick="showPage('campaigns')"><i class="fas fa-tag"></i> Kampanyalar</div>
+        <div class="nav-item" onclick="showPage('measure-guide');loadMeasureGuideAdmin()"><i class="fas fa-ruler-combined"></i> Ölçü Rehberi Yönetimi</div>
         <div class="nav-item" onclick="showPage('entrypanel');renderEntryPanelPage()"><i class="fas fa-door-open"></i> Giriş Paneli</div>
         <div class="nav-item" onclick="showPage('slider');loadSliderItems()"><i class="fas fa-rectangle-ad"></i> Reklam Yönetimi</div>
         <div class="nav-item" onclick="showPage('showcase');renderShowcaseAdminPage()"><i class="fas fa-images"></i> Montaj & Yorum Alanı</div>
@@ -1005,6 +1006,26 @@ Işık: Yarı Geçirgen"></textarea></div>
     <button class="btn btn-primary" onclick="openAddCampaignModal()"><i class="fas fa-plus"></i> Yeni Kampanya</button>
   </div>
   <div id="campaignList"></div>
+</div>
+
+<!-- ══ ÖLÇÜ REHBERİ ══ -->
+<div class="page" id="page-measure-guide">
+  <div class="breadcrumb"><i class="fas fa-home"></i> <span>Ölçü Rehberi Yönetimi</span></div>
+  <div class="page-header">
+    <div><h1>Ölçü Rehberi <em>Yönetimi</em></h1><p>Ürün sayfasındaki “Doğru Ölçü Nasıl Alınır?” içeriğini buradan düzenleyin.</p></div>
+    <button class="btn btn-outline btn-sm" onclick="loadMeasureGuideAdmin()"><i class="fas fa-rotate"></i> Yenile</button>
+  </div>
+  <div class="dash-panel">
+    <div class="dash-panel-body" style="display:grid;gap:14px">
+      <div class="fg"><label>Başlık</label><input type="text" id="mg-title" placeholder="Doğru Ölçü Nasıl Alınır?"></div>
+      <div class="fg"><label>Rehber Metni (Rich Text / HTML)</label><textarea id="mg-content" style="min-height:220px;font-family:monospace;font-size:0.82rem"></textarea></div>
+      <div class="fg"><label>Rehber Görselleri (her satır: URL | Alt Metin)</label><textarea id="mg-images" style="min-height:120px;font-family:monospace;font-size:0.8rem" placeholder="resimler/foto2.jpg | Perde ölçü alma şeması"></textarea></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn btn-outline btn-sm" onclick="seedMeasureGuideTemplate()"><i class="fas fa-wand-magic-sparkles"></i> Taslak Metin Doldur</button>
+        <button class="btn btn-success btn-sm" onclick="saveMeasureGuideAdmin()"><i class="fas fa-save"></i> Kaydet</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ══ SLIDER PANELİ ══ -->
@@ -1772,7 +1793,7 @@ document.addEventListener('DOMContentLoaded', bindLoginEvents);
 //  NAVIGATION
 // ════════════════════════════════════
 let currentPage = 'dashboard';
-const pageTitles = {dashboard:'Dashboard',orders:'Siparişler',customers:'Müşteriler',favorites:'Favoriler',products:'Ürün Yönetimi',categories:'Kategoriler',campaigns:'Kampanyalar',entrypanel:'Giriş Paneli',showcase:'Montaj & Yorum Alanı',fromyou:'Sizden Gelenler',notifications:'Bildirimler',settings:'Ayarlar'};
+const pageTitles = {dashboard:'Dashboard',orders:'Siparişler',customers:'Müşteriler',favorites:'Favoriler',products:'Ürün Yönetimi',categories:'Kategoriler',campaigns:'Kampanyalar','measure-guide':'Ölçü Rehberi Yönetimi',entrypanel:'Giriş Paneli',showcase:'Montaj & Yorum Alanı',fromyou:'Sizden Gelenler',notifications:'Bildirimler',settings:'Ayarlar'};
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
 const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
@@ -2504,6 +2525,7 @@ function showPage(id){
   if(id==='favorites') renderFavorites();
   if(id==='products') renderHomepageMerchEditor();
   if(id==='campaigns') renderCampaigns();
+  if(id==='measure-guide') loadMeasureGuideAdmin();
   if(id==='entrypanel') renderEntryPanelPage();
   if(id==='slider') loadSliderItems();
   if(id==='showcase') renderShowcaseAdminPage();
@@ -4606,6 +4628,78 @@ function updateCampaignSwitch(){
   sw.className='switch '+(campaignSwState?'on':'off');
   lbl.textContent=campaignSwState?'Aktif':'Pasif';
   lbl.style.color=campaignSwState?'var(--green)':'var(--red)';
+}
+
+const DEFAULT_MEASURE_GUIDE_TEMPLATE = {
+  title: 'Doğru Ölçü Nasıl Alınır?',
+  contentHtml: `<p>Perde ölçüsü alırken <strong>kornişten mermer seviyesine</strong> ve kullanım senaryonuza göre net ölçü girmeniz gerekir.</p>
+<h4>1) En (Genişlik) Ölçüsü</h4>
+<ul>
+  <li>Kornişin sağ ve sol bitiş noktaları arasını ölçün.</li>
+  <li>Duvar taşması isteniyorsa her iki yanda +10/+20 cm pay bırakabilirsiniz.</li>
+  <li>Fon perde için en ölçüsünü kanat başına ayrı değerlendirin.</li>
+</ul>
+<h4>2) Boy (Yükseklik) Ölçüsü</h4>
+<ul>
+  <li>Korniş altından zemine/mermere kadar olan mesafeyi ölçün.</li>
+  <li>Tül perde için zeminden 1-2 cm yukarıda kalacak boy önerilir.</li>
+  <li>Stor/zebra modellerde kasa başlangıcından bitiş noktasına kadar ölçün.</li>
+</ul>
+<h4>3) Pratik Kontrol Listesi</h4>
+<ul>
+  <li>Ölçüyü en az 2 farklı noktadan tekrar alın.</li>
+  <li>Ölçüleri metre cinsinden ve ondalıklı (örn: 2.45) girin.</li>
+  <li>Petek, pencere kolu veya süpürgelik engellerini not edin.</li>
+</ul>`,
+  images: [{ url: 'resimler/foto2.jpg', alt: 'Perde ölçü alma rehberi' }]
+};
+
+function seedMeasureGuideTemplate(){
+  document.getElementById('mg-title').value = DEFAULT_MEASURE_GUIDE_TEMPLATE.title;
+  document.getElementById('mg-content').value = DEFAULT_MEASURE_GUIDE_TEMPLATE.contentHtml;
+  document.getElementById('mg-images').value = DEFAULT_MEASURE_GUIDE_TEMPLATE.images.map((img)=>`${img.url} | ${img.alt}`).join('\n');
+}
+
+async function loadMeasureGuideAdmin(){
+  try{
+    const res = await apiFetch('/api/admin/measure-guide', { headers:{ 'x-admin-key': getAdminApiKey() } });
+    if(!res.ok) throw new Error('Ölçü rehberi alınamadı');
+    const data = await res.json();
+    const item = data?.item || DEFAULT_MEASURE_GUIDE_TEMPLATE;
+    document.getElementById('mg-title').value = item.title || DEFAULT_MEASURE_GUIDE_TEMPLATE.title;
+    document.getElementById('mg-content').value = item.contentHtml || DEFAULT_MEASURE_GUIDE_TEMPLATE.contentHtml;
+    document.getElementById('mg-images').value = (Array.isArray(item.images) ? item.images : []).map((img)=>`${img.url || ''} | ${img.alt || ''}`.trim()).join('\n');
+  }catch(err){
+    seedMeasureGuideTemplate();
+    aToast('⚠️ Ölçü rehberi API okunamadı, taslak gösterildi','error');
+  }
+}
+
+async function saveMeasureGuideAdmin(){
+  const title = document.getElementById('mg-title')?.value?.trim();
+  const contentHtml = document.getElementById('mg-content')?.value?.trim();
+  const imagesRaw = String(document.getElementById('mg-images')?.value || '').split('\n').map((line)=>line.trim()).filter(Boolean);
+  const images = imagesRaw.map((line, idx)=>{
+    const [url, alt] = line.split('|').map((part)=>String(part || '').trim());
+    return { url, alt: alt || '', sortOrder: idx };
+  }).filter((img)=>img.url);
+
+  if(!title || !contentHtml){
+    aToast('⚠️ Başlık ve rehber metni zorunludur','error');
+    return;
+  }
+  try{
+    const res = await apiFetch('/api/admin/measure-guide', {
+      method:'PUT',
+      headers:{ 'Content-Type':'application/json', 'x-admin-key':getAdminApiKey() },
+      body: JSON.stringify({ title, contentHtml, images })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data?.error || 'Kaydetme başarısız');
+    aToast('✓ Ölçü rehberi güncellendi','success');
+  }catch(err){
+    aToast('❌ '+(err.message || 'Kaydetme hatası'),'error');
+  }
 }
 
 function switchPremiumTab(tab='live'){
