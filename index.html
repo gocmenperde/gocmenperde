@@ -2255,6 +2255,12 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 </div>
 
 <script>
+window.addEventListener('error', (e) => {
+  console.error('[runtime error]', e.message, e.filename + ':' + e.lineno);
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[unhandled rejection]', e.reason);
+});
 const WA_NUMBER = '905012110958';
 const LIVE_SUPPORT_ENDPOINT = '/api/live-support';
 const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
@@ -3416,6 +3422,38 @@ function renderProductState(list, {withObserver=true} = {}){
   if(withObserver) initObserver();
 }
 
+async function loadProductsResilient(){
+  const sources = [
+    `/products.json?v=${Date.now()}`,
+    `/products.json`,
+    `https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/products.json`,
+  ];
+  for (const url of sources) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+      clearTimeout(timer);
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) return data;
+    } catch (err) {
+      console.warn('[products] kaynak başarısız:', url, err?.message);
+    }
+  }
+  console.error('[products] TÜM kaynaklar başarısız');
+  return [];
+}
+
+function renderProductsLoadFailure(){
+  const gridEl = document.getElementById('productsGrid');
+  if(!gridEl) return;
+  gridEl.innerHTML = `<div class="products-loading" style="grid-column:1/-1">
+    Ürünler şu an yüklenemiyor. Lütfen sayfayı yenileyin veya birkaç dakika sonra tekrar deneyin.
+    <div style="margin-top:14px"><button type="button" onclick="loadProducts({ forceRefresh: true })" style="border:none;background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;cursor:pointer">Yeniden dene</button></div>
+  </div>`;
+}
+
 async function loadProducts({forceRefresh=false} = {}){
   const shouldUseCache = !forceRefresh;
   if(shouldUseCache && !productsLoadedOnce){
@@ -3429,22 +3467,9 @@ async function loadProducts({forceRefresh=false} = {}){
   if(productRequestInFlight) return productRequestInFlight;
 
   productRequestInFlight = (async ()=>{
-    const gridEl = document.getElementById('productsGrid');
-    const showLoadError = (message='Ürünler yüklenemedi. Lütfen daha sonra tekrar deneyin.')=>{
-      if(gridEl){
-        gridEl.innerHTML = `<div class="products-loading" style="grid-column:1/-1">${message}</div>`;
-      }
-    };
+    const startedAt = Date.now();
     try{
-      let fresh = [];
-      try {
-        const localRes = await fetchWithTimeout(`/products.json?v=${Date.now()}`, { cache: 'no-store' }, 10000);
-        if (localRes.ok) {
-          const parsed = await localRes.json();
-          if (Array.isArray(parsed)) fresh = parsed;
-        }
-      } catch (_) {}
-      if (!Array.isArray(fresh)) fresh = [];
+      const fresh = await loadProductsResilient();
       const normalizedFresh = fresh.map(normalizeProductCatalog).filter((item)=>item && item.active !== false);
       if(!normalizedFresh.length){
         throw new Error('Aktif ürün bulunamadı');
@@ -3467,7 +3492,9 @@ async function loadProducts({forceRefresh=false} = {}){
         productsLoadedOnce = true;
       } else if(!productsLoadedOnce){
         console.error('[products] load failed:', e);
-        showLoadError('Ürünler şu an yüklenemiyor. İnternet bağlantınızı kontrol edip tekrar deneyin.');
+        const elapsed = Date.now() - startedAt;
+        if(elapsed < 8000) await new Promise((resolve)=>setTimeout(resolve, 8000 - elapsed));
+        renderProductsLoadFailure();
       }
     } finally {
       productRequestInFlight = null;
@@ -3798,6 +3825,29 @@ function renderModalReviews(productId){
 }
 
 // Admin'deki kategorileri senkronize et
+async function loadCategoriesResilient(){
+  const sources = [
+    `/categories.json?v=${Date.now()}`,
+    `/categories.json`,
+    `https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/categories.json`,
+  ];
+  for (const url of sources) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+      clearTimeout(timer);
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) return data;
+    } catch (err) {
+      console.warn('[categories] kaynak başarısız:', url, err?.message);
+    }
+  }
+  console.error('[categories] TÜM kaynaklar başarısız');
+  return [];
+}
+
 function syncCategoriesFromAdmin(){
   try{
     const saved = localStorage.getItem('gp_categories');
@@ -3808,16 +3858,7 @@ function syncCategoriesFromAdmin(){
   } catch(e){}
 
   if(!categoryRequestInFlight){
-    categoryRequestInFlight = (async ()=>{
-      try{
-        const localRes = await fetch(`/categories.json?v=${Date.now()}`, { cache:'no-store' });
-        if(!localRes.ok) return [];
-        const parsed = await localRes.json();
-        return Array.isArray(parsed) ? parsed : [];
-      } catch(_){
-        return [];
-      }
-    })()
+    categoryRequestInFlight = loadCategoriesResilient()
       .then(remoteCategories => {
         if(Array.isArray(remoteCategories) && remoteCategories.length){
           CATEGORIES = remoteCategories.filter(c=>c && c.key && c.label);
@@ -5445,57 +5486,6 @@ function runSafely(taskName, fn){
     console.error(`[boot] ${taskName} failed:`, err);
   }
 }
-
-let globalCrashHandlingInProgress = false;
-let lastGlobalCrashToastAt = 0;
-
-function normalizeRuntimeErrorMessage(error){
-  if(!error) return '';
-  if(typeof error === 'string') return error.trim();
-  if(typeof error?.message === 'string') return error.message.trim();
-  return String(error).trim();
-}
-
-function shouldIgnoreRuntimeCrash(error){
-  const message = normalizeRuntimeErrorMessage(error);
-  if(!message) return true;
-  if(/ResizeObserver loop limit exceeded/i.test(message)) return true;
-  if(/aborted|AbortError|Load failed|Failed to fetch|NetworkError/i.test(message)) return true;
-  if(/script error\.?/i.test(message)) return true;
-  if(/Non-Error promise rejection captured/i.test(message)) return true;
-  if(message === '[object Event]' || message === '[object Object]') return true;
-  return false;
-}
-
-function handleGlobalRuntimeCrash(error){
-  if(globalCrashHandlingInProgress) return;
-  if(shouldIgnoreRuntimeCrash(error)) return;
-  globalCrashHandlingInProgress = true;
-  console.error('[global-crash]', error);
-  try{
-    closeAllPopups();
-    closeProductModal();
-    closeImageViewer();
-    toggleFiltersDrawer(false);
-  }catch(_){}
-  const now = Date.now();
-  if(now - lastGlobalCrashToastAt > 15000){
-    showToast('Beklenmedik bir hata oluştu. Sayfa yenilenmeden işlem devam ediyor.');
-    lastGlobalCrashToastAt = now;
-  }
-  setTimeout(()=>{
-    globalCrashHandlingInProgress = false;
-  }, 220);
-}
-
-window.addEventListener('error', (event)=>{
-  const candidateError = event?.error || event?.message || 'runtime_error';
-  handleGlobalRuntimeCrash(candidateError);
-});
-window.addEventListener('unhandledrejection', (event)=>{
-  const reason = event?.reason;
-  handleGlobalRuntimeCrash(reason || 'unhandled_rejection');
-});
 
 document.addEventListener('DOMContentLoaded',()=>{
   runSafely('renderHomeSlider (dom ready)', ()=>renderHomeSlider());

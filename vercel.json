@@ -5,5 +5,16 @@
       "source": "/api/(.*)",
       "destination": "/api/router?route=$1"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(products|categories)\\.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, must-revalidate"
+        }
+      ]
+    }
   ]
 }

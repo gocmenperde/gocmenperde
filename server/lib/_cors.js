@@ -2,13 +2,20 @@ const ALLOWED_ORIGINS = [
   'https://gocmenperde.com.tr',
   'https://www.gocmenperde.com.tr',
 ];
-const ALLOWED_PATTERNS = [/\.replit\.dev$/, /\.replit\.app$/, /^http:\/\/localhost(:\d+)?$/];
+const ALLOWED_PATTERNS = [
+  /\.vercel\.app$/,
+  /\.replit\.dev$/,
+  /\.replit\.app$/,
+  /^https?:\/\/localhost(:\d+)?$/,
+  /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+];
 
 function applyCors(req, res, { allowAdminHeaders = false } = {}) {
-  const origin = req.headers.origin || '';
-  const allowed = ALLOWED_ORIGINS.includes(origin) || ALLOWED_PATTERNS.some((p) => p.test(origin));
+  const origin = req.headers.origin;
+  const allowed =
+    !!origin && (ALLOWED_ORIGINS.includes(origin) || ALLOWED_PATTERNS.some((p) => p.test(origin)));
 
-  if (allowed) {
+  if (origin && allowed) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
 
