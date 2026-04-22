@@ -1,6 +1,8 @@
 // api/router.js veya ana server dosyanın EN ÜSTÜNE ekle
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+const fs = require('fs');
+
+if (process.env.NODE_ENV !== 'production' && typeof process.loadEnvFile === 'function' && fs.existsSync('.env')) {
+  process.loadEnvFile();
 }
 
 // PayTR değişkenlerini burada bir kez konsola yazdır ki yüklendiğini gör
