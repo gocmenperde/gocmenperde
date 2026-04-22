@@ -76,6 +76,58 @@ out tags;
   return sortStreetValues(names);
 }
 
+async function fetchDistrictNeighborhoodsFromOsm({ city, district }) {
+  const query = [district, city, 'Türkiye'].filter(Boolean).join(', ');
+  const geocodeUrl = `${NOMINATIM_SEARCH_ENDPOINT}?format=jsonv2&limit=1&countrycodes=tr&q=${encodeURIComponent(query)}`;
+  const geocodeResponse = await fetch(geocodeUrl, {
+    headers: { 'User-Agent': 'gocmenperde-address-service/1.0' },
+  });
+  if (!geocodeResponse.ok) return [];
+  const geocodePayload = await geocodeResponse.json();
+  const bbox = Array.isArray(geocodePayload?.[0]?.boundingbox) ? geocodePayload[0].boundingbox : [];
+  if (bbox.length !== 4) return [];
+
+  const [south, north, west, east] = bbox.map((item) => Number(item));
+  if ([south, north, west, east].some((item) => Number.isNaN(item))) return [];
+
+  const overpassQuery = `
+[out:json][timeout:25];
+(
+  relation["boundary"="administrative"]["name"](${south},${west},${north},${east});
+  way["place"~"neighbourhood|quarter|suburb"]["name"](${south},${west},${north},${east});
+  node["place"~"neighbourhood|quarter|suburb"]["name"](${south},${west},${north},${east});
+);
+out tags;
+`;
+
+  const overpassResponse = await fetch(OVERPASS_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'User-Agent': 'gocmenperde-address-service/1.0',
+    },
+    body: `data=${encodeURIComponent(overpassQuery)}`,
+  });
+  if (!overpassResponse.ok) return [];
+
+  const overpassPayload = await overpassResponse.json();
+  const districtComparable = toComparable(district);
+  const cityComparable = toComparable(city);
+
+  const names = (Array.isArray(overpassPayload?.elements) ? overpassPayload.elements : [])
+    .map((item) => String(item?.tags?.name || '').trim())
+    .filter(Boolean)
+    .filter((name) => {
+      const normalized = toComparable(name);
+      if (!normalized) return false;
+      if (normalized === districtComparable || normalized === cityComparable) return false;
+      if (normalized.includes('belediyesi')) return false;
+      return true;
+    });
+
+  return uniqTrimmedStrings(names).sort((a, b) => a.localeCompare(b, 'tr'));
+}
+
 function isStreetLikeName(value) {
   const normalized = toComparable(value);
   return (
@@ -287,11 +339,16 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    let neighborhoods = uniqTrimmedStrings(neighborhoodsRaw.map((entry) => entry?.name || entry));
+    if (!neighborhoods.length) {
+      neighborhoods = await fetchDistrictNeighborhoodsFromOsm({ city, district });
+    }
+
     return res.status(200).json({
       success: true,
       city,
       district,
-      neighborhoods: uniqTrimmedStrings(neighborhoodsRaw.map((entry) => entry?.name || entry)),
+      neighborhoods,
       streetsByNeighborhood,
     });
   } catch (_) {
