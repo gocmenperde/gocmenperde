@@ -54,7 +54,10 @@ const ROUTES = {
 };
 
 module.exports = async function handler(req, res) {
-  const route = String(req.query?.route || '').replace(/^\/+|\/+$/g, '');
+  const reqUrl = String(req.url || '');
+  const parsedUrl = new URL(reqUrl, 'http://localhost');
+  const routeParam = parsedUrl.searchParams.get('route') || '';
+  const route = String(routeParam).replace(/^\/+|\/+$/g, '');
   const endpoint = ROUTES[route];
 
   if (!endpoint) {
