@@ -3483,18 +3483,36 @@ function buildReviewFullName(rand, usedNames = new Set()){
 function makeUniqueName(name, usedNames = new Set()){
   const normalized = String(name || '').trim();
   if(!normalized) return '';
-  if(!usedNames.has(normalized)) return normalized;
+  if(!usedNames.has(normalized)){
+    usedNames.add(normalized);
+    return normalized;
+  }
   let suffix = 2;
   while(usedNames.has(`${normalized} ${suffix}`)) suffix++;
-  return `${normalized} ${suffix}`;
+  const unique = `${normalized} ${suffix}`;
+  usedNames.add(unique);
+  return unique;
+}
+function getGlobalUsedReviewNames(extraNames = []){
+  const all = new Set();
+  Object.values(PRODUCT_SOCIAL || {}).forEach((social)=>{
+    (social?.reviews || []).forEach((r)=>{
+      const name = String(r?.name || '').trim();
+      if(name) all.add(name);
+    });
+  });
+  (extraNames || []).forEach((name)=>{
+    const normalized = String(name || '').trim();
+    if(normalized) all.add(normalized);
+  });
+  return all;
 }
 function getAutoReviewName(productId){
   const user = getCurrentUser();
   if(user?.id && user?.ad_soyad){
     return user.ad_soyad;
   }
-  const social = getProductSocial(productId);
-  const usedNames = new Set((social?.reviews || []).map(r=>String(r?.name || '').trim()).filter(Boolean));
+  const usedNames = getGlobalUsedReviewNames();
   const randomizer = createSeededRandom(`${productId}-${Date.now()}-${Math.random()}`);
   return buildReviewFullName(randomizer, usedNames);
 }
@@ -3514,10 +3532,11 @@ function syncReviewNameField(productId){
 }
 function hydrateProductSocialData(){
   PRODUCT_SOCIAL = {};
+  const globallyUsedNames = new Set();
   PRODUCTS.forEach((p, index)=>{
     const rand = createSeededRandom(`${p.id || p.name || 'urun'}-${index}`);
     const baseCount = 6 + Math.floor(rand() * 7);
-    const usedNames = new Set();
+    const usedNames = new Set(globallyUsedNames);
     const generatedReviews = Array.from({length:baseCount}, (_,i)=>{
       const rSeed = rand();
       const rating = rSeed > 0.6 ? 5 : rSeed > 0.18 ? 4 : 3;
@@ -3529,7 +3548,15 @@ function hydrateProductSocialData(){
         source: 'seed'
       };
     });
-    const allReviews = [...generatedReviews, ...loadUserReviews(p.id)];
+    const userReviews = loadUserReviews(p.id).map((review)=>{
+      const uniqueName = makeUniqueName(review?.name || '', usedNames);
+      return {...review, name: uniqueName || buildReviewFullName(rand, usedNames)};
+    });
+    const allReviews = [...generatedReviews, ...userReviews];
+    allReviews.forEach((review)=>{
+      const n = String(review?.name || '').trim();
+      if(n) globallyUsedNames.add(n);
+    });
     const reviewCount = allReviews.length;
     const avgRating = reviewCount ? allReviews.reduce((sum,r)=>sum + (Number(r.rating)||0),0) / reviewCount : 0;
     PRODUCT_SOCIAL[p.id] = {
@@ -3554,7 +3581,7 @@ function submitProductReview(){
     return;
   }
   const social = getProductSocial(currentModalProductId);
-  const usedNames = new Set((social.reviews || []).map(r=>String(r?.name || '').trim()).filter(Boolean));
+  const usedNames = getGlobalUsedReviewNames();
   const typedName = (nameEl?.value || '').trim();
   const selectedName = typedName || getAutoReviewName(currentModalProductId);
   const nextReview = {
