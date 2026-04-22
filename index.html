@@ -167,6 +167,40 @@ img,video,canvas,svg{max-width:100%}
 .signature-banner,.hero-actions,.campaign-card,.product-card{will-change:transform}
 .signature-banner:hover,.hero-actions:hover,.campaign-card:hover,.product-card:hover{transform:translateY(-2px)}
 
+/* ── iOS Safari kararlılık modu (render crash azaltma) ── */
+@supports (-webkit-touch-callout: none){
+  @media (max-width: 1024px){
+    body::before,
+    body::after,
+    .hero::after{
+      display:none!important;
+    }
+    header,
+    #mobileMenu,
+    #mobileMenu button,
+    .mobile-bottom-nav,
+    .hero-subtitle,
+    .hero-actions,
+    .home-promo-modal,
+    .home-promo-card,
+    .modal-overlay,
+    .image-viewer-thumbs-wrap{
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+    }
+    .signature-banner,
+    .hero-actions,
+    .campaign-card,
+    .product-card,
+    .live-categories-track{
+      will-change:auto!important;
+    }
+    .hero::after{
+      animation:none!important;
+    }
+  }
+}
+
 /* ── Header ── */
 .mini-cart,.search-bar,.favorite-bar{position:fixed;top:75px;right:5%;width:90%;max-width:400px;background:white;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);z-index:1000;display:none;padding:20px;max-height:70vh;overflow-y:auto}
 .mini-cart.open,.search-bar.open,.favorite-bar.open{display:block}
