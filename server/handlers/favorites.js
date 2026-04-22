@@ -8,9 +8,17 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const user = verifyAuthToken(req);
-  if (!user) return res.status(401).json({ error: 'Oturum geçersiz.' });
-
   const { action } = req.query;
+
+  // Misafir kullanıcılar ana sayfada favorileri yerel depodan kullandığı için
+  // listeleme çağrısında 401 döndürmek yerine boş liste veriyoruz.
+  // Böylece geçersiz/eski token nedeniyle gereksiz hata log'u oluşmuyor.
+  if (!user) {
+    if (action === 'list' && req.method === 'GET') {
+      return res.status(200).json({ success: true, favorites: [] });
+    }
+    return res.status(401).json({ error: 'Oturum geçersiz.' });
+  }
 
   try {
     if (action === 'list' && req.method === 'GET') {
