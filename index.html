@@ -6530,6 +6530,10 @@ async function syncPartsFromAddress(addressText=''){
     const value = m[2].trim();
     if(!value) return;
     if(label.includes('mahalle')) labeledParts.neighborhood = value;
+    else if(label.includes('cadde') && label.includes('sokak')){
+      labeledParts.avenue = value;
+      labeledParts.street = value;
+    }
     else if(label.includes('cadde')) labeledParts.avenue = value;
     else if(label.includes('sokak')) labeledParts.street = value;
     else if((label.includes('kapi') || label.includes('kapı')) && label.includes('no')) labeledParts.doorNo = value;
@@ -6539,11 +6543,7 @@ async function syncPartsFromAddress(addressText=''){
   });
 
   if(Object.keys(labeledParts).length){
-    const streetWithBuilding = [
-      labeledParts.street,
-      labeledParts.doorNo ? `Kapı No: ${labeledParts.doorNo}` : '',
-      labeledParts.floor ? `Kat: ${labeledParts.floor}` : ''
-    ].filter(Boolean).join(', ');
+    const parsedStreet = labeledParts.street || '';
     cityEl.value = CITY_OPTIONS.includes(labeledParts.city || '') ? labeledParts.city : '';
     onCityChanged(cityEl.value);
     if((labeledParts.district || '') && Array.from(districtEl.options).some((opt)=>opt.value === labeledParts.district)){
@@ -6561,12 +6561,17 @@ async function syncPartsFromAddress(addressText=''){
       neighborhoodEl.value = parsedNeighborhood;
       neighborhoodOtherEl.value = '';
       neighborhoodOtherEl.classList.add('hidden');
+      const latestStreets = await fetchLatestStreetsForNeighborhood(parsedNeighborhood);
+      if(latestStreets.length) populateStreetOptions(latestStreets);
+      else showNoStreetOptions();
     }else if(parsedNeighborhood){
       neighborhoodEl.value = 'diger';
       neighborhoodOtherEl.classList.remove('hidden');
       neighborhoodOtherEl.value = parsedNeighborhood;
+      showNoStreetOptions();
     }else{
       neighborhoodEl.value = '';
+      populateStreetOptions([]);
     }
     if((labeledParts.avenue || '') && Array.from(avenueEl.options).some((opt)=>opt.value === labeledParts.avenue)){
       avenueEl.value = labeledParts.avenue || '';
@@ -6581,14 +6586,14 @@ async function syncPartsFromAddress(addressText=''){
       avenueOtherEl.value = '';
       avenueOtherEl.classList.add('hidden');
     }
-    if(streetWithBuilding && Array.from(streetEl.options).some((opt)=>opt.value === streetWithBuilding)){
-      streetEl.value = streetWithBuilding;
+    if(parsedStreet && Array.from(streetEl.options).some((opt)=>opt.value === parsedStreet)){
+      streetEl.value = parsedStreet;
       streetOtherEl.value = '';
       streetOtherEl.classList.add('hidden');
-    }else if(streetWithBuilding){
+    }else if(parsedStreet){
       streetEl.value = 'diger';
       streetOtherEl.classList.remove('hidden');
-      streetOtherEl.value = streetWithBuilding;
+      streetOtherEl.value = parsedStreet;
     }else{
       streetEl.value = '';
       streetOtherEl.value = '';
@@ -6725,13 +6730,13 @@ async function loadSavedAddressesForCart(){
   }
 }
 
-function applySavedAddress(idx){
+async function applySavedAddress(idx){
   if(idx === '') return;
   const picked = savedAddresses[Number(idx)];
   if(!picked) return;
   const text = String(picked.adres || '').trim();
   document.getElementById('f-addr').value = text;
-  syncPartsFromAddress(text);
+  await syncPartsFromAddress(text);
   syncAddressFromParts();
 }
 
