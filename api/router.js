@@ -27,6 +27,8 @@ const campaigns = require('../server/handlers/campaigns');
 const adminCampaigns = require('../server/handlers/admin/campaigns');
 const premiumShowcase = require('../server/handlers/premium-showcase');
 const liveSupport = require('../server/handlers/live-support');
+const measureGuide = require('../server/handlers/measure-guide');
+const adminMeasureGuide = require('../server/handlers/admin/measure-guide');
 
 const ROUTES = {
   'auth': auth,
@@ -51,6 +53,8 @@ const ROUTES = {
   'admin/campaigns': adminCampaigns,
   'premium-showcase': premiumShowcase,
   'live-support': liveSupport,
+  'measure-guide': measureGuide,
+  'admin/measure-guide': adminMeasureGuide,
 };
 
 module.exports = async function handler(req, res) {
