@@ -5487,16 +5487,9 @@ function handleGlobalRuntimeCrash(error){
     closeImageViewer();
     toggleFiltersDrawer(false);
   }catch(_){}
-  showToast('Beklenmedik bir hata oluştu. Ana sayfaya yönlendiriliyorsunuz.');
+  showToast('Beklenmedik bir hata oluştu. Sayfa yenilenmeden işlem devam ediyor.');
   setTimeout(()=>{
-    try{
-      go('home');
-      window.scrollTo({top:0, behavior:'auto'});
-    }catch(_){
-      location.hash = '#home';
-    } finally {
-      globalCrashHandlingInProgress = false;
-    }
+    globalCrashHandlingInProgress = false;
   }, 220);
 }
 
@@ -5873,29 +5866,11 @@ function go(id){
     ensureMobileNavInteractive();
     if(nextId !== 'products') skipNextProductsReset = false;
     if(nextId === 'products'){
-      const rememberedState = readProductsViewState();
-      const hasRememberedFilters = !!(
-        rememberedState &&
-        (
-          String(rememberedState.search || '').trim() ||
-          String(rememberedState.minPrice || '').trim() ||
-          String(rememberedState.maxPrice || '').trim() ||
-          (Array.isArray(rememberedState.categories) && rememberedState.categories.length) ||
-          rememberedState.featKarartma ||
-          rememberedState.featUtu ||
-          rememberedState.featPremium ||
-          rememberedState.topRatedOnly ||
-          rememberedState.mostReviewedOnly ||
-          rememberedState.bestSellerOnly
-        )
-      );
       if(skipNextProductsReset){
         skipNextProductsReset = false;
       } else {
-        const hasCategoryParam = new URLSearchParams(window.location.search || '').has('category');
-        if(!hasCategoryParam && !hasRememberedFilters){
-          resetCategorySelectionToAll();
-        }
+        resetCategorySelectionToAll();
+        writeProductsViewState({});
       }
     }
     if(window.location.hash !== `#${nextId}`){
