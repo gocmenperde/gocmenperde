@@ -837,13 +837,12 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .mh-search{min-width:0}
   .modal-search-input{min-width:0}
   .modal-img-stage{height:38dvh;min-height:250px;max-height:340px}
-  .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(126px + env(safe-area-inset-bottom))}
+  .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(24px + env(safe-area-inset-bottom))}
   .modal-add-wrap{
-    position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:1000;margin:0;padding:8px;border-radius:14px;background:rgba(255,255,255,.97);border:1px solid rgba(201,168,76,0.28);box-shadow:0 8px 22px rgba(17,28,58,.12);
-    max-height:40vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
-    pointer-events:none;overscroll-behavior:contain;
+    position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:4;margin:12px 0 0;padding:8px;border-radius:14px;background:rgba(255,255,255,.97);border:1px solid rgba(201,168,76,0.28);box-shadow:0 8px 22px rgba(17,28,58,.12);
+    max-height:none;overflow:visible;
+    pointer-events:auto;
   }
-  .modal-add-wrap > *{pointer-events:auto}
   .modal-quick-buy-bar{display:none}
   .modal-quick-buy-bar b{font-size:.74rem;color:#1f2941}
   .modal-quick-buy-bar span{font-size:.68rem;color:#606a84}
