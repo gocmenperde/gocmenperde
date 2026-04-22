@@ -1999,6 +1999,19 @@ function normalizeAddressOptionValue(item) {
     return String(item?.name || item?.label || item?.value || '').trim();
 }
 
+function normalizeAddressOption(item) {
+    if (typeof item === 'string' || typeof item === 'number') {
+        const text = String(item).trim();
+        return text ? { value: text, label: text } : null;
+    }
+    if (!item || typeof item !== 'object') return null;
+    const label = String(item?.name || item?.label || '').trim();
+    const fallback = String(item?.value ?? item?.id ?? item?.kid ?? item?.code ?? '').trim();
+    const value = label || fallback;
+    if (!value) return null;
+    return { value, label: label || fallback };
+}
+
 function escapeAddressOption(value) {
     return String(value || '')
         .replaceAll('&', '&amp;')
@@ -2122,23 +2135,39 @@ async function onAddressDistrictChanged(district) {
     }
     addressStreetMap = {};
     mahalleEl.disabled = true;
-    mahalleEl.innerHTML = '<option value="">Mahalleler yükleniyor...</option>';
+    mahalleEl.innerHTML = '<option value="">Mahalleler Yükleniyor...</option>';
     if (sokakEl) setAddressSelectState(sokakEl, 'Sokak/Cadde Seçiniz', true);
     try {
+        // API district parametresinde ilçe adını bekliyor (ID değil).
         const endpoint = `/api/address-data?city=${encodeURIComponent(city)}&district=${encodeURIComponent(district)}`;
+        console.log('[address-data] Mahalle isteği gönderiliyor', { city, district, endpoint });
         const r = await fetch(endpoint);
         if (!r.ok) throw new Error('Mahalleler alınamadı');
         const payload = await r.json();
         addressStreetMap = normalizeStreetMap(payload?.streetsByNeighborhood || {});
-        const neighborhoods = uniqAddressValues((payload?.neighborhoods || []).map(normalizeAddressOptionValue));
-        mahalleEl.innerHTML = '<option value="">Mahalle Seçiniz</option>' + neighborhoods.map((name) => {
-            const safe = escapeAddressOption(name);
-            return `<option value="${safe}">${safe}</option>`;
+        const neighborhoodOptions = (Array.isArray(payload?.neighborhoods) ? payload.neighborhoods : [])
+            .map((entry) => normalizeAddressOption(entry))
+            .filter(Boolean);
+        const seenNeighborhoods = new Set();
+        const uniqueNeighborhoodOptions = neighborhoodOptions.filter((item) => {
+            const key = String(item?.value || '').trim().toLocaleLowerCase('tr-TR');
+            if (!key || seenNeighborhoods.has(key)) return false;
+            seenNeighborhoods.add(key);
+            return true;
+        });
+        if (!uniqueNeighborhoodOptions.length) {
+            console.log('[address-data] Mahalle listesi boş döndü', { city, district, payload });
+        }
+        mahalleEl.innerHTML = '<option value="">Mahalle Seçiniz</option>' + uniqueNeighborhoodOptions.map((item) => {
+            const safeValue = escapeAddressOption(item.value);
+            const safeLabel = escapeAddressOption(item.label);
+            return `<option value="${safeValue}">${safeLabel}</option>`;
         }).join('');
         mahalleEl.value = '';
         mahalleEl.disabled = false;
         if (sokakEl) setAddressSelectState(sokakEl, 'Sokak/Cadde Seçiniz', true);
-    } catch (_) {
+    } catch (err) {
+        console.log('[address-data] Mahalle verisi alınırken hata oluştu', { city, district, error: err });
         addressStreetMap = {};
         mahalleEl.innerHTML = '<option value="">Mahalle bulunamadı</option>';
         mahalleEl.disabled = true;

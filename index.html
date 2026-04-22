@@ -6247,6 +6247,19 @@ function uniqTrimmedStrings(values){
   return Array.from(new Set((Array.isArray(values) ? values : []).map((v)=>String(v || '').trim()).filter(Boolean)));
 }
 
+function normalizeNeighborhoodOption(item){
+  if(typeof item === 'string' || typeof item === 'number'){
+    const text = String(item).trim();
+    return text ? { value: text, label: text } : null;
+  }
+  if(!item || typeof item !== 'object') return null;
+  const label = String(item?.name || item?.label || item?.title || '').trim();
+  const fallback = String(item?.value ?? item?.id ?? item?.kid ?? item?.code ?? '').trim();
+  const value = label || fallback;
+  if(!value) return null;
+  return { value, label: label || fallback };
+}
+
 function normalizeStreetValues(entry){
   return uniqTrimmedStrings([
     ...(Array.isArray(entry?.streets) ? entry.streets : []),
@@ -6262,8 +6275,19 @@ function normalizeStreetValues(entry){
 function populateNeighborhoodOptions(neighborhoods = []){
   const neighborhoodEl = document.getElementById('f-neighborhood');
   if(!neighborhoodEl) return;
+  const options = (Array.isArray(neighborhoods) ? neighborhoods : [])
+    .map((item)=>normalizeNeighborhoodOption(item))
+    .filter(Boolean);
+  const uniqueOptions = [];
+  const seen = new Set();
+  options.forEach((item)=>{
+    const key = item.value.toLocaleLowerCase('tr-TR');
+    if(seen.has(key)) return;
+    seen.add(key);
+    uniqueOptions.push(item);
+  });
   neighborhoodEl.innerHTML = '<option value="">Mahalle seçin</option>' +
-    uniqTrimmedStrings(neighborhoods).map((item)=>`<option value="${item}">${item}</option>`).join('') +
+    uniqueOptions.map((item)=>`<option value="${item.value}">${item.label}</option>`).join('') +
     '<option value="diger">Diğeri</option>';
 }
 
@@ -6328,7 +6352,7 @@ async function loadNeighborhoodAndStreetData(){
   if(neighborhoodFetchController) neighborhoodFetchController.abort();
   neighborhoodFetchController = new AbortController();
   if(neighborhoodEl){
-    neighborhoodEl.innerHTML = '<option value="">Mahalleler yükleniyor...</option>';
+    neighborhoodEl.innerHTML = '<option value="">Mahalleler Yükleniyor...</option>';
     neighborhoodEl.disabled = true;
   }
   if(avenueEl){
@@ -6341,19 +6365,26 @@ async function loadNeighborhoodAndStreetData(){
   }
   neighborhoodStreetLoadingPromise = (async ()=>{
     try{
+      // API district parametresinde ilçe adını bekliyor (ID değil).
       const endpoint = `/api/address-data?city=${encodeURIComponent(city)}&district=${encodeURIComponent(district)}`;
+      console.log('[address-data] Mahalle isteği gönderiliyor', { city, district, endpoint });
       const res = await fetch(endpoint, { signal: neighborhoodFetchController.signal });
       if(!res.ok) throw new Error('Mahalle/sokak verisi alınamadı');
       const payload = await res.json();
       if(requestSeq !== activeNeighborhoodRequestSeq) return;
       STREET_MAP = payload?.streetsByNeighborhood || {};
-      populateNeighborhoodOptions(payload?.neighborhoods || []);
+      const neighborhoods = Array.isArray(payload?.neighborhoods) ? payload.neighborhoods : [];
+      if(!neighborhoods.length){
+        console.log('[address-data] Mahalle listesi boş döndü', { city, district, payload });
+      }
+      populateNeighborhoodOptions(neighborhoods);
       populateStreetOptions([]);
       if(neighborhoodEl) neighborhoodEl.disabled = false;
       if(avenueEl) avenueEl.disabled = false;
       if(streetEl) streetEl.disabled = false;
-    }catch(_){
+    }catch(err){
       if(requestSeq !== activeNeighborhoodRequestSeq) return;
+      console.log('[address-data] Mahalle verisi alınırken hata oluştu', { city, district, error: err });
       STREET_MAP = {};
       populateNeighborhoodOptions([]);
       populateStreetOptions([]);
