@@ -790,6 +790,18 @@
     }
     .gp-input:focus { border-color: var(--gold); background: white; box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
     .gp-input:disabled { opacity: 0.5; cursor: not-allowed; }
+    .gp-card,
+    .gp-card-body,
+    .gp-form,
+    .form-row-2 > div { position: relative; z-index: 2; }
+    select.gp-input {
+        position: relative;
+        z-index: 3;
+        pointer-events: auto;
+        touch-action: manipulation;
+        -webkit-appearance: menulist;
+        appearance: auto;
+    }
     .gp-btn {
         width: 100%;
         padding: 13px;
@@ -1981,9 +1993,49 @@ function uniqAddressValues(values) {
     return Array.from(new Set((Array.isArray(values) ? values : []).map(v => String(v || '').trim()).filter(Boolean)));
 }
 
+function normalizeAddressOptionValue(item) {
+    if (typeof item === 'string' || typeof item === 'number') return String(item).trim();
+    if (!item || typeof item !== 'object') return '';
+    return String(item?.name || item?.label || item?.value || '').trim();
+}
+
+function escapeAddressOption(value) {
+    return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
+function toComparableAddress(value) {
+    return String(value || '').trim().toLocaleLowerCase('tr-TR');
+}
+
+function normalizeStreetMap(rawMap) {
+    const nextMap = {};
+    if (!rawMap || typeof rawMap !== 'object') return nextMap;
+    Object.entries(rawMap).forEach(([key, values]) => {
+        const normalizedKey = normalizeAddressOptionValue(key);
+        if (!normalizedKey) return;
+        nextMap[normalizedKey] = uniqAddressValues((Array.isArray(values) ? values : []).map(normalizeAddressOptionValue));
+    });
+    return nextMap;
+}
+
+function getNeighborhoodStreets(neighborhood) {
+    const normalizedNeighborhood = toComparableAddress(neighborhood);
+    if (!normalizedNeighborhood) return [];
+    const direct = uniqAddressValues(addressStreetMap[neighborhood] || []);
+    if (direct.length) return direct;
+    const matchKey = Object.keys(addressStreetMap).find((key) => toComparableAddress(key) === normalizedNeighborhood);
+    return uniqAddressValues(addressStreetMap[matchKey] || []);
+}
+
 async function initAddressLocationData() {
     const cityEl = document.getElementById('aIl');
     if (!cityEl) return;
+    const currentCityValue = cityEl.value.trim();
     try {
         const r = await fetch('https://turkiyeapi.dev/api/v1/provinces');
         if (!r.ok) throw new Error('İller alınamadı');
@@ -2001,7 +2053,17 @@ async function initAddressLocationData() {
         addressCityDistrictMap = {};
     }
     const cityOptions = uniqAddressValues(Object.keys(addressCityDistrictMap));
-    cityEl.innerHTML = '<option value="">İl seçin</option>' + cityOptions.map((city) => `<option value="${city}">${city}</option>`).join('');
+    cityEl.innerHTML = '<option value="">İl seçin</option>' + cityOptions.map((city) => {
+        const safe = escapeAddressOption(city);
+        return `<option value="${safe}">${safe}</option>`;
+    }).join('');
+
+    const defaultCity = [currentCityValue, cityEl.dataset.defaultValue, 'Bursa']
+        .map((value) => String(value || '').trim())
+        .find((value) => value && cityOptions.includes(value)) || '';
+    if (!defaultCity) return;
+    cityEl.value = defaultCity;
+    await onAddressCityChanged(defaultCity);
 }
 
 function resetAddressNeighborhoodAndStreet() {
@@ -2011,35 +2073,53 @@ function resetAddressNeighborhoodAndStreet() {
     if (sokakEl) sokakEl.innerHTML = '<option value="">Önce mahalle seçin</option>';
 }
 
-function onAddressCityChanged(city) {
+async function onAddressCityChanged(city) {
     const ilceEl = document.getElementById('aIlce');
     if (!ilceEl) return;
+    const currentDistrictValue = ilceEl.value.trim();
     const districts = uniqAddressValues(addressCityDistrictMap[city] || []);
-    ilceEl.innerHTML = '<option value="">İlçe seçin</option>' + districts.map((d) => `<option value="${d}">${d}</option>`).join('');
+    ilceEl.innerHTML = '<option value="">İlçe seçin</option>' + districts.map((districtName) => {
+        const safe = escapeAddressOption(districtName);
+        return `<option value="${safe}">${safe}</option>`;
+    }).join('');
+    addressStreetMap = {};
     resetAddressNeighborhoodAndStreet();
+
+    const defaultDistrict = [currentDistrictValue, ilceEl.dataset.defaultValue, 'Osmangazi']
+        .map((value) => String(value || '').trim())
+        .find((value) => value && districts.includes(value)) || '';
+    if (!defaultDistrict) return;
+    ilceEl.value = defaultDistrict;
+    await onAddressDistrictChanged(defaultDistrict);
 }
 
 async function onAddressDistrictChanged(district) {
     const city = document.getElementById('aIl')?.value?.trim() || '';
     const mahalleEl = document.getElementById('aMahalle');
+    const sokakEl = document.getElementById('aSokak');
     if (!city || !district || !mahalleEl) {
+        addressStreetMap = {};
         resetAddressNeighborhoodAndStreet();
         return;
     }
+    addressStreetMap = {};
+    mahalleEl.innerHTML = '<option value="">Mahalleler yükleniyor...</option>';
+    if (sokakEl) sokakEl.innerHTML = '<option value="">Önce mahalle seçin</option>';
     try {
         const endpoint = `/api/address-data?city=${encodeURIComponent(city)}&district=${encodeURIComponent(district)}`;
         const r = await fetch(endpoint);
         if (!r.ok) throw new Error('Mahalleler alınamadı');
         const payload = await r.json();
-        addressStreetMap = payload?.streetsByNeighborhood || {};
-        const neighborhoods = uniqAddressValues(payload?.neighborhoods || []);
-        mahalleEl.innerHTML = '<option value="">Mahalle seçin</option>' + neighborhoods.map((m) => `<option value="${m}">${m}</option>`).join('');
-        const sokakEl = document.getElementById('aSokak');
+        addressStreetMap = normalizeStreetMap(payload?.streetsByNeighborhood || {});
+        const neighborhoods = uniqAddressValues((payload?.neighborhoods || []).map(normalizeAddressOptionValue));
+        mahalleEl.innerHTML = '<option value="">Mahalle seçin</option>' + neighborhoods.map((name) => {
+            const safe = escapeAddressOption(name);
+            return `<option value="${safe}">${safe}</option>`;
+        }).join('');
         if (sokakEl) sokakEl.innerHTML = '<option value="">Önce mahalle seçin</option>';
     } catch (_) {
         addressStreetMap = {};
         mahalleEl.innerHTML = '<option value="">Mahalle bulunamadı</option>';
-        const sokakEl = document.getElementById('aSokak');
         if (sokakEl) sokakEl.innerHTML = '<option value="">Sokak/Cadde bulunamadı</option>';
     }
 }
@@ -2052,9 +2132,12 @@ async function onAddressNeighborhoodChanged(neighborhood) {
         if (sokakEl) sokakEl.innerHTML = '<option value="">Önce mahalle seçin</option>';
         return;
     }
-    const cachedValues = uniqAddressValues(addressStreetMap[neighborhood] || []);
+    const cachedValues = getNeighborhoodStreets(neighborhood);
     if (cachedValues.length) {
-        sokakEl.innerHTML = '<option value="">Sokak/Cadde seçin</option>' + cachedValues.map((s) => `<option value="${s}">${s}</option>`).join('');
+        sokakEl.innerHTML = '<option value="">Sokak/Cadde seçin</option>' + cachedValues.map((streetName) => {
+            const safe = escapeAddressOption(streetName);
+            return `<option value="${safe}">${safe}</option>`;
+        }).join('');
         return;
     }
     try {
@@ -2062,13 +2145,16 @@ async function onAddressNeighborhoodChanged(neighborhood) {
         const r = await fetch(endpoint);
         if (!r.ok) throw new Error('Sokaklar alınamadı');
         const payload = await r.json();
-        const streets = uniqAddressValues(payload?.streets || []);
+        const streets = uniqAddressValues((payload?.streets || []).map(normalizeAddressOptionValue));
         addressStreetMap[neighborhood] = streets;
         if (!streets.length) {
             sokakEl.innerHTML = '<option value="">Sokak/Cadde bulunamadı</option>';
             return;
         }
-        sokakEl.innerHTML = '<option value="">Sokak/Cadde seçin</option>' + streets.map((s) => `<option value="${s}">${s}</option>`).join('');
+        sokakEl.innerHTML = '<option value="">Sokak/Cadde seçin</option>' + streets.map((streetName) => {
+            const safe = escapeAddressOption(streetName);
+            return `<option value="${safe}">${safe}</option>`;
+        }).join('');
     } catch (_) {
         sokakEl.innerHTML = '<option value="">Sokak/Cadde bulunamadı</option>';
     }
