@@ -2295,16 +2295,46 @@ function seedAutoShowcaseReviews(){
   renderShowcaseReviewRows();
   aToast('✓ Otomatik örnek yorumlar eklendi','success');
 }
-function buildAutoFromYouComment(title, note){
+function buildAutoFromYouComment(title, note, existingItems = [], currentIndex = -1){
   const packs = [
     'Evimizin havası tamamen değişti, gelen herkes perdeyi soruyor.',
     'Kumaş kalitesi ve montaj titizliği beklentimizin üstünde çıktı.',
     'Ölçü ve model önerisi o kadar doğruydu ki sonuç tam hayalimiz gibi oldu.',
-    'Renk uyumu mükemmel oldu, salonumuz çok daha ferah görünüyor.'
+    'Renk uyumu mükemmel oldu, salonumuz çok daha ferah görünüyor.',
+    'Dikiş kalitesi beklediğimizden çok daha iyi, her detay özenli hazırlanmış.',
+    'Montaj ekibi dakik ve çok düzenliydi, süreç sorunsuz tamamlandı.',
+    'Perdeler odamızın ışığını tam kararında ayarladı, sonuç harika.',
+    'Model seçimi konusunda doğru yönlendirme aldık, evimize çok yakıştı.'
   ];
-  const pick = packs[Math.floor(Math.random()*packs.length)];
   const prefix = 'Müşteri yorumu: ';
-  return `${prefix}${pick}`;
+  const normalizedTitle = String(title || '').trim();
+  const normalizedNote = String(note || '').trim();
+  const variants = [];
+  packs.forEach((pack)=>{
+    variants.push(`${prefix}${pack}`);
+    if(normalizedTitle) variants.push(`${prefix}${normalizedTitle} için ${pack.charAt(0).toLowerCase()}${pack.slice(1)}`);
+    if(normalizedNote) variants.push(`${prefix}${pack} Not: ${normalizedNote}`);
+    if(normalizedTitle && normalizedNote) variants.push(`${prefix}${normalizedTitle} uygulamasında ${pack.charAt(0).toLowerCase()}${pack.slice(1)} Not: ${normalizedNote}`);
+  });
+  const existingComments = new Set(
+    (existingItems || [])
+      .map((item, idx)=>(idx === currentIndex ? '' : sanitizeCustomerText(item?.comment)))
+      .filter(Boolean)
+  );
+  for(const candidate of variants){
+    const clean = sanitizeCustomerText(candidate);
+    if(clean && !existingComments.has(clean)){
+      return clean;
+    }
+  }
+  let suffix = 1;
+  const base = sanitizeCustomerText(`${prefix}Bu uygulamadan çok memnun kaldık, emeği geçen herkese teşekkür ederiz.`);
+  let fallback = `${base} #${suffix}`;
+  while(existingComments.has(fallback)){
+    suffix += 1;
+    fallback = `${base} #${suffix}`;
+  }
+  return fallback;
 }
 function sanitizeCustomerText(str){
   return String(str || '').replace(/\bbilmem\s*be\b/gi,'').replace(/\s{2,}/g,' ').trim();
@@ -2425,7 +2455,7 @@ async function addFromYouEntry(){
   const location = document.getElementById('fromYouLocation')?.value.trim();
   const note = document.getElementById('fromYouNote')?.value.trim();
   if(!src || !title){ aToast('Fotoğraf ve başlık zorunludur'); return; }
-  const comment = buildAutoFromYouComment(title, note);
+  const comment = buildAutoFromYouComment(title, note, fromYouItems, editingFromYouIndex);
   const payload = {src,title,location,note,comment:sanitizeCustomerText(comment),images,author:'Doğrulanmış Müşteri'};
   if(editingFromYouIndex >= 0 && fromYouItems[editingFromYouIndex]){
     const prev = fromYouItems[editingFromYouIndex];
