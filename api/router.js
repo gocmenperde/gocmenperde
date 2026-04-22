@@ -1,8 +1,12 @@
 // api/router.js veya ana server dosyanın EN ÜSTÜNE ekle
 const fs = require('fs');
+const path = require('path');
 
-if (process.env.NODE_ENV !== 'production' && typeof process.loadEnvFile === 'function' && fs.existsSync('.env')) {
-  process.loadEnvFile();
+if (process.env.NODE_ENV !== 'production' && typeof process.loadEnvFile === 'function') {
+  const envPath = path.resolve(__dirname, '..', '.env');
+  if (fs.existsSync(envPath)) {
+    process.loadEnvFile(envPath);
+  }
 }
 
 // PayTR değişkenlerini burada bir kez konsola yazdır ki yüklendiğini gör
