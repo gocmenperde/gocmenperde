@@ -838,14 +838,26 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .modal-search-input{min-width:0}
   .modal-img-stage{height:38dvh;min-height:250px;max-height:340px}
   .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(126px + env(safe-area-inset-bottom))}
-  .modal-add-wrap{position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:1000;margin:0;padding:8px;border-radius:14px;background:rgba(255,255,255,.97);border:1px solid rgba(201,168,76,0.28);box-shadow:0 8px 22px rgba(17,28,58,.12)}
+  .modal-add-wrap{
+    position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:1000;margin:0;padding:8px;border-radius:14px;background:rgba(255,255,255,.97);border:1px solid rgba(201,168,76,0.28);box-shadow:0 8px 22px rgba(17,28,58,.12);
+    max-height:40vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+    pointer-events:none;overscroll-behavior:contain;
+  }
+  .modal-add-wrap > *{pointer-events:auto}
   .modal-quick-buy-bar{display:none}
   .modal-quick-buy-bar b{font-size:.74rem;color:#1f2941}
   .modal-quick-buy-bar span{font-size:.68rem;color:#606a84}
   .modal-quick-buy-bar button{border:none;background:#1f2941;color:#fff;border-radius:999px;padding:8px 12px;font-size:.64rem;letter-spacing:.8px}
   .modal-add-wrap .modal-add-btn{font-size:12px}
   .modal-add-main-row .modal-add-btn{padding-inline:12px}
-  .modal-add-action-row{padding:0}
+  .modal-add-action-row{padding:0;gap:8px}
+  .modal-add-wrap .modal-inline-help{font-size:.68rem;line-height:1.35}
+  .modal-add-wrap .modal-qty-stepper{height:44px}
+  .modal-add-wrap .modal-add-btn{height:44px}
+  .modal-add-wrap .modal-qty-input{height:40px}
+  .modal-add-wrap .modal-add-main-row{padding:6px 8px 0;gap:8px}
+  .modal-add-wrap .modal-add-extra-row{gap:8px}
+  .modal-add-wrap .modal-add-action-row{margin-top:2px}
   .modal-review-form{grid-template-columns:1fr}
   .modal-reviews-wrap{margin-bottom:16px}
   .qty-input,
@@ -3267,6 +3279,8 @@ let lastHandledEntryDeepLink = '';
 let modalReturnState = null;
 let skipNextProductsReset = false;
 let productRequestInFlight = null;
+let productsStateVersion = 0;
+let lastAppliedFilterSignature = '';
 let PREMIUM_LIVE_PRODUCTS = [];
 let PREMIUM_FEATURED_PRODUCTS = [];
 let categoryRequestInFlight = null;
@@ -3407,6 +3421,8 @@ function updateProductSeoArtifacts(products=[]){
 
 function renderProductState(list, {withObserver=true} = {}){
   PRODUCTS = (Array.isArray(list) ? list : []).map(normalizeProductCatalog);
+  productsStateVersion += 1;
+  lastAppliedFilterSignature = '';
   processRestockNotifications(PRODUCTS);
   hydrateProductSocialData();
   syncCategoriesFromAdmin();
@@ -3432,6 +3448,12 @@ async function loadProducts({forceRefresh=false} = {}){
   if(productRequestInFlight) return productRequestInFlight;
 
   productRequestInFlight = (async ()=>{
+    const gridEl = document.getElementById('productsGrid');
+    const showLoadError = (message='Ürünler yüklenemedi. Lütfen daha sonra tekrar deneyin.')=>{
+      if(gridEl){
+        gridEl.innerHTML = `<div class="products-loading" style="grid-column:1/-1">${message}</div>`;
+      }
+    };
     try{
       let fresh = null;
       try{
@@ -3439,17 +3461,17 @@ async function loadProducts({forceRefresh=false} = {}){
       }catch(_){}
       try{
         if(!Array.isArray(fresh) || !fresh.length){
-          const remoteRes = await fetch(`${GITHUB_RAW_PRODUCTS_URL}?v=${Date.now()}`, { cache:'no-store' });
+          const remoteRes = await fetchWithTimeout(`${GITHUB_RAW_PRODUCTS_URL}?v=${Date.now()}`, { cache:'no-store' }, 12000);
           if(remoteRes.ok) fresh = await remoteRes.json();
         }
       }catch(_){}
       if(!Array.isArray(fresh) || !fresh.length){
-        const localRes = await fetch(`/products.json?v=${Date.now()}`, { cache:'no-store' });
+        const localRes = await fetchWithTimeout(`/products.json?v=${Date.now()}`, { cache:'no-store' }, 10000);
         if(!localRes.ok) throw new Error('Ürünler alınamadı');
         fresh = await localRes.json();
       }
       if(!Array.isArray(fresh) || !fresh.length){
-        const fallbackLocalRes = await fetch('/products.json', { cache:'reload' });
+        const fallbackLocalRes = await fetchWithTimeout('/products.json', { cache:'reload' }, 10000);
         if(fallbackLocalRes.ok){
           fresh = await fallbackLocalRes.json();
         }
@@ -3478,7 +3500,8 @@ async function loadProducts({forceRefresh=false} = {}){
         applyFilters();
         productsLoadedOnce = true;
       } else if(!productsLoadedOnce){
-        document.getElementById('productsGrid').innerHTML = '<div class="products-loading">Ürünler yüklenemedi. Sayfayı yenileyin.</div>';
+        console.error('[products] load failed:', e);
+        showLoadError('Ürünler şu an yüklenemiyor. İnternet bağlantınızı kontrol edip tekrar deneyin.');
       }
     } finally {
       productRequestInFlight = null;
@@ -4545,6 +4568,16 @@ function applyFilters(){
   const topRatedOnly = document.getElementById('topRatedOnly')?.checked;
   const mostReviewedOnly = document.getElementById('mostReviewedOnly')?.checked;
   const bestSellerOnly = document.getElementById('bestSellerOnly')?.checked;
+  const filterSignature = JSON.stringify({
+    v: productsStateVersion,
+    search, sort, minP, maxP, catAll,
+    activeCats,
+    featKar, featUtu, featPrem,
+    colorFilters, fabricFilters, usageFilters,
+    topRatedOnly, mostReviewedOnly, bestSellerOnly
+  });
+  if(filterSignature === lastAppliedFilterSignature) return;
+  lastAppliedFilterSignature = filterSignature;
 
   let filtered = PRODUCTS.filter(p => {
     const social = getProductSocial(p.id);
@@ -5443,6 +5476,42 @@ function runSafely(taskName, fn){
     console.error(`[boot] ${taskName} failed:`, err);
   }
 }
+
+let globalCrashHandlingInProgress = false;
+function handleGlobalRuntimeCrash(error){
+  if(globalCrashHandlingInProgress) return;
+  globalCrashHandlingInProgress = true;
+  console.error('[global-crash]', error);
+  try{
+    closeAllPopups();
+    closeProductModal();
+    closeImageViewer();
+    toggleFiltersDrawer(false);
+  }catch(_){}
+  showToast('Beklenmedik bir hata oluştu. Ana sayfaya yönlendiriliyorsunuz.');
+  setTimeout(()=>{
+    try{
+      go('home');
+      window.scrollTo({top:0, behavior:'auto'});
+    }catch(_){
+      location.hash = '#home';
+    } finally {
+      globalCrashHandlingInProgress = false;
+    }
+  }, 220);
+}
+
+window.addEventListener('error', (event)=>{
+  const message = String(event?.message || '');
+  if(/ResizeObserver loop limit exceeded/i.test(message)) return;
+  handleGlobalRuntimeCrash(event?.error || message || 'runtime_error');
+});
+window.addEventListener('unhandledrejection', (event)=>{
+  const reason = event?.reason;
+  const message = String(reason?.message || reason || '');
+  if(/aborted|AbortError|Load failed|Failed to fetch/i.test(message)) return;
+  handleGlobalRuntimeCrash(reason || 'unhandled_rejection');
+});
 
 document.addEventListener('DOMContentLoaded',()=>{
   runSafely('renderHomeSlider (dom ready)', ()=>renderHomeSlider());
