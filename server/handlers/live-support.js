@@ -5,7 +5,6 @@ const { pool } = require('../lib/_db');
 const FILE_NAME = 'live-support-messages.json';
 const ADMIN_API_KEY = 'gocmen1993';
 const DEFAULT_NOTIFY_EMAIL = 'muhammedeminturk.16@gmail.com';
-const FALLBACK_RESEND_API_KEY = 're_c4EEGk7p_KvYLe2RR19gjuBkyd354v1Td';
 let resolvedDataFilePath = '';
 let dbSchemaReady = false;
 
@@ -157,8 +156,7 @@ async function writeItems(items) {
 
 function resolveFromAddress() {
   const configuredFrom = String(process.env.ORDER_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || '').trim();
-  const fallbackFrom = 'Göçmen Perde <noreply@gocmenperde.com.tr>';
-  const from = configuredFrom || fallbackFrom;
+  const from = configuredFrom;
   const emailMatch = from.match(/<?([^<>\s]+@[^<>\s]+)>?$/);
   const email = emailMatch ? emailMatch[1].toLowerCase() : '';
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return '';
@@ -174,7 +172,7 @@ function normalizeRecipients(to) {
 }
 
 async function sendTransactionalEmail({ to, subject, html }) {
-  const apiKey = String(process.env.RESEND_API_KEY || FALLBACK_RESEND_API_KEY || '').trim();
+  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
   const from = resolveFromAddress();
   const recipients = normalizeRecipients(to);
   if (!apiKey) {
