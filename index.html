@@ -5470,7 +5470,12 @@ function scheduleForegroundRefresh({force=false} = {}){
 
 function runSafely(taskName, fn){
   try{
-    fn();
+    const result = fn();
+    if(result && typeof result.then === 'function'){
+      result.catch((err)=>{
+        console.error(`[boot] ${taskName} failed:`, err);
+      });
+    }
   }catch(err){
     console.error(`[boot] ${taskName} failed:`, err);
   }
