@@ -1,6 +1,4 @@
 const { verifyAuthToken } = require('../lib/_auth-utils');
-const fs = require('fs/promises');
-const path = require('path');
 
 const { pool } = require('../lib/_db');
 const { sendResendEmail } = require('../lib/_resend-mail');
@@ -16,13 +14,12 @@ const ORDER_STATUS_ALIASES = {
   teslimedildi: 'Teslim Edildi',
   iptal: 'İptal',
 };
-const TRACKING_DIR = path.join(process.cwd(), 'server', '.data');
-const TRACKING_FILE = path.join(TRACKING_DIR, 'order-tracking.json');
 const ORDER_NO_DIGITS = 14;
 
 let cachedEmailColumn = null;
 let cachedCustomerEmailColumns = null;
 let cachedOrderNoColumn = null;
+let inMemoryTrackingStore = {};
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -804,22 +801,12 @@ function generateOrderNo(orderId, store, currentKey) {
 }
 
 async function readTrackingStore() {
-  try {
-    const raw = await fs.readFile(TRACKING_FILE, 'utf8');
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch (err) {
-    if (err.code === 'ENOENT') return {};
-    console.warn('Tracking verisi okunamadı:', err.message);
-    return {};
+  if (!inMemoryTrackingStore || typeof inMemoryTrackingStore !== 'object') {
+    inMemoryTrackingStore = {};
   }
+  return inMemoryTrackingStore;
 }
 
 async function writeTrackingStore(store) {
-  try {
-    await fs.mkdir(TRACKING_DIR, { recursive: true });
-    await fs.writeFile(TRACKING_FILE, JSON.stringify(store, null, 2), 'utf8');
-  } catch (err) {
-    console.warn('Tracking verisi yazılamadı:', err.message);
-  }
+  inMemoryTrackingStore = store && typeof store === 'object' ? store : {};
 }
