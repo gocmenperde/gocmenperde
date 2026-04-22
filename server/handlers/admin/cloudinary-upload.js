@@ -1,5 +1,6 @@
 
 const crypto = require('crypto');
+const { parseUrlWithFallback } = require('../../lib/_safe-url');
 
 const ADMIN_API_KEY = String(process.env.ADMIN_API_KEY || process.env.X_ADMIN_KEY || 'gocmen1993').trim();
 const MAX_DATA_URL_SIZE_BYTES = 12 * 1024 * 1024; // ~12MB
@@ -9,18 +10,14 @@ function parseCloudinaryUrl(value) {
   const raw = String(value || '').trim();
   if (!raw) return null;
 
-  try {
-    const parsed = new URL(raw);
-    if (parsed.protocol !== 'cloudinary:') return null;
+  const parsed = parseUrlWithFallback(raw);
+  if (!parsed || parsed.protocol !== 'cloudinary:') return null;
 
-    const apiKey = decodeURIComponent(parsed.username || '').trim();
-    const apiSecret = decodeURIComponent(parsed.password || '').trim();
-    const cloudName = decodeURIComponent(parsed.hostname || '').trim();
+  const apiKey = decodeURIComponent(parsed.username || '').trim();
+  const apiSecret = decodeURIComponent(parsed.password || '').trim();
+  const cloudName = decodeURIComponent(parsed.hostname || '').trim();
 
-    return { cloudName, apiKey, apiSecret };
-  } catch (_) {
-    return null;
-  }
+  return { cloudName, apiKey, apiSecret };
 }
 
 function normalizeEnvValue(value) {
