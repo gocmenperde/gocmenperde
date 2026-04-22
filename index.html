@@ -19,7 +19,7 @@
 <meta name="twitter:title" content="Bursa Perdeci | Göçmen Perde">
 <meta name="twitter:description" content="Bursa perde ve perdeci aramalarında Göçmen Perde: tül, stor, zebra, plise ve fon perde çözümleri.">
 <meta name="twitter:image" content="https://gocmenperde.com.tr/resimler/logo.jpg">
-<meta name="theme-color" content="#FDFBF7">
+<meta name="theme-color" content="#0f0e0d">
 <meta name="author" content="Göçmen Perde">
 <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
 <link rel="preload" href="/resimler/logo.jpg" as="image" fetchpriority="high">
@@ -102,18 +102,18 @@
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
 <style>
 :root{
-  --gold:#9f7a2f;--gold-light:#e8d7b0;--gold-dark:#7e5f22;
-  --ink:#2C2C2C;--cream:#F5F5F5;--warm-white:#FDFBF7;
-  --slate:#56514a;--border:rgba(132,118,98,0.22);
+  --gold:#d4af53;--gold-light:#f2dfb4;--gold-dark:#8f6b2b;
+  --ink:#0b1220;--cream:#f4f7ff;--warm-white:#fdfcf9;
+  --slate:#3b4b66;--border:rgba(95,126,196,0.24);
   --shadow:0 20px 60px rgba(0,0,0,0.08);
   --ff-display:'Cormorant Garamond',serif;--ff-body:'DM Sans',sans-serif;
   --radius:12px;--transition:0.4s cubic-bezier(0.25,0.46,0.45,0.94)
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;background:var(--warm-white)}
-body{background:var(--warm-white);color:var(--ink);font-family:var(--ff-body);font-weight:400;overflow-x:hidden;width:100%;max-width:100%}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 7% 10%, rgba(234,227,217,.35), transparent 34%),radial-gradient(circle at 92% 15%, rgba(212,175,83,.1), transparent 35%),radial-gradient(circle at 50% 100%, rgba(253,251,247,.75), transparent 45%)}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;background:linear-gradient(120deg,rgba(253,251,247,.2) 0%,rgba(245,245,245,.45) 42%,rgba(234,227,217,.28) 100%);mix-blend-mode:multiply}
+html{scroll-behavior:smooth;background:#fff}
+body{background:#fff;color:#1a1a1a;font-family:var(--ff-body);font-weight:400;overflow-x:hidden;width:100%;max-width:100%}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 7% 10%, rgba(84,120,216,0.17), transparent 32%),radial-gradient(circle at 92% 15%, rgba(212,175,83,0.15), transparent 33%),radial-gradient(circle at 50% 100%, rgba(255,255,255,0.6), transparent 44%)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;background:linear-gradient(120deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.58) 42%,rgba(255,250,236,.62) 100%);mix-blend-mode:screen}
 section{position:relative}
 section::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.28) 100%);opacity:.55}
 .contact-container,.cart-container,.home-premium-shell{backdrop-filter:blur(2px)}
@@ -727,7 +727,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-zoom-hint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(15,14,13,0.75);color:white;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;padding:6px 16px;border-radius:50px;opacity:0;transition:opacity 0.4s;pointer-events:none;white-space:nowrap}
 .modal-img-stage:hover .modal-zoom-hint{opacity:1}
 @media(max-width:700px){.modal-zoom-hint{display:none!important}}
-.modal-info-col{padding:36px;display:flex;flex-direction:column;overflow-y:auto;background:white;padding-bottom:100px}
+.modal-info-col{padding:36px;display:flex;flex-direction:column;overflow-y:auto;background:white}
 @media(max-width:700px){.modal-info-col{padding:20px}}
 .modal-tag{font-size:0.6rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:600}
 .modal-title{font-family:var(--ff-display);font-size:1.8rem;font-weight:700;color:var(--ink);margin-bottom:14px;line-height:1.1}
@@ -754,9 +754,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-spec-row:last-child{border-bottom:none}
 .modal-spec-key{color:var(--slate)}.modal-spec-val{color:var(--ink);font-weight:600;text-align:right}
 .modal-add-wrap{margin-top:16px;display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:linear-gradient(135deg,#ffffff,#faf7f1);border:1px solid rgba(201,168,76,0.2);box-shadow:0 10px 24px rgba(15,14,13,0.06)}
-.modal-add-main-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:nowrap;width:100%;padding:10px 15px;position:relative;z-index:999}
-.modal-add-main-row > .modal-qty-stepper,.modal-add-main-row > .modal-add-btn,.modal-add-main-row > .modal-favorite-btn{flex:1;min-width:0}
-.modal-dimensions-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;align-items:center;justify-content:center}
+.modal-add-main-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:nowrap;width:100%;padding:10px 15px;position:relative;z-index:999}
 .modal-add-extra-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%}
 .modal-quick-buy-bar{display:none}
 .modal-qty-stepper{flex:0 0 100px;height:48px;display:flex;align-items:center;justify-content:space-between;border:1px solid #e3dfd6;border-radius:10px;background:#fff;overflow:hidden}
@@ -784,7 +782,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-review-form input:last-child{grid-column:1/-1}
 @media(min-width:701px){
   .modal-box{height:calc(100dvh - 40px)}
-  .modal-info-col{padding-bottom:120px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  .modal-info-col{padding-bottom:28px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
   .modal-add-wrap{position:sticky;bottom:0;margin-top:18px;padding:12px 0 0;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#fff 28%)}
   .modal-add-btn{min-width:180px}
 }
@@ -798,7 +796,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .mh-search{min-width:0}
   .modal-search-input{min-width:0}
   .modal-img-stage{height:38dvh;min-height:250px;max-height:340px}
-  .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(220px + env(safe-area-inset-bottom))}
+  .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(190px + env(safe-area-inset-bottom))}
   .modal-add-wrap{position:fixed;left:0;right:0;bottom:0;z-index:1000;margin:0;padding:12px 12px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#fff 0%,#f9f6ef 100%);border-top:1px solid rgba(201,168,76,0.25);border-radius:18px 18px 0 0;box-shadow:0 -14px 28px rgba(17,28,58,.16);padding-bottom:calc(10px + env(safe-area-inset-bottom))}
   .modal-quick-buy-bar{position:fixed;left:10px;right:10px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:45;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(70,94,150,.2);box-shadow:0 10px 22px rgba(17,28,58,.16)}
   .modal-quick-buy-bar b{font-size:.74rem;color:#1f2941}
@@ -843,16 +841,10 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-add-btn{flex:1;background:var(--ink);color:white;border:none;cursor:pointer;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body);margin:0;height:48px;white-space:nowrap}
 .modal-add-main-row .modal-add-btn{flex:1 1 auto;min-width:0}
 .modal-support-btn{display:flex;align-items:center;justify-content:center;text-decoration:none;background:#25D366;color:#fff;min-height:44px}
-.modal-favorite-btn{width:48px;max-width:64px;height:48px;border-radius:10px;border:1px solid #d7dce9;background:#f8faff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:0.2s;margin:0}
+.modal-favorite-btn{width:48px;height:48px;border-radius:10px;border:1px solid #d7dce9;background:#f8faff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:0.2s;flex:0 0 48px;margin:0}
 .measure-guide-trigger{display:flex;align-items:center;gap:8px;width:100%;border:1px solid #d9dfec;background:#f6f8ff;color:#1f2941;border-radius:10px;padding:10px 12px;font-size:0.8rem;cursor:pointer}
 .measure-guide-trigger i{color:var(--gold)}
 .modal-add-btn:hover{background:var(--gold);color:var(--ink)}
-.modal-review-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-top:8px}
-.modal-review-gallery img{width:100%;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--border);background:#fff}
-.modal-review-file{grid-column:1/-1;border:1px dashed var(--border)!important;padding:8px 10px!important;height:auto!important;min-height:40px;display:flex;align-items:center}
-.modal-review-file::file-selector-button{border:none;background:#EAE3D9;color:var(--ink);padding:6px 10px;border-radius:6px;margin-right:10px;cursor:pointer}
-.modal-review-file-hint{grid-column:1/-1;font-size:.72rem;color:var(--slate)}
-
 .mh-search{flex:1;display:flex;align-items:center;gap:8px;height:40px;background:#f1f1f1;border:1px solid #e4e4e4;border-radius:999px;padding:0 12px}
 .mh-search i{font-size:0.9rem;color:var(--gold)}
 .mh-search{
@@ -1003,33 +995,33 @@ body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transfo
 
 /* === 2026 Modern E-Ticaret Refresh === */
 :root{
-  --gold:#9f7a2f;
-  --gold-light:#e8d7b0;
-  --gold-dark:#7e5f22;
-  --ink:#2C2C2C;
-  --cream:#F5F5F5;
-  --warm-white:#FDFBF7;
-  --slate:#56514a;
-  --border:rgba(132,118,98,0.22);
+  --gold:#d5a33f;
+  --gold-light:#f3e2bd;
+  --gold-dark:#a5781f;
+  --ink:#13121a;
+  --cream:#f8f8f6;
+  --warm-white:#ffffff;
+  --slate:#606878;
+  --border:rgba(34,45,78,0.12);
 }
 body::before{background:
   radial-gradient(circle at 5% 12%, rgba(213,163,63,0.08), transparent 35%),
   radial-gradient(circle at 90% 10%, rgba(78,116,255,0.05), transparent 35%),
   radial-gradient(circle at 50% 105%, rgba(255,255,255,0.12), transparent 45%)}
-header{background:rgba(253,251,247,.96);border-bottom:1px solid rgba(132,118,98,.14)}
-.nav-cart{background:linear-gradient(135deg,#9f7a2f,#7e5f22);color:#fff}
-.nav-cart:hover{background:linear-gradient(135deg,#ad8a3d,#8b6a2a)}
-.hero{background:radial-gradient(circle at 18% 10%,rgba(213,163,63,.18),transparent 42%),linear-gradient(165deg,#FDFBF7 0%,#F5F5F5 48%,#EAE3D9 100%)}
+header{background:rgba(255,255,255,.95);border-bottom:1px solid rgba(34,45,78,.08)}
+.nav-cart{background:linear-gradient(135deg,#2a3558,#3d4f80);color:#fff}
+.nav-cart:hover{background:linear-gradient(135deg,#36446e,#4b6096)}
+.hero{background:radial-gradient(circle at 18% 10%,rgba(213,163,63,.22),transparent 42%),linear-gradient(165deg,#12141d 0%,#1c2233 48%,#242d44 100%)}
 .hero-bg{background:
   radial-gradient(ellipse at 18% 25%,rgba(213,163,63,.14),transparent 55%),
   radial-gradient(ellipse at 90% 12%,rgba(61,79,128,.09),transparent 55%),
   linear-gradient(140deg,rgba(255,255,255,.82),rgba(213,163,63,.06))}
 .hero-pattern{opacity:.1;background-image:radial-gradient(circle at 1px 1px, rgba(34,45,78,.12) 1px, transparent 0);background-size:22px 22px}
-.hero-title{color:var(--ink);text-shadow:none}
-.hero-title span{color:var(--gold)}
-.hero-eyebrow{color:var(--slate)}
-.hero-subtitle{color:var(--ink);background:rgba(253,251,247,.88);border-color:rgba(213,163,63,.28);box-shadow:0 8px 18px rgba(0,0,0,.08)}
-.hero-actions{background:rgba(253,251,247,.72);border:1px solid rgba(132,118,98,.16)}
+.hero-title{color:#fff;text-shadow:0 14px 34px rgba(0,0,0,.33)}
+.hero-title span{color:#f1c96e}
+.hero-eyebrow{color:rgba(255,255,255,.72)}
+.hero-subtitle{color:rgba(255,255,255,.88);background:rgba(10,13,22,.52);border-color:rgba(213,163,63,.35);box-shadow:0 10px 28px rgba(0,0,0,.26)}
+.hero-actions{background:rgba(8,10,17,.46);border:1px solid rgba(255,255,255,.12)}
 .btn-primary,.btn-outline{background:#fff;color:#222c44;border:1px solid rgba(34,45,78,.15)}
 .btn-primary:hover,.btn-outline:hover{background:#f8f9fc}
 .features-strip{background:linear-gradient(120deg,#ffffff,#f7f7f5)}
@@ -2100,10 +2092,8 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
             <option value="4">4 ★</option>
             <option value="3">3 ★</option>
           </select>
-          <button type="button" onclick="submitProductReview()">Yorum Yaz</button>
+          <button type="button" onclick="submitProductReview()">Yorum Ekle</button>
           <input type="text" id="reviewTextInput" placeholder="Bu ürün için kısa yorum yazın...">
-          <input type="file" id="reviewPhotoInput" class="modal-review-file" accept="image/*" multiple>
-          <div class="modal-review-file-hint">Fotoğraf ekleyin (JPG/PNG/WEBP, çoklu seçim desteklenir).</div>
         </div>
       </div>
       <div class="modal-add-wrap" id="mAddWrap"></div>
@@ -3668,45 +3658,32 @@ function submitProductReview(){
   const textEl = document.getElementById('reviewTextInput');
   const ratingEl = document.getElementById('reviewRatingInput');
   const nameEl = document.getElementById('reviewNameInput');
-  const photoEl = document.getElementById('reviewPhotoInput');
   const text = (textEl?.value || '').trim();
   if(text.length < 6){
     showToast('Yorum en az 6 karakter olmalı.');
     return;
   }
+  const social = getProductSocial(currentModalProductId);
   const usedNames = getGlobalUsedReviewNames();
   const typedName = (nameEl?.value || '').trim();
   const selectedName = typedName || getAutoReviewName(currentModalProductId);
-  const files = Array.from(photoEl?.files || []).slice(0,6);
-  const readAsDataUrl = (file)=> new Promise((resolve)=>{
-    const fr = new FileReader();
-    fr.onload = ()=> resolve(String(fr.result || ''));
-    fr.onerror = ()=> resolve('');
-    fr.readAsDataURL(file);
-  });
-
-  Promise.all(files.map(readAsDataUrl)).then((photoData)=>{
-    const photos = photoData.filter(Boolean);
-    const nextReview = {
-      name: makeUniqueName(selectedName, usedNames),
-      text,
-      rating: Number(ratingEl?.value || 5),
-      date: new Date().toISOString().slice(0,10),
-      photos,
-      source: 'user'
-    };
-    const currentUserReviews = loadUserReviews(currentModalProductId);
-    currentUserReviews.push(nextReview);
-    localStorage.setItem(reviewStorageKey(currentModalProductId), JSON.stringify(currentUserReviews));
-    hydrateProductSocialData();
-    applyFilters();
-    renderModalReviews(currentModalProductId);
-    if(textEl) textEl.value = '';
-    if(photoEl) photoEl.value = '';
-    syncReviewNameField(currentModalProductId);
-    if(ratingEl) ratingEl.value = '5';
-    showToast(photos.length ? 'Yorum ve fotoğraflarınız eklendi. Teşekkür ederiz!' : 'Yorumunuz eklendi. Teşekkür ederiz!');
-  });
+  const nextReview = {
+    name: makeUniqueName(selectedName, usedNames),
+    text,
+    rating: Number(ratingEl?.value || 5),
+    date: new Date().toISOString().slice(0,10),
+    source: 'user'
+  };
+  const currentUserReviews = loadUserReviews(currentModalProductId);
+  currentUserReviews.push(nextReview);
+  localStorage.setItem(reviewStorageKey(currentModalProductId), JSON.stringify(currentUserReviews));
+  hydrateProductSocialData();
+  applyFilters();
+  renderModalReviews(currentModalProductId);
+  if(textEl) textEl.value = '';
+  syncReviewNameField(currentModalProductId);
+  if(ratingEl) ratingEl.value = '5';
+  showToast('Yorumunuz eklendi. Teşekkür ederiz!');
 }
 function renderModalReviews(productId){
   const listEl = document.getElementById('mReviews');
@@ -3723,7 +3700,6 @@ function renderModalReviews(productId){
     <div class="modal-review-item">
       <div class="modal-review-head"><strong>${r.name}</strong><span class="modal-review-stars">${renderStarText(r.rating)}</span></div>
       <div class="modal-review-text">${r.text}</div>
-      ${(Array.isArray(r.photos) && r.photos.length) ? `<div class="modal-review-gallery">${r.photos.map((src,idx)=>`<img src="${src}" alt="Müşteri yorumu fotoğrafı ${idx+1}" loading="lazy">`).join('')}</div>` : ''}
     </div>
   `).join('');
 }
@@ -4828,11 +4804,9 @@ function openModalFromProduct(id){
         <i class="${isFav?'fas':'far'} fa-heart"></i>
       </button>
     </div>
-    ${(requireWidth || requireHeight) ? `<div class="modal-dimensions-row">
-      ${requireWidth ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${wid}" placeholder="En (m)" onclick="event.stopPropagation()">` : '<span></span>'}
-      ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${hid}" placeholder="Boy (m)" onclick="event.stopPropagation()">` : '<span></span>'}
-    </div>` : ''}
     <div class="modal-add-extra-row">
+      ${requireWidth ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${wid}" placeholder="En (m)" onclick="event.stopPropagation()">` : ''}
+      ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${hid}" placeholder="Boy (m)" onclick="event.stopPropagation()">` : ''}
       ${(requireWidth || requireHeight) ? `<button type="button" class="measure-tooltip-btn" onclick="event.stopPropagation();openMeasureHelp()" title="Doğru ölçü nasıl alınır?">?</button>` : ''}
       ${(requireWidth || requireHeight) ? `<button type="button" class="measure-guide-trigger" onclick="event.stopPropagation();openMeasureHelp()"><i class="fas fa-ruler-combined"></i> Doğru Ölçü Nasıl Alınır?</button>` : ''}
       ${pleatedMeterProduct ? `<select class="modal-qty-input pile-select" id="modal-pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('modal-${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-modal-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
@@ -4858,8 +4832,6 @@ function openModalFromProduct(id){
   syncReviewNameField(id);
   document.getElementById('reviewTextInput').value = '';
   document.getElementById('reviewRatingInput').value = '5';
-  const reviewPhotoInput = document.getElementById('reviewPhotoInput');
-  if(reviewPhotoInput) reviewPhotoInput.value = '';
 
   switchTab('desc');
   resetImgZoom();
