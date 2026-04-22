@@ -753,9 +753,12 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-spec-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.82rem}
 .modal-spec-row:last-child{border-bottom:none}
 .modal-spec-key{color:var(--slate)}.modal-spec-val{color:var(--ink);font-weight:600;text-align:right}
-.modal-add-wrap{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px;border-radius:16px;background:linear-gradient(135deg,#ffffff,#faf7f1);border:1px solid rgba(201,168,76,0.2);box-shadow:0 10px 24px rgba(15,14,13,0.06)}
+.modal-add-wrap{margin-top:16px;display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:linear-gradient(135deg,#ffffff,#faf7f1);border:1px solid rgba(201,168,76,0.2);box-shadow:0 10px 24px rgba(15,14,13,0.06)}
+.modal-add-main-row{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;width:100%}
+.modal-add-extra-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%}
 .modal-quick-buy-bar{display:none}
 .modal-qty-input{width:58px;height:44px;text-align:center;border:1px solid #e3dfd6;border-radius:10px;font-size:1rem;font-family:var(--ff-body);background:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,0.8)}
+.modal-add-main-row .modal-qty-input{flex:0 0 auto}
 .modal-qty-input.dimension-input{width:95px}
 .modal-qty-input.pile-select{width:auto;min-width:190px;padding:0 10px;font-size:0.8rem}
 .modal-inline-help{font-size:0.72rem;color:var(--slate);display:block;flex:1 1 100%}
@@ -790,12 +793,13 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .modal-search-input{min-width:0}
   .modal-img-stage{height:38dvh;min-height:250px;max-height:340px}
   .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(190px + env(safe-area-inset-bottom))}
-  .modal-add-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;margin:0;padding:12px 12px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#fff 0%,#f9f6ef 100%);border-top:1px solid rgba(201,168,76,0.25);border-radius:18px 18px 0 0;box-shadow:0 -14px 28px rgba(17,28,58,.16)}
+  .modal-add-wrap{position:fixed;left:0;right:0;bottom:0;z-index:1000;margin:0;padding:12px 12px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#fff 0%,#f9f6ef 100%);border-top:1px solid rgba(201,168,76,0.25);border-radius:18px 18px 0 0;box-shadow:0 -14px 28px rgba(17,28,58,.16);padding-bottom:calc(10px + env(safe-area-inset-bottom))}
   .modal-quick-buy-bar{position:fixed;left:10px;right:10px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:45;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(70,94,150,.2);box-shadow:0 10px 22px rgba(17,28,58,.16)}
   .modal-quick-buy-bar b{font-size:.74rem;color:#1f2941}
   .modal-quick-buy-bar span{font-size:.68rem;color:#606a84}
   .modal-quick-buy-bar button{border:none;background:#1f2941;color:#fff;border-radius:999px;padding:8px 12px;font-size:.64rem;letter-spacing:.8px}
-  .modal-add-wrap .modal-add-btn{font-size:0.78rem}
+  .modal-add-wrap .modal-add-btn{font-size:0.75rem}
+  .modal-add-main-row .modal-add-btn{padding-inline:12px}
   .modal-review-form{grid-template-columns:1fr}
   .modal-reviews-wrap{margin-bottom:16px}
   .qty-input,
@@ -830,7 +834,10 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .modal-img-stage{flex:1;height:auto;min-height:560px}
   .modal-info-col{min-height:0}
 }
-.modal-add-btn{flex:1;background:var(--ink);color:white;border:none;cursor:pointer;padding:12px 20px;border-radius:10px;font-size:0.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body)}
+.modal-add-btn{flex:1;background:var(--ink);color:white;border:none;cursor:pointer;padding:12px 20px;border-radius:10px;font-size:0.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body);margin:0}
+.modal-add-main-row .modal-add-btn{flex:1 1 auto;min-width:0}
+.modal-support-btn{display:flex;align-items:center;justify-content:center;text-decoration:none;background:#25D366;color:#fff;min-height:44px}
+.modal-favorite-btn{width:44px;height:44px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:0.2s;flex:0 0 auto;margin:0}
 .modal-add-btn:hover{background:var(--gold);color:var(--ink)}
 .mh-search{flex:1;display:flex;align-items:center;gap:8px;height:40px;background:#f1f1f1;border:1px solid #e4e4e4;border-radius:999px;padding:0 12px}
 .mh-search i{font-size:0.9rem;color:var(--gold)}
@@ -4711,22 +4718,27 @@ function openModalFromProduct(id){
   const meterDimensionsProduct = meterProduct && !pleatedMeterProduct && !squareProduct && requiresHeightMeasurement(p);
   const requireHeight = requiresHeightMeasurement(p);
   document.getElementById('mAddWrap').innerHTML = `
-    ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly onclick="event.stopPropagation()">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1" onclick="event.stopPropagation()">`}
-    ${requireWidth ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${wid}" placeholder="En (m)" onclick="event.stopPropagation()">` : ''}
-    ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${hid}" placeholder="Boy (m)" onclick="event.stopPropagation()">` : ''}
-    ${(requireWidth || requireHeight) ? `<button type="button" class="measure-tooltip-btn" onclick="event.stopPropagation();openMeasureHelp()" title="Doğru ölçü nasıl alınır?">?</button>` : ''}
-    ${pleatedMeterProduct ? `<select class="modal-qty-input pile-select" id="modal-pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('modal-${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-modal-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
-    ${squareProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
-    ${pleatedMeterProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
-    ${meterDimensionsProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
-    ${outOfStock
-      ? `<button type="button" class="modal-add-btn" style="background:#6b7280" disabled>Tükendi</button><button type="button" class="modal-add-btn" onclick="subscribeStockAlert('${p.id}','${String(p.name||'').replace(/'/g, "\\'")}')">Gelince Haber Ver</button>`
-      : `<button type="button" class="modal-add-btn" onclick="addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','modal-pile-${p.id}')"><i class="fas fa-bag-shopping" style="margin-right:8px"></i>Sepete Ekle</button>`}
-    <a href="https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Merhaba, ${p.name} ürünü için canlı destek rica ediyorum: ${location.origin}${location.pathname}?product=${p.id}`)}" target="_blank" rel="noopener" class="modal-add-btn" style="text-decoration:none;background:#25D366;color:#fff"><i class="fab fa-whatsapp" style="margin-right:8px"></i>Canlı Destek</a>
-    <span class="shipping-note">${uxCopy.shippingNote}</span>
-    <button type="button" onclick="toggleFavoriteById('${p.id}')" id="modal-fav-btn" style="width:42px;height:42px;border-radius:10px;border:1px solid var(--border);background:${isFav?'#fff0f0':'white'};cursor:pointer;color:${isFav?'#c0392b':'var(--slate)'};display:flex;align-items:center;justify-content:center;font-size:1rem;transition:0.2s;flex-shrink:0">
-      <i class="${isFav?'fas':'far'} fa-heart"></i>
-    </button>`;
+    <div class="modal-add-main-row">
+      ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly onclick="event.stopPropagation()">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1" onclick="event.stopPropagation()">`}
+      ${outOfStock
+        ? `<button type="button" class="modal-add-btn" style="background:#6b7280" disabled>Tükendi</button>`
+        : `<button type="button" class="modal-add-btn" onclick="addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','modal-pile-${p.id}')"><i class="fas fa-bag-shopping" style="margin-right:8px"></i>Sepete Ekle</button>`}
+      <button type="button" onclick="toggleFavoriteById('${p.id}')" id="modal-fav-btn" class="modal-favorite-btn" style="background:${isFav?'#fff0f0':'white'};color:${isFav?'#c0392b':'var(--slate)'}">
+        <i class="${isFav?'fas':'far'} fa-heart"></i>
+      </button>
+    </div>
+    <div class="modal-add-extra-row">
+      ${requireWidth ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${wid}" placeholder="En (m)" onclick="event.stopPropagation()">` : ''}
+      ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-qty-input dimension-input" id="${hid}" placeholder="Boy (m)" onclick="event.stopPropagation()">` : ''}
+      ${(requireWidth || requireHeight) ? `<button type="button" class="measure-tooltip-btn" onclick="event.stopPropagation();openMeasureHelp()" title="Doğru ölçü nasıl alınır?">?</button>` : ''}
+      ${pleatedMeterProduct ? `<select class="modal-qty-input pile-select" id="modal-pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('modal-${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-modal-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
+      ${squareProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
+      ${pleatedMeterProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
+      ${meterDimensionsProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
+      ${outOfStock ? `<button type="button" class="modal-add-btn" onclick="subscribeStockAlert('${p.id}','${String(p.name||'').replace(/'/g, "\\'")}')">Gelince Haber Ver</button>` : ''}
+      <a href="https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Merhaba, ${p.name} ürünü için canlı destek rica ediyorum: ${location.origin}${location.pathname}?product=${p.id}`)}" target="_blank" rel="noopener" class="modal-add-btn modal-support-btn"><i class="fab fa-whatsapp" style="margin-right:8px"></i>Canlı Destek</a>
+    </div>
+    <span class="shipping-note">${uxCopy.shippingNote}</span>`;
   const quickName = document.getElementById('modalQuickBuyName');
   const quickPrice = document.getElementById('modalQuickBuyPrice');
   if(quickName) quickName.textContent = p.name;
