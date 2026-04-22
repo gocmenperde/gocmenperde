@@ -3894,6 +3894,10 @@ function detectCurtainCategory(product){
 }
 function normalizeProductCatalog(product){
   const next = { ...product };
+  const normalizedId = String(next.id ?? '').trim();
+  if(normalizedId){
+    next.id = normalizedId;
+  }
   const detectedCat = detectCurtainCategory(next);
   if(detectedCat) next.cat = detectedCat;
   if(AREA_PRICE_CATEGORIES.includes(next.cat)){
