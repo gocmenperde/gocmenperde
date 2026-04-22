@@ -1439,7 +1439,7 @@ Işık: Yarı Geçirgen"></textarea></div>
         <div class="img-selected-list" id="selectedImageList"></div>
         <input type="text" id="f-image" placeholder="Ana görsel (otomatik ilk fotoğraf)" oninput="syncImagesFromSingleInput()" style="margin-top:8px;padding:10px 14px;border:1.5px solid var(--border-2);border-radius:9px;font-size:0.85rem;background:var(--cream);outline:none;transition:0.2s">
         <textarea id="f-images" placeholder="Ürün fotoğrafları (her satıra bir URL/yol):&#10;resimler/urun-1.jpg&#10;resimler/urun-2.jpg" oninput="previewImg()" style="margin-top:8px;min-height:90px;font-family:monospace;font-size:0.8rem"></textarea>
-        <img id="imgPreview" style="width:100%;height:130px;border-radius:10px;object-fit:cover;border:1px solid var(--border);margin-top:8px;display:none" src="" alt="">
+        <img decoding="async" loading="lazy" id="imgPreview" style="width:100%;height:130px;border-radius:10px;object-fit:cover;border:1px solid var(--border);margin-top:8px;display:none" src="" alt="">
         <div id="imgPreviewGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin-top:8px"></div>
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
           <button type="button" class="btn btn-outline btn-sm" onclick="clearImageFields()"><i class="fas fa-image"></i> Resim Alanını Temizle</button>
@@ -1521,7 +1521,7 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
         <label>Görsel Seç *</label>
         <input type="file" id="sliderImageFile" accept="image/*" onchange="handleSliderImageFileSelect(this)">
         <div id="sliderImagePreviewWrap" style="display:none;margin-top:8px">
-          <img id="sliderImagePreview" src="" alt="Slider önizleme" style="max-height:160px;border-radius:10px;border:1px solid var(--border);object-fit:cover">
+          <img decoding="async" loading="lazy" id="sliderImagePreview" src="" alt="Slider önizleme" style="max-height:160px;border-radius:10px;border:1px solid var(--border);object-fit:cover">
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
           <button type="button" class="btn btn-outline btn-sm" onclick="uploadSliderImage()"><i class="fas fa-cloud-upload-alt"></i> Görseli Yükle</button>
@@ -1551,7 +1551,7 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
         <div class="slider-live-preview">
           <div class="slider-live-label">Web Sitesi Görünümü</div>
           <div class="slider-preview-stage">
-            <img id="sliderCropPreviewImage" src="" alt="Slider canlı önizleme">
+            <img decoding="async" loading="lazy" id="sliderCropPreviewImage" src="" alt="Slider canlı önizleme">
             <div class="slider-preview-overlay"></div>
             <div class="slider-preview-copy">
               <b id="sliderCropPreviewTitle">Premium Koleksiyon</b>
@@ -1629,7 +1629,7 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
         </div>
         <input type="text" id="c-image" placeholder="örn: resimler/plise-menu.jpg" style="margin-top:8px" oninput="previewCategoryImage()">
         <div id="c-image-preview" style="display:none;margin-top:8px;align-items:center;gap:8px">
-          <img id="c-image-preview-img" src="" alt="Kategori görsel önizleme" style="width:36px;height:36px;border-radius:10px;object-fit:cover;border:1px solid var(--border)">
+          <img decoding="async" loading="lazy" id="c-image-preview-img" src="" alt="Kategori görsel önizleme" style="width:36px;height:36px;border-radius:10px;object-fit:cover;border:1px solid var(--border)">
           <span style="font-size:0.75rem;color:var(--slate-light)">Menüde bu görsel kullanılacak.</span>
         </div>
       </div>
@@ -1719,7 +1719,7 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
 const ADMIN_PASS_KEY = 'gp_admin_pass';
 const ADMIN_SESSION_KEY = 'gp_admin_session_v1';
 const ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
-const ADMIN_PASS_FALLBACKS = ['Emin.016', 'gocmen1993'];
+const ADMIN_PASS_FALLBACKS = [];
 function getStoredPass(){ return (localStorage.getItem(ADMIN_PASS_KEY) || '').trim(); }
 function isValidAdminPassword(pass){
   const candidate = (pass || '').trim();
@@ -1727,7 +1727,7 @@ function isValidAdminPassword(pass){
   const pool = new Set([getStoredPass(), ...ADMIN_PASS_FALLBACKS].filter(Boolean));
   return pool.has(candidate);
 }
-function getAdminApiKey(){ return 'gocmen1993'; }
+function getAdminApiKey(){ return localStorage.getItem('admin_api_key') || ''; }
 if(window.location.pathname === '/admin/login'){
   window.history.replaceState({}, '', '/admin.html');
 }
@@ -1938,7 +1938,7 @@ function renderFooterLogoRows(){
     <div class="logo-settings-grid">
       <div style="font-size:0.78rem;word-break:break-all">${item.src}</div>
       <div style="font-size:0.84rem">${item.alt || 'Ödeme logosu'}</div>
-      <div><img src="${item.src}" alt="${item.alt || 'Ödeme logosu'}"></div>
+      <div><img decoding="async" loading="lazy" src="${item.src}" alt="${item.alt || 'Ödeme logosu'}"></div>
       <div class="logo-settings-actions">
         <button class="icon-btn edit" onclick="moveFooterLogo(${idx},-1)" title="Yukarı"><i class="fas fa-arrow-up"></i></button>
         <button class="icon-btn edit" onclick="moveFooterLogo(${idx},1)" title="Aşağı"><i class="fas fa-arrow-down"></i></button>
@@ -2234,7 +2234,7 @@ function renderShowcaseImageRows(){
   body.innerHTML = showcaseImages.map((item, idx)=>`
     <tr>
       <td>${idx+1}</td>
-      <td><img class="product-thumb" src="${item.src}" alt="${item.title || 'Montaj görseli'}"></td>
+      <td><img decoding="async" loading="lazy" class="product-thumb" src="${item.src}" alt="${item.title || 'Montaj görseli'}"></td>
       <td><b>${item.title || '-'}</b><small style="display:block;color:var(--slate-light);margin-top:3px">${item.desc || '-'}</small></td>
       <td>${item.label || '-'}</td>
       <td><button class="icon-btn del" onclick="removeShowcaseImage(${idx})" title="Sil"><i class="fas fa-trash"></i></button></td>
@@ -2391,7 +2391,7 @@ function renderFromYouImagePreview(images=getFromYouImagesFromField()){
   const previewImages = images.slice(0, previewLimit);
   wrap.innerHTML = previewImages.map((src,idx)=>`
     <div style="position:relative;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff">
-      <img src="${resolveAssetUrl(src)}" ${withImageFallback(src)} alt="Müşteri fotoğrafı ${idx+1}" style="width:100%;height:86px;object-fit:cover;display:block">
+      <img decoding="async" loading="lazy" src="${resolveAssetUrl(src)}" ${withImageFallback(src)} alt="Müşteri fotoğrafı ${idx+1}" style="width:100%;height:86px;object-fit:cover;display:block">
       <button type="button" onclick="removeFromYouImageAt(${idx})" title="Fotoğrafı kaldır" style="position:absolute;top:6px;right:6px;width:22px;height:22px;border:none;border-radius:999px;background:rgba(0,0,0,0.7);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="fas fa-xmark"></i></button>
       <div style="position:absolute;left:6px;bottom:6px;font-size:0.62rem;background:rgba(0,0,0,0.65);color:#fff;padding:2px 6px;border-radius:999px">${idx===0 ? 'Kapak' : 'Foto '+(idx+1)}</div>
     </div>
@@ -2434,7 +2434,7 @@ function renderFromYouRows(){
   body.innerHTML = fromYouItems.map((item, idx)=>`
     <tr>
       <td>${idx+1}</td>
-      <td><img class="product-thumb" src="${resolveAssetUrl(getFromYouItemImages(item)[0] || 'resimler/foto6.jpg')}" ${withImageFallback(getFromYouItemImages(item)[0] || 'resimler/foto6.jpg')} alt="${item.title || 'Müşteri evi fotoğrafı'}"></td>
+      <td><img decoding="async" loading="lazy" class="product-thumb" src="${resolveAssetUrl(getFromYouItemImages(item)[0] || 'resimler/foto6.jpg')}" ${withImageFallback(getFromYouItemImages(item)[0] || 'resimler/foto6.jpg')} alt="${item.title || 'Müşteri evi fotoğrafı'}"></td>
       <td><b>${item.title || '-'}</b><small style="display:block;color:var(--slate-light);margin-top:3px">${item.location || '-'}</small><small style="display:block;color:var(--slate-light);margin-top:3px">📷 ${getFromYouItemImages(item).length} fotoğraf</small></td>
       <td>${sanitizeCustomerText(item.comment) || '-'}</td>
       <td style="display:flex;gap:6px">
@@ -3045,7 +3045,7 @@ function renderSliderTable(){
   body.innerHTML = SLIDER_ITEMS.map((item,idx)=>`<tr>
     <td>${idx+1}</td>
     <td>${item.isActive===false ? 'Pasif' : 'Aktif'}</td>
-    <td><img src="${resolveAssetUrl(item.imageUrl || '')}" ${withImageFallback(item.imageUrl || '')} alt="slide" class="product-thumb"></td>
+    <td><img decoding="async" loading="lazy" src="${resolveAssetUrl(item.imageUrl || '')}" ${withImageFallback(item.imageUrl || '')} alt="slide" class="product-thumb"></td>
     <td style="max-width:220px">${item.title || '<span style="opacity:.55">—</span>'}</td>
     <td style="max-width:260px;word-break:break-all">${item.targetPath || '-'}</td>
     <td>${Number(item.orderNo)||0}</td>
@@ -3542,7 +3542,7 @@ function renderFavorites(){
   favGrid.innerHTML = filtered.map(f=>{
     const prod = PRODUCTS.find(p=>p.id===f.productId);
     return `<div class="fav-item">
-      <img class="fav-item-img" src="${resolveAssetUrl(prod?.image||'')}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22><rect fill=%22%23f0f0f0%22 width=%2290%22 height=%2290%22/><text x=%2245%22 y=%2252%22 text-anchor=%22middle%22 font-size=%2228%22>📦</text></svg>'" alt="">
+      <img decoding="async" loading="lazy" class="fav-item-img" src="${resolveAssetUrl(prod?.image||'')}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%2290%22><rect fill=%22%23f0f0f0%22 width=%2290%22 height=%2290%22/><text x=%2245%22 y=%2252%22 text-anchor=%22middle%22 font-size=%2228%22>📦</text></svg>'" alt="">
       <div class="fav-item-info">
         <div class="fav-item-name">${f.productName}</div>
         <div style="font-size:0.77rem;color:var(--slate-light);margin-bottom:4px"><i class="fas fa-user" style="margin-right:4px"></i>${f.customerName||'Misafir'}</div>
@@ -3610,7 +3610,7 @@ function renderTable(list){
     const stockLabel = p.stock!=null ? `<span style="font-size:0.75rem;color:var(--slate-light)">${p.stock} adet</span>` : `<span style="font-size:0.72rem;color:var(--green)">Sınırsız</span>`;
     return `<tr>
       <td><div style="display:flex;align-items:center;gap:12px">
-        <img src="${mainImage || placeholder}" class="product-thumb" onerror="this.src='${placeholder}'" alt="${p.name}">
+        <img decoding="async" loading="lazy" src="${mainImage || placeholder}" class="product-thumb" onerror="this.src='${placeholder}'" alt="${p.name}">
         <div class="product-name-cell">${p.name}<small>${p.id}</small>${p.barcode?`<small>Barkod: ${p.barcode}</small>`:''}</div>
       </div></td>
       <td><span class="badge badge-cat">${getCatLabel(p.cat)}</span></td>
@@ -4260,7 +4260,7 @@ function renderCatTable(){
   document.getElementById('catTableBody').innerHTML=CATEGORIES.map((c,i)=>{
     const count=PRODUCTS.filter(p=>p.cat===c.key).length;
     const visual = c.image
-      ? `<img src="${resolveAssetUrl(c.image)}" alt="${c.label}" style="width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">`
+      ? `<img decoding="async" loading="lazy" src="${resolveAssetUrl(c.image)}" alt="${c.label}" style="width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">`
       : `<div style="width:32px;height:32px;border-radius:8px;background:var(--gold-light);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:0.85rem"><i class="${c.icon||'fas fa-folder'}"></i></div>`;
     return `<tr>
       <td><div style="display:flex;align-items:center;gap:10px">${visual}<div><strong style="font-size:0.88rem">${c.label}</strong>${c.desc?`<div style="font-size:0.74rem;color:var(--slate-light)">${c.desc}</div>`:''}</div></div></td>
@@ -4469,7 +4469,7 @@ async function renderCampaigns(){
         </div>
       </div>
       <div style="display:grid;grid-template-columns:minmax(120px,180px) 1fr;gap:12px;align-items:center;margin-bottom:12px">
-        <img src="${c.imageUrl || 'resimler/foto8.jpg'}" alt="${c.name}" style="width:100%;height:92px;border-radius:12px;object-fit:cover;border:1px solid var(--border)">
+        <img decoding="async" loading="lazy" src="${c.imageUrl || 'resimler/foto8.jpg'}" alt="${c.name}" style="width:100%;height:92px;border-radius:12px;object-fit:cover;border:1px solid var(--border)">
         <p class="campaign-desc" style="margin:0">${c.description || 'Açıklama eklenmedi.'}</p>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">
@@ -4725,7 +4725,7 @@ function buildPremiumItemCard(p, mode){
   const key = mode==='live' ? 'isLiveShowcase' : 'isFeatured';
   return `<label class="premium-item">
     <input type="checkbox" ${checked?'checked':''} onchange="togglePremiumFlag('${String(p.id).replace(/'/g,"\'")}', '${key}', this.checked)">
-    <img src="${resolveAssetUrl((p.images&&p.images[0])||p.image||'')}" alt="${p.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2252%22 height=%2252%22><rect fill=%22%23f1f5f9%22 width=%2252%22 height=%2252%22/></svg>'">
+    <img decoding="async" loading="lazy" src="${resolveAssetUrl((p.images&&p.images[0])||p.image||'')}" alt="${p.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2252%22 height=%2252%22><rect fill=%22%23f1f5f9%22 width=%2252%22 height=%2252%22/></svg>'">
     <span style="display:grid;gap:2px;flex:1"><b style="font-size:.78rem">${p.name}</b><small>${Number(p.price||0).toLocaleString('tr-TR')} ₺</small></span>
     ${checked?'<span class="premium-chip">Premium</span>':''}
   </label>`;

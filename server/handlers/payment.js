@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const net = require('net');
 const { getPaytrCredentials } = require('../lib/_paytr-config');
 
+const { applyCors } = require('../lib/_cors');
 function safeString(value, fallback = '') {
   return String(value ?? fallback).trim();
 }
@@ -78,10 +79,7 @@ async function parsePaytrResponse(response) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (applyCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { merchantId, merchantKey, merchantSalt, hasRequiredCredentials } = getPaytrCredentials();

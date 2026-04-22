@@ -1,11 +1,9 @@
 const { pool } = require('../lib/_db');
 const { ensureSliderAdsSchema } = require('../lib/_slider_ads');
 
+const { applyCors } = require('../lib/_cors');
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (applyCors(req, res)) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Desteklenmeyen method.' });
 
   try {

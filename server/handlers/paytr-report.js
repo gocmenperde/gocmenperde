@@ -4,6 +4,7 @@ const { getPaytrCredentials } = require('../lib/_paytr-config');
 const DATE_FORMAT = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
 const MAX_RANGE_MS = 3 * 24 * 60 * 60 * 1000;
 
+const { applyCors } = require('../lib/_cors');
 function parseDateString(value) {
   if (!DATE_FORMAT.test(value)) return null;
   const normalized = value.replace(' ', 'T') + 'Z';
@@ -13,11 +14,7 @@ function parseDateString(value) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (applyCors(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Sadece POST desteklenir.' });
   }

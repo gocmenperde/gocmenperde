@@ -3,6 +3,7 @@ const path = require('path');
 
 const PRODUCTS_FILE = path.join(process.cwd(), 'products.json');
 
+const { applyCors } = require('../lib/_cors');
 async function readProducts(){
   const raw = await fs.readFile(PRODUCTS_FILE, 'utf8');
   const parsed = JSON.parse(raw);
@@ -18,10 +19,7 @@ function normalizePremiumFlags(product = {}){
 }
 
 module.exports = async function premiumShowcase(req, res){
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if(req.method === 'OPTIONS') return res.status(204).end();
+  if (applyCors(req, res)) return;
   if(req.method !== 'GET') return res.status(405).json({ error:'Method not allowed' });
 
   try{

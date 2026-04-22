@@ -2,10 +2,11 @@
 const crypto = require('crypto');
 const { parseUrlWithFallback } = require('../../lib/_safe-url');
 
-const ADMIN_API_KEY = String(process.env.ADMIN_API_KEY || process.env.X_ADMIN_KEY || 'gocmen1993').trim();
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 const MAX_DATA_URL_SIZE_BYTES = 12 * 1024 * 1024; // ~12MB
 const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg','image/jpg','image/png','image/webp','image/avif','image/gif']);
 
+const { applyCors } = require('../../lib/_cors');
 function parseCloudinaryUrl(value) {
   const raw = String(value || '').trim();
   if (!raw) return null;
@@ -190,12 +191,8 @@ function buildSignedUploadPayload({ cloudinaryConfig, fileName, prefix, folder =
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 'no-store');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
+  if (applyCors(req, res, { allowAdminHeaders: true })) return;
+  if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
     return res.status(403).json({ error: 'Yetkisiz.' });
   }
 

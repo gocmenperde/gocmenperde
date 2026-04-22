@@ -4,8 +4,9 @@ const { pool } = require('../lib/_db');
 const { sendResendEmail, normalizeRecipients, normalizeEmail } = require('../lib/_resend-mail');
 
 const FILE_NAME = 'live-support-messages.json';
-const ADMIN_API_KEY = 'gocmen1993';
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 const DEFAULT_NOTIFY_EMAIL = 'muhammedeminturk.16@gmail.com';
+const { applyCors } = require('../lib/_cors');
 let resolvedDataFilePath = '';
 let dbSchemaReady = false;
 
@@ -227,14 +228,11 @@ function buildCustomerReplyTemplate({ item, subject, message }) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (applyCors(req, res, { allowAdminHeaders: true })) return;
 
   try {
     if (req.method === 'GET') {
-      if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
+      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
         return res.status(403).json({ error: 'Yetkisiz.' });
       }
       const items = await readItems();
@@ -352,7 +350,7 @@ module.exports = async function handler(req, res) {
       }
 
       if (action === 'reply') {
-        if (req.headers['x-admin-key'] !== ADMIN_API_KEY) {
+        if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
           return res.status(403).json({ error: 'Yetkisiz.' });
         }
 
