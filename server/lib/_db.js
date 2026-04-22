@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const { parseUrlWithFallback } = require('./_safe-url');
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -29,10 +30,8 @@ const buildPoolConfig = (dbUrl) => {
     };
   }
 
-  let parsedUrl;
-  try {
-    parsedUrl = new URL(dbUrl);
-  } catch (error) {
+  const parsedUrl = parseUrlWithFallback(dbUrl);
+  if (!parsedUrl) {
     console.warn('DATABASE_URL parse edilemedi, connectionString ile devam ediliyor.');
     return {
       connectionString: dbUrl,
