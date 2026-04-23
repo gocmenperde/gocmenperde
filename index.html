@@ -3971,7 +3971,7 @@ function rebuildCategoryMenus(){
   const desktopMenu = document.getElementById('desktopCategoryMenu');
   if(desktopMenu){
     desktopMenu.innerHTML = CATEGORIES.map(c=>`
-      <button onclick="openCategoryFromMenu('${c.key}')">
+      <button type="button" class="js-category-menu-trigger" data-category-key="${c.key}">
         ${renderCategoryMenuVisual(c)}<span>${c.label}</span>
       </button>
     `).join('');
@@ -3979,14 +3979,28 @@ function rebuildCategoryMenus(){
   const mobileMenu = document.getElementById('mobileCategoryMenu');
   if(mobileMenu){
     mobileMenu.innerHTML = CATEGORIES.map(c=>`
-      <button onclick="openCategoryFromMenu('${c.key}')">
+      <button type="button" class="js-category-menu-trigger" data-category-key="${c.key}">
         ${renderCategoryMenuVisual(c)}<span>${c.label.toLocaleUpperCase('tr-TR')}</span>
       </button>
     `).join('');
   }
+  bindCategoryMenuInteractions();
 }
 function openCategoryFromMenu(catKey){
   navigateToCategory(catKey);
+}
+function bindCategoryMenuInteractions(){
+  ['desktopCategoryMenu','mobileCategoryMenu'].forEach((menuId)=>{
+    const menu = document.getElementById(menuId);
+    if(!menu || menu.dataset.categoryBound === '1') return;
+    menu.addEventListener('click', (event)=>{
+      const btn = event.target?.closest?.('.js-category-menu-trigger[data-category-key]');
+      if(!btn || !menu.contains(btn)) return;
+      event.preventDefault();
+      openCategoryFromMenu(btn.dataset.categoryKey || '');
+    });
+    menu.dataset.categoryBound = '1';
+  });
 }
 function getProductImages(product){
   if(!product) return [];
