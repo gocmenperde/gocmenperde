@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
+const helmet = require('helmet');
 
 if (process.env.NODE_ENV !== 'production' && typeof process.loadEnvFile === 'function') {
   const envPath = path.resolve(__dirname, '..', '.env');
@@ -26,8 +28,8 @@ const apiLimiter = rateLimit({
 const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 const paymentLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 
-app.use(require('compression')());
-app.use(require('helmet')({
+app.use(compression());
+app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
 }));
