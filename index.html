@@ -5426,6 +5426,7 @@ function setMobileMenuState(open){
   const o = document.getElementById('menuOverlay');
   if(!m || !o) return;
   m.classList.toggle('open', open);
+  m.setAttribute('aria-hidden', open ? 'false' : 'true');
   o.style.display = open ? 'block' : 'none';
   document.body.classList.toggle('menu-open', open);
 }
@@ -5451,6 +5452,18 @@ function bindMenuTriggers(){
     });
     btn.dataset.menuBound = '1';
   });
+  const overlay = document.getElementById('menuOverlay');
+  if(overlay && overlay.dataset.menuBound !== '1'){
+    overlay.removeAttribute('onclick');
+    overlay.addEventListener('click', closeMobileMenuWrapper);
+    overlay.dataset.menuBound = '1';
+  }
+  const closeBtn = document.querySelector('#mobileMenu .menu-close-btn');
+  if(closeBtn && closeBtn.dataset.menuBound !== '1'){
+    closeBtn.removeAttribute('onclick');
+    closeBtn.addEventListener('click', closeMobileMenuWrapper);
+    closeBtn.dataset.menuBound = '1';
+  }
 }
 function closeMobileMenuWrapper(){ setMobileMenuState(false); }
 function closeAllPopups(){
@@ -8067,39 +8080,49 @@ function updateFloatingCta(activeSection='home'){
 
 // ── Görsel Performansı ──
 function optimizeImageLoading(scope = document){
-  scope.querySelectorAll('img').forEach((img, idx)=>{
+  const nodes = scope?.tagName === 'IMG' ? [scope] : Array.from(scope.querySelectorAll('img'));
+  nodes.forEach((img, idx)=>{
+    if(img.dataset.imageOptimized === '1') return;
     const heroImage = !!img.closest('.hero-ad-card,.hero,.home-promo-shell');
     const aboveFold = (idx < 2 || heroImage) && !img.closest('.modal-overlay,.gallery-section,.reviews-section,#products,#from-you');
     if(!img.hasAttribute('decoding')) img.decoding = 'async';
-    if(!img.hasAttribute('fetchpriority')) img.setAttribute('fetchpriority', aboveFold ? 'high' : 'low');
+    if(!img.hasAttribute('fetchpriority')) img.setAttribute('fetchpriority', aboveFold ? 'high' : 'auto');
     if(!img.hasAttribute('loading')) img.loading = aboveFold ? 'eager' : 'lazy';
     if(!img.complete){
       img.classList.remove('img-loaded');
-      img.addEventListener('load', ()=>img.classList.add('img-loaded'), {once:true});
-      img.addEventListener('error', ()=>img.classList.add('img-loaded'), {once:true});
+      img.addEventListener('load', ()=>img.classList.add('img-loaded'), {once:true, passive:true});
+      img.addEventListener('error', ()=>img.classList.add('img-loaded'), {once:true, passive:true});
     }else{
       img.classList.add('img-loaded');
     }
+    img.dataset.imageOptimized = '1';
   });
 }
 document.addEventListener('DOMContentLoaded', ()=>{
-  runSafely('initAddressSelectors', ()=>initAddressSelectors());
-  runSafely('loadHomeSlider', ()=>loadHomeSlider());
+  bindMenuTriggers();
   optimizeImageLoading();
   document.addEventListener('keydown', (event)=>{
     if(event.key === 'Escape'){
+      closeMobileMenuWrapper();
       toggleFiltersDrawer(false);
       closeMeasureHelp();
     }
   });
+  const optimizeQueue = new Set();
+  let optimizeRaf = 0;
+  const flushOptimizeQueue = ()=>{
+    optimizeRaf = 0;
+    optimizeQueue.forEach((node)=>optimizeImageLoading(node));
+    optimizeQueue.clear();
+  };
   const mo = new MutationObserver((mutations)=>{
     mutations.forEach((m)=>{
       m.addedNodes.forEach((node)=>{
         if(node.nodeType !== 1) return;
-        if(node.tagName === 'IMG') optimizeImageLoading(node.parentElement || document);
-        else if(typeof node.querySelectorAll === 'function') optimizeImageLoading(node);
+        optimizeQueue.add(node);
       });
     });
+    if(!optimizeRaf) optimizeRaf = requestAnimationFrame(flushOptimizeQueue);
   });
   mo.observe(document.body, {childList:true, subtree:true});
 });
