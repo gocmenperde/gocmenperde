@@ -561,30 +561,31 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .product-card .qty-wrap .add-btn{display:inline-flex}
 .qty-input{width:48px;height:36px;text-align:center;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;color:var(--ink);background:var(--cream);font-family:var(--ff-body)}
 @media(max-width:600px){.qty-input{width:40px;height:32px;font-size:0.8rem}}
-.qty-input.dimension-input{width:72px}
-.measure-fields{display:grid;grid-template-columns:repeat(2,minmax(104px,1fr));gap:8px;flex:1 1 100%}
-.measure-field{display:flex;flex-direction:column;gap:4px}
-.measure-field label{font-size:.62rem;letter-spacing:.05em;text-transform:none;color:#5f6679;margin-bottom:0}
-.qty-input.dimension-input{width:100%;height:38px;text-align:left;padding:0 10px}
-.qty-input.dimension-input.is-invalid{border-color:#c62828;background:#fff5f5;box-shadow:0 0 0 2px rgba(198,40,40,.12)}
+.product-dimensions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px;flex:1 1 100%}
+.product-dimensions .dim-field{display:flex;flex-direction:column;gap:3px}
+.product-dimensions label{font:600 10px var(--ff-body);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:0}
+.product-dimensions input.dimension-input{width:100%;padding:9px 10px;font-size:14px;border:1px solid var(--border);border-radius:8px;background:#fff;height:auto;text-align:left}
+.product-dimensions input.dimension-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.product-dimensions input.dimension-input.is-error,.product-dimensions input.dimension-input.is-invalid{border-color:#c0392b;background:#fff5f4;box-shadow:none}
 .measure-error{display:block;flex:1 1 100%;color:#c62828;font-size:.68rem;line-height:1.35}
 .measure-tooltip-btn{width:26px;height:26px;border:none;border-radius:999px;background:#eef1f7;color:#1f2941;cursor:pointer;font-weight:700}
-.qty-input.pile-select{width:auto;min-width:112px;padding:0 8px;font-size:0.7rem}
-.qty-help-text{font-size:0.66rem;color:var(--slate);display:block;min-width:150px}
-.pile-preview-tag{display:inline-flex;align-items:center;gap:6px;font-size:.64rem;padding:4px 8px;border-radius:999px;border:1px solid rgba(70,94,150,.2);background:#f4f7ff;color:#2f3f64}
+.qty-input.pile-select{width:100%;padding:8px 10px;border-radius:8px;font-size:13px;margin-top:4px}
+.pile-preview-tag{display:inline-block;margin-top:4px;font-size:11px;color:var(--gold-dark)}
+.measure-link{background:none;border:none;padding:4px 0;font:500 11px var(--ff-body);color:var(--gold-dark);cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-bottom:4px}
+.measure-link:hover{color:var(--gold);text-decoration:underline}
 .shipping-note{display:block;margin-top:8px;font-size:.62rem;color:#4f5b78}
+.qty-wrap .add-btn{margin-top:10px}
 .social-proof{margin:6px 0 0;font-size:.66rem;color:#5f6679}
 @media(max-width:600px){
   .qty-wrap{gap:5px;width:100%}
-  .measure-fields{grid-template-columns:1fr}
-  .qty-input.dimension-input{font-size:16px}
+  .product-dimensions{grid-template-columns:1fr 1fr}
   .qty-input.pile-select{min-width:100%;height:34px}
-  .qty-help-text{flex:1 1 100%;font-size:0.62rem;line-height:1.45}
   .sort-bar{gap:8px}
   .products-layout{padding:16px 12px 26px}
   .product-bottom{align-items:stretch}
   .add-btn{width:100%;justify-content:center}
 }
+@media(max-width:380px){.product-dimensions input.dimension-input{font-size:16px}}
 .add-btn{display:flex;align-items:center;justify-content:center;background:var(--ink);color:white;border:none;cursor:pointer;padding:9px 16px;border-radius:8px;font-size:0.68rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);white-space:nowrap;font-family:var(--ff-body)}
 .add-btn:hover{background:var(--gold);color:var(--ink)}
 @media(max-width:600px){.add-btn{padding:7px 10px;font-size:0.6rem;letter-spacing:1px}}
@@ -1423,7 +1424,7 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 .product-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;transition:transform .3s ease,box-shadow .3s ease,border-color .3s}
 .product-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--gold-soft)}
 .product-info{padding:18px 20px 20px}.product-name-btn{font:500 1.05rem var(--ff-display);color:var(--ink);letter-spacing:.01em;margin-bottom:6px}.product-desc{font:400 13px var(--ff-body);color:var(--slate);line-height:1.5}.current-price{font:600 1.25rem var(--ff-display);color:var(--ink)}.old-price{font:400 .9rem var(--ff-body);color:var(--slate);text-decoration:line-through;margin-right:8px}.product-badge,.product-campaign-pill{font:600 10px var(--ff-body);letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:#fff;padding:5px 10px;border-radius:999px}
-@media (max-width:700px){.qty-wrap{width:100%}.qty-wrap>.qty-input,.qty-wrap>.measure-fields,.qty-wrap>.pile-select,.qty-wrap>.qty-help-text,.qty-wrap>.pile-preview-tag,.qty-wrap>.measure-guide-trigger,.qty-wrap>.measure-error{display:flex}.qty-wrap>.qty-help-text{display:block}.qty-wrap>.measure-fields{display:grid}.qty-wrap>.measure-tooltip-btn{display:none}.qty-wrap>.add-btn{width:100%}}
+@media (max-width:700px){.qty-wrap{width:100%}.qty-wrap>.qty-input,.qty-wrap>.product-dimensions,.qty-wrap>.pile-select,.qty-wrap>.pile-preview-tag,.qty-wrap>.measure-link,.qty-wrap>.measure-error{display:flex}.qty-wrap>.product-dimensions{display:grid}.qty-wrap>.measure-tooltip-btn{display:none}.qty-wrap>.add-btn{width:100%}}
 .mobile-bottom-nav{background:rgba(251,249,245,0.92);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -8px 24px -16px rgba(13,20,24,.18)}
 .mbn-item{color:var(--slate);transition:color .2s}.mbn-item.active-nav{color:var(--ink)}.mbn-item.active-nav i{color:var(--gold-deep);background:var(--gold-soft);border-radius:50%;padding:7px}
 .products-loading{padding:80px 20px;text-align:center;color:var(--slate);font:400 italic 1.05rem var(--ff-display)}.products-loading i{color:var(--gold-deep)!important;opacity:.6!important}
@@ -4377,7 +4378,6 @@ function buildCard(p, index=0){
   const qid = 'q-' + p.id;
   const wid = 'w-' + p.id;
   const hid = 'h-' + p.id;
-  const pid = 'price-info-' + p.id;
   const isFav = favorites.some(f => f.id === p.id);
   const productImages = getProductImages(p);
   const primaryImage = getPrimaryImage(p);
@@ -4406,17 +4406,14 @@ function buildCard(p, index=0){
   const addBtn = outOfStock
     ? buildOutOfStockActions(p.id, p.name)
     : `<div class="qty-wrap">
-    ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="qty-input" id="${qid}" value="0" readonly onclick="event.stopPropagation()">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="qty-input" id="${qid}" value="1" ${meterProduct ? `title="Virgüllü değer girebilirsiniz"` : ''} onclick="event.stopPropagation()">`}
-    ${(requireWidth || requireHeight) ? `<div class="measure-fields">
-      ${requireWidth ? `<div class="measure-field"><label for="${wid}">En (m)</label><input type="text" inputmode="decimal" class="qty-input dimension-input" id="${wid}" onclick="event.stopPropagation()"></div>` : ''}
-      ${requireHeight ? `<div class="measure-field"><label for="${hid}">Boy (m)</label><input type="text" inputmode="decimal" class="qty-input dimension-input" id="${hid}" onclick="event.stopPropagation()"></div>` : ''}
+    ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="hidden" id="${qid}" value="1">` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="qty-input" id="${qid}" value="1" ${meterProduct ? `title="Virgüllü değer girebilirsiniz"` : ''} onclick="event.stopPropagation()">`}
+    ${(requireWidth || requireHeight) ? `<div class="product-dimensions">
+      ${requireWidth ? `<div class="dim-field"><label for="${wid}">En (m)</label><input type="text" inputmode="decimal" class="qty-input dimension-input" id="${wid}" placeholder="2,50" onclick="event.stopPropagation()"></div>` : ''}
+      ${requireHeight ? `<div class="dim-field"><label for="${hid}">Boy (m)</label><input type="text" inputmode="decimal" class="qty-input dimension-input" id="${hid}" placeholder="2,80" onclick="event.stopPropagation()"></div>` : ''}
     </div>` : ''}
-    ${(requireWidth || requireHeight) ? `<button type="button" class="measure-guide-trigger" onclick="event.stopPropagation();openMeasureHelp()"><i class="fas fa-ruler-combined"></i> Doğru ölçü nasıl alınır?</button>` : ''}
+    ${(requireWidth || requireHeight) ? `<button type="button" class="measure-link" onclick="event.stopPropagation();openMeasureHelp()"><i class="fas fa-ruler-combined"></i> Doğru ölçü nasıl alınır?</button>` : ''}
     ${(requireWidth || requireHeight) ? `<span class="measure-error" id="measure-error-${p.id}" hidden></span>` : ''}
     ${pleatedMeterProduct ? `<select class="qty-input pile-select" id="pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
-    ${squareProduct ? `<span id="${pid}" class="qty-help-text">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
-    ${pleatedMeterProduct ? `<span id="${pid}" class="qty-help-text">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
-    ${meterDimensionsProduct ? `<span id="${pid}" class="qty-help-text">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
     <button type="button" class="add-btn" data-action="add-cart" data-id="${p.id}" data-qid="${qid}" data-wid="${wid}" data-hid="${hid}" data-pile="pile-${p.id}">Sepete Ekle</button>
     <span class="shipping-note">${uxCopy.shippingNote}</span>
   </div>`;
@@ -6470,7 +6467,9 @@ function closeCartSheet(){
 function clearCardDimensionError(triggerBtn, widthInputId, heightInputId){
   const widthEl = document.getElementById(widthInputId);
   const heightEl = document.getElementById(heightInputId);
+  widthEl?.classList.remove('is-error');
   widthEl?.classList.remove('is-invalid');
+  heightEl?.classList.remove('is-error');
   heightEl?.classList.remove('is-invalid');
   const card = triggerBtn?.closest?.('.product-card');
   const errorEl = card?.querySelector('.measure-error');
@@ -6483,8 +6482,16 @@ function showCardDimensionError(triggerBtn, widthInputId, heightInputId, require
   const card = triggerBtn?.closest?.('.product-card');
   const widthEl = document.getElementById(widthInputId);
   const heightEl = document.getElementById(heightInputId);
-  if(requireWidth && widthEl) widthEl.classList.toggle('is-invalid', !isValidDimensionValue(width));
-  if(requireHeight && heightEl) heightEl.classList.toggle('is-invalid', !isValidDimensionValue(height));
+  if(requireWidth && widthEl){
+    const hasError = !isValidDimensionValue(width);
+    widthEl.classList.toggle('is-error', hasError);
+    widthEl.classList.toggle('is-invalid', hasError);
+  }
+  if(requireHeight && heightEl){
+    const hasError = !isValidDimensionValue(height);
+    heightEl.classList.toggle('is-error', hasError);
+    heightEl.classList.toggle('is-invalid', hasError);
+  }
   if(!card) return false;
   const errorEl = card.querySelector('.measure-error');
   if(!errorEl) return false;
