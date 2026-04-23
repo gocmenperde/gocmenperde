@@ -8,11 +8,14 @@ module.exports = async function handler(req, res) {
   if (applyCors(req, res, { allowAdminHeaders: true })) return;
 
   try {
-    await ensureSchema();
-
     const { action } = req.query;
 
-    if (action === 'track' && req.method === 'POST') {
+    if (action === 'track') {
+      // Analytics/tracking uçları için hatayı sessiz geç: boş/eksik payload'da 204 dön.
+      if (req.method !== 'POST') {
+        return res.status(204).end();
+      }
+
       const {
         sessionId,
         path = '/',
@@ -21,8 +24,10 @@ module.exports = async function handler(req, res) {
       } = req.body || {};
 
       if (!sessionId || String(sessionId).trim().length < 8) {
-        return res.status(400).json({ error: 'Geçersiz sessionId.' });
+        return res.status(204).end();
       }
+
+      await ensureSchema();
 
       const cleanPath = normalizePath(path);
       const ua = String(req.headers['user-agent'] || '').slice(0, 300);
@@ -51,6 +56,8 @@ module.exports = async function handler(req, res) {
       if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
         return res.status(403).json({ error: 'Yetkisiz.' });
       }
+
+      await ensureSchema();
 
       const [todayPV, yesterdayPV, monthPV, todayUnique, yesterdayUnique, monthUnique, activeNow, dailyRows, topPagesRows] = await Promise.all([
         scalar(`SELECT COUNT(*)::int AS v FROM site_visit_pageviews WHERE visited_at >= date_trunc('day', now())`),

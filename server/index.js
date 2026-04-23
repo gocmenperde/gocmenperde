@@ -69,10 +69,7 @@ if (!process.env.VERCEL) {
   app.use('/api', apiLimiter);
 }
 const routerHandler = require('../api/router');
-app.all('/api/*', async (req, res) => {
-  req.url = `/?route=${req.path.replace(/^\/api\/?/, '')}`;
-  return routerHandler(req, res);
-});
+app.all('/api/*', routerHandler);
 const server = app.listen(PORT, HOST, () => {
   console.log(`Sunucu hazır: http://${HOST}:${PORT}`);
 });

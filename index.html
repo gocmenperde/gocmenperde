@@ -2708,18 +2708,10 @@ function parseShowcaseJSON(key, fallback){
   return fallback;
 }
 
-function getApiFallbackUrl(path){
-  const clean = String(path || '').trim();
-  if(!clean.startsWith('/api/')) return '';
-  const route = clean.replace(/^\/api\//,'').replace(/^\/+|\/+$/g,'');
-  return route ? `/api/router?route=${encodeURIComponent(route)}` : '';
-}
 async function fetchWithApiFallback(path, options = {}){
-  const primary = await fetch(path, options);
-  if(primary.ok || primary.status !== 404) return primary;
-  const fallbackUrl = getApiFallbackUrl(path);
-  if(!fallbackUrl) return primary;
-  return fetch(fallbackUrl, options);
+  // Vercel dönemindeki /api/router rewrite fallback'i kaldırıldı.
+  // Replit Express tarafında /api/* doğrudan routerHandler ile çözülüyor.
+  return fetch(path, options);
 }
 async function submitLiveSupport(event){
   if(event) event.preventDefault();
@@ -5984,18 +5976,23 @@ function getVisitSessionId(){
 
 function sendVisitEvent({heartbeat=false}={}){
   const sessionId = getVisitSessionId();
-  if(!sessionId) return;
   const payload = {
     sessionId,
     path: `${location.pathname}${location.hash || ''}`,
     referrer: document.referrer || '',
-    heartbeat
+    heartbeat,
+    ts: Date.now(),
+    url: location.href
   };
   fetch('/api/visits?action=track',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     keepalive:true,
     body: JSON.stringify(payload)
+  }).then((res)=>{
+    if(!res.ok && res.status !== 400 && res.status !== 404){
+      // Tracking çağrıları kullanıcı akışını etkilememeli.
+    }
   }).catch(()=>{});
 }
 

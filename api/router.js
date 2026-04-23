@@ -49,10 +49,9 @@ const ROUTES = {
 };
 
 module.exports = async function handler(req, res) {
-  const reqUrl = String(req.url || '');
-  const parsedUrl = new URL(reqUrl, 'http://localhost');
-  const routeParam = parsedUrl.searchParams.get('route') || '';
-  const route = String(routeParam).replace(/^\/+|\/+$/g, '');
+  const route = String(req.path || req.url || '')
+    .replace(/^\/api\/?/, '')
+    .replace(/^\/+|\/+$/g, '');
   const loader = ROUTES[route];
 
   if (!loader) {
