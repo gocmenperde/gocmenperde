@@ -97,12 +97,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
 <script>
-window.addEventListener('error', e=>console.error('[gp:error]', e.message, e.filename+':'+e.lineno));
-window.addEventListener('unhandledrejection', e=>console.error('[gp:promise]', e.reason));
+  window.addEventListener('error', function(e){
+    try{ console.error('[gp:error]', e.message, (e.filename||'')+':'+(e.lineno||0)); }catch(_){}
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    try{ console.error('[gp:promise]', e && e.reason); }catch(_){}
+  });
 </script>
 <style>
 :root{
@@ -110,7 +114,7 @@ window.addEventListener('unhandledrejection', e=>console.error('[gp:promise]', e
   --gold:#c8a35a;--gold-deep:#a3823f;--gold-soft:#e6d3a8;
   --slate:#6b7681;--line:#e8e2d6;--border:var(--line);--accent:#7d2c2c;
   --shadow:0 20px 60px rgba(0,0,0,0.08);
-  --ff-display:'Cormorant Garamond',serif;--ff-body:'Inter',sans-serif;
+  --ff-display:'Cormorant Garamond',serif;--ff-body:'DM Sans',sans-serif;
   --radius:12px;--transition:0.4s cubic-bezier(0.25,0.46,0.45,0.94)
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -3478,11 +3482,9 @@ async function loadProducts({forceRefresh=false} = {}){
     }
   }
   if(productRequestInFlight) return productRequestInFlight;
-  if(PRODUCTS.length===0){
-    const gridEl = document.getElementById('productsGrid');
-    if(gridEl && !gridEl.querySelector('.product-card')){
-      gridEl.innerHTML = '<div class="products-loading" style="grid-column:1/-1"><i class="fas fa-spinner fa-spin" style="display:block;font-size:2rem;margin-bottom:16px;opacity:0.3"></i>Ürünler yükleniyor...</div>';
-    }
+  const _g = document.getElementById('productsGrid');
+  if(_g && !_g.querySelector('.product-card') && !_g.innerHTML.trim()){
+    _g.innerHTML = '<div class="products-loading" style="grid-column:1/-1"><i class="fas fa-spinner fa-spin" style="display:block;font-size:2rem;margin-bottom:16px;opacity:0.3"></i>Ürünler yükleniyor...</div>';
   }
   if(productRequestInFlightCacheTimer){
     clearTimeout(productRequestInFlightCacheTimer);
@@ -3852,7 +3854,6 @@ async function loadCategoriesResilient(){
   const sources = [
     `/categories.json?v=${Date.now()}`,
     `/categories.json`,
-    `https://raw.githubusercontent.com/gocmenperde/gocmenperde/main/categories.json`,
   ];
   for (const url of sources) {
     try {
@@ -5598,9 +5599,13 @@ window.addEventListener('load',()=>{
   runSafely('handlePaymentReturnState', ()=>handlePaymentReturnState());
 });
 window.addEventListener('pagehide', ()=>{
-  try{ sessionStorage.setItem('gp_fast_resume','1'); }catch(_){ }
-  if(visitHeartbeatTimer){ clearInterval(visitHeartbeatTimer); visitHeartbeatTimer=null; }
-  if(foregroundRefreshTimer){ clearTimeout(foregroundRefreshTimer); foregroundRefreshTimer=0; }
+  try{ sessionStorage.setItem('gp_fast_resume','1'); }catch(_){}
+  if(typeof visitHeartbeatTimer !== 'undefined' && visitHeartbeatTimer){
+    clearInterval(visitHeartbeatTimer); visitHeartbeatTimer=null;
+  }
+  if(typeof foregroundRefreshTimer !== 'undefined' && foregroundRefreshTimer){
+    clearTimeout(foregroundRefreshTimer); foregroundRefreshTimer=0;
+  }
 });
 try{
   if('scrollRestoration' in window.history){
