@@ -2241,14 +2241,14 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
 <!-- MOBİL MENÜ -->
 <div id="mobileMenu">
   <div class="menu-logo">GÖÇMEN PERDE</div>
-  <button onclick="go('home');closeMobileMenuWrapper()"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-house"></i></span>ANASAYFA</button>
-  <button onclick="go('products');closeMobileMenuWrapper()"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-border-all"></i></span>ÜRÜNLER</button>
+  <button onclick="navigateFromMobileMenu('home')"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-house"></i></span>ANASAYFA</button>
+  <button onclick="navigateFromMobileMenu('products')"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-border-all"></i></span>ÜRÜNLER</button>
   <div id="mobileCategoryMenu"></div>
-  <button onclick="go('about');closeMobileMenuWrapper()"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-book-open"></i></span>HİKAYEMİZ</button>
-  <button onclick="go('from-you');closeMobileMenuWrapper()"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-camera-retro"></i></span>SİZDEN GELENLER</button>
-  <button onclick="go('contact');closeMobileMenuWrapper()"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-phone"></i></span>İLETİŞİM</button>
-  <button onclick="go('support');closeMobileMenuWrapper()"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-headset"></i></span>DESTEK TALEBİ</button>
-  <button onclick="go('support');closeMobileMenuWrapper();setTimeout(()=>document.getElementById('orderTrackNo')?.focus(),120)"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-truck-fast"></i></span>SİPARİŞ & DESTEK TAKİBİ</button>
+  <button onclick="navigateFromMobileMenu('about')"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-book-open"></i></span>HİKAYEMİZ</button>
+  <button onclick="navigateFromMobileMenu('from-you')"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-camera-retro"></i></span>SİZDEN GELENLER</button>
+  <button onclick="navigateFromMobileMenu('contact')"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-phone"></i></span>İLETİŞİM</button>
+  <button onclick="navigateFromMobileMenu('support')"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-headset"></i></span>DESTEK TALEBİ</button>
+  <button onclick="navigateFromMobileMenu('support', ()=>setTimeout(()=>document.getElementById('orderTrackNo')?.focus(),120))"><span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-truck-fast"></i></span>SİPARİŞ & DESTEK TAKİBİ</button>
   <button onclick="togglePopup('miniCart');closeMobileMenuWrapper()">
     <span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-bag-shopping"></i></span>SEPETİM
     <span id="cartCountMobile" style="background:#c9a84c;color:#0f0e0d;font-size:0.65rem;font-weight:700;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-left:6px">0</span>
@@ -5896,6 +5896,19 @@ function restoreProductsViewState({respectCategoryQuery=true} = {}){
 }
 
 let __sectionTransitionLock = false;
+let __sectionTransitionUnlockTimer = 0;
+function releaseSectionTransitionLock(){
+  __sectionTransitionLock = false;
+  if(__sectionTransitionUnlockTimer){
+    clearTimeout(__sectionTransitionUnlockTimer);
+    __sectionTransitionUnlockTimer = 0;
+  }
+}
+function scheduleSectionTransitionUnlock(){
+  if(__sectionTransitionUnlockTimer) clearTimeout(__sectionTransitionUnlockTimer);
+  __sectionTransitionUnlockTimer = setTimeout(releaseSectionTransitionLock, 220);
+  requestAnimationFrame(releaseSectionTransitionLock);
+}
 function applySectionState(id, {scroll=true} = {}){
   const targetId = document.getElementById(id) ? id : 'home';
   if(__sectionTransitionLock){
@@ -5956,7 +5969,7 @@ function applySectionState(id, {scroll=true} = {}){
     updateFloatingCta(targetId);
     syncHomePromoVisibility(targetId);
   } finally {
-    requestAnimationFrame(()=>{ __sectionTransitionLock = false; });
+    scheduleSectionTransitionUnlock();
   }
 }
 
@@ -6043,6 +6056,7 @@ function goBackSmart(fallback='home'){
 }
 
 function go(id){
+  let didMutateHash = false;
   try{
     const nextId = resolveSectionId(id);
     const activeSectionId = document.querySelector('.section.active')?.id || getSectionFromLocation();
@@ -6069,6 +6083,7 @@ function go(id){
     applySectionState(nextId, {scroll:true});
     if(window.location.hash !== `#${nextId}`){
       suppressNextHashChange = true;
+      didMutateHash = true;
       window.location.hash = nextId;
     }
     if(nextId === 'products'){
@@ -6079,7 +6094,21 @@ function go(id){
     console.error('[nav] go failed:', err);
     const fallbackId = resolveSectionId(id);
     applySectionState(fallbackId, {scroll:true});
+  } finally {
+    if(!didMutateHash){
+      suppressNextHashChange = false;
+    } else {
+      setTimeout(()=>{ suppressNextHashChange = false; }, 220);
+    }
   }
+}
+
+function navigateFromMobileMenu(id, afterNavigate){
+  go(id);
+  requestAnimationFrame(()=>{
+    closeMobileMenuWrapper();
+    if(typeof afterNavigate === 'function') afterNavigate();
+  });
 }
 
 function resetCategorySelectionToAll(){
