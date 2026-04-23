@@ -494,8 +494,10 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   color:var(--ink);
   transform:translateX(-120%);
   transition:transform .45s cubic-bezier(.2,.8,.2,1);
+  cursor:pointer;
 }
 .live-order-toast.is-visible{display:flex;transform:translateX(0);}
+.live-order-toast:hover{box-shadow:0 20px 44px rgba(15,14,13,.24);transform:translateX(0) translateY(-2px);}
 .live-order-toast .lo-avatar{
   width:36px;height:36px;border-radius:50%;
   background:linear-gradient(135deg,var(--gold),var(--gold-dark));
@@ -511,8 +513,15 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 }
 .live-order-toast .lo-verified{color:#1e8e3e;font-weight:600;font-size:10px;letter-spacing:.05em;}
 @media (max-width:640px){
-  .live-order-toast{left:10px;right:10px;max-width:none;bottom:calc(var(--mobile-nav-offset, 76px) + env(safe-area-inset-bottom) + 12px);} 
+  .live-order-toast{left:10px;right:10px;max-width:none;bottom:calc(88px + env(safe-area-inset-bottom));} 
 }
+.lo-optout{
+  position:absolute;bottom:6px;right:10px;
+  background:none;border:none;color:var(--slate);
+  font:500 10px var(--ff-body);cursor:pointer;
+  text-decoration:underline;padding:2px;
+}
+.lo-optout:hover{color:var(--ink);}
 @media (prefers-reduced-motion: reduce){
   .live-order-toast{transition:none;}
 }
@@ -1530,7 +1539,7 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
   <div class="cart-sheet-handle"></div>
   <div class="cart-sheet-title"><i class="fas fa-check-circle"></i> Ürün sepete eklendi</div>
   <div class="cart-sheet-body">
-    <img decoding="async" loading="lazy" class="cart-sheet-img" id="cartSheetImg" src="" alt="">
+    <img decoding="async" loading="lazy" class="cart-sheet-img" id="cartSheetImg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="">
     <div style="min-width:0">
       <div class="cart-sheet-name" id="cartSheetName"></div>
       <div class="cart-sheet-meta" id="cartSheetMeta"></div>
@@ -2208,7 +2217,7 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
     </div>
     <div class="modal-img-col">
       <div class="modal-img-stage" id="modalImgCol" onmousemove="zoomImg(event)" onmouseleave="resetImgZoom()" onclick="openImageViewer(event)">
-        <img decoding="async" loading="lazy" id="mImg" src="" alt="">
+        <img decoding="async" loading="lazy" id="mImg" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="">
         <div class="modal-discount-badge hidden" id="mDiscountBadge"></div>
         <div class="modal-gallery-controls">
           <button class="modal-gallery-btn prev" id="modalPrevBtn" type="button" onclick="event.stopPropagation();showModalImage(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -2273,7 +2282,7 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
     </div>
   </div>
   <div class="image-viewer-stage" onclick="event.stopPropagation()">
-    <img decoding="async" loading="lazy" id="imageViewerImg" class="image-viewer-img" src="" alt="Büyük ürün fotoğrafı" onwheel="viewerWheelZoom(event)">
+    <img decoding="async" loading="lazy" id="imageViewerImg" class="image-viewer-img" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="Büyük ürün fotoğrafı" onwheel="viewerWheelZoom(event)">
     <div class="image-viewer-hint">Fare tekerleği / +/- ile zoom · ← → ile fotoğraf değiştir</div>
   </div>
   <div class="image-viewer-thumbs-wrap" onclick="event.stopPropagation()">
@@ -3424,9 +3433,9 @@ const LIVE_ORDER_DEMO_DATA = {
   }
 };
 const LIVE_ORDER_CFG = {
-  firstDelay: 12000,
-  intervalMin: 28000,
-  intervalMax: 55000,
+  firstDelay: 6000,
+  intervalMin: 40000,
+  intervalMax: 80000,
   showDuration: 6500,
   pauseOnHidden: true,
   source: 'demo'
@@ -3434,6 +3443,9 @@ const LIVE_ORDER_CFG = {
 let _liveOrderTimer = null;
 let _liveOrderHideTimer = null;
 let _liveOrderResumeBlockUntil = 0;
+const _liveOrderRecent = [];
+let _liveOrderShownCount = 0;
+const LIVE_ORDER_SHOWN_COUNT_KEY = 'gp_live_orders_shown_count';
 function _scheduleNextLiveOrder(){
   clearTimeout(_liveOrderTimer);
   _liveOrderTimer = null;
@@ -3441,17 +3453,40 @@ function _scheduleNextLiveOrder(){
   _liveOrderTimer = setTimeout(showLiveOrderToast, next);
 }
 function _buildLiveOrderItem(){
-  if(LIVE_ORDER_CFG.source === 'demo'){
-    return {
+  if(LIVE_ORDER_CFG.source !== 'demo') return null;
+  for(let i=0;i<8;i++){
+    const item = {
       name: LIVE_ORDER_DEMO_DATA.pickName(),
       city: LIVE_ORDER_DEMO_DATA.pickCity(),
       product: LIVE_ORDER_DEMO_DATA.pickProductName(),
       minutesAgo: LIVE_ORDER_DEMO_DATA.pickMinutesAgo(),
       verified: Math.random() > 0.3
     };
+    const key = `${item.name}|${item.city}`;
+    if(!_liveOrderRecent.includes(key)){
+      _liveOrderRecent.push(key);
+      if(_liveOrderRecent.length > 5) _liveOrderRecent.shift();
+      return item;
+    }
   }
   // TODO: source==='api' → fetch('/api/recent-orders?limit=10') sonra son N saatlik gerçek siparişleri rotasyonla göster.
   return null;
+}
+function _attachLiveToastClick(el){
+  if(!el) return;
+  el.addEventListener('click', (e)=>{
+    if(e.target.closest('.lo-close') || e.target.closest('.lo-optout')) return;
+    hideLiveOrderToast(true);
+    if(typeof go === 'function') go('products');
+    const productsSection = document.getElementById('products');
+    productsSection?.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+}
+function optOutLiveOrders(){
+  localStorage.setItem('gp_live_orders_off', '1');
+  hideLiveOrderToast(true);
+  clearTimeout(_liveOrderTimer);
+  _liveOrderTimer = null;
 }
 function showLiveOrderToast(){
   if(Date.now() < _liveOrderResumeBlockUntil) return;
@@ -3460,6 +3495,9 @@ function showLiveOrderToast(){
   if(!el){ _scheduleNextLiveOrder(); return; }
   const item = _buildLiveOrderItem();
   if(!item){ _scheduleNextLiveOrder(); return; }
+  _liveOrderShownCount += 1;
+  localStorage.setItem(LIVE_ORDER_SHOWN_COUNT_KEY, String(_liveOrderShownCount));
+  const showOptOut = _liveOrderShownCount >= 5;
   const initial = item.name.charAt(0);
   el.innerHTML = `
     <div class="lo-avatar">${initial}</div>
@@ -3469,7 +3507,12 @@ function showLiveOrderToast(){
       <span class="lo-meta">${item.minutesAgo} dakika önce${item.verified ? ' · <span class="lo-verified">✓ Doğrulandı</span>' : ''}</span>
     </div>
     <button class="lo-close" type="button" aria-label="Kapat" onclick="hideLiveOrderToast(true)">×</button>
+    ${showOptOut ? '<button class="lo-optout" type="button" onclick="event.stopPropagation();optOutLiveOrders()">Tekrar gösterme</button>' : ''}
   `;
+  if(!el.dataset.clickBound){
+    _attachLiveToastClick(el);
+    el.dataset.clickBound = '1';
+  }
   clearTimeout(_liveOrderHideTimer);
   el.style.display = 'flex';
   requestAnimationFrame(()=>el.classList.add('is-visible'));
@@ -3495,6 +3538,7 @@ function hideLiveOrderToast(userClosed){
 }
 function initLiveOrderToasts(){
   if(localStorage.getItem('gp_live_orders_off') === '1') return;
+  _liveOrderShownCount = Number(localStorage.getItem(LIVE_ORDER_SHOWN_COUNT_KEY) || 0);
   clearTimeout(_liveOrderTimer);
   _liveOrderTimer = setTimeout(showLiveOrderToast, LIVE_ORDER_CFG.firstDelay);
   document.addEventListener('visibilitychange', ()=>{
@@ -3510,7 +3554,9 @@ function initLiveOrderToasts(){
 
 const PRODUCTS_CACHE_KEY = 'gp_products_cache_v2';
 const PRODUCTS_CACHE_TTL_MS = 1000 * 60 * 10;
+const BLANK_IMG = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 const IMAGE_PLACEHOLDER_DATA_URI = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='420' height='280'><rect width='100%' height='100%' fill='#f1eee7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8a8480' font-family='Outfit,Arial' font-size='16'>Görsel yüklenemedi</text></svg>")}`;
+function _blankImg(el){ if(el) el.src = BLANK_IMG; }
 function resolveAssetUrl(path){
   const raw=String(path||'').trim();
   if(!raw) return '';
@@ -5261,7 +5307,7 @@ function setModalImage(idx){
   if(!currentModalImages.length) return;
   currentModalImageIndex = (idx + currentModalImages.length) % currentModalImages.length;
   const img = document.getElementById('mImg');
-  const nextSrc = currentModalImages[currentModalImageIndex];
+  const nextSrc = currentModalImages[currentModalImageIndex] || BLANK_IMG;
   if(!img) return;
   const requestToken = ++modalImageRequestToken;
   setModalStageLoading(true);
@@ -5279,6 +5325,7 @@ function setModalImage(idx){
     if(requestToken !== modalImageRequestToken) return;
     setModalStageLoading(false);
   };
+  _blankImg(img);
   img.src = nextSrc;
   preloadImage(nextSrc, 'high');
   warmModalImages(currentModalImages, currentModalImageIndex);
@@ -5525,6 +5572,7 @@ function openImageViewer(event){
 function closeImageViewer(){
   imageViewerOpen = false;
   document.getElementById('imageViewer').classList.remove('open');
+  _blankImg(document.getElementById('imageViewerImg'));
 }
 function closeImageViewerFromOverlay(e){ if(e.target===document.getElementById('imageViewer')) closeImageViewer(); }
 function resetViewerScale(){ viewerScale = 1; applyViewerScale(); }
@@ -5546,7 +5594,8 @@ function updateViewerImage(){
   viewerImg.decoding = 'async';
   viewerImg.loading = 'eager';
   viewerImg.fetchPriority = 'high';
-  viewerImg.src = currentModalImages[currentModalImageIndex];
+  _blankImg(viewerImg);
+  viewerImg.src = currentModalImages[currentModalImageIndex] || BLANK_IMG;
   viewerImg.alt = `Büyük ürün görseli ${currentModalImageIndex+1}`;
   warmModalImages(currentModalImages, currentModalImageIndex);
   document.getElementById('imageViewerTitle').innerText = `Fotoğraf ${currentModalImageIndex+1} / ${currentModalImages.length}`;
@@ -5562,6 +5611,7 @@ function closeProductModal({syncUrl=true} = {}){
   document.body.classList.remove('product-modal-open');
   currentModalProductId = null;
   modalThumbsCacheKey = '';
+  _blankImg(document.getElementById('mImg'));
   resetImgZoom();
   if(syncUrl) clearProductDeepLink();
 }
@@ -6741,8 +6791,12 @@ function openCartSheet(item){
   const pileText = item.pileType ? ` • ${item.pileType === 'sik' ? 'Sık Pile' : item.pileType === 'seyrek' ? 'Seyrek Pile' : 'Orta Pile'}` : '';
   const sizeText = getDimensionSummary(item);
 
-  document.getElementById('cartSheetImg').src = image || '';
-  document.getElementById('cartSheetImg').alt = item.name || 'Ürün görseli';
+  const cartSheetImg = document.getElementById('cartSheetImg');
+  _blankImg(cartSheetImg);
+  if(cartSheetImg){
+    cartSheetImg.src = image || BLANK_IMG;
+    cartSheetImg.alt = item.name || 'Ürün görseli';
+  }
   document.getElementById('cartSheetName').textContent = item.name || 'Ürün';
   document.getElementById('cartSheetMeta').textContent = `${qtyText}${sizeText}${pileText}`;
 
@@ -6779,6 +6833,7 @@ function closeCartSheet(){
     clearTimeout(cartSheetTimer);
     cartSheetTimer = null;
   }
+  _blankImg(document.getElementById('cartSheetImg'));
 }
 function clearCardDimensionError(triggerBtn, widthInputId, heightInputId){
   const widthEl = document.getElementById(widthInputId);
