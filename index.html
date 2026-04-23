@@ -569,8 +569,10 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .product-dimensions input.dimension-input.is-error,.product-dimensions input.dimension-input.is-invalid{border-color:#c0392b;background:#fff5f4;box-shadow:none}
 .measure-error{display:block;flex:1 1 100%;color:#c62828;font-size:.68rem;line-height:1.35}
 .measure-tooltip-btn{width:26px;height:26px;border:none;border-radius:999px;background:#eef1f7;color:#1f2941;cursor:pointer;font-weight:700}
-.qty-input.pile-select{width:100%;padding:8px 10px;border-radius:8px;font-size:13px;margin-top:4px}
+.product-card .pile-select{width:100%;padding:9px 32px 9px 10px;font-size:13px;border-radius:8px;border:1px solid var(--border);background-color:#fff;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23c8a35a' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;margin-top:6px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.product-card .pile-select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
 .pile-preview-tag{display:inline-block;margin-top:4px;font-size:11px;color:var(--gold-dark)}
+.product-card .pile-preview-tag{display:none}
 .measure-link{background:none;border:none;padding:4px 0;font:500 11px var(--ff-body);color:var(--gold-dark);cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-bottom:4px}
 .measure-link:hover{color:var(--gold);text-decoration:underline}
 .shipping-note{display:block;margin-top:8px;font-size:.62rem;color:#4f5b78}
@@ -579,7 +581,7 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 @media(max-width:600px){
   .qty-wrap{gap:5px;width:100%}
   .product-dimensions{grid-template-columns:1fr 1fr}
-  .qty-input.pile-select{min-width:100%;height:34px}
+  .product-card .pile-select{min-width:100%;height:36px}
   .sort-bar{gap:8px}
   .products-layout{padding:16px 12px 26px}
   .product-bottom{align-items:stretch}
@@ -1421,9 +1423,10 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 .btn-primary:active{transform:translateY(0)}
 .hero-premium-btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--gold)}
 .hero-premium-btn.secondary:hover{background:var(--gold-soft);color:var(--ink)}
-.product-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;transition:transform .3s ease,box-shadow .3s ease,border-color .3s}
+.product-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;transition:transform .3s ease,box-shadow .3s ease,border-color .3s;display:flex;flex-direction:column}
 .product-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--gold-soft)}
-.product-info{padding:18px 20px 20px}.product-name-btn{font:500 1.05rem var(--ff-display);color:var(--ink);letter-spacing:.01em;margin-bottom:6px}.product-desc{font:400 13px var(--ff-body);color:var(--slate);line-height:1.5}.current-price{font:600 1.25rem var(--ff-display);color:var(--ink)}.old-price{font:400 .9rem var(--ff-body);color:var(--slate);text-decoration:line-through;margin-right:8px}.product-badge,.product-campaign-pill{font:600 10px var(--ff-body);letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:#fff;padding:5px 10px;border-radius:999px}
+.product-info{padding:18px 20px 20px;flex:1;display:flex;flex-direction:column}.product-name-btn{font:500 1.05rem var(--ff-display);color:var(--ink);letter-spacing:.01em;margin-bottom:6px}.product-desc{font:400 13px var(--ff-body);color:var(--slate);line-height:1.5}.current-price{font:600 1.25rem var(--ff-display);color:var(--ink)}.old-price{font:400 .9rem var(--ff-body);color:var(--slate);text-decoration:line-through;margin-right:8px}.product-badge,.product-campaign-pill{font:600 10px var(--ff-body);letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:#fff;padding:5px 10px;border-radius:999px}
+.product-card .qty-wrap{margin-top:auto}
 @media (max-width:700px){.qty-wrap{width:100%}.qty-wrap>.qty-input,.qty-wrap>.product-dimensions,.qty-wrap>.pile-select,.qty-wrap>.pile-preview-tag,.qty-wrap>.measure-link,.qty-wrap>.measure-error{display:flex}.qty-wrap>.product-dimensions{display:grid}.qty-wrap>.measure-tooltip-btn{display:none}.qty-wrap>.add-btn{width:100%}}
 .mobile-bottom-nav{background:rgba(251,249,245,0.92);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -8px 24px -16px rgba(13,20,24,.18)}
 .mbn-item{color:var(--slate);transition:color .2s}.mbn-item.active-nav{color:var(--ink)}.mbn-item.active-nav i{color:var(--gold-deep);background:var(--gold-soft);border-radius:50%;padding:7px}
@@ -4411,9 +4414,9 @@ function buildCard(p, index=0){
       ${requireWidth ? `<div class="dim-field"><label for="${wid}">En (m)</label><input type="text" inputmode="decimal" class="qty-input dimension-input" id="${wid}" placeholder="2,50" onclick="event.stopPropagation()"></div>` : ''}
       ${requireHeight ? `<div class="dim-field"><label for="${hid}">Boy (m)</label><input type="text" inputmode="decimal" class="qty-input dimension-input" id="${hid}" placeholder="2,80" onclick="event.stopPropagation()"></div>` : ''}
     </div>` : ''}
+    ${pleatedMeterProduct ? `<select class="qty-input pile-select" id="pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('${p.id}',this.value)"><option value="seyrek" title="Seyrek Pile (1m kumaş → 2m perde)">Seyrek Pile</option><option value="orta" title="Orta Pile (1m kumaş → 2.5m perde)" selected>Orta Pile</option><option value="sik" title="Sık Pile (1m kumaş → 3m perde)">Sık Pile</option></select><span id="pile-preview-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
     ${(requireWidth || requireHeight) ? `<button type="button" class="measure-link" onclick="event.stopPropagation();openMeasureHelp()"><i class="fas fa-ruler-combined"></i> Doğru ölçü nasıl alınır?</button>` : ''}
     ${(requireWidth || requireHeight) ? `<span class="measure-error" id="measure-error-${p.id}" hidden></span>` : ''}
-    ${pleatedMeterProduct ? `<select class="qty-input pile-select" id="pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
     <button type="button" class="add-btn" data-action="add-cart" data-id="${p.id}" data-qid="${qid}" data-wid="${wid}" data-hid="${hid}" data-pile="pile-${p.id}">Sepete Ekle</button>
     <span class="shipping-note">${uxCopy.shippingNote}</span>
   </div>`;
