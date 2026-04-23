@@ -5373,6 +5373,14 @@ document.addEventListener('keydown', (e)=>{
     closeSurpriseCampaignModal(true);
     return;
   }
+  if(e.key === 'Escape' && isMobileMenuOpen()){
+    closeMobileMenuWrapper();
+    return;
+  }
+  if(e.key === 'Escape' && document.getElementById('filtersDrawer')?.classList.contains('open')){
+    toggleFiltersDrawer(false);
+    return;
+  }
   const modalOpen = document.getElementById('productModal')?.classList.contains('open');
   if(!modalOpen && !imageViewerOpen) return;
   if(e.key === 'Escape'){
@@ -5480,16 +5488,25 @@ if(window.innerWidth>767){
 }
 
 // ── Loader / Sayfaya Dönüş Performansı ──
+let __loaderRemoved = false;
+
 function hideLoader(forceImmediate=false){
   const l = document.getElementById('loader');
-  if(!l) return;
-  if(forceImmediate){
-    l.classList.add('hide');
-    setTimeout(()=>l.remove(),180);
-    return;
-  }
+  if(!l || __loaderRemoved) return;
+  const removeDelay = forceImmediate ? 180 : 380;
   l.classList.add('hide');
-  setTimeout(()=>l.remove(),380);
+  setTimeout(()=>{
+    if(!l.isConnected) return;
+    l.remove();
+    __loaderRemoved = true;
+  }, removeDelay);
+}
+
+function ensureLoaderDoesNotBlockUi(){
+  const l = document.getElementById('loader');
+  if(!l || __loaderRemoved) return;
+  l.style.pointerEvents = 'none';
+  hideLoader(true);
 }
 
 function recoverUIAfterResume(){
@@ -5617,6 +5634,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   runSafely('renderHomeSlider (dom ready)', ()=>renderHomeSlider());
   runSafely('loadHomeSlider (dom ready)', ()=>loadHomeSlider());
   runSafely('renderHomeFeaturedProducts (dom ready)', ()=>renderHomeFeaturedProducts());
+  setTimeout(ensureLoaderDoesNotBlockUi, 2200);
 });
 
 window.addEventListener('load',()=>{
@@ -5669,6 +5687,13 @@ window.addEventListener('pageshow',(ev)=>{
 window.addEventListener('focus', ()=>{
   recoverUIAfterResume();
   scheduleForegroundRefresh();
+});
+
+window.addEventListener('error', ()=>{
+  setTimeout(ensureLoaderDoesNotBlockUi, 0);
+});
+window.addEventListener('unhandledrejection', ()=>{
+  setTimeout(ensureLoaderDoesNotBlockUi, 0);
 });
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState === 'visible'){
