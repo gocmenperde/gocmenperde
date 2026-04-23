@@ -49,9 +49,12 @@ const ROUTES = {
 };
 
 module.exports = async function handler(req, res) {
-  const route = String(req.path || req.url || '')
+  const rewrittenRoute = typeof req.query?.route === 'string' ? req.query.route : '';
+  const pathRoute = String(req.path || req.url || '')
     .replace(/^\/api\/?/, '')
-    .replace(/^\/+|\/+$/g, '');
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/^router\/?/, '');
+  const route = (rewrittenRoute || pathRoute || '').replace(/^\/+|\/+$/g, '');
   const loader = ROUTES[route];
 
   if (!loader) {
