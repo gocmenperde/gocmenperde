@@ -5896,46 +5896,70 @@ function restoreProductsViewState({respectCategoryQuery=true} = {}){
 }
 
 let __sectionTransitionLock = false;
-let __sectionTransitionUnlockTimer = 0;
+let __pendingSectionTarget = null;
+let __sectionTransitionFailSafeTimer = 0;
 function releaseSectionTransitionLock(){
   __sectionTransitionLock = false;
-  if(__sectionTransitionUnlockTimer){
-    clearTimeout(__sectionTransitionUnlockTimer);
-    __sectionTransitionUnlockTimer = 0;
+  if(__sectionTransitionFailSafeTimer){
+    clearTimeout(__sectionTransitionFailSafeTimer);
+    __sectionTransitionFailSafeTimer = 0;
   }
 }
-function scheduleSectionTransitionUnlock(){
-  if(__sectionTransitionUnlockTimer) clearTimeout(__sectionTransitionUnlockTimer);
-  __sectionTransitionUnlockTimer = setTimeout(releaseSectionTransitionLock, 220);
-  requestAnimationFrame(releaseSectionTransitionLock);
+function scheduleSectionTransitionFailSafeUnlock(){
+  if(__sectionTransitionFailSafeTimer) clearTimeout(__sectionTransitionFailSafeTimer);
+  __sectionTransitionFailSafeTimer = setTimeout(()=>{
+    if(!__sectionTransitionLock) return;
+    releaseSectionTransitionLock();
+    if(__pendingSectionTarget){
+      const pending = __pendingSectionTarget;
+      __pendingSectionTarget = null;
+      applySectionState(pending.id, {scroll:pending.scroll});
+    }
+  }, 1000);
+}
+function scheduleSectionHeavyWork(sectionId, fn){
+  const run = ()=>{
+    try{
+      if((document.querySelector('.section.active')?.id || '') !== sectionId) return;
+      fn();
+    }catch(err){
+      console.error('[nav] deferred section work failed:', err);
+    }
+  };
+  if(typeof window.requestIdleCallback === 'function'){
+    window.requestIdleCallback(run, {timeout:500});
+    return;
+  }
+  setTimeout(run, 0);
 }
 function applySectionState(id, {scroll=true} = {}){
   const targetId = document.getElementById(id) ? id : 'home';
+  const currentActive = document.querySelector('.section.active')?.id;
+  const scrollMode = scroll === false ? 'none' : (scroll === 'restore' ? 'restore' : 'top');
+  if(currentActive === targetId){
+    if(scrollMode === 'restore'){
+      const savedY = getSavedSectionScroll(targetId);
+      window.scrollTo({top:savedY,behavior:'auto'});
+    }
+    updateCartActionPanel();
+    updateFloatingCta(targetId);
+    syncHomePromoVisibility(targetId);
+    return;
+  }
   if(__sectionTransitionLock){
-    queueMicrotask(()=> applySectionState(id, {scroll}));
+    __pendingSectionTarget = {id:targetId, scroll};
     return;
   }
   __sectionTransitionLock = true;
+  scheduleSectionTransitionFailSafeUnlock();
   try{
     try{
       sessionStorage.setItem(LAST_SECTION_STORAGE_KEY, targetId);
       localStorage.setItem(LAST_SECTION_STORAGE_KEY, targetId);
     }catch(_){ }
-    const currentActive = document.querySelector('.section.active')?.id;
     if(currentActive){
       saveSectionScroll(currentActive, window.scrollY || 0);
       if(currentActive === 'products') persistProductsViewState();
-    }
-    const scrollMode = scroll === false ? 'none' : (scroll === 'restore' ? 'restore' : 'top');
-    if(currentActive === targetId){
-      if(scrollMode === 'restore'){
-        const savedY = getSavedSectionScroll(targetId);
-        window.scrollTo({top:savedY,behavior:'auto'});
-      }
-      updateCartActionPanel();
-      updateFloatingCta(targetId);
-      syncHomePromoVisibility(targetId);
-      return;
     }
     const sections = document.querySelectorAll('.section');
     sections.forEach(s=>{
@@ -5952,16 +5976,16 @@ function applySectionState(id, {scroll=true} = {}){
     void t.offsetWidth;
     t.classList.add('fade-in');
     if(scrollMode === 'top'){
-      window.scrollTo({top:0,behavior:'smooth'});
+      window.scrollTo({top:0,behavior:'auto'});
     } else if(scrollMode === 'restore'){
       const savedY = getSavedSectionScroll(targetId);
       window.scrollTo({top:savedY,behavior:'auto'});
     }
-    if(targetId==='cart') renderCart();
-    if(targetId==='checkout') renderCheckout();
-    hydrateLazyIframes(targetId);
-    if(targetId==='products' && PRODUCTS.length===0) loadProducts();
-    if(targetId==='products') renderRecentlyViewed();
+    if(targetId==='cart') scheduleSectionHeavyWork(targetId, ()=> renderCart());
+    if(targetId==='checkout') scheduleSectionHeavyWork(targetId, ()=> renderCheckout());
+    scheduleSectionHeavyWork(targetId, ()=> hydrateLazyIframes(targetId));
+    if(targetId==='products' && PRODUCTS.length===0) scheduleSectionHeavyWork(targetId, ()=> loadProducts());
+    if(targetId==='products') scheduleSectionHeavyWork(targetId, ()=> renderRecentlyViewed());
     document.querySelectorAll('.mbn-item').forEach(b=>b.classList.remove('active-nav'));
     const mbnEl = document.getElementById('mbn-'+targetId);
     if(mbnEl) mbnEl.classList.add('active-nav');
@@ -5969,7 +5993,12 @@ function applySectionState(id, {scroll=true} = {}){
     updateFloatingCta(targetId);
     syncHomePromoVisibility(targetId);
   } finally {
-    scheduleSectionTransitionUnlock();
+    releaseSectionTransitionLock();
+    if(__pendingSectionTarget){
+      const pending = __pendingSectionTarget;
+      __pendingSectionTarget = null;
+      applySectionState(pending.id, {scroll:pending.scroll});
+    }
   }
 }
 
@@ -6080,20 +6109,18 @@ function go(id){
         writeProductsViewState({});
       }
     }
-    applySectionState(nextId, {scroll:true});
     if(window.location.hash !== `#${nextId}`){
       suppressNextHashChange = true;
       didMutateHash = true;
       window.location.hash = nextId;
     }
+    applySectionState(nextId, {scroll:true});
     if(nextId === 'products'){
       restoreProductsViewState({respectCategoryQuery:true});
       requestAnimationFrame(()=> safeApplyFilters());
     }
   }catch(err){
     console.error('[nav] go failed:', err);
-    const fallbackId = resolveSectionId(id);
-    applySectionState(fallbackId, {scroll:true});
   } finally {
     if(!didMutateHash){
       suppressNextHashChange = false;
