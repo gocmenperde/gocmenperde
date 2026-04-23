@@ -1,5 +1,50 @@
 [
   {
+    "id": "fon-perde-1776962265352-639",
+    "name": "Fon Perde",
+    "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
+    "image": "https://res.cloudinary.com/ddb9lvapm/image/upload/v1776962078/gocmenperde/product-0/1776962077227-c9fc7215-591ffddf-4939-4090-a9f8-9cf39c50e0d0.jpg",
+    "images": [
+      "https://res.cloudinary.com/ddb9lvapm/image/upload/v1776962078/gocmenperde/product-0/1776962077227-c9fc7215-591ffddf-4939-4090-a9f8-9cf39c50e0d0.jpg"
+    ],
+    "price": 4999,
+    "oldPrice": 7999,
+    "cat": "fonperdeler",
+    "unit": "adet",
+    "isMeter": false,
+    "isSquareMeter": false,
+    "features": "",
+    "badge": "%38 İNDİRİM",
+    "discountType": "percent",
+    "discountValue": null,
+    "stock": 53,
+    "serialNumber": "Fonperde-12",
+    "barcode": "9786258521245",
+    "seoKeywords": [
+      "Fon Perde",
+      "Perde",
+      "perde",
+      "fon",
+      "fon perde",
+      "tül perde",
+      "bursa perde perdeci bursa"
+    ],
+    "isLiveShowcase": true,
+    "isFeatured": true,
+    "active": true,
+    "specs": {
+      "• Ölçü Standartları": "Genellikle kanat genişliği 70 cm - 140 cm arasında değişir. Boy ölçüsü ise tavandan zemine kadar (genelde süpürgelik hizasında bitecek şekilde) alınır.",
+      "• Dikiş Tarzları": "Pileli (Amerikan pile, kanun pile) veya düz (pilesiz) olarak dikilebilir. Boru kanal veya korniş düğmesi seçenekleri mevcuttur. Müşteri not belirtmediğinde korniş standartlarında dikim yapılır."
+    },
+    "care": {
+      "• Yıkama Derecesi": "Çoğu fon perde kumaşı hassastır. 30°C sıcaklıkta, hassas programda yıkanmalıdır. Çok yüksek devirli sıkma işleminden kaçınılmalıdır.",
+      "• Deterjan Seçimi": "Renklerin solmaması için ağartıcı içermeyen, renkli çamaşırlara özel sıvı deterjanlar kullanılmalıdır.",
+      "• Kurutma": "Perdeler kesinlikle kurutma makinesine atılmamalıdır. Nemli bir şekilde yerine asılarak kendi ağırlığıyla kurumaya bırakılması, kırışıklıkların kendiliğinden açılmasını sağlar.",
+      "Madde 1": "• Saten ve kadife gibi kumaşlar düşük ısıda, tersinden ütülenmelidir.",
+      "Madde 2": "• Buharlı ütü kullanımı kırışıklıkları açmada en etkili yöntemdir."
+    }
+  },
+  {
     "id": "lazer-kesim-stor-perde-1776627830510-562",
     "name": "Lazer Kesim Stor Perde",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
@@ -2194,7 +2239,7 @@
     ],
     "price": 300,
     "oldPrice": 400,
-    "cat": "ormetulperde",
+    "cat": "tul-perde",
     "unit": "mt",
     "isMeter": true,
     "isSquareMeter": false,
@@ -2233,7 +2278,7 @@
     ],
     "price": 300,
     "oldPrice": 400,
-    "cat": "ormetulperde",
+    "cat": "tul-perde",
     "unit": "mt",
     "isMeter": true,
     "isSquareMeter": false,
