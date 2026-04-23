@@ -110,12 +110,13 @@
 </script>
 <style>
 :root{
-  --ink:#0d1418;--ink-soft:#22303a;--paper:#fbf9f5;--cream:#f4efe6;
+  --ink:#0d1418;--ink-soft:#22303a;--paper:#fbf9f5;--cream:#f4efe6;--warm-white:#faf7f1;
   --gold:#c8a35a;--gold-deep:#a3823f;--gold-soft:#e6d3a8;
-  --slate:#6b7681;--line:#e8e2d6;--border:var(--line);--accent:#7d2c2c;
-  --shadow:0 20px 60px rgba(0,0,0,0.08);
+  --slate:#6b7681;--line:#e8e2d6;--border:#e8e2d6;--accent:#7d2c2c;
+  --shadow-sm:0 4px 14px -8px rgba(13,20,24,0.10);--shadow-md:0 14px 32px -18px rgba(13,20,24,0.18);--shadow-lg:0 26px 56px -24px rgba(13,20,24,0.24);
+  --shadow:var(--shadow-md);
   --ff-display:'Cormorant Garamond',serif;--ff-body:'DM Sans',sans-serif;
-  --radius:12px;--transition:0.4s cubic-bezier(0.25,0.46,0.45,0.94)
+  --radius-sm:10px;--radius-md:16px;--radius-lg:22px;--radius:12px;--transition:0.4s cubic-bezier(0.25,0.46,0.45,0.94)
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;background:var(--paper)}
@@ -231,7 +232,7 @@ button:active,.btn:active,.add-btn:active,.nav-cart:active{transform:translateY(
 #mobileCategoryMenu{display:flex;flex-direction:column;gap:10px}
 #menuOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.28);z-index:12470;display:none}
 @media(max-width:640px){#mobileMenu{width:min(82vw,320px);top:0;bottom:calc(8px + env(safe-area-inset-bottom) + 72px);height:auto;max-height:none;padding:28px 22px calc(18px + env(safe-area-inset-bottom));border-bottom-right-radius:22px}}
-header{position:fixed;top:0;left:0;right:0;z-index:12240;padding:0 5%;background:rgba(251,249,245,.85);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--line);transition:var(--transition)}
+header{position:sticky;top:0;left:0;right:0;z-index:100;padding:14px 0;background:rgba(251,249,245,0.85);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--line);transition:padding .3s, background .3s}
 .header-inner{max-width:100%;margin:auto;height:75px;display:flex;align-items:center;justify-content:space-between}
 .logo-mark{display:flex;align-items:center;gap:14px;text-decoration:none;cursor:pointer}
 .logo-icon{width:44px;height:44px;background:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0}
@@ -239,7 +240,7 @@ header{position:fixed;top:0;left:0;right:0;z-index:12240;padding:0 5%;background
 .logo-icon::after{content:'';position:absolute;width:12px;height:14px;background:var(--ink);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
 .logo-text{display:flex;flex-direction:column;line-height:1}
 .logo-main{font-family:var(--ff-display);font-size:1.5rem;font-weight:700;color:var(--ink);letter-spacing:.18em;text-transform:uppercase}
-.logo-sub{font-size:0.6rem;letter-spacing:6px;color:var(--gold);text-transform:uppercase;margin-top:2px;font-weight:500}
+.logo-sub{font-family:var(--ff-body);font-size:10px;letter-spacing:.28em;color:var(--gold-deep);text-transform:uppercase;margin-top:2px;font-weight:500}
 nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .nav-collection{position:relative}
 .nav-link{background:none;border:none;cursor:pointer;font-family:var(--ff-body);font-size:0.72rem;font-weight:500;color:var(--slate);letter-spacing:1.4px;text-transform:uppercase;padding:9px 14px;border-radius:999px;position:relative;transition:all 0.3s}
@@ -1365,6 +1366,25 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
   .campaign-stream-chip{font-size:.58rem;padding:4px 7px}
 }
 
+
+.btn-primary,.hero-premium-btn{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#fff;padding:14px 28px;border-radius:999px;font:600 14px var(--ff-body);letter-spacing:.04em;border:none;cursor:pointer;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,background .2s}
+.btn-primary:hover,.hero-premium-btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px -12px rgba(200,163,90,.55);background:var(--gold-deep)}
+.btn-primary:active{transform:translateY(0)}
+.hero-premium-btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--gold)}
+.hero-premium-btn.secondary:hover{background:var(--gold-soft);color:var(--ink)}
+.product-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;transition:transform .3s ease,box-shadow .3s ease,border-color .3s}
+.product-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--gold-soft)}
+.product-info{padding:18px 20px 20px}.product-name-btn{font:500 1.05rem var(--ff-display);color:var(--ink);letter-spacing:.01em;margin-bottom:6px}.product-desc{font:400 13px var(--ff-body);color:var(--slate);line-height:1.5}.current-price{font:600 1.25rem var(--ff-display);color:var(--ink)}.old-price{font:400 .9rem var(--ff-body);color:var(--slate);text-decoration:line-through;margin-right:8px}.product-badge,.product-campaign-pill{font:600 10px var(--ff-body);letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:#fff;padding:5px 10px;border-radius:999px}
+@media (max-width:700px){.qty-wrap>.qty-input,.qty-wrap>.dimension-input,.qty-wrap>.pile-select,.qty-wrap>.qty-help-text,.qty-wrap>.pile-preview-tag,.qty-wrap>.measure-tooltip-btn,.qty-wrap>.measure-guide-trigger{display:none}.qty-wrap>.add-btn{width:100%}}
+.mobile-bottom-nav{background:rgba(251,249,245,0.92);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -8px 24px -16px rgba(13,20,24,.18)}
+.mbn-item{color:var(--slate);transition:color .2s}.mbn-item.active-nav{color:var(--ink)}.mbn-item.active-nav i{color:var(--gold-deep);background:var(--gold-soft);border-radius:50%;padding:7px}
+.floating-actions{position:fixed;right:18px;bottom:calc(96px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;z-index:90}
+.floating-actions a,.floating-actions button{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--shadow-md);transition:transform .2s}.floating-actions a.whatsapp{background:var(--gold);color:#fff}.floating-actions a.phone{background:#fff;color:var(--gold-deep);border:1.5px solid var(--gold)}.floating-actions a:hover{transform:scale(1.08)}
+.products-loading{padding:80px 20px;text-align:center;color:var(--slate);font:400 italic 1.05rem var(--ff-display)}.products-loading i{color:var(--gold-deep)!important;opacity:.6!important}
+.product-img-wrap img,.home-category-card img,.hero-image img{filter:saturate(1.04) contrast(1.02)}
+input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;background:#fff;font:500 15px var(--ff-body);color:var(--ink);transition:border-color .2s,box-shadow .2s}input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}label{font:600 11px var(--ff-body);letter-spacing:.14em;text-transform:uppercase;color:var(--slate);display:block;margin-bottom:6px}
+.site-footer{background:var(--ink);color:rgba(255,255,255,.78);margin-top:80px}.footer-top{padding:72px 20px 56px}.footer-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1.1fr;gap:56px}@media (max-width:980px){.footer-grid{grid-template-columns:1fr 1fr;gap:40px}}@media (max-width:580px){.footer-grid{grid-template-columns:1fr;gap:36px}.footer-top{padding:56px 20px 40px}}.footer-brand .footer-logo{display:flex;align-items:center;gap:14px;margin-bottom:18px}.footer-brand .footer-logo img{width:48px;height:48px;object-fit:contain}.footer-brand h3{font:500 1.4rem var(--ff-display);color:#fff;letter-spacing:.14em}.footer-brand small{font:600 9px var(--ff-body);letter-spacing:.26em;color:var(--gold)}.footer-tag{font:400 14px var(--ff-body);line-height:1.7;color:rgba(255,255,255,.65);margin-bottom:22px}.footer-trust{display:flex;flex-wrap:wrap;gap:14px;font:500 12px var(--ff-body);color:rgba(255,255,255,.78)}.footer-trust i{color:var(--gold);margin-right:6px}.footer-col h4{font:600 12px var(--ff-body);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}.footer-col ul{list-style:none;padding:0;margin:0}.footer-col li{margin-bottom:10px}.footer-col a{color:rgba(255,255,255,.7);text-decoration:none;font:400 14px var(--ff-body);transition:color .2s}.footer-col a:hover{color:var(--gold)}.footer-contact i{color:var(--gold);width:16px;margin-right:8px}.footer-social{display:flex;gap:12px;margin-top:18px}.footer-social a{width:36px;height:36px;border-radius:50%;border:1px solid rgba(200,163,90,.4);color:var(--gold);display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}.footer-social a:hover{background:var(--gold);color:var(--ink)}.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding:18px 20px}.footer-bottom-inner{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;font:400 12px var(--ff-body);color:rgba(255,255,255,.55)}.footer-payments{display:flex;gap:10px;align-items:center}.footer-payments img{height:24px;opacity:.85}@media (max-width:880px){.site-footer{margin-bottom:76px}}
+
 </style>
 </head>
 <body>
@@ -1687,11 +1707,6 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
     </div>
     <div class="from-you-grid" id="fromYouPreviewGrid"></div>
   </div>
-  <footer>
-    <p>© 2026 <span>Göçmen Perde</span> — Tüm Hakları Saklıdır · Osmangazi, Bursa</p>
-    <div class="payment-logo-strip" aria-label="Güvenli ödeme logoları"></div>
-    <div class="footer-links"><a href="/gizlilik-politikasi.html">Gizlilik Politikası</a><span style="opacity:0.3">·</span><a href="/mesafeli-satis.html">Mesafeli Satış Sözleşmesi</a><span style="opacity:0.3">·</span><a href="/iade-politikasi.html">İade &amp; İptal Politikası</a></div>
-  </footer>
 </section>
 
 <!-- ÜRÜNLER -->
@@ -1792,11 +1807,6 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
       <div class="products-grid" id="productsGrid"></div>
     </div>
   </div>
-  <footer style="background:var(--cream);border-top:1px solid var(--border);color:var(--slate)">
-    <p>© 2026 <span>Göçmen Perde</span></p>
-    <div class="payment-logo-strip" aria-label="Güvenli ödeme logoları"></div>
-    <div class="footer-links"><a href="/gizlilik-politikasi.html" style="color:rgba(201,168,76,0.7)">Gizlilik Politikası</a><span style="opacity:0.3">·</span><a href="/mesafeli-satis.html" style="color:rgba(201,168,76,0.7)">Mesafeli Satış</a><span style="opacity:0.3">·</span><a href="/iade-politikasi.html" style="color:rgba(201,168,76,0.7)">İade &amp; İptal</a></div>
-  </footer>
 </section>
 
 <!-- SİZDEN GELENLER -->
@@ -1828,11 +1838,6 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
       </div>
     </div>
   </div>
-  <footer style="background:var(--warm-white);border-top:1px solid var(--border);color:var(--slate)">
-    <p>© 2026 <span>Göçmen Perde</span></p>
-    <div class="payment-logo-strip" aria-label="Güvenli ödeme logoları"></div>
-    <div class="footer-links"><a href="/gizlilik-politikasi.html" style="color:rgba(201,168,76,0.7)">Gizlilik Politikası</a></div>
-  </footer>
 </section>
 
 <!-- CHECKOUT -->
@@ -1948,10 +1953,6 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
       </div>
     </div>
   </div>
-  <footer style="background:var(--warm-white);border-top:1px solid var(--border);color:var(--slate)">
-    <p>© 2026 <span>Göçmen Perde</span></p>
-    <div class="payment-logo-strip" aria-label="Güvenli ödeme logoları"></div>
-  </footer>
 </section>
 
 <!-- İLETİŞİM -->
@@ -1976,11 +1977,6 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
       </div>
     </div>
   </div>
-  <footer>
-    <p>© 2026 <span>Göçmen Perde</span> — Tüm Hakları Saklıdır · Osmangazi, Bursa</p>
-    <div class="payment-logo-strip" aria-label="Güvenli ödeme logoları"></div>
-    <div class="footer-links"><a href="/gizlilik-politikasi.html">Gizlilik Politikası</a><span style="opacity:0.3">·</span><a href="/mesafeli-satis.html">Mesafeli Satış Sözleşmesi</a><span style="opacity:0.3">·</span><a href="/iade-politikasi.html">İade &amp; İptal</a></div>
-  </footer>
 </section>
 
 <!-- DESTEK -->
@@ -2022,10 +2018,6 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
       </div>
     </div>
   </div>
-  <footer style="background:var(--warm-white);border-top:1px solid var(--border);color:var(--slate)">
-    <p>© 2026 <span>Göçmen Perde</span></p>
-    <div class="payment-logo-strip" aria-label="Güvenli ödeme logoları"></div>
-  </footer>
 </section>
 
 <!-- HAKKIMIZDA -->
@@ -2099,11 +2091,6 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
       </div>
     </div>
   </div></div>
-  <footer>
-    <p>© 2026 <span>Göçmen Perde</span> — Tüm Hakları Saklıdır · Osmangazi, Bursa</p>
-    <div class="payment-logo-strip" aria-label="Güvenli ödeme logoları"></div>
-    <div class="footer-links"><a href="/gizlilik-politikasi.html">Gizlilik Politikası</a><span style="opacity:0.3">·</span><a href="/mesafeli-satis.html">Mesafeli Satış Sözleşmesi</a><span style="opacity:0.3">·</span><a href="/iade-politikasi.html">İade &amp; İptal</a></div>
-  </footer>
 </section>
 
 <!-- ÜRÜN MODAL -->
@@ -2250,9 +2237,14 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
   </div>
   <button class="menu-close-btn" onclick="closeMobileMenuWrapper()"><i class="fas fa-xmark" style="margin-right:10px"></i>KAPAT</button>
 </div>
-<div class="floating-cta" id="floatingCta">
-  <a class="cta-whatsapp" href="https://wa.me/905012110958" target="_blank" rel="noopener" aria-label="WhatsApp ile hızlı teklif alın"><i class="fab fa-whatsapp"></i><span>Hızlı Teklif</span></a>
-  <a class="cta-call" href="tel:+905012110958" aria-label="Hemen ara"><i class="fas fa-phone"></i><span>Hemen Ara</span></a>
+<footer id="siteFooter" class="site-footer">
+  <div class="footer-top"><div class="footer-grid"><div class="footer-brand"><div class="footer-logo"><img src="resimler/logo.png" alt="Göçmen Perde" onerror="this.style.display='none'"><div><h3>GÖÇMEN PERDE</h3><small>BURSA · EST. 1993</small></div></div><p class="footer-tag">Bursa'nın 1993'ten beri güvendiği perde markası. Tül, fon, zebra, stor, plise perde modelleri ve ücretsiz şehir içi ölçü hizmeti.</p><div class="footer-trust"><span><i class="fas fa-shield-halved"></i> 1 Yıl Garanti</span><span><i class="fas fa-truck-fast"></i> Ücretsiz Ölçü</span><span><i class="fas fa-lock"></i> Güvenli Ödeme</span></div></div><div class="footer-col"><h4>Mağaza</h4><ul><li><a href="#home" onclick="event.preventDefault();go('home')">Ana Sayfa</a></li><li><a href="#products" onclick="event.preventDefault();go('products')">Tüm Ürünler</a></li><li><a href="#" onclick="event.preventDefault();navigateToCategory('tul-perde')">Tül Perde</a></li><li><a href="#" onclick="event.preventDefault();navigateToCategory('fon-perde')">Fon Perde</a></li><li><a href="#" onclick="event.preventDefault();navigateToCategory('zebra-perde')">Zebra Perde</a></li><li><a href="#" onclick="event.preventDefault();navigateToCategory('stor-perde')">Stor Perde</a></li></ul></div><div class="footer-col"><h4>Kurumsal</h4><ul><li><a href="#about" onclick="event.preventDefault();go('about')">Hakkımızda</a></li><li><a href="#from-you" onclick="event.preventDefault();go('from-you')">Sizden Gelenler</a></li><li><a href="#contact" onclick="event.preventDefault();go('contact')">İletişim</a></li><li><a href="#support" onclick="event.preventDefault();go('support')">Destek</a></li><li><a href="gizlilik-politikasi.html">Gizlilik Politikası</a></li><li><a href="iade-politikasi.html">İade Politikası</a></li><li><a href="mesafeli-satis.html">Mesafeli Satış</a></li></ul></div><div class="footer-col"><h4>İletişim</h4><ul class="footer-contact"><li><i class="fas fa-location-dot"></i> Bağlarbaşı Mah. Mümin Gençoğlu Cad. 1. Sarıgül Sokak No:3/A, Osmangazi / Bursa</li><li><i class="fas fa-phone"></i> <a href="tel:+905012110958">+90 501 211 09 58</a></li><li><i class="fab fa-whatsapp"></i> <a href="https://wa.me/905012110958" target="_blank">WhatsApp Hattı</a></li><li><i class="fas fa-envelope"></i> <a href="mailto:info@gocmenperde.com.tr">info@gocmenperde.com.tr</a></li></ul><div class="footer-social"><a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a><a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a><a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a><a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a></div></div></div></div>
+  <div class="footer-bottom"><div class="footer-bottom-inner"><span>© 2026 Göçmen Perde. Tüm hakları saklıdır.</span><div class="footer-payments"><img src="resimler/troy.svg" alt="Troy" onerror="this.style.display='none'"><img src="resimler/visa.svg" alt="Visa" onerror="this.style.display='none'"><img src="resimler/mastercard.svg" alt="Mastercard" onerror="this.style.display='none'"><img src="resimler/3dsecure.svg" alt="3D Secure" onerror="this.style.display='none'"></div></div></div>
+</footer>
+
+<div class="floating-actions" id="floatingCta">
+  <a class="whatsapp" href="https://wa.me/905012110958" target="_blank" rel="noopener" aria-label="WhatsApp ile hızlı teklif alın"><i class="fab fa-whatsapp"></i><span>Hızlı Teklif</span></a>
+  <a class="phone" href="tel:+905012110958" aria-label="Hemen ara"><i class="fas fa-phone"></i><span>Hemen Ara</span></a>
 </div>
 
 <div class="mobile-bottom-nav" aria-label="Mobil alt menü">
@@ -3257,7 +3249,6 @@ const REVIEW_TEXTS = [
 ];
 const PRODUCTS_CACHE_KEY = 'gp_products_cache_v2';
 const PRODUCTS_CACHE_TTL_MS = 1000 * 60 * 10;
-const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/gocmenperde/gocmenperde/main';
 const IMAGE_PLACEHOLDER_DATA_URI = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='420' height='280'><rect width='100%' height='100%' fill='#f1eee7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8a8480' font-family='Outfit,Arial' font-size='16'>Görsel yüklenemedi</text></svg>")}`;
 function resolveAssetUrl(path){
   const raw=String(path||'').trim();
@@ -3267,9 +3258,6 @@ function resolveAssetUrl(path){
   if(/^https?:\/\//i.test(raw)) return raw;
   const normalized=raw.replace(/^\/+/, '');
   if(normalized.startsWith('resimler/')){
-    // GitHub API ile yüklenen yeni görseller deploy beklerken yerel /resimler yolunda 404 verebilir.
-    // Timestamp ile başlayan dosyaları doğrudan raw URL'den okuyarak "?" görsel sorununu kökten çözeriz.
-    if(/^resimler\/\d{13}-/i.test(normalized)) return `${GITHUB_RAW_BASE}/${normalized}`;
     return `/${normalized}`;
   }
   return raw;
@@ -3278,9 +3266,6 @@ function resolveAssetFallbackUrl(path){
   const raw = String(path || '').trim();
   if(!raw || raw.startsWith('data:') || /^https?:\/\//i.test(raw)) return '';
   const normalized = raw.replace(/^\/+/, '');
-  if(normalized.startsWith('resimler/')){
-    return `${GITHUB_RAW_BASE}/${normalized}`;
-  }
   return '';
 }
 function imageFallbackAttr(path){
@@ -4396,6 +4381,7 @@ function renderProducts(list){
   else setTimeout(()=>renderChunk(0), 0);
 }
 function bindProductCardCalculators(slice, startIdx){
+  // bindProductCardCalculators: chunk sonrası hesaplayıcılar tekrar bağlanır.
   slice.forEach((p)=>{
     if(isSquareMeterProduct(p)){
       bindSquareMeterAutoCalc(p, 'q-' + p.id, 'w-' + p.id, 'h-' + p.id, 'price-info-' + p.id);
@@ -5304,15 +5290,15 @@ function handleProductModalBack(){
 
 window.addEventListener('popstate', (event)=>{
   const targetId = getSectionFromLocation();
-  applySectionState(targetId, {scroll:'restore'});
   const hasProductParam = new URLSearchParams(window.location.search).has('product');
+  const finalTarget = hasProductParam ? 'products' : targetId;
+  applySectionState(finalTarget, {scroll:'restore'});
   const modalOpen = document.getElementById('productModal')?.classList.contains('open');
   if(!hasProductParam && modalOpen){
     closeProductModal({syncUrl:false});
     restoreViewAfterModal({ ...(event.state || modalReturnState || {}) });
   }
   if(hasProductParam){
-    if(targetId !== 'products') applySectionState('products', {scroll:false});
     handleInitialProductDeepLink();
   } else if(lastHandledEntryDeepLink.startsWith('product:')){
     lastHandledEntryDeepLink = '';
@@ -5790,57 +5776,69 @@ function restoreProductsViewState({respectCategoryQuery=true} = {}){
   return true;
 }
 
+let __sectionTransitionLock = false;
 function applySectionState(id, {scroll=true} = {}){
   const targetId = document.getElementById(id) ? id : 'home';
+  if(__sectionTransitionLock){
+    queueMicrotask(()=> applySectionState(id, {scroll}));
+    return;
+  }
+  __sectionTransitionLock = true;
   try{
-    sessionStorage.setItem(LAST_SECTION_STORAGE_KEY, targetId);
-    localStorage.setItem(LAST_SECTION_STORAGE_KEY, targetId);
-  }catch(err){ console.warn('[gp:warn]', err); }
-  const currentActive = document.querySelector('.section.active')?.id;
-  if(currentActive){
-    saveSectionScroll(currentActive, window.scrollY || 0);
-    if(currentActive === 'products') persistProductsViewState();
-  }
-  const scrollMode = scroll === false ? 'none' : (scroll === 'restore' ? 'restore' : 'top');
-  if(currentActive === targetId && scrollMode === 'none'){
+    try{
+      sessionStorage.setItem(LAST_SECTION_STORAGE_KEY, targetId);
+      localStorage.setItem(LAST_SECTION_STORAGE_KEY, targetId);
+    }catch(_){ }
+    const currentActive = document.querySelector('.section.active')?.id;
+    if(currentActive){
+      saveSectionScroll(currentActive, window.scrollY || 0);
+      if(currentActive === 'products') persistProductsViewState();
+    }
+    const scrollMode = scroll === false ? 'none' : (scroll === 'restore' ? 'restore' : 'top');
+    if(currentActive === targetId){
+      if(scrollMode === 'restore'){
+        const savedY = getSavedSectionScroll(targetId);
+        window.scrollTo({top:savedY,behavior:'auto'});
+      }
+      updateCartActionPanel();
+      updateFloatingCta(targetId);
+      syncHomePromoVisibility(targetId);
+      return;
+    }
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(s=>{
+      if(s.id !== targetId){
+        s.classList.remove('active','fade-in');
+        s.style.display = 'none';
+      }
+    });
+    const t = document.getElementById(targetId);
+    if(!t) return;
+    t.style.display = 'block';
+    t.classList.add('active');
+    t.classList.remove('fade-in');
+    void t.offsetWidth;
+    t.classList.add('fade-in');
+    if(scrollMode === 'top'){
+      window.scrollTo({top:0,behavior:'smooth'});
+    } else if(scrollMode === 'restore'){
+      const savedY = getSavedSectionScroll(targetId);
+      window.scrollTo({top:savedY,behavior:'auto'});
+    }
+    if(targetId==='cart') renderCart();
+    if(targetId==='checkout') renderCheckout();
+    hydrateLazyIframes(targetId);
+    if(targetId==='products' && PRODUCTS.length===0) loadProducts();
+    if(targetId==='products') renderRecentlyViewed();
+    document.querySelectorAll('.mbn-item').forEach(b=>b.classList.remove('active-nav'));
+    const mbnEl = document.getElementById('mbn-'+targetId);
+    if(mbnEl) mbnEl.classList.add('active-nav');
     updateCartActionPanel();
     updateFloatingCta(targetId);
     syncHomePromoVisibility(targetId);
-    return;
+  } finally {
+    requestAnimationFrame(()=>{ __sectionTransitionLock = false; });
   }
-  if(currentActive === targetId && scrollMode === 'restore'){
-    const savedY = getSavedSectionScroll(targetId);
-    window.scrollTo({top:savedY,behavior:'auto'});
-    updateCartActionPanel();
-    updateFloatingCta(targetId);
-    syncHomePromoVisibility(targetId);
-    return;
-  }
-  document.querySelectorAll('.section').forEach(s=>{ s.classList.remove('active'); s.style.display='none'; });
-  const t=document.getElementById(targetId);
-  if(!t) return;
-  t.style.display='block';
-  t.classList.add('active');
-  t.classList.remove('fade-in');
-  void t.offsetWidth;
-  t.classList.add('fade-in');
-  if(scrollMode === 'top'){
-    window.scrollTo({top:0,behavior:'smooth'});
-  }else if(scrollMode === 'restore'){
-    const savedY = getSavedSectionScroll(targetId);
-    window.scrollTo({top:savedY,behavior:'auto'});
-  }
-  if(targetId==='cart') renderCart();
-  if(targetId==='checkout') renderCheckout();
-  hydrateLazyIframes(targetId);
-  if(targetId==='products' && PRODUCTS.length===0) loadProducts();
-  if(targetId==='products') renderRecentlyViewed();
-  document.querySelectorAll('.mbn-item').forEach(b=>b.classList.remove('active-nav'));
-  const mbnEl = document.getElementById('mbn-'+targetId);
-  if(mbnEl) mbnEl.classList.add('active-nav');
-  updateCartActionPanel();
-  updateFloatingCta(targetId);
-  syncHomePromoVisibility(targetId);
 }
 
 function getSectionFromLocation(){
