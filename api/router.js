@@ -6,6 +6,21 @@ if (process.env.NODE_ENV !== 'production' && typeof process.loadEnvFile === 'fun
   if (fs.existsSync(envPath)) process.loadEnvFile(envPath);
 }
 
+function validateBasicBody(req, res){
+  if(!['POST','PUT','PATCH'].includes(String(req.method || '').toUpperCase())) return true;
+  const body = req.body;
+  if(!body || typeof body !== 'object' || Array.isArray(body)){
+    res.status(400).json({ error: 'Geçersiz body formatı.' });
+    return false;
+  }
+  const serialized = JSON.stringify(body);
+  if(serialized.length > 200000){
+    res.status(400).json({ error: 'Body çok büyük.' });
+    return false;
+  }
+  return true;
+}
+
 const ROUTES = {
   auth: () => require('../server/handlers/auth'),
   customer: () => require('../server/handlers/customer'),
@@ -44,6 +59,7 @@ module.exports = async function handler(req, res) {
     return res.status(404).json({ error: 'API endpoint bulunamadı.' });
   }
 
+  if(!validateBasicBody(req, res)) return;
   const endpoint = loader();
   return endpoint(req, res);
 };

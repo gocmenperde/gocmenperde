@@ -9,7 +9,8 @@ async function readAlerts() {
     const raw = await fs.readFile(FILE_PATH, 'utf8');
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
-  } catch (_) {
+  } catch (err) {
+    console.warn('[gp:warn]', err);
     return [];
   }
 }

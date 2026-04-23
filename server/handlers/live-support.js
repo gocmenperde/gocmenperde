@@ -35,7 +35,8 @@ async function resolveWritableDataFilePath() {
       const filePath = path.join(dir, FILE_NAME);
       resolvedDataFilePath = filePath;
       return filePath;
-    } catch (_) {
+    } catch (err) {
+    console.warn('[gp:warn]', err);
       // Bir sonraki adayı dene
     }
   }
@@ -49,7 +50,8 @@ async function resolveReadableDataFilePath() {
     try {
       await fs.access(filePath);
       return filePath;
-    } catch (_) {
+    } catch (err) {
+    console.warn('[gp:warn]', err);
       // Dosya yoksa sıradaki adaya geç
     }
   }
@@ -140,7 +142,8 @@ async function readItems() {
     const raw = await fs.readFile(filePath, 'utf8');
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
-  } catch (_) {
+  } catch (err) {
+    console.warn('[gp:warn]', err);
     return [];
   }
 }

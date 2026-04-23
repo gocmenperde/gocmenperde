@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const compression = require('compression');
 
 if (process.env.NODE_ENV !== 'production' && typeof process.loadEnvFile === 'function') {
   const envPath = path.resolve(__dirname, '..', '.env');
@@ -26,15 +28,31 @@ const apiLimiter = rateLimit({
 const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 const paymentLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 
+app.use(helmet({
+  contentSecurityPolicy: false,
+  frameguard: { action: 'sameorigin' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+}));
+app.use(compression());
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   express.static(path.resolve(__dirname, '..'), {
     setHeaders: (res, filePath) => {
-      if (/\.(json|html|js|css)$/i.test(filePath)) {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
+      if (/resimler\//i.test(filePath)) {
+        res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+        return;
+      }
+      if (/\.html$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+        return;
+      }
+      if (/\.json$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'public, max-age=60');
+        return;
+      }
+      if (/\.(js|css)$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'public, max-age=300');
       }
     },
   })

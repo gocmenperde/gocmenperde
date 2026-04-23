@@ -5,6 +5,11 @@
   "dependencies": {
     "pg": "^8.11.0",
     "express-rate-limit": "^7.5.0",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -351,7 +351,8 @@ module.exports = async function handler(req, res) {
       neighborhoods,
       streetsByNeighborhood,
     });
-  } catch (_) {
+  } catch (err) {
+    console.warn('[gp:warn]', err);
     return res.status(500).json({ error: 'Adres verisi alınırken hata oluştu.' });
   }
 };

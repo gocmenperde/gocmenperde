@@ -40,7 +40,8 @@ function parseResendError(bodyText) {
     const parsed = JSON.parse(bodyText);
     if (typeof parsed?.message === 'string' && parsed.message.trim()) return parsed.message.trim();
     if (typeof parsed?.error?.message === 'string' && parsed.error.message.trim()) return parsed.error.message.trim();
-  } catch (_) {
+  } catch (err) {
+    console.warn('[gp:warn]', err);
     // JSON değilse raw body kullanılacak
   }
   return bodyText.slice(0, 300).trim();
