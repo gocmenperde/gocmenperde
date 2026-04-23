@@ -45,7 +45,9 @@
       "• Nemli Bezle Silme": "Lazer kesim kanallarına zarar vermemek için perdenizi yerinden çıkarmadan, ılık su ve çok az miktarda doğal sabun (veya perde şampuanı) karıştırılmış nemli bir bezle silebilirsiniz.",
       "• Kimyasaldan Kaçının": "Çamaşır suyu veya ağır kimyasal çözücüler, lazerle mühürlenmiş kenarların yapısını bozabilir ve kumaş renginde solma yapabilir.",
       "• Kurutma": "Temizlik sonrası perdeyi tamamen aşağı indirerek kendi kendine kurumasını bekleyin. Kurumadan rulo haline getirmek, nemin desenli bölgelerde koku veya leke yapmasına neden olabilir."
-    }
+    },
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "fon-perde-modern-cizgili-desen-mavi-1776374886960-142",
@@ -237,7 +239,9 @@
       "Kuru Temizleme": "Önerilmez"
     },
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "fon-perde-1776162796837-391",
@@ -313,7 +317,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-bej-1774990805411-953",
@@ -351,7 +357,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-krem-1774990805411-490",
@@ -389,7 +397,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gri-1774990805411-745",
@@ -427,7 +437,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-siyah-1774990805411-411",
@@ -465,7 +477,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gumus-sarmasik-1774963152707-983",
@@ -503,7 +517,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-bej-sarmasik-1774963152707-654",
@@ -541,7 +557,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-antrasit-sarmasik-1774963152707-791",
@@ -579,7 +597,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-siyah-sarmasik-1774963152707-862",
@@ -617,7 +637,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-bej-cizgili-1774963152707-99",
@@ -655,7 +677,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-kahverengi-cizgili-1774963152707-985",
@@ -693,7 +717,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-bej-beyaz-cizgili-1774963152707-64",
@@ -731,7 +757,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-pembe-beyaz-cizgili-1774963152707-161",
@@ -769,7 +797,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-cizgili-1774963152707-579",
@@ -807,7 +837,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gri-beyaz-cizgili-1774963152707-620",
@@ -846,7 +878,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gri-beyaz-golgeli-1774957913388-563",
@@ -885,7 +919,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-siyah-beyaz-golgeli-1774957913388-1",
@@ -924,7 +960,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-beyaz-gumus-desenli-1774957913388-760",
@@ -963,7 +1001,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-bej-gumus-desenli-1774957913388-89",
@@ -1002,7 +1042,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-pembe-gumus-desenli-1774957913388-503",
@@ -1041,7 +1083,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-siyah-gumus-desenli-1774957913388-739",
@@ -1080,7 +1124,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-yesil-gumus-desenli-1774957913388-696",
@@ -1119,7 +1165,9 @@
     "isLiveShowcase": true,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-mavi-bej-golgeli-1774902386360-483",
@@ -1158,7 +1206,9 @@
     "isLiveShowcase": true,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-kahverengi-bej-golgeli-1774901585620-69",
@@ -1197,7 +1247,9 @@
     "isLiveShowcase": true,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-beyaz-bej-golgeli-1774901437610-318",
@@ -1236,7 +1288,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-antrasit-gri-gecisli-1774899975522-561",
@@ -1275,7 +1329,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-lila-mor-gecisli-1774899632707-132",
@@ -1314,7 +1370,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-mor-pembe-gecisli-1774893507393-282",
@@ -1352,7 +1410,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-bej-kahverengi-gecisli-1774893507393-23",
@@ -1390,7 +1450,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-beyaz-yesil-gecisli-1774893507393-177",
@@ -1428,7 +1490,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-mavi-mor-gecisli-1774893507393-97",
@@ -1465,7 +1529,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-beyaz-bej-gecisli-1774892324844-482",
@@ -1504,7 +1570,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-lacivert-1774891080220-517",
@@ -1542,7 +1610,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-koyu-gri-1774891080220-467",
@@ -1580,7 +1650,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-acik-mavi-1774891080220-889",
@@ -1618,7 +1690,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-acik-siyah-1774891080220-890",
@@ -1656,7 +1730,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-koyu-siyah-1774891080220-757",
@@ -1694,7 +1770,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-antrasit-1774890439325-437",
@@ -1733,7 +1811,9 @@
     "isLiveShowcase": false,
     "isFeatured": true,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-siyah-1774890314822-147",
@@ -1772,7 +1852,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gumus-antrasit-gecisli-1774888873604-844",
@@ -1811,7 +1893,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gumus-lacivert-gecisli-1774888678192-247",
@@ -1850,7 +1934,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gumus-gri-gecisli-1774888513068-307",
@@ -1889,7 +1975,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gumus-yesil-gecisli-1774888350093-777",
@@ -1928,7 +2016,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gumus-pembe-gecisli-1774887486300",
@@ -1967,7 +2057,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gumus-bej-kahve-gecisli-1774887198350",
@@ -2006,7 +2098,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-krem---kahve-1774886500388",
@@ -2045,7 +2139,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-gumus-1774886246465",
@@ -2084,7 +2180,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "orme-tul-perde-sarmasik-desen-1774881564791",
@@ -2199,7 +2297,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "plise-perde-yari-saydam-kirmizi-1774732790927",
@@ -2237,7 +2337,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "plise-perde-hardal-sarisi---opak-1774732688190",
@@ -2275,7 +2377,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "plise-perde-vizyon-taupe---opak-1774732585223",
@@ -2313,7 +2417,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "plise-perde-kum-beji-1774732440461",
@@ -2351,7 +2457,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "plise-perde-antrasit---siyah---opak-1774730481031",
@@ -2387,7 +2495,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "plise-perde-kirik-beyaz-1774729148305",
@@ -2423,7 +2533,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "plise-perde-acik-sari-1774728002720",
@@ -2459,7 +2571,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "plise-perde-gri-1774722059483",
@@ -2495,7 +2609,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "plise-perde-1774714176524",
@@ -2525,7 +2641,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "kursunlu-desensiz-modern-duz-perde-1774694118154",
@@ -2569,7 +2687,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-1774687629565",
@@ -2596,7 +2716,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "zebra-perde-1774657341307",
@@ -2629,7 +2751,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "stor-perde-1774593801587",
@@ -2660,7 +2784,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "izgili-tl-perde-1774588078918",
@@ -2699,7 +2825,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "gnelik-beyaz-1774557732197",
@@ -2810,7 +2938,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "tl-perde-1774552678382",
@@ -2843,7 +2973,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "fon-perde-1774540697343",
@@ -3202,7 +3334,9 @@
     "isLiveShowcase": false,
     "isFeatured": false,
     "barcode": null,
-    "seoKeywords": []
+    "seoKeywords": [],
+    "requiresWidth": true,
+    "requiresHeight": true
   },
   {
     "id": "ekonomik-fon",
