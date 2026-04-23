@@ -5400,6 +5400,7 @@ document.getElementById('reviewPhotoInput')?.addEventListener('change', (event)=
 });
 
 attachModalSwipeHandlers();
+bindMenuTriggers();
 const modalImageElement = document.getElementById('mImg');
 if(modalImageElement && !modalImageElement.dataset.errorBound){
   modalImageElement.addEventListener('error', handleModalImageLoadError);
@@ -5426,6 +5427,21 @@ function toggleMenu(){
     hideToast();
   }
   setMobileMenuState(!open);
+}
+function bindMenuTriggers(){
+  const openers = [
+    document.querySelector('header .mobile-toggle'),
+    document.querySelector('.mobile-bottom-nav .mbn-item[onclick*="toggleMenu"]')
+  ].filter(Boolean);
+  openers.forEach((btn)=>{
+    if(btn.dataset.menuBound === '1') return;
+    btn.removeAttribute('onclick');
+    btn.addEventListener('click', (event)=>{
+      event.preventDefault();
+      toggleMenu();
+    });
+    btn.dataset.menuBound = '1';
+  });
 }
 function closeMobileMenuWrapper(){ setMobileMenuState(false); }
 function closeAllPopups(){
