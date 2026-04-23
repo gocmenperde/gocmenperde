@@ -454,10 +454,21 @@ tbody tr:hover td{background:#fdfcf8}
 .logo-settings-actions{display:flex;gap:6px;justify-content:flex-end}
 .logo-settings-toolbar{padding:14px 22px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1.2fr .9fr auto;gap:10px;align-items:center}
 .logo-settings-note{font-size:0.74rem;color:var(--slate-light);padding:0 22px 14px}
+.admin-social-card{padding:16px 22px}
+.admin-social-card h3{font:600 1rem var(--ff-body);margin-bottom:6px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.admin-hint{font:400 12px var(--ff-body);color:var(--slate);margin-bottom:14px}
+.admin-social-form{display:grid;gap:10px}
+.admin-social-form label{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:10px;font:500 13px var(--ff-body)}
+.admin-social-form input{padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px}
+.admin-social-form input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.admin-save-btn{justify-self:start;padding:10px 22px;background:var(--ink);color:#fff;border:none;border-radius:8px;font:600 12px var(--ff-body);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-top:6px}
+.admin-save-btn:hover{background:var(--gold-deep)}
+.admin-status{font:500 12px var(--ff-body);margin-left:8px}
 @media(max-width:900px){
   .logo-settings-grid{grid-template-columns:1fr;gap:6px}
   .logo-settings-toolbar{grid-template-columns:1fr}
 }
+@media(max-width:520px){ .admin-social-form label{grid-template-columns:1fr;gap:4px} }
 
 /* ──────────── NOTIFS ──────────── */
 .notif-item{background:white;border-radius:var(--radius);padding:18px;border:1px solid var(--border);display:flex;gap:14px;margin-bottom:10px;box-shadow:var(--shadow-sm);transition:0.2s}
@@ -1328,6 +1339,24 @@ Işık: Yarı Geçirgen"></textarea></div>
       <p class="logo-settings-note">Ekledikleriniz tüm sayfalarda footer ödeme logolarını anında günceller. Sıralama için ↑↓ butonlarını kullanın.</p>
     </div>
   </div>
+  <div class="settings-section">
+    <div class="settings-section-header"><i class="fas fa-share-nodes"></i> Sosyal Medya Bağlantıları</div>
+    <div class="settings-body admin-social-card">
+      <h3><i class="fas fa-share-nodes"></i> Sosyal Medya Bağlantıları</h3>
+      <p class="admin-hint">Boş bırakılan platformlar footer'da görünmez. Tam URL girin (https:// ile).</p>
+      <div class="admin-social-form">
+        <label>Instagram <input type="url" id="adminSocialInstagram" placeholder="https://www.instagram.com/gocmen.perde/"></label>
+        <label>Facebook <input type="url" id="adminSocialFacebook" placeholder="https://www.facebook.com/..."></label>
+        <label>TikTok <input type="url" id="adminSocialTiktok" placeholder="https://www.tiktok.com/@..."></label>
+        <label>YouTube <input type="url" id="adminSocialYoutube" placeholder="https://www.youtube.com/@..."></label>
+        <label>X (Twitter) <input type="url" id="adminSocialX" placeholder="https://x.com/..."></label>
+        <div>
+          <button type="button" class="admin-save-btn" onclick="adminSaveSocialLinks()">Kaydet</button>
+          <span id="adminSocialStatus" class="admin-status"></span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="settings-section">
     <div class="settings-section-header"><i class="fas fa-shield-alt"></i> Güvenlik</div>
@@ -1829,6 +1858,7 @@ const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
 const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
 const FOOTER_PAYMENT_LOGOS_KEY = 'gp_footer_payment_logos_v1';
+const SOCIAL_LINKS_KEY = 'gp_social_links_v1';
 const HOME_PROMO_PANEL_KEY = 'gp_home_promo_panel_v1';
 const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
 const HOME_FEATURED_PRODUCTS_KEY = 'gp_home_featured_products_v1';
@@ -1885,6 +1915,13 @@ const DEFAULT_FOOTER_PAYMENT_LOGOS = [
   {src:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/320px-Visa_Inc._logo.svg.png',alt:'Visa'},
   {src:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/3D_Secure_logo.svg/320px-3D_Secure_logo.svg.png',alt:'3D Secure'}
 ];
+const DEFAULT_SOCIAL_LINKS = {
+  instagram: 'https://www.instagram.com/gocmen.perde/',
+  facebook: '',
+  tiktok: '',
+  youtube: '',
+  x: ''
+};
 const SHOWCASE_DEFAULT_IMAGES = [
   {src:'resimler/foto1.jpg',title:'Salon Tül Uygulaması',desc:'Özel ölçü tül perde montajı ile ferah salon görünümü.',label:'Salon Tül'},
   {src:'resimler/foto2.jpg',title:'Zebra Perde Montajı',desc:'Gün ışığını kontrollü kullanan zebra perde çözümü.',label:'Zebra Sistem'},
@@ -2006,6 +2043,57 @@ function deleteFooterLogo(index){
   saveFooterPaymentLogos();
   renderFooterLogoRows();
   aToast('Logo silindi');
+}
+
+function getSocialLinks(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(SOCIAL_LINKS_KEY) || '{}');
+    return {...DEFAULT_SOCIAL_LINKS, ...(parsed || {})};
+  }catch(_){
+    return {...DEFAULT_SOCIAL_LINKS};
+  }
+}
+function saveSocialLinks(payload){
+  localStorage.setItem(SOCIAL_LINKS_KEY, JSON.stringify(payload || {}));
+}
+function adminLoadSocialLinks(){
+  const links = getSocialLinks();
+  const setValue = (id, value)=>{
+    const el = document.getElementById(id);
+    if(el) el.value = value || '';
+  };
+  setValue('adminSocialInstagram', links.instagram);
+  setValue('adminSocialFacebook', links.facebook);
+  setValue('adminSocialTiktok', links.tiktok);
+  setValue('adminSocialYoutube', links.youtube);
+  setValue('adminSocialX', links.x);
+}
+function adminSaveSocialLinks(){
+  const getValue = (id)=>String(document.getElementById(id)?.value || '').trim();
+  const data = {
+    instagram: getValue('adminSocialInstagram'),
+    facebook: getValue('adminSocialFacebook'),
+    tiktok: getValue('adminSocialTiktok'),
+    youtube: getValue('adminSocialYoutube'),
+    x: getValue('adminSocialX')
+  };
+  const status = document.getElementById('adminSocialStatus');
+  for(const key of Object.keys(data)){
+    if(data[key] && !/^https?:\/\//i.test(data[key])){
+      if(status){
+        status.textContent = `${key} için geçerli bir URL girin (https:// ile başlamalı)`;
+        status.style.color = '#c0392b';
+      }
+      return;
+    }
+  }
+  saveSocialLinks(data);
+  if(status){
+    status.textContent = 'Kaydedildi ✓';
+    status.style.color = 'var(--gold-deep)';
+    setTimeout(()=>{ status.textContent = ''; }, 3000);
+  }
+  aToast('✓ Sosyal medya bağlantıları kaydedildi','success');
 }
 
 function getHomePromoSettings(){
@@ -5680,6 +5768,7 @@ async function initAdmin(){
   renderShowcaseAdminPage();
   footerPaymentLogos = getFooterPaymentLogoState();
   renderFooterLogoRows();
+  adminLoadSocialLinks();
   renderHomePromoSettings();
   renderSurpriseCampaignSettings();
   renderCustomTemplateButtons();
