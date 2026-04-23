@@ -4,7 +4,8 @@ function parseUrlWithFallback(value, base) {
 
   try {
     return base ? new URL(raw, base) : new URL(raw);
-  } catch (_) {
+  } catch (err) {
+    console.warn('[gp:warn]', err);
     return null;
   }
 }
