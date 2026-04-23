@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --gold: #c9a84c;
-            --gold-light: rgba(201,168,76,0.12);
-            --gold-dark: #8c6d2f;
+            --gold: #c8a35a;
+            --gold-light: #e6d3a8;
+            --gold-dark: #a3823f;
             --ink: #0f0e0d;
-            --cream: #f7f4ef;
+            --cream: #faf7f1;
             --warm-white: #fdfcf9;
             --slate: #4a4743;
             --border: rgba(201,168,76,0.18);
@@ -23,12 +23,13 @@
             --shadow-sm: 0 4px 16px rgba(0,0,0,0.06);
             --radius: 14px;
             --ff: 'DM Sans', sans-serif;
+            --ff-body: 'DM Sans', sans-serif;
             --ffd: 'Cormorant Garamond', serif;
-            --red: #c0392b;
+            --red: #7d2c2c;
             --green: #27ae60;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--ff); background: radial-gradient(circle at 15% -10%, rgba(201,168,76,0.18), transparent 40%), var(--cream); color: var(--ink); min-height: 100vh; }
+        body { font-family: var(--ff-body); background: radial-gradient(circle at 15% -10%, rgba(200,163,90,0.2), transparent 40%), var(--cream); color: var(--ink); min-height: 100vh; }
 
     /* ── HEADER ── */
     .gp-header {
@@ -75,9 +76,9 @@
         -webkit-backdrop-filter: blur(8px);
     }
     .gp-logout {
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.1);
-        color: rgba(255,255,255,0.55);
+        background: #7d2c2c;
+        border: 1px solid #7d2c2c;
+        color: #fff;
         padding: 7px 14px;
         border-radius: 20px;
         cursor: pointer;
@@ -87,7 +88,7 @@
         transition: 0.2s;
         display: flex; align-items: center; gap: 6px;
     }
-    .gp-logout:hover { background: var(--red); color: white; border-color: var(--red); }
+    .gp-logout:hover { background: #612020; color: #fff; border-color: #612020; }
 
     /* ── USER BAR ── */
     .user-bar {
@@ -157,12 +158,14 @@
         letter-spacing: 1px;
         white-space: nowrap;
         border-bottom: 2px solid transparent;
-        transition: 0.2s;
+        transition: all 0.25s ease;
         display: flex;
         align-items: center;
         gap: 7px;
+        border-radius: 999px;
+        margin: 6px 6px 8px 0;
     }
-    .gp-tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; background: rgba(201,168,76,0.08); }
+    .gp-tab.active { color: #1f1a14; border-bottom-color: var(--gold); font-weight: 700; background: linear-gradient(135deg, rgba(200,163,90,0.22), rgba(230,211,168,0.36)); box-shadow: inset 0 -2px 0 var(--gold); }
     .gp-tab:hover { color: var(--ink); }
     .gp-tab i { font-size: 0.85rem; }
 
@@ -974,8 +977,8 @@
 
     /* ── PROFILE ── */
     .profile-shell {
-        background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(241,236,228,0.82) 100%);
-        border: 1px solid rgba(255,255,255,0.82);
+        background: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(250,247,241,0.88) 100%);
+        border: 1px solid rgba(200,163,90,0.3);
         border-radius: 24px;
         padding: 18px;
         box-shadow: 0 24px 62px rgba(95, 82, 62, 0.12);
@@ -983,18 +986,24 @@
         -webkit-backdrop-filter: blur(16px);
     }
     .profile-overview {
-        background: linear-gradient(130deg, rgba(92,76,56,0.95), rgba(136,116,88,0.92));
+        position: relative;
+        background: linear-gradient(135deg, #1f1a14, #2b241b);
         border-radius: 18px;
-        border: 1px solid rgba(255,255,255,0.2);
-        padding: 16px;
+        border: 1px solid rgba(200,163,90,0.5);
+        padding: 18px;
         color: #fff;
         margin-bottom: 16px;
     }
+    .profile-overview-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .profile-overview-user { display: flex; align-items: center; gap: 12px; }
+    .profile-overview-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); color: var(--gold); font-family: var(--ffd); font-size: 1.1rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); }
+    .profile-vip-badge { background: linear-gradient(135deg, var(--gold), #e6d3a8); color: #2b241b; font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; border-radius: 999px; padding: 6px 10px; box-shadow: 0 8px 18px rgba(0,0,0,0.22); }
     .profile-overview-title { font-family: var(--ffd); font-size: 1.4rem; margin-bottom: 3px; }
     .profile-overview-sub { font-size: 0.78rem; color: rgba(255,255,255,0.75); }
     .profile-overview-grid { margin-top: 12px; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
-    .profile-metric { background: rgba(255,255,255,0.14); border-radius: 12px; padding: 10px; border: 1px solid rgba(255,255,255,0.2); }
-    .profile-metric strong { display: block; font-size: 1rem; }
+    .profile-metric { background: rgba(255,255,255,0.14); border-radius: 12px; padding: 10px; border: 1px solid rgba(255,255,255,0.2); display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; }
+    .profile-metric i { color: var(--gold-light); font-size: 0.9rem; }
+    .profile-metric strong { display: block; font-size: 1.25rem; line-height: 1; }
     .profile-metric span { font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.7); }
     .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .profile-card {
@@ -1004,7 +1013,9 @@
         margin-bottom: 0;
         overflow: hidden;
         box-shadow: 0 12px 26px rgba(89, 76, 56, 0.09);
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
+    .profile-card:hover { transform: translateY(-4px); box-shadow: 0 18px 30px rgba(89, 76, 56, 0.14); border-color: rgba(200,163,90,0.65); }
     .profile-card-header {
         background: linear-gradient(120deg, rgba(247,243,236,0.95), rgba(240,234,225,0.92));
         padding: 14px 20px;
@@ -1015,17 +1026,24 @@
         font-size: 0.88rem;
         font-weight: 700;
         color: #4e3f2d;
+        border-left: 3px solid var(--gold);
     }
-    .profile-card-header i { color: #90714c; }
+    .profile-card-header i { color: var(--gold); }
     .profile-card-body { padding: 20px; }
 
     /* ── EMPTY / LOADING ── */
     .empty-state {
         text-align: center;
         padding: 48px 20px;
-        color: #bbb;
+        color: #7a6b58;
+        background: rgba(255,255,255,0.72);
+        border: 1px dashed rgba(200,163,90,0.4);
+        border-radius: 14px;
     }
-    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.3; }
+    .empty-state i { font-size: 2.8rem; display: block; margin-bottom: 12px; opacity: 0.85; color: var(--gold-dark); }
+    .empty-state h3 { font-family: var(--ffd); font-size: 1.2rem; color: #2f271d; margin-bottom: 8px; }
+    .empty-state p { font-size: 0.85rem; margin-bottom: 14px; color: #695a47; }
+    .empty-state .btn-to-shop { display: inline-flex; }
     .loading-state {
         text-align: center;
         padding: 48px 20px;
@@ -1143,16 +1161,31 @@
         font-size: 0.72rem;
         color: #7d6a52;
     }
+    .gp-input:focus,
+    select.gp-input:focus,
+    textarea.gp-input:focus,
+    .quick-note:focus {
+        outline: 2px solid #c8a35a;
+        outline-offset: 2px;
+        border-radius: 10px;
+    }
 
 
-    @media (max-width: 640px) {
+    @media (max-width: 700px) {
         .content { padding: 20px 4%; }
         .gp-header { padding: 0 4%; }
         .user-bar { padding: 14px 4%; }
         .tabs-inner { padding: 0 4%; }
         .orders-stats { grid-template-columns: 1fr; }
         .orders-shell { padding: 14px; border-radius: 20px; }
-        .profile-overview-grid { grid-template-columns: 1fr; }
+        .profile-overview-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+        .profile-overview-top { align-items: flex-start; }
+        .profile-overview-title { font-size: 1.15rem; }
+        .profile-overview-sub { font-size: 0.68rem; }
+        .profile-metric { padding: 8px 6px; gap: 6px; }
+        .profile-metric strong { font-size: 1rem; }
+        .profile-metric span { font-size: 0.58rem; letter-spacing: 0.4px; }
+        .profile-metric i { font-size: 0.72rem; }
         .profile-grid { grid-template-columns: 1fr; }
         .account-extras { grid-template-columns: 1fr; }
     }
@@ -1336,12 +1369,20 @@
 <div id="section-profile" class="gp-section">
     <div class="profile-shell">
         <div class="profile-overview">
-            <div class="profile-overview-title">Hesap Merkezi</div>
-            <div class="profile-overview-sub">Kişisel bilgileriniz, güvenlik ayarlarınız ve üyelik özetiniz tek noktada.</div>
+            <div class="profile-overview-top">
+                <div class="profile-overview-user">
+                    <div class="profile-overview-avatar" id="profileOverviewAvatar">GP</div>
+                    <div>
+                        <div class="profile-overview-title">Hesap Merkezi</div>
+                        <div class="profile-overview-sub">Kişisel bilgileriniz, güvenlik ayarlarınız ve üyelik özetiniz tek noktada.</div>
+                    </div>
+                </div>
+                <div class="profile-vip-badge">VIP Üye</div>
+            </div>
             <div class="profile-overview-grid">
-                <div class="profile-metric"><strong id="profileMetricOrders">0</strong><span>Sipariş</span></div>
-                <div class="profile-metric"><strong id="profileMetricFavs">0</strong><span>Favori</span></div>
-                <div class="profile-metric"><strong id="profileMetricAddresses">0</strong><span>Adres</span></div>
+                <div class="profile-metric"><i class="fas fa-bag-shopping"></i><div><strong id="profileMetricOrders">0</strong><span>Toplam Sipariş</span></div></div>
+                <div class="profile-metric"><i class="fas fa-truck"></i><div><strong id="profileMetricActive">0</strong><span>Aktif Sipariş</span></div></div>
+                <div class="profile-metric"><i class="fas fa-heart"></i><div><strong id="profileMetricFavs">0</strong><span>Favori</span></div></div>
             </div>
         </div>
         <div class="profile-grid">
@@ -1480,6 +1521,8 @@ function initUserDisplay() {
     document.getElementById('userNameDisplay').textContent = name;
     const initials = name.split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'GP';
     document.getElementById('userAvatarText').textContent = initials;
+    const profileAvatar = document.getElementById('profileOverviewAvatar');
+    if (profileAvatar) profileAvatar.textContent = initials;
     if (user?.created_at) {
         const d = new Date(user.created_at);
         document.getElementById('userSince').textContent = 'Üyelik: ' + d.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
@@ -1547,9 +1590,11 @@ imageObserver.observe(document.body, { childList: true, subtree: true });
 
 function updateProfileMetrics(meta = {}) {
     const metricOrders = document.getElementById('profileMetricOrders');
+    const metricActive = document.getElementById('profileMetricActive');
     const metricFavs = document.getElementById('profileMetricFavs');
     const metricAddresses = document.getElementById('profileMetricAddresses');
     if (metricOrders && Number.isFinite(meta.orders)) metricOrders.textContent = String(meta.orders);
+    if (metricActive && Number.isFinite(meta.activeOrders)) metricActive.textContent = String(meta.activeOrders);
     if (metricFavs && Number.isFinite(meta.favorites)) metricFavs.textContent = String(meta.favorites);
     if (metricAddresses && Number.isFinite(meta.addresses)) metricAddresses.textContent = String(meta.addresses);
 }
@@ -1697,11 +1742,11 @@ async function loadOrders() {
         updateOrderStats(allOrders);
         if (!allOrders.length) {
             el.innerHTML = `
-                <div class="fav-empty-box">
-                    <div class="fav-empty-icon"><i class="fas fa-box-open"></i></div>
-                    <h3>Henüz sipariş yok</h3>
-                    <p>Ürünlerimizi keşfedip ilk siparişinizi verebilirsiniz.</p>
-                    <a href="/" class="btn-to-shop"><i class="fas fa-th-large"></i> Ürünlere Git</a>
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>Henüz siparişiniz yok</h3>
+                    <p>Ürünlerimizi inceleyip size uygun perdeyi birkaç adımda sipariş verebilirsiniz.</p>
+                    <a href="/" class="btn-to-shop"><i class="fas fa-th-large"></i> Ürünleri keşfet</a>
                 </div>`;
             return;
         }
@@ -1718,6 +1763,7 @@ function updateOrderStats(orders = []) {
     document.getElementById('statTotalOrders').textContent = String(total);
     document.getElementById('statActiveOrders').textContent = String(active);
     document.getElementById('statTotalSpent').textContent = `${spent.toLocaleString('tr-TR')} TL`;
+    updateProfileMetrics({ orders: total, activeOrders: active });
 }
 
 function setOrderFilter(status, btn) {
@@ -2268,7 +2314,7 @@ async function loadAddresses() {
         const data = await r.json();
         if (!data.addresses?.length) {
             updateProfileMetrics({ addresses: 0 });
-            el.innerHTML = '<div class="empty-state"><i class="fas fa-map-marker-alt"></i><p>Kayıtlı adres yok.</p></div>';
+            el.innerHTML = `<div class="empty-state"><i class="fas fa-map-location-dot"></i><h3>Kayıtlı adresiniz yok</h3><p>Hızlı sipariş için en az bir teslimat adresi ekleyebilirsiniz.</p><a href="/" class="btn-to-shop"><i class="fas fa-th-large"></i> Ürünleri keşfet</a></div>`;
             return;
         }
         updateProfileMetrics({ addresses: data.addresses.length });
@@ -2342,11 +2388,11 @@ async function loadFavorites() {
         if (!data.favorites?.length) {
             updateProfileMetrics({ favorites: 0 });
             el.innerHTML = `
-                <div class="fav-empty-box">
-                    <div class="fav-empty-icon"><i class="fas fa-heart-crack"></i></div>
-                    <h3>Favori ürün eklenmedi</h3>
-                    <p>Beğendiğiniz ürünlerin üzerindeki ♡ ikonuna tıklayarak favorilerinize ekleyebilirsiniz.</p>
-                    <a href="/" class="btn-to-shop"><i class="fas fa-th-large"></i> Ürünleri Keşfet</a>
+                <div class="empty-state">
+                    <i class="fas fa-heart-crack"></i>
+                    <h3>Favori listeniz boş</h3>
+                    <p>Beğendiğiniz ürünleri favorilere ekleyerek daha sonra hızlıca karşılaştırabilirsiniz.</p>
+                    <a href="/" class="btn-to-shop"><i class="fas fa-th-large"></i> Ürünleri keşfet</a>
                 </div>
                 ${renderSuggestions()}`;
             return;
