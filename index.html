@@ -4747,6 +4747,11 @@ function applyFilters(){
   persistProductsViewState();
   if(window.innerWidth <= 900) toggleFiltersDrawer(false);
 }
+function updateTopProductRail(items){
+  // Premium top-product rail kaldırıldığında çağrıları güvenli tutmak için no-op.
+  return Array.isArray(items) ? items : [];
+}
+
 
 // ── Modal ──
 let currentModalImages = [];
@@ -6058,10 +6063,10 @@ if((document.querySelector('.section.active')?.id || getSectionFromLocation()) =
 }
 
 // ── Favoriler ──
-let favorites = [];
+var favorites = [];
 let savedAddresses = [];
-let homeSliderLoadedOnce = false;
-const CITY_OPTIONS = ['Adana','Adıyaman','Afyonkarahisar','Ağrı','Amasya','Ankara','Antalya','Artvin','Aydın','Balıkesir','Bilecik','Bingöl','Bitlis','Bolu','Burdur','Bursa','Çanakkale','Çankırı','Çorum','Denizli','Diyarbakır','Edirne','Elazığ','Erzincan','Erzurum','Eskişehir','Gaziantep','Giresun','Gümüşhane','Hakkari','Hatay','Isparta','Mersin','İstanbul','İzmir','Kars','Kastamonu','Kayseri','Kırklareli','Kırşehir','Kocaeli','Konya','Kütahya','Malatya','Manisa','Kahramanmaraş','Mardin','Muğla','Muş','Nevşehir','Niğde','Ordu','Rize','Sakarya','Samsun','Siirt','Sinop','Sivas','Tekirdağ','Tokat','Trabzon','Tunceli','Şanlıurfa','Uşak','Van','Yozgat','Zonguldak','Aksaray','Bayburt','Karaman','Kırıkkale','Batman','Şırnak','Bartın','Ardahan','Iğdır','Yalova','Karabük','Kilis','Osmaniye','Düzce'];
+var homeSliderLoadedOnce = false;
+var CITY_OPTIONS = ['Adana','Adıyaman','Afyonkarahisar','Ağrı','Amasya','Ankara','Antalya','Artvin','Aydın','Balıkesir','Bilecik','Bingöl','Bitlis','Bolu','Burdur','Bursa','Çanakkale','Çankırı','Çorum','Denizli','Diyarbakır','Edirne','Elazığ','Erzincan','Erzurum','Eskişehir','Gaziantep','Giresun','Gümüşhane','Hakkari','Hatay','Isparta','Mersin','İstanbul','İzmir','Kars','Kastamonu','Kayseri','Kırklareli','Kırşehir','Kocaeli','Konya','Kütahya','Malatya','Manisa','Kahramanmaraş','Mardin','Muğla','Muş','Nevşehir','Niğde','Ordu','Rize','Sakarya','Samsun','Siirt','Sinop','Sivas','Tekirdağ','Tokat','Trabzon','Tunceli','Şanlıurfa','Uşak','Van','Yozgat','Zonguldak','Aksaray','Bayburt','Karaman','Kırıkkale','Batman','Şırnak','Bartın','Ardahan','Iğdır','Yalova','Karabük','Kilis','Osmaniye','Düzce'];
 const CITY_DISTRICTS_FALLBACK = {
   'Adana':['Seyhan','Yüreğir','Çukurova','Sarıçam','Ceyhan','Kozan','İmamoğlu','Karaisalı','Karataş','Pozantı','Saimbeyli','Tufanbeyli','Yumurtalık','Feke','Aladağ'],
   'Ankara':['Altındağ','Çankaya','Etimesgut','Keçiören','Mamak','Sincan','Yenimahalle','Akyurt','Ayaş','Bala','Beypazarı','Çamlıdere','Çubuk','Elmadağ','Evren','Gölbaşı','Güdül','Haymana','Kalecik','Kızılcahamam','Nallıhan','Polatlı','Pursaklar','Şereflikoçhisar'],
@@ -7555,7 +7560,7 @@ async function fetchWithTimeout(url, options={}, timeoutMs=15000){
   }
 }
 
-let orderSubmissionInFlight = false;
+var orderSubmissionInFlight = false;
 
 async function submitOrder(){
   if(orderSubmissionInFlight){
