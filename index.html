@@ -427,11 +427,52 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 #from-you .section-desc{color:rgba(255,255,255,0.78)}
 .from-you-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
 .gallery-section,.reviews-section,.from-you-preview,.about-showcase,.about-values,.about-team,#from-you,.products-layout,.checkout-grid,.contact-grid{content-visibility:auto;contain-intrinsic-size:1px 900px}
-.floating-cta{position:fixed;right:18px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:11980;display:flex;flex-direction:column;gap:12px;pointer-events:none}
-.floating-cta a{display:inline-flex;align-items:center;gap:8px;padding:11px 14px;border-radius:999px;text-decoration:none;font-size:0.72rem;font-weight:700;letter-spacing:.7px;box-shadow:0 12px 28px rgba(0,0,0,.2);pointer-events:auto}
-.floating-cta .cta-whatsapp{background:var(--gold);color:#fff}
-.floating-cta .cta-call{background:#fff;color:var(--gold);border:1px solid var(--gold)}
-@media(max-width:640px){.floating-cta a span{display:none}.floating-cta a{width:44px;height:44px;justify-content:center;padding:0}}
+.floating-cta{
+  position:fixed; right:18px;
+  bottom:calc(var(--mobile-nav-offset, 0px) + env(safe-area-inset-bottom) + 88px);
+  z-index:11980;
+  display:flex; flex-direction:column; gap:12px;
+  pointer-events:none;
+}
+.floating-cta a{
+  width:54px; height:54px;
+  display:inline-flex; align-items:center; justify-content:center;
+  border-radius:50%;
+  text-decoration:none;
+  font-size:22px;
+  box-shadow:0 14px 32px -10px rgba(13,20,24,.28);
+  pointer-events:auto;
+  transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s, background .2s;
+  position:relative;
+}
+.floating-cta a span{
+  position:absolute; right:64px; top:50%; transform:translateY(-50%);
+  background:var(--ink); color:#fff;
+  font:600 11px var(--ff-body);
+  letter-spacing:.12em; text-transform:uppercase;
+  padding:7px 12px; border-radius:8px;
+  white-space:nowrap; opacity:0; pointer-events:none;
+  transition:opacity .2s, transform .2s;
+}
+.floating-cta a:hover{ transform:translateY(-3px) scale(1.05); }
+.floating-cta a:hover span{ opacity:1; transform:translateY(-50%) translateX(-4px); }
+.floating-cta .cta-whatsapp{
+  background:#25D366; color:#fff;
+}
+.floating-cta .cta-call{
+  background:#fff; color:var(--gold-deep);
+  border:1.5px solid var(--gold);
+}
+.floating-cta .cta-call:hover{ background:var(--gold-soft); }
+.floating-cta .cta-live{
+  background:var(--ink); color:var(--gold);
+  border:1px solid rgba(200,163,90,.35);
+}
+@media(max-width:640px){
+  .floating-cta{ right:14px; gap:10px; bottom:calc(var(--mobile-nav-offset, 76px) + env(safe-area-inset-bottom) + 14px); }
+  .floating-cta a{ width:48px; height:48px; font-size:19px; }
+  .floating-cta a span{ display:none; }
+}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}body{cursor:auto!important}.cursor-dot,.cursor-ring{display:none!important}}
 .from-you-card{position:relative;overflow:hidden;border-radius:20px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);backdrop-filter:blur(4px);min-height:320px;box-shadow:0 20px 40px rgba(0,0,0,0.22);transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease}
 .from-you-card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 28px 50px rgba(0,0,0,0.32);border-color:rgba(242,210,122,0.55)}
@@ -1378,8 +1419,6 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 @media (max-width:700px){.qty-wrap>.qty-input,.qty-wrap>.dimension-input,.qty-wrap>.pile-select,.qty-wrap>.qty-help-text,.qty-wrap>.pile-preview-tag,.qty-wrap>.measure-tooltip-btn,.qty-wrap>.measure-guide-trigger{display:none}.qty-wrap>.add-btn{width:100%}}
 .mobile-bottom-nav{background:rgba(251,249,245,0.92);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -8px 24px -16px rgba(13,20,24,.18)}
 .mbn-item{color:var(--slate);transition:color .2s}.mbn-item.active-nav{color:var(--ink)}.mbn-item.active-nav i{color:var(--gold-deep);background:var(--gold-soft);border-radius:50%;padding:7px}
-.floating-actions{position:fixed;right:18px;bottom:calc(96px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;z-index:90}
-.floating-actions a,.floating-actions button{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--shadow-md);transition:transform .2s}.floating-actions a.whatsapp{background:var(--gold);color:#fff}.floating-actions a.phone{background:#fff;color:var(--gold-deep);border:1.5px solid var(--gold)}.floating-actions a:hover{transform:scale(1.08)}
 .products-loading{padding:80px 20px;text-align:center;color:var(--slate);font:400 italic 1.05rem var(--ff-display)}.products-loading i{color:var(--gold-deep)!important;opacity:.6!important}
 .product-img-wrap img,.home-category-card img,.hero-image img{filter:saturate(1.04) contrast(1.02)}
 input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;background:#fff;font:500 15px var(--ff-body);color:var(--ink);transition:border-color .2s,box-shadow .2s}input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}label{font:600 11px var(--ff-body);letter-spacing:.14em;text-transform:uppercase;color:var(--slate);display:block;margin-bottom:6px}
@@ -2242,9 +2281,10 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
   <div class="footer-bottom"><div class="footer-bottom-inner"><span>© 2026 Göçmen Perde. Tüm hakları saklıdır.</span><div class="footer-payments"><img src="resimler/troy.svg" alt="Troy" onerror="this.style.display='none'"><img src="resimler/visa.svg" alt="Visa" onerror="this.style.display='none'"><img src="resimler/mastercard.svg" alt="Mastercard" onerror="this.style.display='none'"><img src="resimler/3dsecure.svg" alt="3D Secure" onerror="this.style.display='none'"></div></div></div>
 </footer>
 
-<div class="floating-actions" id="floatingCta">
-  <a class="whatsapp" href="https://wa.me/905012110958" target="_blank" rel="noopener" aria-label="WhatsApp ile hızlı teklif alın"><i class="fab fa-whatsapp"></i><span>Hızlı Teklif</span></a>
-  <a class="phone" href="tel:+905012110958" aria-label="Hemen ara"><i class="fas fa-phone"></i><span>Hemen Ara</span></a>
+<div class="floating-cta" id="floatingCta">
+  <a class="cta-whatsapp" href="https://wa.me/905012110958" target="_blank" rel="noopener" aria-label="WhatsApp ile hızlı teklif alın"><i class="fab fa-whatsapp"></i><span>Hızlı Teklif</span></a>
+  <a class="cta-call" href="tel:+905012110958" aria-label="Hemen ara"><i class="fas fa-phone"></i><span>Hemen Ara</span></a>
+  <a class="cta-live" href="#support" onclick="event.preventDefault();go('support')" aria-label="Canlı destek"><i class="fas fa-headset"></i><span>Canlı Destek</span></a>
 </div>
 
 <div class="mobile-bottom-nav" aria-label="Mobil alt menü">
