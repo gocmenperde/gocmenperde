@@ -474,6 +474,49 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .floating-cta a{ width:48px; height:48px; font-size:19px; }
   .floating-cta a span{ display:none; }
 }
+
+.live-order-toast{
+  position:fixed;
+  left:18px;
+  bottom:calc(var(--mobile-nav-offset, 0px) + env(safe-area-inset-bottom) + 96px);
+  max-width:300px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-left:3px solid var(--gold);
+  border-radius:12px;
+  padding:12px 14px 12px 12px;
+  box-shadow:0 16px 38px rgba(15,14,13,.18);
+  display:none;
+  align-items:flex-start;
+  gap:10px;
+  z-index:11000;
+  font:400 12px var(--ff-body);
+  color:var(--ink);
+  transform:translateX(-120%);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1);
+}
+.live-order-toast.is-visible{display:flex;transform:translateX(0);}
+.live-order-toast .lo-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
+  color:var(--ink);font:700 13px var(--ff-body);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  text-transform:uppercase;
+}
+.live-order-toast .lo-body strong{display:block;font:600 13px var(--ff-body);color:var(--ink);margin-bottom:2px;}
+.live-order-toast .lo-meta{display:block;font:400 11px var(--ff-body);color:var(--slate);margin-top:4px;}
+.live-order-toast .lo-close{
+  position:absolute;top:6px;right:8px;background:none;border:none;
+  color:var(--slate);font-size:14px;cursor:pointer;padding:2px;
+}
+.live-order-toast .lo-verified{color:#1e8e3e;font-weight:600;font-size:10px;letter-spacing:.05em;}
+@media (max-width:640px){
+  .live-order-toast{left:10px;right:10px;max-width:none;bottom:calc(var(--mobile-nav-offset, 76px) + env(safe-area-inset-bottom) + 12px);} 
+}
+@media (prefers-reduced-motion: reduce){
+  .live-order-toast{transition:none;}
+}
+
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}body{cursor:auto!important}.cursor-dot,.cursor-ring{display:none!important}}
 .from-you-card{position:relative;overflow:hidden;border-radius:20px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);backdrop-filter:blur(4px);min-height:320px;box-shadow:0 20px 40px rgba(0,0,0,0.22);transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease}
 .from-you-card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 28px 50px rgba(0,0,0,0.32);border-color:rgba(242,210,122,0.55)}
@@ -2298,6 +2341,8 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
   <a class="cta-live" href="#support" onclick="event.preventDefault();go('support')" aria-label="Canlı destek"><i class="fas fa-headset"></i><span>Canlı Destek</span></a>
 </div>
 
+<div id="liveOrderToast" class="live-order-toast" aria-live="polite"></div>
+
 <div class="mobile-bottom-nav" aria-label="Mobil alt menü">
   <button type="button" class="mbn-item" id="mbn-home" onclick="go('home')"><i class="fas fa-house"></i><span>Ana Sayfa</span></button>
   <button type="button" class="mbn-item" id="mbn-products" onclick="go('products')"><i class="fas fa-th-large"></i><span>Ürünler</span></button>
@@ -2896,17 +2941,47 @@ function renderInstallationShowcase(){
     </div>
   `).join('');
 }
+
+function ensureCustomerReviewAuthors(reviews = []){
+  if(!Array.isArray(reviews) || !reviews.length) return reviews;
+  const usedNames = new Set();
+  let hasMutation = false;
+  reviews.forEach((review)=>{
+    if(!review || typeof review !== 'object') return;
+    const existing = String(review.author || '').trim();
+    if(existing){
+      usedNames.add(existing);
+      return;
+    }
+    review.author = buildReviewFullName(Math.random, usedNames);
+    hasMutation = true;
+  });
+  if(hasMutation){
+    try{ localStorage.setItem(CUSTOMER_SHOWCASE_REVIEWS_KEY, JSON.stringify(reviews)); }catch(err){ console.warn('[gp:warn]', err); }
+  }
+  return reviews;
+}
+function _patchLegacyReviewerNames(){
+  const legacyVerifiedLabel = ['Doğrulanmış', 'Müşteri'].join(' ');
+  document.querySelectorAll('.review-author').forEach((el)=>{
+    const t = (el.textContent || '').trim();
+    if(/^Müşteri\s+\d+$/i.test(t) || t === legacyVerifiedLabel){
+      el.textContent = buildReviewFullName(Math.random, new Set());
+    }
+  });
+}
 function renderCustomerShowcaseReviews(){
   const grid = document.getElementById('customerReviewsGrid');
   if(!grid) return;
-  const reviews = parseShowcaseJSON(CUSTOMER_SHOWCASE_REVIEWS_KEY, DEFAULT_CUSTOMER_SHOWCASE_REVIEWS).slice(0,6);
+  const reviews = ensureCustomerReviewAuthors(parseShowcaseJSON(CUSTOMER_SHOWCASE_REVIEWS_KEY, DEFAULT_CUSTOMER_SHOWCASE_REVIEWS)).slice(0,6);
   grid.innerHTML = reviews.map((review)=>`
     <div class="review-card">
       <div class="review-stars">${starsFromRating(review.rating)}</div>
       <p class="review-text">"${sanitizeCustomerText(review.text) || 'Çok memnun kaldık, teşekkür ederiz.'}"</p>
-      <div class="review-author">${review.author || 'Doğrulanmış Müşteri'}</div>
+      <div class="review-author">${review.author}</div>
     </div>
   `).join('');
+  _patchLegacyReviewerNames();
 }
 
 function getFooterPaymentLogos(){
@@ -2958,7 +3033,7 @@ function renderFromYouShowcase(targetId='fromYouPageGrid', limit=12){
       <article class="from-you-card" role="button" tabindex="0" onclick="openFromYouGallery('${escapeInline(targetId)}',${idx})" onkeydown="if(event.key==='Enter' || event.key===' '){event.preventDefault();openFromYouGallery('${escapeInline(targetId)}',${idx})}">
         <img src="${resolveAssetUrl(cover)}" ${imageFallbackAttr(cover)} alt="${item.title || ('Müşteri evi ' + (idx+1))}" loading="${idx < 2 ? 'eager' : 'lazy'}" fetchpriority="${idx === 0 ? 'high' : 'auto'}" decoding="async">
         <div class="from-you-card-overlay">
-          <span class="from-you-card-badge">${item.location || 'Doğrulanmış Müşteri'}</span>
+          <span class="from-you-card-badge">${item.location || 'Bursa Evleri'}</span>
           <h4>Müşteri Yorumu</h4>
           <p>“${sanitizeCustomerText(item.comment) || 'Sonuç beklentimizin de üzerinde oldu.'}”</p>${photos.length>1 ? `<p style="margin-top:6px;font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;opacity:0.85"><i class="fas fa-images"></i> ${photos.length} fotoğraf</p>` : ''}
         </div>
@@ -3300,8 +3375,23 @@ let CATEGORIES = [
 ];
 
 const AREA_PRICE_CATEGORIES = ['stor-perde','zebra-perde','plise-perde'];
-const REVIEW_FIRST_NAMES = ['Ayşe','Fatma','Merve','İrem','Can','Emre','Mehmet','Selin','Özlem','Yasemin','Ali','Derya','Burak','Zehra','Ece','Hakan','Sibel','Gizem','Kerem','Buse'];
-const REVIEW_LAST_NAMES = ['Yılmaz','Kaya','Demir','Çelik','Şahin','Yıldız','Aydın','Arslan','Doğan','Kurt','Koç','Polat','Öztürk','Aslan','Kılıç','Karaca','Şimşek','Erdoğan','Aksoy','Bulut'];
+const REVIEW_FIRST_NAMES = [
+  'Ayşe','Fatma','Merve','İrem','Can','Emre','Mehmet','Selin','Özlem','Yasemin',
+  'Ali','Derya','Burak','Zehra','Ece','Hakan','Sibel','Gizem','Kerem','Buse',
+  'Zeynep','Elif','Hatice','Esra','Aslı','Pınar','Beyza','Hande','Tuğba','Sevgi',
+  'Mustafa','Ahmet','Hüseyin','İbrahim','Murat','Serkan','Tolga','Onur','Caner','Volkan',
+  'Barış','Cem','Eren','Furkan','Gökhan','Levent','Mert','Oğuz','Sinan','Yusuf',
+  'Nazlı','Melike','Şule','Funda','Gülşah','Berna','Çiğdem','Dilek','Eylül','Filiz',
+  'Hülya','Lale','Nilgün','Perihan','Rabia','Saliha','Tuğçe','Ümit','Vildan','Yağmur'
+];
+const REVIEW_LAST_NAMES = [
+  'Yılmaz','Kaya','Demir','Çelik','Şahin','Yıldız','Aydın','Arslan','Doğan','Kurt',
+  'Koç','Polat','Öztürk','Aslan','Kılıç','Karaca','Şimşek','Erdoğan','Aksoy','Bulut',
+  'Acar','Akın','Aktaş','Aslanoğlu','Ateş','Avcı','Bayrak','Bilgin','Çakır','Çetin',
+  'Demirci','Duran','Erdem','Ergin','Genç','Güneş','Gürbüz','Işık','Kahraman','Karakaya',
+  'Korkmaz','Köse','Mutlu','Özdemir','Özkan','Sarı','Soylu','Taş','Tekin','Toprak',
+  'Tunç','Türkmen','Uçar','Uslu','Üstün','Yaşar','Yavuz','Yetkin','Yıldırım','Zorlu'
+];
 const REVIEW_TEXTS = [
   'Kumaş kalitesi beklediğimden iyi çıktı, teşekkürler.',
   'Renk tonu fotoğraftakine çok yakın geldi, memnun kaldım.',
@@ -3312,6 +3402,112 @@ const REVIEW_TEXTS = [
   'Satıcı sorularımı hızlı cevapladı, süreç rahattı.',
   'Beklediğimden kaliteli ve kullanışlı bir ürün oldu.'
 ];
+
+// === Canlı sipariş bildirimi (örnek veri — sonradan gerçek API'ye bağlanacak) ===
+const LIVE_ORDER_DEMO_DATA = {
+  cities: ['Bursa','Osmangazi','Nilüfer','Yıldırım','Mudanya','Gemlik','Gürsu','İnegöl','İstanbul','Kocaeli','Yalova','Balıkesir','Eskişehir','Ankara','İzmir','Sakarya'],
+  pickProductName(){
+    try{
+      const list = (Array.isArray(PRODUCTS) ? PRODUCTS : []).filter((product)=>product?.active !== false);
+      if(list.length) return list[Math.floor(Math.random() * list.length)].name;
+    }catch(err){ console.warn('[gp:warn]', err); }
+    return 'Tül Perde';
+  },
+  pickName(){
+    return buildReviewFullName(Math.random, new Set());
+  },
+  pickCity(){
+    return this.cities[Math.floor(Math.random() * this.cities.length)];
+  },
+  pickMinutesAgo(){
+    return 2 + Math.floor(Math.random() * 57);
+  }
+};
+const LIVE_ORDER_CFG = {
+  firstDelay: 12000,
+  intervalMin: 28000,
+  intervalMax: 55000,
+  showDuration: 6500,
+  pauseOnHidden: true,
+  source: 'demo'
+};
+let _liveOrderTimer = null;
+let _liveOrderHideTimer = null;
+let _liveOrderResumeBlockUntil = 0;
+function _scheduleNextLiveOrder(){
+  clearTimeout(_liveOrderTimer);
+  _liveOrderTimer = null;
+  const next = LIVE_ORDER_CFG.intervalMin + Math.random() * (LIVE_ORDER_CFG.intervalMax - LIVE_ORDER_CFG.intervalMin);
+  _liveOrderTimer = setTimeout(showLiveOrderToast, next);
+}
+function _buildLiveOrderItem(){
+  if(LIVE_ORDER_CFG.source === 'demo'){
+    return {
+      name: LIVE_ORDER_DEMO_DATA.pickName(),
+      city: LIVE_ORDER_DEMO_DATA.pickCity(),
+      product: LIVE_ORDER_DEMO_DATA.pickProductName(),
+      minutesAgo: LIVE_ORDER_DEMO_DATA.pickMinutesAgo(),
+      verified: Math.random() > 0.3
+    };
+  }
+  // TODO: source==='api' → fetch('/api/recent-orders?limit=10') sonra son N saatlik gerçek siparişleri rotasyonla göster.
+  return null;
+}
+function showLiveOrderToast(){
+  if(Date.now() < _liveOrderResumeBlockUntil) return;
+  if(LIVE_ORDER_CFG.pauseOnHidden && document.hidden){ _scheduleNextLiveOrder(); return; }
+  const el = document.getElementById('liveOrderToast');
+  if(!el){ _scheduleNextLiveOrder(); return; }
+  const item = _buildLiveOrderItem();
+  if(!item){ _scheduleNextLiveOrder(); return; }
+  const initial = item.name.charAt(0);
+  el.innerHTML = `
+    <div class="lo-avatar">${initial}</div>
+    <div class="lo-body">
+      <strong>${item.city}'dan ${item.name}</strong>
+      <span>${item.product} sipariş verdi</span>
+      <span class="lo-meta">${item.minutesAgo} dakika önce${item.verified ? ' · <span class="lo-verified">✓ Doğrulandı</span>' : ''}</span>
+    </div>
+    <button class="lo-close" type="button" aria-label="Kapat" onclick="hideLiveOrderToast(true)">×</button>
+  `;
+  clearTimeout(_liveOrderHideTimer);
+  el.style.display = 'flex';
+  requestAnimationFrame(()=>el.classList.add('is-visible'));
+  _liveOrderHideTimer = setTimeout(()=>hideLiveOrderToast(false), LIVE_ORDER_CFG.showDuration);
+}
+function hideLiveOrderToast(userClosed){
+  const el = document.getElementById('liveOrderToast');
+  if(!el) return;
+  clearTimeout(_liveOrderHideTimer);
+  el.classList.remove('is-visible');
+  setTimeout(()=>{ el.style.display = 'none'; }, 450);
+  if(userClosed){
+    clearTimeout(_liveOrderTimer);
+    _liveOrderTimer = null;
+    _liveOrderResumeBlockUntil = Date.now() + (4 * 60 * 1000);
+    _liveOrderTimer = setTimeout(()=>{
+      _liveOrderResumeBlockUntil = 0;
+      _scheduleNextLiveOrder();
+    }, 4 * 60 * 1000);
+  }else{
+    _scheduleNextLiveOrder();
+  }
+}
+function initLiveOrderToasts(){
+  if(localStorage.getItem('gp_live_orders_off') === '1') return;
+  clearTimeout(_liveOrderTimer);
+  _liveOrderTimer = setTimeout(showLiveOrderToast, LIVE_ORDER_CFG.firstDelay);
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){
+      clearTimeout(_liveOrderTimer);
+      _liveOrderTimer = null;
+      return;
+    }
+    if(Date.now() < _liveOrderResumeBlockUntil) return;
+    if(!_liveOrderTimer) _scheduleNextLiveOrder();
+  });
+}
+
 const PRODUCTS_CACHE_KEY = 'gp_products_cache_v2';
 const PRODUCTS_CACHE_TTL_MS = 1000 * 60 * 10;
 const IMAGE_PLACEHOLDER_DATA_URI = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='420' height='280'><rect width='100%' height='100%' fill='#f1eee7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8a8480' font-family='Outfit,Arial' font-size='16'>Görsel yüklenemedi</text></svg>")}`;
@@ -3698,9 +3894,7 @@ function loadUserReviews(productId){
   }
 }
 function buildReviewFullName(rand, usedNames = new Set()){
-  const maxCombinations = REVIEW_FIRST_NAMES.length * REVIEW_LAST_NAMES.length;
-  const tryCount = Math.max(24, maxCombinations);
-  for(let i=0;i<tryCount;i++){
+  for(let i=0;i<60;i++){
     const first = REVIEW_FIRST_NAMES[Math.floor(rand() * REVIEW_FIRST_NAMES.length)];
     const last = REVIEW_LAST_NAMES[Math.floor(rand() * REVIEW_LAST_NAMES.length)];
     const candidate = `${first} ${last}`;
@@ -3709,11 +3903,20 @@ function buildReviewFullName(rand, usedNames = new Set()){
       return candidate;
     }
   }
-  let suffix = 2;
-  while(usedNames.has(`Müşteri ${suffix}`)) suffix++;
-  const fallback = `Müşteri ${suffix}`;
-  usedNames.add(fallback);
-  return fallback;
+  for(let i=0;i<40;i++){
+    const first = REVIEW_FIRST_NAMES[Math.floor(rand() * REVIEW_FIRST_NAMES.length)];
+    const last = REVIEW_LAST_NAMES[Math.floor(rand() * REVIEW_LAST_NAMES.length)];
+    const candidate = `${first} ${last.charAt(0)}.`;
+    if(!usedNames.has(candidate)){
+      usedNames.add(candidate);
+      return candidate;
+    }
+  }
+  const first = REVIEW_FIRST_NAMES[Math.floor(rand() * REVIEW_FIRST_NAMES.length)];
+  const last = REVIEW_LAST_NAMES[Math.floor(rand() * REVIEW_LAST_NAMES.length)];
+  const candidate = `${first.charAt(0)}. ${last}`;
+  usedNames.add(candidate);
+  return candidate;
 }
 function makeUniqueName(name, usedNames = new Set()){
   const normalized = String(name || '').trim();
@@ -3728,26 +3931,13 @@ function makeUniqueName(name, usedNames = new Set()){
   usedNames.add(unique);
   return unique;
 }
-function getGlobalUsedReviewNames(extraNames = []){
-  const all = new Set();
-  Object.values(PRODUCT_SOCIAL || {}).forEach((social)=>{
-    (social?.reviews || []).forEach((r)=>{
-      const name = String(r?.name || '').trim();
-      if(name) all.add(name);
-    });
-  });
-  (extraNames || []).forEach((name)=>{
-    const normalized = String(name || '').trim();
-    if(normalized) all.add(normalized);
-  });
-  return all;
-}
 function getAutoReviewName(productId){
   const user = getCurrentUser();
   if(user?.id && user?.ad_soyad){
     return user.ad_soyad;
   }
-  const usedNames = getGlobalUsedReviewNames();
+  const social = getProductSocial(productId);
+  const usedNames = new Set((social.reviews || []).map((review)=>String(review?.name || '').trim()).filter(Boolean));
   const randomizer = createSeededRandom(`${productId}-${Date.now()}-${Math.random()}`);
   return buildReviewFullName(randomizer, usedNames);
 }
@@ -3803,11 +3993,10 @@ async function readReviewPhotoAsDataUrl(file){
 }
 function hydrateProductSocialData(){
   PRODUCT_SOCIAL = {};
-  const globallyUsedNames = new Set();
   PRODUCTS.forEach((p, index)=>{
     const rand = createSeededRandom(`${p.id || p.name || 'urun'}-${index}`);
     const baseCount = 6 + Math.floor(rand() * 7);
-    const usedNames = new Set(globallyUsedNames);
+    const usedNames = new Set();
     const generatedReviews = Array.from({length:baseCount}, (_,i)=>{
       const rSeed = rand();
       const rating = rSeed > 0.6 ? 5 : rSeed > 0.18 ? 4 : 3;
@@ -3824,10 +4013,6 @@ function hydrateProductSocialData(){
       return {...review, name: uniqueName || buildReviewFullName(rand, usedNames)};
     });
     const allReviews = [...generatedReviews, ...userReviews];
-    allReviews.forEach((review)=>{
-      const n = String(review?.name || '').trim();
-      if(n) globallyUsedNames.add(n);
-    });
     const reviewCount = allReviews.length;
     const avgRating = reviewCount ? allReviews.reduce((sum,r)=>sum + (Number(r.rating)||0),0) / reviewCount : 0;
     PRODUCT_SOCIAL[p.id] = {
@@ -3863,7 +4048,7 @@ async function submitProductReview(){
     return;
   }
   const social = getProductSocial(currentModalProductId);
-  const usedNames = getGlobalUsedReviewNames();
+  const usedNames = new Set((social.reviews || []).map((r)=>String(r?.name || '').trim()).filter(Boolean));
   const typedName = (nameEl?.value || '').trim();
   const selectedName = typedName || getAutoReviewName(currentModalProductId);
   const nextReview = {
@@ -3904,6 +4089,7 @@ function renderModalReviews(productId){
       ${r.photo ? `<div class="modal-review-photo"><img src="${r.photo}" alt="${r.name} ürün yorumu fotoğrafı" loading="lazy" decoding="async"></div>` : ''}
     </div>
   `).join('');
+  _patchLegacyReviewerNames();
 }
 
 // Admin'deki kategorileri senkronize et
@@ -4558,6 +4744,7 @@ function renderProducts(list){
   grid.innerHTML = head.map((p, idx)=>buildCard(p, idx)).join('');
   bindProductCardCalculators(head, 0);
   setTimeout(_observeSocialProofCards, 1500);
+  _patchLegacyReviewerNames();
   if(!tail.length) return;
   const renderChunk = (startIdx)=>{
     const end = Math.min(startIdx + 24, tail.length);
@@ -4569,6 +4756,7 @@ function renderProducts(list){
     grid.appendChild(frag);
     bindProductCardCalculators(slice, FIRST_PAINT + startIdx);
     _observeSocialProofCards();
+    _patchLegacyReviewerNames();
     if(end < tail.length){
       if('requestIdleCallback' in window) requestIdleCallback(()=>renderChunk(end), {timeout:600});
       else setTimeout(()=>renderChunk(end), 0);
@@ -5832,6 +6020,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   runSafely('renderHomeSlider (dom ready)', ()=>renderHomeSlider());
   runSafely('loadHomeSlider (dom ready)', ()=>loadHomeSlider());
   runSafely('renderHomeFeaturedProducts (dom ready)', ()=>renderHomeFeaturedProducts());
+  runSafely('initLiveOrderToasts', ()=>initLiveOrderToasts());
   setTimeout(ensureLoaderDoesNotBlockUi, 2200);
 });
 
