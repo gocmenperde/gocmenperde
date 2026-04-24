@@ -15,9 +15,9 @@
     "isSquareMeter": false,
     "features": "",
     "badge": "%38 İNDİRİM",
-    "discountType": "percent",
+    "discountType": "manual",
     "discountValue": null,
-    "stock": 53,
+    "stock": 0,
     "serialNumber": "Fonperde-12",
     "barcode": "9786258521245",
     "seoKeywords": [
