@@ -3768,15 +3768,6 @@ function initLiveOrderToasts(){
   _liveOrderShownCount = Number(localStorage.getItem(LIVE_ORDER_SHOWN_COUNT_KEY) || 0);
   clearTimeout(_liveOrderTimer);
   _liveOrderTimer = setTimeout(showLiveOrderToast, LIVE_ORDER_CFG.firstDelay);
-  document.addEventListener('visibilitychange', ()=>{
-    if(document.hidden){
-      clearTimeout(_liveOrderTimer);
-      _liveOrderTimer = null;
-      return;
-    }
-    if(Date.now() < _liveOrderResumeBlockUntil) return;
-    if(!_liveOrderTimer) _scheduleNextLiveOrder();
-  });
 }
 
 const PRODUCTS_CACHE_KEY = 'gp_products_cache_v2';
@@ -4045,7 +4036,7 @@ async function loadProducts({forceRefresh=false} = {}){
       renderProductState(normalizedFresh, {withObserver:true});
       queueReviewsSummaryLoad();
       restoreProductsViewState({respectCategoryQuery:true});
-      applyFilters();
+      window.applyFilters?.();
       productsLoadedOnce = true;
       _lastProductsLoadAt = Date.now();
       handleInitialProductDeepLink();
@@ -4057,7 +4048,7 @@ async function loadProducts({forceRefresh=false} = {}){
         renderProductState(fallbackProducts, {withObserver:true});
         queueReviewsSummaryLoad();
         restoreProductsViewState({respectCategoryQuery:true});
-        applyFilters();
+        window.applyFilters?.();
         productsLoadedOnce = true;
         _lastProductsLoadAt = Date.now();
       } else if(!productsLoadedOnce){
@@ -4120,7 +4111,7 @@ function applyCategoryDeepLink(categoryKey=''){
       const el = document.getElementById('cat-'+c.key);
       if(el) el.checked = c.key===cleanKey;
     });
-    applyFilters();
+    window.applyFilters?.();
   }, 120);
   return true;
 }
@@ -5711,21 +5702,21 @@ function renderActiveFilterChips(state){
   if(!wrap || !state) return;
   const chips = [];
   const add=(label,clearFn)=>chips.push(`<span class="chip">${label} <button type="button" onclick="${clearFn}">✕</button></span>`);
-  if(state.search) add(`Arama: ${state.search}`,`document.getElementById('searchInput').value='';applyFilters();`);
-  if(Number.isFinite(state.minP) && state.minP>0) add(`Min: ${state.minP.toLocaleString('tr-TR')}₺`,`document.getElementById('minPrice').value='';applyFilters();`);
-  if(Number.isFinite(state.maxP) && state.maxP<Infinity) add(`Maks: ${state.maxP.toLocaleString('tr-TR')}₺`,`document.getElementById('maxPrice').value='';applyFilters();`);
-  (state.activeCats||[]).forEach((k)=>{ const c=(window.CATEGORIES||[]).find(x=>x.key===k); add(`Kategori: ${(c&&c.label)||k}`,`const el=document.getElementById(\'cat-${k}\');if(el)el.checked=false;document.getElementById(\'cat-all\').checked=false;applyFilters();`); });
-  if(state.featKar) add('Karartma',`document.getElementById('feat-karartma').checked=false;applyFilters();`);
-  if(state.featUtu) add('Ütü İstemez',`document.getElementById('feat-utu').checked=false;applyFilters();`);
-  if(state.featPrem) add('Premium',`document.getElementById('feat-premium').checked=false;applyFilters();`);
-  (state.colorFilters||[]).forEach((c)=>add(`Renk: ${c}`,`document.getElementById(\'color-${c}\').checked=false;applyFilters();`));
-  (state.fabricFilters||[]).forEach((f)=>add(`Kumaş: ${f}`,`document.getElementById(\'fabric-${f}\').checked=false;applyFilters();`));
-  (state.usageFilters||[]).forEach((u)=>add(`Kullanım: ${u}`,`document.getElementById(\'usage-${u}\').checked=false;applyFilters();`));
-  if(state.topRatedOnly) add('En çok yıldız',`document.getElementById('topRatedOnly').checked=false;applyFilters();`);
-  if(state.mostReviewedOnly) add('Çok yorumlanan',`document.getElementById('mostReviewedOnly').checked=false;applyFilters();`);
-  if(state.bestSellerOnly) add('Çok satan',`document.getElementById('bestSellerOnly').checked=false;applyFilters();`);
+  if(state.search) add(`Arama: ${state.search}`,`document.getElementById('searchInput').value='';window.applyFilters?.();`);
+  if(Number.isFinite(state.minP) && state.minP>0) add(`Min: ${state.minP.toLocaleString('tr-TR')}₺`,`document.getElementById('minPrice').value='';window.applyFilters?.();`);
+  if(Number.isFinite(state.maxP) && state.maxP<Infinity) add(`Maks: ${state.maxP.toLocaleString('tr-TR')}₺`,`document.getElementById('maxPrice').value='';window.applyFilters?.();`);
+  (state.activeCats||[]).forEach((k)=>{ const c=(window.CATEGORIES||[]).find(x=>x.key===k); add(`Kategori: ${(c&&c.label)||k}`,`const el=document.getElementById(\'cat-${k}\');if(el)el.checked=false;document.getElementById(\'cat-all\').checked=false;window.applyFilters?.();`); });
+  if(state.featKar) add('Karartma',`document.getElementById('feat-karartma').checked=false;window.applyFilters?.();`);
+  if(state.featUtu) add('Ütü İstemez',`document.getElementById('feat-utu').checked=false;window.applyFilters?.();`);
+  if(state.featPrem) add('Premium',`document.getElementById('feat-premium').checked=false;window.applyFilters?.();`);
+  (state.colorFilters||[]).forEach((c)=>add(`Renk: ${c}`,`document.getElementById(\'color-${c}\').checked=false;window.applyFilters?.();`));
+  (state.fabricFilters||[]).forEach((f)=>add(`Kumaş: ${f}`,`document.getElementById(\'fabric-${f}\').checked=false;window.applyFilters?.();`));
+  (state.usageFilters||[]).forEach((u)=>add(`Kullanım: ${u}`,`document.getElementById(\'usage-${u}\').checked=false;window.applyFilters?.();`));
+  if(state.topRatedOnly) add('En çok yıldız',`document.getElementById('topRatedOnly').checked=false;window.applyFilters?.();`);
+  if(state.mostReviewedOnly) add('Çok yorumlanan',`document.getElementById('mostReviewedOnly').checked=false;window.applyFilters?.();`);
+  if(state.bestSellerOnly) add('Çok satan',`document.getElementById('bestSellerOnly').checked=false;window.applyFilters?.();`);
   if(chips.length){
-    chips.push(`<button type="button" class="chip clear-all" onclick="document.getElementById(\'searchInput\').value=\'\';document.getElementById(\'sortSelect\').value=\'popular\';document.getElementById(\'minPrice\').value=\'\';document.getElementById(\'maxPrice\').value=\'\';[\'feat-karartma\',\'feat-utu\',\'feat-premium\',\'color-krem\',\'color-beyaz\',\'color-antrasit\',\'fabric-keten\',\'fabric-tul\',\'fabric-fon\',\'usage-salon\',\'usage-yatak\',\'topRatedOnly\',\'mostReviewedOnly\',\'bestSellerOnly\'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});resetCategorySelectionToAll();applyFilters();">Tümünü Temizle</button>`);
+    chips.push(`<button type="button" class="chip clear-all" onclick="document.getElementById(\'searchInput\').value=\'\';document.getElementById(\'sortSelect\').value=\'popular\';document.getElementById(\'minPrice\').value=\'\';document.getElementById(\'maxPrice\').value=\'\';[\'feat-karartma\',\'feat-utu\',\'feat-premium\',\'color-krem\',\'color-beyaz\',\'color-antrasit\',\'fabric-keten\',\'fabric-tul\',\'fabric-fon\',\'usage-salon\',\'usage-yatak\',\'topRatedOnly\',\'mostReviewedOnly\',\'bestSellerOnly\'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});resetCategorySelectionToAll();window.applyFilters?.();">Tümünü Temizle</button>`);
   }
   wrap.innerHTML = chips.join('');
 }
@@ -6657,9 +6648,16 @@ function startVisitTracking(){
   }, 90000);
 }
 
+function isMobileSafari(){
+  const ua = navigator.userAgent || '';
+  const isiOS = /iP(ad|hone|od)/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return isiOS && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|YaBrowser/i.test(ua);
+}
+
 function shouldRefreshProductsOnForeground({force=false} = {}){
   if(force) return true;
   if(productRequestInFlight) return false;
+  if((Date.now() - lastForegroundRefreshAt) < FOREGROUND_REFRESH_MIN_INTERVAL_MS) return false;
   if(!PRODUCTS.length) return true;
   return (Date.now() - _lastProductsLoadAt) > PRODUCTS_CACHE_TTL_MS;
 }
@@ -6669,6 +6667,7 @@ function refreshCatalogOnForeground({force=false} = {}){
   const activeSection = document.querySelector('.section.active')?.id || '';
   if(activeSection === 'checkout' || activeSection === 'cart' || orderSubmissionInFlight) return;
   if(document.getElementById('productModal')?.classList.contains('open') || imageViewerOpen) return;
+  if(!force && (Date.now() - lastForegroundRefreshAt) < FOREGROUND_REFRESH_MIN_INTERVAL_MS) return;
   if(!shouldRefreshProductsOnForeground({force})) return;
   lastForegroundRefreshAt = Date.now();
   loadProducts().catch((err)=>console.warn('[foreground] loadProducts failed', err));
@@ -6680,6 +6679,7 @@ function refreshCatalogOnForeground({force=false} = {}){
 function scheduleForegroundRefresh({force=false} = {}){
   const now = Date.now();
   if(!force && now - lastForegroundScheduleAt < 1500) return;
+  if(!force && isMobileSafari() && (now - lastForegroundRefreshAt) < 30000) return;
   lastForegroundScheduleAt = now;
   clearTimeout(foregroundRefreshTimer);
   foregroundRefreshTimer = setTimeout(()=>{
@@ -6715,9 +6715,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 window.addEventListener('load',()=>{
-  const fromBackForward = sessionStorage.getItem('gp_fast_resume') === '1';
-  if(fromBackForward) hideLoader(true);
-  else setTimeout(()=>hideLoader(false),320);
+  setTimeout(()=>hideLoader(false),320);
   runSafely('renderHomeShowcaseSections', ()=>renderHomeShowcaseSections());
   runSafely('renderPaymentLogos', ()=>renderPaymentLogos());
   runSafely('renderHomeFeaturedProducts', ()=>renderHomeFeaturedProducts());
@@ -6744,7 +6742,6 @@ window.addEventListener('load',()=>{
   }
 });
 window.addEventListener('pagehide', ()=>{
-  try{ sessionStorage.setItem('gp_fast_resume','1'); }catch(_){}
   if(typeof visitHeartbeatTimer !== 'undefined' && visitHeartbeatTimer){
     clearInterval(visitHeartbeatTimer); visitHeartbeatTimer=null;
   }
@@ -6758,9 +6755,13 @@ try{
   }
 }catch(err){ console.warn('[gp:warn]', err); }
 window.addEventListener('pageshow',(ev)=>{
-  if(ev.persisted) hideLoader(true);
+  if(ev.persisted){
+    hideLoader(true);
+    recoverUIAfterResume();
+    return;
+  }
   recoverUIAfterResume();
-  if(!ev.persisted && document.visibilityState === 'visible'){
+  if(document.visibilityState === 'visible'){
     scheduleForegroundRefresh({force:false});
   }
 });
@@ -6776,12 +6777,18 @@ window.addEventListener('unhandledrejection', ()=>{
   setTimeout(ensureLoaderDoesNotBlockUi, 0);
 });
 document.addEventListener('visibilitychange',()=>{
-  if(document.hidden) __productObserver?.disconnect();
-  if(document.visibilityState === 'visible'){
-    recoverUIAfterResume();
-    scheduleForegroundRefresh();
-    sendVisitEvent({heartbeat:true});
+  if(document.hidden){
+    __productObserver?.disconnect();
+    clearTimeout(_liveOrderTimer);
+    _liveOrderTimer = null;
+    return;
   }
+  if(Date.now() >= _liveOrderResumeBlockUntil && !_liveOrderTimer){
+    _scheduleNextLiveOrder();
+  }
+  recoverUIAfterResume();
+  scheduleForegroundRefresh();
+  sendVisitEvent({heartbeat:true});
 });
 window.addEventListener('storage',(event)=>{
   if(event.key===SOCIAL_LINKS_KEY){
@@ -7207,7 +7214,7 @@ function resetCategorySelectionToAll(){
 
 function safeApplyFilters(){
   try{
-    applyFilters();
+    window.applyFilters?.();
   }catch(err){
     console.error('[products] applyFilters failed:', err);
     renderProducts(Array.isArray(PRODUCTS) ? PRODUCTS : []);
@@ -7248,7 +7255,7 @@ document.querySelectorAll('.section').forEach(s=>{ if(!s.classList.contains('act
 applySectionState(getSectionFromLocation(), {scroll:false});
 if((document.querySelector('.section.active')?.id || getSectionFromLocation()) === 'products'){
   restoreProductsViewState({respectCategoryQuery:true});
-  applyFilters();
+  window.applyFilters?.();
 }
 
 // ── Favoriler ──
@@ -9214,7 +9221,7 @@ function setCategory(categorySlug){
     const el=document.getElementById(`cat-${id}`);
     if(el) el.checked=(id===normalizedSlug);
   });
-  applyFilters();
+  window.applyFilters?.();
 }
 
 function navigateToCategory(categorySlug){
