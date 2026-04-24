@@ -7,6 +7,9 @@ const PRODUCTS_PATH = path.join(__dirname, '..', '..', 'products.json');
 const TARGET = 8;
 const FIRST = ['Ayşe','Fatma','Zeynep','Merve','Elif','Selin','Hülya','Sevgi','Esra','Tuğba','Buse','Damla','Ezgi','Hatice','Pınar','Yasemin','Aslı','Berna','Canan','Mehmet','Ahmet','Mustafa','Ali','Hasan','Hüseyin','Emre','Burak','Onur','Serkan','Tolga','Volkan','Furkan','Kerem','Murat','Selim'];
 const LAST = ['Yılmaz','Kaya','Demir','Şahin','Çelik','Yıldız','Yıldırım','Öztürk','Aydın','Özdemir','Arslan','Doğan','Kılıç','Aslan','Çetin','Kara','Koç','Kurt','Özkan','Şimşek','Polat','Erdoğan','Avcı','Tekin','Korkmaz','Bulut','Güneş','Tan','Türk'];
+const SEED_CHECK_TTL_MS = 30 * 60 * 1000;
+const _seedCheckCache = new Map();
+
 const TPL = [
   {r:5,t:'Beklediğimden çok daha kaliteli geldi. Dikim çok düzgün, ölçüler tam tutuyor. Bursa içi aynı gün teslim de büyük artı, teşekkürler!'},
   {r:5,t:'Fiyat performans olarak harika. Renk fotoğraftaki gibi, salonumuza çok yakıştı. Tavsiye ederim.'},
@@ -70,6 +73,12 @@ async function readProducts(){
 
 async function ensureSeedsForProduct(productId){
   try {
+    const now = Date.now();
+    const lastCheckedAt = _seedCheckCache.get(productId) || 0;
+    if (lastCheckedAt && (now - lastCheckedAt) < SEED_CHECK_TTL_MS) {
+      return { added: 0, productId, lastError: null, skippedByCache: true };
+    }
+    _seedCheckCache.set(productId, now);
     await ensureReviewSchema();
     const existing = await pool.query(
       `SELECT name, text FROM product_reviews WHERE product_id=$1 AND is_seed=TRUE`,

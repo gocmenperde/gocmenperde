@@ -645,6 +645,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 .admin-picker-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;color:#1a1a1a}
 .admin-picker-caret{color:#6b7681;font-size:.7rem}
 .admin-picker-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:100;background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:10px;max-height:60vh;overflow:hidden;display:flex;flex-direction:column}
+.admin-picker-panel[hidden]{display:none !important}
+.admin-picker-panel:not(.is-open){display:none}
 .admin-picker-search{width:100%;padding:10px 12px;border:1px solid #d5d9e5;border-radius:10px;font-size:.88rem;margin-bottom:8px;outline:none}
 .admin-picker-search:focus{border-color:#a3823f}
 .admin-picker-list{overflow-y:auto;display:flex;flex-direction:column;gap:2px;flex:1;min-height:0}
@@ -2786,45 +2788,53 @@ async function removeFromYouItem(index){
 
 
 
-let _reviewProducts = [];
-let _stockProducts = [];
+let _adminProducts = [];
 
-async function fillReviewProductPicker(){
-  try {
-    const list = await fetch('/products.json',{cache:'no-store'}).then(r=>r.json());
-    _reviewProducts = Array.isArray(list) ? list : [];
-    _stockProducts = _reviewProducts;
-    renderPickerList(_reviewProducts, 'review');
-    renderPickerList(_stockProducts, 'stock');
-  } catch(_){ _reviewProducts = []; _stockProducts = []; }
+function esc(s){ return String(s||'').replace(/[&<>"']/g, (c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function togglePicker(panelId, open){
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  if (open === undefined) open = panel.hidden;
+  panel.hidden = !open;
+  panel.classList.toggle('is-open', open);
 }
 
-function renderPickerList(items, type='review'){
-  const map = type === 'stock'
-    ? { list:'stockAlertProductPickerList', panel:'stockAlertProductPickerPanel', hidden:'stockAlertProductFilter', label:'stockAlertProductPickerLabel', thumb:'stockAlertProductPickerThumb', fetch:()=>adminFetchStockAlerts() }
-    : { list:'reviewProductPickerList', panel:'reviewProductPickerPanel', hidden:'reviewProductFilter', label:'reviewProductPickerLabel', thumb:'reviewProductPickerThumb', fetch:()=>adminFetchReviews() };
-  const el = document.getElementById(map.list);
-  if (!el) return;
+async function fillProductPickers(){
+  try {
+    if (!_adminProducts.length) {
+      const list = await fetch('/products.json',{cache:'no-store'}).then(r=>r.json());
+      _adminProducts = Array.isArray(list) ? list : [];
+    }
+  } catch(_){ _adminProducts = []; }
+  renderProductPickerList('reviewProductPickerList', _adminProducts, 'review');
+  renderProductPickerList('stockAlertProductPickerList', _adminProducts, 'stockAlert');
+}
+
+function renderProductPickerList(listId, items, scope){
+  const el = document.getElementById(listId); if (!el) return;
   if (!items.length) { el.innerHTML = '<div class="admin-picker-empty">Ürün bulunamadı</div>'; return; }
   const head = `<div class="admin-picker-item" data-id=""><div class="admin-picker-item-info"><div class="admin-picker-item-name">📋 Tüm ürünler</div></div></div>`;
-  el.innerHTML = head + items.slice(0, 200).map(p=>{
+  el.innerHTML = head + items.slice(0, 300).map(p=>{
     const img = (Array.isArray(p.images) && p.images[0]) || p.image || p.thumbnail || '';
-    return `<div class="admin-picker-item" data-id="${p.id}">
-      <img src="${img}" loading="lazy" alt="" onerror="this.style.visibility='hidden'">
+    return `<div class="admin-picker-item" data-id="${esc(p.id)}">
+      ${img ? `<img src="${esc(img)}" loading="lazy" alt="" onerror="this.style.visibility='hidden'">` : '<div style="width:40px;height:40px;border-radius:8px;background:#f0eee9"></div>'}
       <div class="admin-picker-item-info">
-        <div class="admin-picker-item-name">${p.name || p.id}</div>
-        <div class="admin-picker-item-meta">${p.category || ''} · ${p.id}</div>
+        <div class="admin-picker-item-name">${esc(p.name||p.id)}</div>
+        <div class="admin-picker-item-meta">${esc(p.category||'')} · ${esc(p.id)}</div>
       </div>
     </div>`;
   }).join('');
   el.querySelectorAll('.admin-picker-item').forEach(node=>{
     node.addEventListener('click', ()=>{
       const id = node.dataset.id || '';
-      const source = type === 'stock' ? _stockProducts : _reviewProducts;
-      const product = source.find(x=>String(x.id)===id);
-      const lbl = document.getElementById(map.label);
-      const thumb = document.getElementById(map.thumb);
-      const hidden = document.getElementById(map.hidden);
+      const product = _adminProducts.find(x=>String(x.id)===id);
+      const cfg = scope === 'review'
+        ? { panel:'reviewProductPickerPanel', hidden:'reviewProductFilter', label:'reviewProductPickerLabel', thumb:'reviewProductPickerThumb', fetch:()=>adminFetchReviews() }
+        : { panel:'stockAlertProductPickerPanel', hidden:'stockAlertProductFilter', label:'stockAlertProductPickerLabel', thumb:'stockAlertProductPickerThumb', fetch:()=>adminFetchStockAlerts?.() };
+      const lbl = document.getElementById(cfg.label);
+      const thumb = document.getElementById(cfg.thumb);
+      const hidden = document.getElementById(cfg.hidden);
       if (id && product) {
         lbl.textContent = product.name || product.id;
         const img = (Array.isArray(product.images) && product.images[0]) || product.image || product.thumbnail || '';
@@ -2833,46 +2843,61 @@ function renderPickerList(items, type='review'){
         lbl.textContent = 'Tüm ürünler';
         thumb.hidden = true;
       }
-      hidden.value = id;
-      document.getElementById(map.panel).hidden = true;
-      map.fetch();
+      if (hidden) hidden.value = id;
+      togglePicker(cfg.panel, false);
+      if (typeof cfg.fetch === 'function') cfg.fetch();
     });
   });
 }
 
 function findProductById(id){
-  return _reviewProducts.find(p=>String(p.id)===String(id));
+  return _adminProducts.find(p=>String(p.id)===String(id));
 }
 
 document.getElementById('reviewProductPickerBtn')?.addEventListener('click', (e)=>{
   e.stopPropagation();
-  const panel = document.getElementById('reviewProductPickerPanel');
-  panel.hidden = !panel.hidden;
-  if (!panel.hidden) document.getElementById('reviewProductPickerSearch')?.focus();
+  togglePicker('reviewProductPickerPanel');
+  if (!document.getElementById('reviewProductPickerPanel').hidden) {
+    document.getElementById('reviewProductPickerSearch')?.focus();
+  }
 });
 document.getElementById('stockAlertProductPickerBtn')?.addEventListener('click', (e)=>{
   e.stopPropagation();
-  const panel = document.getElementById('stockAlertProductPickerPanel');
-  panel.hidden = !panel.hidden;
-  if (!panel.hidden) document.getElementById('stockAlertProductPickerSearch')?.focus();
+  togglePicker('stockAlertProductPickerPanel');
+  if (!document.getElementById('stockAlertProductPickerPanel').hidden) {
+    document.getElementById('stockAlertProductPickerSearch')?.focus();
+  }
 });
 document.addEventListener('click', (e)=>{
-  const picker = document.getElementById('reviewProductPicker');
-  if (picker && !picker.contains(e.target)) document.getElementById('reviewProductPickerPanel').hidden = true;
-  const spicker = document.getElementById('stockAlertProductPicker');
-  if (spicker && !spicker.contains(e.target)) document.getElementById('stockAlertProductPickerPanel').hidden = true;
+  ['reviewProductPicker','stockAlertProductPicker'].forEach((pickerId)=>{
+    const picker = document.getElementById(pickerId);
+    if (!picker) return;
+    if (!picker.contains(e.target)) {
+      togglePicker(pickerId.replace('Picker','PickerPanel'), false);
+    }
+  });
 });
-document.getElementById('reviewProductPickerSearch')?.addEventListener('input', (e)=>{
-  const q = e.target.value.trim().toLowerCase();
-  if (!q) { renderPickerList(_reviewProducts, 'review'); return; }
-  renderPickerList(_reviewProducts.filter(p=>[(p.name||''),(p.category||''),(p.id||'')].join(' ').toLowerCase().includes(q)), 'review');
+document.addEventListener('keydown', (e)=>{
+  if (e.key === 'Escape') {
+    togglePicker('reviewProductPickerPanel', false);
+    togglePicker('stockAlertProductPickerPanel', false);
+  }
 });
-document.getElementById('stockAlertProductPickerSearch')?.addEventListener('input', (e)=>{
-  const q = e.target.value.trim().toLowerCase();
-  if (!q) { renderPickerList(_stockProducts, 'stock'); return; }
-  renderPickerList(_stockProducts.filter(p=>[(p.name||''),(p.category||''),(p.id||'')].join(' ').toLowerCase().includes(q)), 'stock');
+['reviewProductPickerSearch','stockAlertProductPickerSearch'].forEach((id)=>{
+  const inp = document.getElementById(id); if (!inp) return;
+  inp.addEventListener('input', (e)=>{
+    const q = e.target.value.trim().toLowerCase();
+    const filt = q ? _adminProducts.filter(p=>{
+      const hay = [(p.name||''),(p.category||''),(p.id||'')].join(' ').toLowerCase();
+      return hay.includes(q);
+    }) : _adminProducts;
+    const scope = id.startsWith('review') ? 'review' : 'stockAlert';
+    const listId = id.startsWith('review') ? 'reviewProductPickerList' : 'stockAlertProductPickerList';
+    renderProductPickerList(listId, filt, scope);
+  });
 });
-fillReviewProductPicker();
+
+fillProductPickers();
 
 
 
@@ -2900,19 +2925,19 @@ async function adminFetchReviews(){
         <div class="review-mod-prod">
           ${pimg ? `<img src="${pimg}" alt="" class="review-mod-prod-thumb" loading="lazy" onerror="this.style.display='none'">` : ''}
           <div class="review-mod-prod-info">
-            <div class="review-mod-prod-name">${pname}</div>
-            <div class="review-mod-prod-id">${r.product_id}</div>
+            <div class="review-mod-prod-name">${esc(pname)}</div>
+            <div class="review-mod-prod-id">${esc(r.product_id)}</div>
           </div>
         </div>
-        <div class="review-mod-meta"><b>${r.name}</b> · <b>${r.rating}★</b>
+        <div class="review-mod-meta"><b>${esc(r.name)}</b> · <b>${r.rating}★</b>
           ${r.verified_purchase ? '<span class="admin-badge">Doğrulanmış</span>':''}
           ${r.is_seed ? '<span class="admin-badge admin-badge-grey">Sahte</span>':''}
         </div>
-        <div class="review-mod-text">${(r.text||'').replace(/</g,'&lt;')}</div>
-        <div class="review-mod-foot">IP: ${(r.ip_hash||'').slice(0,12)}... · Durum: ${r.status} · ${new Date(r.created_at).toLocaleDateString('tr-TR')}</div>
-        <div class="review-mod-photos">${(Array.isArray(r.photos)?r.photos:[]).map(p=>`<img src="${p}" loading="lazy" alt="" onerror="this.style.display='none'">`).join('')}</div>
+        <div class="review-mod-text">${esc(r.text||'')}</div>
+        <div class="review-mod-foot">IP: ${(r.ip_hash||'').slice(0,12)}... · Durum: ${esc(r.status)} · ${new Date(r.created_at).toLocaleDateString('tr-TR')}</div>
+        <div class="review-mod-photos">${(Array.isArray(r.photos)?r.photos:[]).map(p=>`<img src="${esc(p)}" loading="lazy" alt="" onerror="this.style.display='none'">`).join('')}</div>
         <div class="review-mod-reply">
-          <textarea id="reply-${r.id}" placeholder="Mağaza cevabı (müşteriye görünür)">${r.admin_reply||''}</textarea>
+          <textarea id="reply-${r.id}" placeholder="Mağaza cevabı (müşteriye görünür)">${esc(r.admin_reply||'')}</textarea>
           <div class="review-mod-reply-meta">${r.admin_reply_at ? 'Son cevap: '+new Date(r.admin_reply_at).toLocaleString('tr-TR') : 'Henüz cevap yok'}</div>
         </div>
         <div class="review-mod-actions">
@@ -2920,7 +2945,7 @@ async function adminFetchReviews(){
           <button class="btn btn-outline btn-sm" onclick="adminReviewAction('reject',${r.id})">Reddet</button>
           <button class="btn btn-outline btn-sm" onclick="adminReplyReview(${r.id})">💬 Cevabı Kaydet</button>
           <button class="btn btn-danger btn-sm" onclick="adminReviewAction('delete',${r.id})">Sil</button>
-          <button class="btn btn-outline btn-sm" onclick="adminRegenerateSeeds('${r.product_id}')">🪄 Sahte Yorum Üret</button>
+          <button class="btn btn-outline btn-sm" onclick="adminRegenerateSeeds('${esc(r.product_id)}')">🪄 Sahte Yorum Üret</button>
         </div>
       </article>`;
     }).join('') || '<div class="review-mod-item">Kayıt yok.</div>';
@@ -3083,8 +3108,8 @@ function showPage(id){
   if(id==='fromyou') renderFromYouAdminPage();
   if(id==='notifications') renderNotifs();
   if(id==='live-support') loadLiveSupportMessages();
-  if(id==='stock-alerts') adminFetchStockAlerts();
-  if(id==='reviews'){ fillReviewProductPicker(); adminFetchReviews(); }
+  if(id==='stock-alerts'){ fillProductPickers(); adminFetchStockAlerts(); }
+  if(id==='reviews'){ fillProductPickers(); adminFetchReviews(); }
   if(id==='settings'){ renderFooterLogoRows(); }
 }
 function handleStatCardKey(event, target, filter){
@@ -6297,6 +6322,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 .admin-picker-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;color:#1a1a1a}
 .admin-picker-caret{color:#6b7681;font-size:.7rem}
 .admin-picker-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:100;background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:10px;max-height:60vh;overflow:hidden;display:flex;flex-direction:column}
+.admin-picker-panel[hidden]{display:none !important}
+.admin-picker-panel:not(.is-open){display:none}
 .admin-picker-search{width:100%;padding:10px 12px;border:1px solid #d5d9e5;border-radius:10px;font-size:.88rem;margin-bottom:8px;outline:none}
 .admin-picker-search:focus{border-color:#a3823f}
 .admin-picker-list{overflow-y:auto;display:flex;flex-direction:column;gap:2px;flex:1;min-height:0}
