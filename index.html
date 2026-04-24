@@ -1582,6 +1582,26 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;background:#fff;font:500 15px var(--ff-body);color:var(--ink);transition:border-color .2s,box-shadow .2s}input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}label{font:600 11px var(--ff-body);letter-spacing:.14em;text-transform:uppercase;color:var(--slate);display:block;margin-bottom:6px}
 .site-footer{background:var(--ink);color:rgba(255,255,255,.78);margin-top:80px}.footer-top{padding:72px 20px 56px}.footer-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1.1fr;gap:56px}@media (max-width:980px){.footer-grid{grid-template-columns:1fr 1fr;gap:40px}}@media (max-width:580px){.footer-grid{grid-template-columns:1fr;gap:36px}.footer-top{padding:56px 20px 40px}}.footer-brand .footer-logo{display:flex;align-items:center;gap:14px;margin-bottom:18px}.footer-brand .footer-logo img{width:48px;height:48px;object-fit:contain}.footer-brand h3{font:500 1.4rem var(--ff-display);color:#fff;letter-spacing:.14em}.footer-brand small{font:600 9px var(--ff-body);letter-spacing:.26em;color:var(--gold)}.footer-tag{font:400 14px var(--ff-body);line-height:1.7;color:rgba(255,255,255,.65);margin-bottom:22px}.footer-trust{display:flex;flex-wrap:wrap;gap:14px;font:500 12px var(--ff-body);color:rgba(255,255,255,.78)}.footer-trust i{color:var(--gold);margin-right:6px}.footer-col h4{font:600 12px var(--ff-body);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}.footer-col ul{list-style:none;padding:0;margin:0}.footer-col li{margin-bottom:10px}.footer-col a{color:rgba(255,255,255,.7);text-decoration:none;font:400 14px var(--ff-body);transition:color .2s}.footer-col a:hover{color:var(--gold)}.footer-contact i{color:var(--gold);width:16px;margin-right:8px}.footer-social{display:flex;gap:12px;margin-top:18px}.footer-social a{width:36px;height:36px;border-radius:50%;border:1px solid rgba(200,163,90,.4);color:var(--gold);display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}.footer-social a:hover{background:var(--gold);color:var(--ink)}.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding:18px 20px}.footer-bottom-inner{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;font:400 12px var(--ff-body);color:rgba(255,255,255,.55)}.footer-payments{display:flex;gap:10px;align-items:center}.footer-payments img{height:24px;opacity:.85}.footer-trust-row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:center;padding:18px 12px;border-top:1px solid rgba(255,255,255,.08);margin-top:18px}.footer-trust-row .trust-item{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:.82rem;font-weight:600}.footer-trust-row .trust-item img{filter:brightness(0) invert(1);opacity:.85}@media (max-width:880px){.site-footer{margin-bottom:76px}}
 
+
+.stock-alert-modal{position:fixed;inset:0;background:rgba(15,15,15,.55);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.stock-alert-modal.open{display:flex}
+.stock-alert-card{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:28px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.35);border:1px solid var(--gold-soft)}
+.stock-alert-card h3{margin:0 0 8px;color:var(--ink);font-family:var(--ff-display);display:flex;align-items:center;gap:10px}
+.stock-alert-card h3 i{color:var(--gold)}
+.stock-alert-card p{margin:0 0 18px;color:var(--slate);font-size:.92rem}
+.stock-alert-card label{display:block;margin:10px 0 6px;font-weight:600;color:var(--ink);font-size:.85rem}
+.stock-alert-card input[type="email"]{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:.95rem}
+.stock-alert-card input[type="email"]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.18)}
+.stock-alert-card .kvkk-line{display:flex;gap:8px;align-items:flex-start;font-weight:500;font-size:.78rem;color:var(--slate);margin-top:14px}
+.stock-alert-card .kvkk-line input{margin-top:3px}
+.stock-alert-submit{margin-top:18px;width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#1a1a1a;border:none;border-radius:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:.95rem}
+.stock-alert-submit:hover{filter:brightness(1.05)}
+.stock-alert-submit:disabled{opacity:.6;cursor:wait}
+.stock-alert-close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.6rem;color:var(--slate);cursor:pointer;line-height:1}
+.stock-alert-msg{margin-top:12px;font-size:.85rem;min-height:18px}
+.stock-alert-msg.ok{color:#1d7a3b}
+.stock-alert-msg.err{color:var(--burgundy)}
+
 </style>
 </head>
 <body>
@@ -2414,6 +2434,22 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
     </div>
     <div id="measureHelpContent" class="measure-help-content">Rehber yükleniyor...</div>
     <div id="measureHelpGallery" class="measure-help-gallery"></div>
+  </div>
+</div>
+
+
+<div id="stockAlertModal" class="stock-alert-modal" role="dialog" aria-modal="true" aria-labelledby="stockAlertTitle">
+  <div class="stock-alert-card">
+    <button class="stock-alert-close" type="button" aria-label="Kapat">&times;</button>
+    <h3 id="stockAlertTitle"><i class="fas fa-bell"></i> Stok gelince haber al</h3>
+    <p id="stockAlertSub"></p>
+    <form id="stockAlertForm">
+      <label for="stockAlertEmail">E-posta adresiniz</label>
+      <input type="email" id="stockAlertEmail" required autocomplete="email" inputmode="email" placeholder="ornek@mail.com">
+      <label class="kvkk-line"><input type="checkbox" id="stockAlertKvkk" required> Stok geldiğinde tek seferlik bilgilendirme almayı kabul ediyorum.</label>
+      <button type="submit" class="stock-alert-submit"><i class="fas fa-paper-plane"></i> Beni Haberdar Et</button>
+      <div id="stockAlertMsg" class="stock-alert-msg" aria-live="polite"></div>
+    </form>
   </div>
 </div>
 
@@ -4705,48 +4741,62 @@ function buildOutOfStockActions(productId, productName){
   return `<div class="qty-wrap"><button type="button" class="add-btn" style="background:#6b7280" disabled>Tükendi</button><button type="button" class="add-btn" onclick="event.stopPropagation();subscribeStockAlert('${productId}','${safeName}')">Gelince Haber Ver</button></div>`;
 }
 
-async function subscribeStockAlert(productId, productName){
-  const email = (prompt('Stok gelince haber verebilmemiz için e-posta adresinizi girin:') || '').trim().toLowerCase();
-  if(!email) return;
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    showToast('Geçerli bir e-posta adresi girin');
-    return;
-  }
-  try{
-    const res = await fetch('/api/stock-alerts', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'subscribe', productId, productName, email })
-    });
-    if(!res.ok) throw new Error('Abonelik kaydı başarısız');
-    showToast('Stok gelince size e-posta göndereceğiz.');
-  }catch(err){ console.warn('[gp:warn]', err);
-    showToast('Bildirim kaydı alınamadı. Lütfen tekrar deneyin.');
-  }
+function subscribeStockAlert(productId, productName){
+  openStockAlertModal(productId, productName);
 }
 
-function processRestockNotifications(products){
-  try{
-    const key = 'gp_stock_snapshot_v1';
-    const prev = JSON.parse(localStorage.getItem(key) || '{}');
-    const next = {};
-    (Array.isArray(products) ? products : []).forEach((p)=>{
-      const pid = String(p?.id || '').trim();
-      if(!pid) return;
-      const stock = getNormalizedStockCount(p);
-      next[pid] = stock;
-      const previousStock = Number(prev[pid] ?? stock);
-      if(previousStock <= 0 && stock > 0){
-        fetch('/api/stock-alerts', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ action:'notify', productId: pid, productName: p?.name || 'Ürün', stock })
-        }).catch(()=>{});
-      }
-    });
-    localStorage.setItem(key, JSON.stringify(next));
-  }catch(err){ console.warn('[gp:warn]', err); }
+function processRestockNotifications(){
 }
+
+
+let __stockAlertCtx = null;
+function openStockAlertModal(productId, productName){
+  __stockAlertCtx = { productId, productName };
+  const modal = document.getElementById('stockAlertModal');
+  if(!modal) return;
+  document.getElementById('stockAlertSub').textContent = `${productName} tekrar stokta olduğunda size e-posta göndereceğiz.`;
+  document.getElementById('stockAlertEmail').value = '';
+  document.getElementById('stockAlertKvkk').checked = false;
+  document.getElementById('stockAlertMsg').textContent = '';
+  document.getElementById('stockAlertMsg').className = 'stock-alert-msg';
+  modal.classList.add('open');
+  setTimeout(()=> document.getElementById('stockAlertEmail').focus(), 60);
+}
+function closeStockAlertModal(){
+  document.getElementById('stockAlertModal')?.classList.remove('open');
+  __stockAlertCtx = null;
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  const m = document.getElementById('stockAlertModal');
+  if(!m) return;
+  m.querySelector('.stock-alert-close')?.addEventListener('click', closeStockAlertModal);
+  m.addEventListener('click', (e)=>{ if(e.target === m) closeStockAlertModal(); });
+  document.getElementById('stockAlertForm')?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    if(!__stockAlertCtx) return;
+    const emailEl = document.getElementById('stockAlertEmail');
+    const msgEl = document.getElementById('stockAlertMsg');
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const email = (emailEl.value || '').trim().toLowerCase();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msgEl.textContent = 'Geçerli bir e-posta girin.'; msgEl.className='stock-alert-msg err'; return; }
+    submitBtn.disabled = true;
+    try{
+      const res = await fetch('/api/stock-alerts', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'subscribe', productId: __stockAlertCtx.productId, productName: __stockAlertCtx.productName, email })
+      });
+      const json = await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(json?.error || 'Kayıt başarısız');
+      msgEl.textContent = json.alreadyExists ? 'Zaten kayıtlısınız. Stok gelince haber vereceğiz.' : 'Kaydınız alındı! Stok gelince e-posta göndereceğiz.';
+      msgEl.className = 'stock-alert-msg ok';
+      setTimeout(closeStockAlertModal, 1800);
+    }catch(err){
+      msgEl.textContent = err.message || 'Bir sorun oluştu, tekrar deneyin.';
+      msgEl.className = 'stock-alert-msg err';
+    } finally { submitBtn.disabled = false; }
+  });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeStockAlertModal(); });
+});
 
 function getUxCopy(){
   try{
@@ -5829,6 +5879,9 @@ function openModalFromProduct(id){
       ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir.</span>` : ''}
     `}`;
   document.getElementById('mAddWrap').innerHTML = isMobileModal ? mobileAddMarkup : desktopAddMarkup;
+  if(outOfStock){
+    document.getElementById('mAddWrap').innerHTML = `<button class="modal-add-btn" type="button" onclick="openStockAlertModal('${id}', ${JSON.stringify(p.name || '')})"><i class="fas fa-bell"></i> Stok Gelince Haber Ver</button>`;
+  }
   const quickName = document.getElementById('modalQuickBuyName');
   const quickPrice = document.getElementById('modalQuickBuyPrice');
   if(quickName) quickName.textContent = p.name;
