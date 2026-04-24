@@ -2451,31 +2451,47 @@ function setPlPreview(url){
   else { img.removeAttribute('src'); img.hidden = true; empty.hidden = false; }
 }
 
-document.getElementById('plFileInput')?.addEventListener('change', async (e) => {
+// Payment logo modal: event delegation (modal DOM'u bu script'ten sonra parse edildiği için)
+document.addEventListener('change', (e) => {
+  if (e.target?.id !== 'plFileInput') return;
   const file = e.target.files?.[0];
   e.target.value = '';
-  if (file) await handlePlFile(file);
+  if (file) handlePlFile(file);
 });
-const plDz = document.getElementById('plDropzone');
-plDz?.addEventListener('click', (e) => {
-  if (plDz.classList.contains('is-uploading')) {
+document.addEventListener('click', (e) => {
+  const dz = e.target.closest?.('#plDropzone');
+  if (!dz) return;
+  if (dz.classList.contains('is-uploading')) {
     e.preventDefault();
     e.stopPropagation();
   }
 });
-['dragenter','dragover'].forEach(ev => plDz?.addEventListener(ev, (e) => {
+['dragenter','dragover'].forEach(ev => {
+  document.addEventListener(ev, (e) => {
+    const dz = e.target.closest?.('#plDropzone');
+    if (!dz) return;
+    e.preventDefault();
+    e.stopPropagation();
+    dz.classList.add('is-drag');
+  });
+});
+['dragleave'].forEach(ev => {
+  document.addEventListener(ev, (e) => {
+    const dz = e.target.closest?.('#plDropzone');
+    if (!dz) return;
+    e.preventDefault();
+    e.stopPropagation();
+    dz.classList.remove('is-drag');
+  });
+});
+document.addEventListener('drop', (e) => {
+  const dz = e.target.closest?.('#plDropzone');
+  if (!dz) return;
   e.preventDefault();
   e.stopPropagation();
-  plDz.classList.add('is-drag');
-}));
-['dragleave','drop'].forEach(ev => plDz?.addEventListener(ev, (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  plDz.classList.remove('is-drag');
-}));
-plDz?.addEventListener('drop', async (e) => {
+  dz.classList.remove('is-drag');
   const file = e.dataTransfer?.files?.[0];
-  if (file) await handlePlFile(file);
+  if (file) handlePlFile(file);
 });
 async function handlePlFile(file){
   const errBox = document.getElementById('plError');
