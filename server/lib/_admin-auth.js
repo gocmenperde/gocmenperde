@@ -1,4 +1,4 @@
-const TOKEN = process.env.ADMIN_TOKEN || process.env.ADMIN_API_KEY || '';
+const TOKEN = process.env.ADMIN_TOKEN || process.env.ADMIN_API_KEY || process.env.ADMIN_API_TOKEN || '';
 
 function isAdmin(req) {
   if (!TOKEN) return false;
