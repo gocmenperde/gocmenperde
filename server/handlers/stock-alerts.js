@@ -1,6 +1,7 @@
 const fs = require('fs/promises');
 const path = require('path');
 const { sendResendEmail, normalizeEmail } = require('../lib/_resend-mail');
+const { normalizePhoneTR, isValidPhoneTR } = require('../lib/_phone');
 
 const FILE_PATH = path.join(__dirname, '..', 'data', 'stock-alerts.json');
 const _rateMap = new Map();
@@ -42,23 +43,45 @@ module.exports = async function handler(req, res) {
       const productId = String(req.body?.productId || '').trim();
       const productName = String(req.body?.productName || '').trim();
       const email = normalizeEmail(req.body?.email || '');
+      const phoneRaw = String(req.body?.phone || '').trim();
+      const phone = phoneRaw ? normalizePhoneTR(phoneRaw) : '';
+      const channelReq = String(req.body?.channel || '').trim().toLowerCase();
 
-      if (!productId || !productName || !email) {
-        return res.status(400).json({ error: 'productId, productName ve geçerli email zorunludur.' });
+      if (!productId || !productName) {
+        return res.status(400).json({ error: 'productId ve productName zorunlu.' });
+      }
+      if (phoneRaw && !isValidPhoneTR(phoneRaw)) {
+        return res.status(400).json({ error: 'Geçerli bir Türkiye cep numarası girin (+905XXXXXXXXX).' });
+      }
+      if (!email && !phone) {
+        return res.status(400).json({ error: 'En az e-posta veya telefon zorunlu.' });
+      }
+
+      let channel = channelReq;
+      if (!['email', 'whatsapp', 'both'].includes(channel)) {
+        if (email && phone) channel = 'both';
+        else if (phone) channel = 'whatsapp';
+        else channel = 'email';
       }
 
       const alerts = await readAlerts();
       const exists = alerts.some(
-        (item) => String(item.productId) === productId && String(item.email).toLowerCase() === email
+        (item) =>
+          String(item.productId) === productId &&
+          ((email && String(item.email || '').toLowerCase() === email) ||
+            (phone && String(item.phone || '') === phone))
       );
 
       if (!exists) {
         alerts.push({
           productId,
           productName,
-          email,
+          email: email || '',
+          phone: phone || '',
+          channel,
           createdAt: new Date().toISOString(),
           notifiedAt: null,
+          notifiedChannels: [],
         });
         await writeAlerts(alerts);
       }
@@ -74,7 +97,7 @@ module.exports = async function handler(req, res) {
         </div>`,
       }).catch(() => null);
 
-      return res.status(200).json({ success: true, alreadyExists: exists });
+      return res.status(200).json({ success: true, alreadyExists: exists, channel });
     }
 
     return res.status(400).json({ error: 'Geçersiz action.' });

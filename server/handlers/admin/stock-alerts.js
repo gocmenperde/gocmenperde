@@ -41,12 +41,20 @@ module.exports = async function handler(req, res) {
     if (action === 'delete') {
       const productId = String(req.body?.productId || '').trim();
       const email = String(req.body?.email || '').trim().toLowerCase();
-      if (!productId || !email) return res.status(400).json({ error: 'productId ve email zorunlu' });
+      const phone = String(req.body?.phone || '').trim();
+      if (!productId || (!email && !phone)) {
+        return res.status(400).json({ error: 'productId ve (email veya phone) zorunlu' });
+      }
 
       const raw = await fs.readFile(ALERTS_PATH, 'utf8').catch(() => '[]');
       const alerts = JSON.parse(raw);
       const next = alerts.filter(
-        (a) => !(String(a.productId) === productId && String(a.email).toLowerCase() === email)
+        (a) =>
+          !(
+            String(a.productId) === productId &&
+            ((email && String(a.email || '').toLowerCase() === email) ||
+              (phone && String(a.phone || '') === phone))
+          )
       );
       await fs.writeFile(ALERTS_PATH, JSON.stringify(next, null, 2), 'utf8');
       return res.status(200).json({ success: true, removed: alerts.length - next.length });

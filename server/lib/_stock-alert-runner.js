@@ -1,6 +1,7 @@
 const fs = require('fs/promises');
 const path = require('path');
 const { sendResendEmail } = require('./_resend-mail');
+const { sendStockBackTemplate } = require('./_whatsapp');
 
 const PRODUCTS_PATH = path.join(__dirname, '..', '..', 'products.json');
 const ALERTS_PATH = path.join(__dirname, '..', 'data', 'stock-alerts.json');
@@ -50,23 +51,49 @@ async function checkRestocks({ dryRun = false } = {}) {
   for (const r of restocked) {
     const pending = alerts.filter((a) => String(a.productId) === r.productId && !a.notifiedAt);
     for (const item of pending) {
-      const result = await sendResendEmail({
-        to: item.email,
-        subject: `${r.productName} tekrar stokta`,
-        html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1a1a1a;max-width:520px">
-          <h2 style="margin:0 0 12px;color:#a3823f">Bekledikleriniz hazır 🎉</h2>
-          <p>Merhaba, takip ettiğiniz <strong>${r.productName}</strong> ürünü yeniden stokta.</p>
-          <p>Mevcut stok: <strong>${r.stock} adet</strong></p>
-          <p style="margin:20px 0"><a href="https://gocmenperde.com.tr/?product=${encodeURIComponent(r.productId)}" style="background:#c8a35a;color:#1a1a1a;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:700;display:inline-block">Ürünü İncele</a></p>
-          <p style="font-size:.85rem;color:#666">Bu uyarı isteğiniz üzerine gönderildi. Artık almak istemiyorsanız e-postayı yanıtlayabilirsiniz.</p>
-        </div>`,
-      });
-      if (result?.ok) {
-        item.notifiedAt = nowIso;
-        sent += 1;
-      } else {
-        failed += 1;
+      const wantsEmail = item.channel === 'email' || item.channel === 'both' || (!item.channel && item.email);
+      const wantsWa = item.channel === 'whatsapp' || item.channel === 'both';
+      const productUrl = `https://gocmenperde.com.tr/?product=${encodeURIComponent(r.productId)}`;
+      const channelsDone = Array.isArray(item.notifiedChannels) ? [...item.notifiedChannels] : [];
+
+      if (wantsEmail && item.email && !channelsDone.includes('email')) {
+        const result = await sendResendEmail({
+          to: item.email,
+          subject: `${r.productName} tekrar stokta`,
+          html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1a1a1a;max-width:520px">
+            <h2 style="margin:0 0 12px;color:#a3823f">Bekledikleriniz hazır 🎉</h2>
+            <p>Merhaba, takip ettiğiniz <strong>${r.productName}</strong> ürünü yeniden stokta.</p>
+            <p>Mevcut stok: <strong>${r.stock} adet</strong></p>
+            <p style="margin:20px 0"><a href="${productUrl}" style="background:#c8a35a;color:#1a1a1a;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:700;display:inline-block">Ürünü İncele</a></p>
+            <p style="font-size:.85rem;color:#666">Bu uyarı isteğiniz üzerine gönderildi. Artık almak istemiyorsanız e-postayı yanıtlayabilirsiniz.</p>
+          </div>`,
+        });
+        if (result?.ok) {
+          channelsDone.push('email');
+          sent += 1;
+        } else {
+          failed += 1;
+        }
       }
+
+      if (wantsWa && item.phone && !channelsDone.includes('whatsapp')) {
+        const result = await sendStockBackTemplate({
+          to: item.phone,
+          productName: r.productName,
+          stock: r.stock,
+          productUrl,
+        });
+        if (result?.ok) {
+          channelsDone.push('whatsapp');
+          sent += 1;
+        } else if (!result?.skipped) {
+          failed += 1;
+        }
+      }
+
+      item.notifiedChannels = channelsDone;
+      const allDone = (!wantsEmail || channelsDone.includes('email')) && (!wantsWa || channelsDone.includes('whatsapp'));
+      if (allDone) item.notifiedAt = nowIso;
     }
   }
 
