@@ -1722,7 +1722,7 @@ async function loadProductCatalog() {
 function renderOrderSuggestions() {
     const cards = ORDER_SUGGESTIONS.map(p => `
         <div class="order-sugg-card" onclick="window.location.href='/?product=${encodeURIComponent(p.id)}'">
-            <img src="${normalizeImagePath(p.image)}" alt="${p.name}" loading="lazy" decoding="async" fetchpriority="low" onerror="this.style.display='none'" width="420 height="280">
+            <img src="${normalizeImagePath(p.image)}" alt="${p.name}" loading="lazy" decoding="async" fetchpriority="low" onerror="this.style.display='none'" width="420" height="280">
             <div>
                 <div class="order-sugg-name">${p.name}</div>
                 <div class="order-sugg-price">${Number(p.price).toLocaleString('tr-TR')} TL</div>
@@ -1827,7 +1827,7 @@ function renderOrders(orders, totalCount = orders.length) {
             return `
                 <div class="order-preview-item order-item-link" onclick='goToProductDetail(${JSON.stringify(i)})'>
                     ${itemImage
-                        ? `<img class="order-preview-img" src="${itemImage}" alt="${itemName}" loading="lazy" decoding="async" fetchpriority="low" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" width="420 height="280">`
+                        ? `<img class="order-preview-img" src="${itemImage}" alt="${itemName}" loading="lazy" decoding="async" fetchpriority="low" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" width="420" height="280">`
                         : ''}
                     <div class="order-preview-placeholder" style="display:${itemImage ? 'none' : 'flex'}">🛍️</div>
                     <div class="order-preview-meta">
@@ -1902,7 +1902,7 @@ function openOrderDetail(orderId) {
         return `
             <div class="modal-product-row order-item-link" onclick='goToProductDetail(${JSON.stringify(i)})'>
                 ${imgSrc
-                    ? `<img class="modal-product-img" src="${imgSrc}" alt="${i.name || i.ad}" loading="lazy" decoding="async" fetchpriority="low" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" width="420 height="280">`
+                    ? `<img class="modal-product-img" src="${imgSrc}" alt="${i.name || i.ad}" loading="lazy" decoding="async" fetchpriority="low" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" width="420" height="280">`
                     : ''}
                 <div class="modal-product-img-placeholder" style="display:${imgSrc ? 'none' : 'flex'}">🛍️</div>
                 <div class="modal-product-info">
@@ -2574,13 +2574,13 @@ activateTabFromQuery();
 <div style="padding:18px 16px 24px;border-top:1px solid rgba(201,168,76,.2);background:#fff8ec;text-align:center">
   <div style="font-size:12px;color:#5a4e3f;margin-bottom:10px">Ödeme adımında PayTR güvenli ödeme sayfasına yönlendirilirsiniz.</div>
   <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">
-    <img class="payment-logo-img" src="/resimler/Troy.jpg" alt="Troy" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420 height="280">
-      <img class="payment-logo-img" src="/resimler/American.jpg" alt="American Express" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420 height="280">
-      <img class="payment-logo-img" src="/resimler/Visa.PNG" alt="Visa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420 height="280">
-      <img class="payment-logo-img" src="/resimler/Mastercard.PNG" alt="Mastercard" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420 height="280">
-      <img class="payment-logo-img" src="/resimler/Unionpay.PNG" alt="UnionPay" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420 height="280">
-      <img class="payment-logo-img" src="/resimler/3dsecure.JPG" alt="3D Secure" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420 height="280">
-      <img class="payment-logo-img" src="/resimler/Guvenli.JPG" alt="Güvenli Öde" loading="lazy" decoding="async" width="420 height="280">
+    <img class="payment-logo-img" src="/resimler/Troy.jpg" alt="Troy" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/American.jpg" alt="American Express" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/Visa.PNG" alt="Visa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/Mastercard.PNG" alt="Mastercard" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/Unionpay.PNG" alt="UnionPay" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/3dsecure.JPG" alt="3D Secure" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/Guvenli.JPG'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/Guvenli.JPG" alt="Güvenli Öde" loading="lazy" decoding="async" width="420" height="280">
   </div>
 </div>
 
