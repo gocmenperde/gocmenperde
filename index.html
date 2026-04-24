@@ -944,6 +944,11 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-inline-help{font-size:0.72rem;color:var(--slate);display:block;flex:1 1 100%}
 .modal-rating-line{display:flex;align-items:center;gap:8px;margin:-4px 0 12px;color:var(--slate);font-size:0.82rem}
 .modal-rating-line .stars{color:var(--gold);letter-spacing:1px}
+.modal-live-viewers{display:inline-flex;align-items:center;gap:6px;margin:-4px 0 12px;padding:5px 11px;border-radius:999px;background:rgba(207,168,82,0.10);border:1px solid rgba(207,168,82,0.28);color:#7a5a14;font-size:0.74rem;font-weight:500;letter-spacing:0.2px}
+.modal-live-viewers i{color:#cfa852;font-size:0.78rem}
+.modal-live-viewers strong{color:#3a2a05;font-weight:700}
+.modal-live-viewers.pulse{animation:liveViewerPulse 320ms ease-out}
+@keyframes liveViewerPulse{0%{transform:scale(1)}50%{transform:scale(1.08);background:rgba(207,168,82,0.22)}100%{transform:scale(1)}}
 .modal-reviews-wrap{margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--cream)}
 .modal-reviews-title{font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:10px}
 .modal-review-list{display:flex;flex-direction:column;gap:10px;max-height:170px;overflow-y:auto;padding-right:4px}
@@ -3381,6 +3386,8 @@ const HOME_SLIDES_FALLBACK = [
   { imageUrl:'resimler/1774694045163-IMG_9907.jpeg', targetPath:'#products', title:'Stor Perde Serisi', subtitle:'Sade çizgiler, uzun ömürlü mekanik, kusursuz görünüm.', buttonLabel:'Hemen Keşfet' }
 ];
 let currentModalProductId = null;
+let __liveViewerTimer = null;
+let __liveViewerCurrent = 0;
 // Kategoriler (admin'den senkronize edilir)
 let CATEGORIES = [
   {key:'carsaf',label:'Çarşaflar',image:'resimler/carsaf.jpg'},
@@ -4707,6 +4714,54 @@ function bumpSocialProof(productId){
   _saveSocialViews(map);
 }
 
+function getLiveViewerSeed(productId){
+  const source = String(productId || '');
+  let total = 0;
+  for(let i=0; i<source.length; i++){
+    total += source.charCodeAt(i);
+  }
+  return (total % 7) + 4;
+}
+
+function stopLiveViewerCounter(){
+  if(__liveViewerTimer){
+    clearInterval(__liveViewerTimer);
+    __liveViewerTimer = null;
+  }
+  document.getElementById('mLiveViewers')?.remove();
+}
+
+function startLiveViewerCounter(productId){
+  stopLiveViewerCounter();
+  if(!productId) return;
+  const ratingLine = document.querySelector('.modal-rating-line');
+  const liveMarkup = '<div class="modal-live-viewers" id="mLiveViewers"><i class="fas fa-eye"></i> Şu an <strong id="mLiveViewersCount">7</strong> kişi bu ürüne bakıyor</div>';
+  if(!document.getElementById('mLiveViewers')){
+    if(ratingLine){
+      ratingLine.insertAdjacentHTML('afterend', liveMarkup);
+    } else {
+      document.getElementById('mTitle')?.insertAdjacentHTML('afterend', liveMarkup);
+    }
+  }
+  __liveViewerCurrent = getLiveViewerSeed(productId);
+  const countNode = document.getElementById('mLiveViewersCount');
+  if(countNode) countNode.textContent = String(__liveViewerCurrent);
+  __liveViewerTimer = setInterval(()=>{
+    if(Math.random() >= 0.35) return;
+    const delta = Math.random() < 0.55 ? 1 : -1;
+    const nextValue = Math.max(2, Math.min(14, __liveViewerCurrent + delta));
+    if(nextValue === __liveViewerCurrent) return;
+    __liveViewerCurrent = nextValue;
+    const nextCountNode = document.getElementById('mLiveViewersCount');
+    const liveWrap = document.getElementById('mLiveViewers');
+    if(nextCountNode) nextCountNode.textContent = String(__liveViewerCurrent);
+    if(liveWrap){
+      liveWrap.classList.add('pulse');
+      setTimeout(()=>liveWrap.classList.remove('pulse'), 320);
+    }
+  }, 1500);
+}
+
 function buildCard(p, index=0){
   const qid = 'q-' + p.id;
   const wid = 'w-' + p.id;
@@ -5409,6 +5464,7 @@ function openModalFromProduct(id){
   const p = PRODUCTS.find(x => x.id === id);
   if(!p) return;
   bumpSocialProof(id);
+  startLiveViewerCounter(id);
   currentModalProductId = id;
   trackRecentlyViewed(id);
   const social = getProductSocial(id);
@@ -5575,6 +5631,7 @@ function openModalFromProduct(id){
 function openGalleryModal(src,title,desc){
   if(window.innerWidth>767) document.body.classList.add('native-cursor-mode');
   document.getElementById('mTitle').innerText = title;
+  stopLiveViewerCounter();
   currentModalProductId = null;
   document.querySelector('.modal-rating-line')?.remove();
   document.getElementById('mTag').innerText = 'Dükkanımız';
@@ -5653,6 +5710,7 @@ function updateViewerImage(){
   resetViewerScale();
 }
 function closeProductModal({syncUrl=true} = {}){
+  stopLiveViewerCounter();
   document.getElementById('productModal').classList.remove('open');
   setModalStageLoading(false);
   clearModalSearch();
@@ -5997,6 +6055,7 @@ function ensureLoaderDoesNotBlockUi(){
 
 function recoverUIAfterResume(){
   hideLoader(true);
+  stopLiveViewerCounter();
   if(document.body.classList.contains('product-modal-open') && !document.getElementById('productModal')?.classList.contains('open')){
     unlockPageScrollForModal();
     document.body.classList.remove('product-modal-open');
