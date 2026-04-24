@@ -874,7 +874,15 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
   .stock-product-item.selected{background:rgba(200,163,90,.12);border-left:3px solid var(--gold)}
   .stock-product-item img{width:44px;height:44px;object-fit:cover;border-radius:8px}
 
-  .toast,.admin-toast,.a-toast{top:calc(var(--topbar-h,56px) + env(safe-area-inset-top) + 12px);left:14px;right:14px;width:auto;max-width:100%}
+  .toast,.admin-toast,.a-toast{
+    top:auto;
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 16px);
+    left:14px;
+    right:14px;
+    width:auto;
+    max-width:none;
+    height:auto;
+  }
 }
 
 @media (max-width:767px){
@@ -2169,7 +2177,7 @@ async function doLogin(){
     const response = await fetch('/api/auth?action=admin-login', {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ key: p })
+      body: JSON.stringify({ email: e, key: p })
     });
     const data = await response.json().catch(()=>({}));
     if(!response.ok || !data?.token){
@@ -6273,7 +6281,9 @@ async function uploadImageToCloudinary(file,{prefix='image'}={}){
   }, 25000);
   const signPayload=await signRes.json().catch(()=>({}));
   if(!signRes.ok){
-    throw new Error(signPayload?.error || 'Cloudinary imza hatası');
+    const error = new Error(signPayload?.error || 'Cloudinary imza hatası');
+    error.status = signRes.status;
+    throw error;
   }
   const uploadUrl=String(signPayload?.uploadUrl||'').trim();
   if(!uploadUrl){
@@ -6291,7 +6301,9 @@ async function uploadImageToCloudinary(file,{prefix='image'}={}){
   const uploadRes=await fetch(uploadUrl,{ method:'POST', body:directFormData });
   const uploadPayload=await uploadRes.json().catch(()=>({}));
   if(!uploadRes.ok){
-    throw new Error(uploadPayload?.error?.message || uploadPayload?.error || 'Cloudinary yükleme hatası');
+    const error = new Error(uploadPayload?.error?.message || uploadPayload?.error || 'Cloudinary yükleme hatası');
+    error.status = uploadRes.status;
+    throw error;
   }
   const imageUrl=String(uploadPayload?.secure_url || uploadPayload?.url || '').trim();
   if(!imageUrl) throw new Error('Cloudinary görsel URL dönmedi');
@@ -6301,6 +6313,11 @@ async function uploadImageWithRetry(file,opts={},attempt=1){
   try{
     return await uploadImageToCloudinary(file,opts);
   }catch(err){
+    if(err?.status === 401){
+      alert('Oturum süreniz dolmuş veya yetkisiz. Tekrar giriş yapmanız gerekiyor.');
+      logout();
+      throw new Error('Yetkisiz - logout edildi');
+    }
     if(attempt>=2) throw err;
     await new Promise(resolve=>setTimeout(resolve, 350*attempt));
     return uploadImageWithRetry(file,opts,attempt+1);
