@@ -3735,7 +3735,7 @@ async function apiFetch(url, options = {}, timeoutMs = 12000){
   const mergedHeaders = { ...(options?.headers || {}) };
   if(token && String(url || '').startsWith('/api/')){
     if(!mergedHeaders['X-Admin-Token']) mergedHeaders['X-Admin-Token'] = token;
-    if(!mergedHeaders['x-admin-key']) mergedHeaders['x-admin-key'] = token;
+    if(!mergedHeaders['x-admin-token']) mergedHeaders['x-admin-token'] = getAdminApiKey();
   }
   const fetchOptions = { ...options, headers: mergedHeaders, signal: controller.signal };
   try{
