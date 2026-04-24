@@ -55,7 +55,7 @@ const ROUTES = {
 };
 
 module.exports = async function handler(req, res) {
-  const isVercelRewrite = req.url?.startsWith('/api/router');
+  const isVercelRewrite = String(req.url || '').startsWith('/api/router');
   const rewrittenRoute = isVercelRewrite && typeof req.query?.route === 'string' ? req.query.route : '';
   const pathRoute = String(req.path || req.url || '')
     .replace(/^\/api\/?/, '')

@@ -2347,7 +2347,7 @@ let paymentLogosAdmin = [];
 
 async function fetchFromYouItemsFromApi(){
   try{
-    const res = await apiFetch('/api/admin/from-you-showcase', { headers:{ 'X-Admin-Token': getAdminApiKey() } });
+    const res = await apiFetch('/api/admin/from-you-showcase', { headers:{ 'x-admin-token': getAdminApiKey() } });
     if(!res.ok) throw new Error('Sizden gelenler getirilemedi');
     const payload = await res.json();
     return Array.isArray(payload?.items) ? payload.items : [];
@@ -2361,7 +2361,7 @@ async function persistFromYouItems(){
   try{
     const res = await apiFetch('/api/admin/from-you-showcase', {
       method:'PUT',
-      headers:{'Content-Type':'application/json','X-Admin-Token':getAdminApiKey()},
+      headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()},
       body: JSON.stringify({ items: fromYouItems })
     });
     if(!res.ok) throw new Error('Sizden gelenler kaydedilemedi');
@@ -2451,6 +2451,11 @@ function closePaymentLogoModal(){
   plDzEl?.style.removeProperty('pointer-events');
   const errBox = document.getElementById('plError');
   if (errBox) { errBox.hidden = true; errBox.textContent = ''; }
+  setPlPreview('');
+  const urlInput = document.getElementById('plImageUrl');
+  if (urlInput) urlInput.value = '';
+  const nameInput = document.getElementById('plName');
+  if (nameInput) nameInput.value = '';
 }
 function setPlPreview(url){
   const img = document.getElementById('plPreviewImg');
@@ -2459,31 +2464,56 @@ function setPlPreview(url){
   else { img.removeAttribute('src'); img.hidden = true; empty.hidden = false; }
 }
 
-document.getElementById('plFileInput')?.addEventListener('change', async (e) => {
+// Payment logo modal: event delegation (modal DOM'u script'ten sonra render edildiği için)
+document.addEventListener('change', (e) => {
+  if (e.target?.id !== 'plFileInput') return;
   const file = e.target.files?.[0];
   e.target.value = '';
-  if (file) await handlePlFile(file);
+  if (file) handlePlFile(file);
 });
-const plDz = document.getElementById('plDropzone');
-plDz?.addEventListener('click', (e) => {
-  if (plDz.classList.contains('is-uploading')) {
+document.addEventListener('click', (e) => {
+  const dz = e.target.closest?.('#plDropzone');
+  if (!dz) return;
+  if (dz.classList.contains('is-uploading')) {
     e.preventDefault();
     e.stopPropagation();
   }
 });
-['dragenter','dragover'].forEach(ev => plDz?.addEventListener(ev, (e) => {
+['dragenter','dragover'].forEach(ev => {
+  document.addEventListener(ev, (e) => {
+    const dz = e.target.closest?.('#plDropzone');
+    if (!dz) return;
+    e.preventDefault();
+    e.stopPropagation();
+    dz.classList.add('is-drag');
+  });
+});
+['dragleave','drop'].forEach(ev => {
+  document.addEventListener(ev, (e) => {
+    const dz = e.target.closest?.('#plDropzone');
+    if (!dz) return;
+    e.preventDefault();
+    e.stopPropagation();
+    dz.classList.remove('is-drag');
+  });
+});
+document.addEventListener('drop', async (e) => {
+  const dz = e.target.closest?.('#plDropzone');
+  if (!dz) return;
   e.preventDefault();
-  e.stopPropagation();
-  plDz.classList.add('is-drag');
-}));
-['dragleave','drop'].forEach(ev => plDz?.addEventListener(ev, (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  plDz.classList.remove('is-drag');
-}));
-plDz?.addEventListener('drop', async (e) => {
   const file = e.dataTransfer?.files?.[0];
   if (file) await handlePlFile(file);
+});
+document.addEventListener('click', (e) => {
+  const dz = e.target.closest?.('#plDropzone');
+  if (!dz || dz.classList.contains('is-uploading')) return;
+  // iOS Safari fallback: native label-for tetiklemezse manuel click
+  const input = document.getElementById('plFileInput');
+  if (input && e.target !== input) {
+    setTimeout(() => {
+      // İsteğe bağlı: gerek yoksa atlanır. Bazı tarayıcılarda gereksiz iki picker açar.
+    }, 0);
+  }
 });
 async function handlePlFile(file){
   const errBox = document.getElementById('plError');
@@ -2496,10 +2526,13 @@ async function handlePlFile(file){
     alert("Dosya 2 MB'dan büyük olamaz.");
     return;
   }
-  const reader = new FileReader();
-  reader.onload = (e) => setPlPreview(e.target.result);
-  reader.readAsDataURL(file);
-
+  const localPreview = await new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error('Dosya okunamadı.'));
+    r.readAsDataURL(file);
+  });
+  setPlPreview(localPreview);
   const plDz = document.getElementById('plDropzone');
   const progress = document.getElementById('plProgress');
   const progressText = document.getElementById('plProgressText');
@@ -2507,9 +2540,7 @@ async function handlePlFile(file){
   progress.hidden = false;
   progressText.textContent = 'Yükleniyor…';
   try {
-    if (!navigator.onLine) {
-      throw new Error('İnternet bağlantısı yok görünüyor.');
-    }
+    if (!navigator.onLine) throw new Error('İnternet bağlantısı yok görünüyor.');
     const url = await uploadImageWithRetry(file, { prefix: 'payment-logo' });
     document.getElementById('plImageUrl').value = url;
     setPlPreview(url);
@@ -3329,7 +3360,7 @@ async function adminFetchReviews(){
   const productId = document.getElementById('reviewProductFilter')?.value || '';
   const url = `/api/admin/reviews?status=${encodeURIComponent(status)}` + (productId ? `&productId=${encodeURIComponent(productId)}` : '');
   try {
-    const res = await fetch(url, { headers:{'X-Admin-Token': token} });
+    const res = await fetch(url, { headers:{'x-admin-token': token} });
     if(res.status === 401){ alert('Admin yetkiniz yok'); return; }
     const json = await res.json().catch(()=>({}));
     if (!res.ok || !json.success) {
@@ -3382,7 +3413,7 @@ async function adminReviewAction(action, id){
   try {
     const r = await fetch('/api/admin/reviews', {
       method:'POST',
-      headers:{'Content-Type':'application/json','X-Admin-Token':token},
+      headers:{'Content-Type':'application/json','x-admin-token':token},
       body: JSON.stringify({ action, id })
     });
     const j = await r.json().catch(()=>({}));
@@ -3402,7 +3433,7 @@ async function adminReplyReview(id){
   try {
     const r = await fetch('/api/admin/reviews',{
       method:'POST',
-      headers:{'Content-Type':'application/json','X-Admin-Token':token},
+      headers:{'Content-Type':'application/json','x-admin-token':token},
       body: JSON.stringify({ action:'reply', id, reply })
     });
     const j = await r.json().catch(()=>({}));
@@ -3419,7 +3450,7 @@ async function adminRegenerateSeeds(productId){
   try {
     const r = await fetch('/api/admin/reviews',{
       method:'POST',
-      headers:{'Content-Type':'application/json','X-Admin-Token':token},
+      headers:{'Content-Type':'application/json','x-admin-token':token},
       body: JSON.stringify({ action:'regenerate-seeds', productId })
     });
     const j = await r.json().catch(()=>({}));
@@ -3433,7 +3464,7 @@ async function adminFetchStockAlerts(){
   const token = getAdminToken();
   const productId = document.getElementById('stockAlertProductFilter')?.value || '';
   const url = '/api/admin/stock-alerts' + (productId ? `?productId=${encodeURIComponent(productId)}` : '');
-  const res = await fetch(url, { headers:{'X-Admin-Token': token} });
+  const res = await fetch(url, { headers:{'x-admin-token': token} });
   if(res.status === 401){ alert('Admin yetkiniz yok'); return; }
   const json = await res.json();
   document.getElementById('stockAlertSummary').textContent = `Toplam: ${json.total} • Bekleyen: ${json.pending}`;
@@ -3465,7 +3496,7 @@ async function adminFetchStockAlerts(){
     else if(btn.dataset.phone) payload.phone = btn.dataset.phone;
     await fetch('/api/admin/stock-alerts', {
       method:'POST',
-      headers:{'Content-Type':'application/json','X-Admin-Token':tokenDel},
+      headers:{'Content-Type':'application/json','x-admin-token':tokenDel},
       body: JSON.stringify(payload)
     });
     adminFetchStockAlerts();
@@ -3474,7 +3505,7 @@ async function adminFetchStockAlerts(){
 
 async function adminCheckStockNow(){
   const token = getAdminToken();
-  const res = await fetch('/api/admin/stock-alerts', { method:'POST', headers:{'Content-Type':'application/json','X-Admin-Token':token}, body: JSON.stringify({action:'check-now'}) });
+  const res = await fetch('/api/admin/stock-alerts', { method:'POST', headers:{'Content-Type':'application/json','x-admin-token':token}, body: JSON.stringify({action:'check-now'}) });
   const json = await res.json();
   alert(`Kontrol bitti. Stoğa gelen: ${json.restockedCount}, Gönderilen: ${json.sent}, Başarısız: ${json.failed}`);
   adminFetchStockAlerts();
@@ -3484,7 +3515,7 @@ document.getElementById('stockAlertCheckBtn')?.addEventListener('click', adminCh
 document.getElementById('stockAlertRefreshBtn')?.addEventListener('click', adminFetchStockAlerts);
 document.getElementById('reviewsSeedAllBtn')?.addEventListener('click', async ()=>{
   if(!confirm('Tüm ürünlerde eksik sahte yorumlar tamamlansın mı?')) return;
-  const r = await fetch('/api/admin/reviews', { method:'POST', headers:{'X-Admin-Token':getAdminToken(),'Content-Type':'application/json'}, body: JSON.stringify({action:'seed-all'}) });
+  const r = await fetch('/api/admin/reviews', { method:'POST', headers:{'x-admin-token':getAdminToken(),'Content-Type':'application/json'}, body: JSON.stringify({action:'seed-all'}) });
   const j = await r.json().catch(()=>({}));
   if (!r.ok || !j.success) { alert('Hata: '+(j?.error||r.status)); return; }
   alert(`${j.totalAdded||0} sahte yorum eklendi (${j.productsTouched||0} ürün).`);
@@ -3648,7 +3679,7 @@ async function loadLiveSupportMessages(){
     root.innerHTML = `<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Canlı destek mesajları yükleniyor...</p></div>`;
   }
   try{
-    const res = await apiFetch('/api/live-support', { headers:{ 'X-Admin-Token': getAdminApiKey() } });
+    const res = await apiFetch('/api/live-support', { headers:{ 'x-admin-token': getAdminApiKey() } });
     const payload = await res.json().catch(()=>({}));
     if(!res.ok){
       throw new Error(payload?.error || 'Canlı destek mesajları alınamadı');
@@ -3675,7 +3706,7 @@ async function sendLiveSupportReply(id){
   try{
     const res = await apiFetch('/api/live-support', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json', 'X-Admin-Token': getAdminApiKey() },
+      headers:{ 'Content-Type':'application/json', 'x-admin-token': getAdminApiKey() },
       body: JSON.stringify({ action:'reply', id, subject, replyMessage })
     });
     const payload = await res.json().catch(()=>({}));
@@ -3720,7 +3751,6 @@ async function apiFetch(url, options = {}, timeoutMs = 12000){
   const mergedHeaders = { ...(options?.headers || {}) };
   if(token && String(url || '').startsWith('/api/')){
     if(!mergedHeaders['x-admin-token']) mergedHeaders['x-admin-token'] = token;
-    if(!mergedHeaders['x-admin-key']) mergedHeaders['x-admin-key'] = token;
   }
   const fetchOptions = { ...options, headers: mergedHeaders, signal: controller.signal };
   try{
@@ -4039,7 +4069,7 @@ async function loadSliderItems(){
   const body = document.getElementById('sliderTableBody');
   if(body) body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px">Yükleniyor...</td></tr>';
   try{
-    const res = await apiFetch('/api/admin/slider-ads', { headers:{ 'X-Admin-Token':getAdminApiKey() } });
+    const res = await apiFetch('/api/admin/slider-ads', { headers:{ 'x-admin-token':getAdminApiKey() } });
     const payload = await res.json();
     if(!res.ok) throw new Error(payload?.error || 'Slider verileri alınamadı');
     SLIDER_ITEMS = Array.isArray(payload?.items) ? payload.items : [];
@@ -4160,7 +4190,7 @@ async function saveSliderItem(){
     const isEdit = Boolean(id);
     const res = await apiFetch(`/api/admin/slider-ads${isEdit?`?id=${encodeURIComponent(id)}`:''}`, {
       method: isEdit ? 'PUT' : 'POST',
-      headers:{'Content-Type':'application/json','X-Admin-Token':getAdminApiKey()},
+      headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()},
       body: JSON.stringify(payload)
     });
     const data = await res.json();
@@ -4174,7 +4204,7 @@ async function saveSliderItem(){
 async function deleteSliderItem(id){
   if(!confirm('Kayıt silinsin mi?')) return;
   try{
-    const res = await apiFetch(`/api/admin/slider-ads?id=${encodeURIComponent(id)}`, { method:'DELETE', headers:{'X-Admin-Token':getAdminApiKey()} });
+    const res = await apiFetch(`/api/admin/slider-ads?id=${encodeURIComponent(id)}`, { method:'DELETE', headers:{'x-admin-token':getAdminApiKey()} });
     const data = await res.json();
     if(!res.ok) throw new Error(data?.error || 'Silinemedi');
     aToast('✓ Slider kaydı silindi','success');
@@ -4193,7 +4223,7 @@ async function loadAdminOrders(){
   tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--slate-light)"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</td></tr>`;
   try{
     const r = await apiFetch('/api/orders?action=all', {
-      headers:{'Content-Type':'application/json','X-Admin-Token':getAdminApiKey()}
+      headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()}
     });
     if(!r.ok) throw new Error('HTTP '+r.status);
     const data = await r.json();
@@ -4338,7 +4368,7 @@ async function updateOrderStatus(){
   const trackingNote = document.getElementById('orderTrackingNote')?.value?.trim() || '';
   try{
     const r = await apiFetch('/api/orders?action=update-status',{
-      method:'POST',headers:{'Content-Type':'application/json','X-Admin-Token':getAdminApiKey()},
+      method:'POST',headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()},
       body:JSON.stringify({id:currentOrderId,durum,trackingCode,trackingNote})
     });
     const data = await r.json();
@@ -4374,7 +4404,7 @@ async function loadCustomers(){
   const grid = document.getElementById('customerGrid');
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--slate-light)"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem"></i></div>`;
   try{
-    const r = await apiFetch('/api/customers?action=all',{headers:{'X-Admin-Token':getAdminApiKey()}});
+    const r = await apiFetch('/api/customers?action=all',{headers:{'x-admin-token':getAdminApiKey()}});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const data = await r.json();
     ALL_CUSTOMERS = data.customers||[];
@@ -5458,7 +5488,7 @@ function handleCampaignTargetProductChange(){
 }
 async function getCampaigns(){
   try{
-    const res = await apiFetch('/api/admin/campaigns', { headers:{ 'X-Admin-Token': getAdminApiKey() } });
+    const res = await apiFetch('/api/admin/campaigns', { headers:{ 'x-admin-token': getAdminApiKey() } });
     if(!res.ok) throw new Error('API kampanya listesi alınamadı');
     const payload = await res.json();
     const items = Array.isArray(payload?.items) ? payload.items : [];
@@ -5592,7 +5622,7 @@ async function saveCampaign(){
   try{
     const res = await apiFetch(`/api/admin/campaigns${isEdit?`?id=${encodeURIComponent(id)}`:''}`, {
       method:isEdit?'PUT':'POST',
-      headers:{'Content-Type':'application/json','X-Admin-Token':getAdminApiKey()},
+      headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()},
       body:JSON.stringify(body)
     });
     const data = await res.json();
@@ -5609,7 +5639,7 @@ async function deleteCampaign(i){
   if(!c) return;
   if(!confirm('Bu kampanya silinsin mi?')) return;
   try{
-    const res = await apiFetch(`/api/admin/campaigns?id=${encodeURIComponent(c.id)}`, { method:'DELETE', headers:{'X-Admin-Token':getAdminApiKey()} });
+    const res = await apiFetch(`/api/admin/campaigns?id=${encodeURIComponent(c.id)}`, { method:'DELETE', headers:{'x-admin-token':getAdminApiKey()} });
     const data = await res.json();
     if(!res.ok) throw new Error(data?.error || 'Silinemedi');
     aToast('✓ Silindi','success');
@@ -5625,7 +5655,7 @@ async function toggleCampaign(idFromCard, index){
   try{
     const res = await apiFetch(`/api/admin/campaigns?id=${encodeURIComponent(idFromCard || c.id)}`, {
       method:'PUT',
-      headers:{'Content-Type':'application/json','X-Admin-Token':getAdminApiKey()},
+      headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()},
       body:JSON.stringify(body)
     });
     const data = await res.json();
@@ -5676,7 +5706,7 @@ function seedMeasureGuideTemplate(){
 
 async function loadMeasureGuideAdmin(){
   try{
-    const res = await apiFetch('/api/admin/measure-guide', { headers:{ 'X-Admin-Token': getAdminApiKey() } });
+    const res = await apiFetch('/api/admin/measure-guide', { headers:{ 'x-admin-token': getAdminApiKey() } });
     if(!res.ok) throw new Error('Ölçü rehberi alınamadı');
     const data = await res.json();
     const item = data?.item || DEFAULT_MEASURE_GUIDE_TEMPLATE;
@@ -5705,7 +5735,7 @@ async function saveMeasureGuideAdmin(){
   try{
     const res = await apiFetch('/api/admin/measure-guide', {
       method:'PUT',
-      headers:{ 'Content-Type':'application/json', 'X-Admin-Token':getAdminApiKey() },
+      headers:{ 'Content-Type':'application/json', 'x-admin-token':getAdminApiKey() },
       body: JSON.stringify({ title, contentHtml, images })
     });
     const data = await res.json();
@@ -5861,7 +5891,7 @@ function getTopPageLabel(topPages=[]){
 async function loadVisitAnalytics(){
   try{
     const r = await apiFetch('/api/visits?action=stats', {
-      headers:{'X-Admin-Token':getAdminApiKey()}
+      headers:{'x-admin-token':getAdminApiKey()}
     });
     if(!r.ok) throw new Error('HTTP '+r.status);
     const data = await r.json();
@@ -6256,14 +6286,14 @@ async function uploadImageToCloudinary(file,{prefix='image'}={}){
   const optimized=await optimizeImageFile(file);
   const signRes=await apiFetch('/api/admin/cloudinary-upload',{
     method:'POST',
-    headers:{'Content-Type':'application/json','X-Admin-Token':getAdminApiKey()},
+    headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()},
     body:JSON.stringify({
       fileName:optimized.name || file.name || 'image',
       prefix,
       mimeType:String(optimized.type || file.type || '').toLowerCase(),
       mode:'signed-upload'
     })
-  }, 25000);
+  }, 45000);
   const signPayload=await signRes.json().catch(()=>({}));
   if(!signRes.ok){
     throw new Error(signPayload?.error || 'Cloudinary imza hatası');
@@ -6285,7 +6315,10 @@ async function uploadImageToCloudinary(file,{prefix='image'}={}){
   const t = setTimeout(()=>ctrl.abort(), 60_000);
   const uploadRes=await fetch(uploadUrl,{ method:'POST', body:directFormData, signal: ctrl.signal });
   clearTimeout(t);
-  const uploadPayload=await uploadRes.json().catch(()=>({}));
+  const ct = uploadRes.headers.get('content-type') || '';
+  const uploadPayload = ct.includes('application/json')
+    ? await uploadRes.json().catch(()=>({}))
+    : { error: { message: `HTTP ${uploadRes.status} ${uploadRes.statusText}` } };
   if(!uploadRes.ok){
     throw new Error(uploadPayload?.error?.message || uploadPayload?.error || 'Cloudinary yükleme hatası');
   }
@@ -6774,8 +6807,8 @@ document.addEventListener('DOMContentLoaded',()=>{
               <span>Önizleme</span>
             </div>
           </div>
-          <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="pl-file-input-hidden">
-          <label class="pl-dropzone" id="plDropzone" for="plFileInput">
+          <label class="pl-dropzone" id="plDropzone">
+            <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="pl-file-input-hidden">
             <div class="pl-dropzone-inner">
               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <path d="M7 18a4 4 0 010-8 6 6 0 0111.7-1.5A4.5 4.5 0 0117 18H7z"/>
