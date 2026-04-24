@@ -5,7 +5,7 @@ const { applyCors } = require('../lib/_cors');
 module.exports = async function handler(req, res) {
   if (applyCors(req, res, { allowAdminHeaders: true })) return;
 
-  if (!ADMIN_API_KEY || req.headers['x-admin-token'] !== ADMIN_API_KEY) {
+  if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
     return res.status(403).json({ error: 'Yetkisiz.' });
   }
 

@@ -1,4 +1,3 @@
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 const crypto = require('crypto');
 const { getPaytrCredentials } = require('../lib/_paytr-config');
 
@@ -15,11 +14,7 @@ function parseDateString(value) {
 }
 
 module.exports = async function handler(req, res) {
-  if (applyCors(req, res, { allowAdminHeaders: true })) return;
-  if (!ADMIN_API_KEY || req.headers['x-admin-token'] !== ADMIN_API_KEY) {
-    return res.status(403).json({ error: 'Yetkisiz.' });
-  }
-
+  if (applyCors(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Sadece POST desteklenir.' });
   }

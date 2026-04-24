@@ -2,9 +2,13 @@ const ALLOWED_ORIGINS = [
   'https://gocmenperde.com.tr',
   'https://www.gocmenperde.com.tr',
 ];
-const ALLOWED_PATTERNS = process.env.NODE_ENV === 'production'
-  ? []
-  : [/\.vercel\.app$/, /\.replit\.dev$/, /\.replit\.app$/, /^https?:\/\/localhost(:\d+)?$/, /^https?:\/\/127\.0\.0\.1(:\d+)?$/];
+const ALLOWED_PATTERNS = [
+  /\.vercel\.app$/,
+  /\.replit\.dev$/,
+  /\.replit\.app$/,
+  /^https?:\/\/localhost(:\d+)?$/,
+  /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+];
 
 function applyCors(req, res, { allowAdminHeaders = false } = {}) {
   const origin = req.headers.origin;
@@ -19,7 +23,7 @@ function applyCors(req, res, { allowAdminHeaders = false } = {}) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 
   const headers = ['Content-Type', 'Authorization'];
-  if (allowAdminHeaders) headers.push('x-admin-token');
+  if (allowAdminHeaders) headers.push('x-admin-key');
   res.setHeader('Access-Control-Allow-Headers', headers.join(', '));
 
   if (req.method === 'OPTIONS') {

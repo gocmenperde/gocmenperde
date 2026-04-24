@@ -97,7 +97,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'all' && req.method === 'GET') {
-      if (!ADMIN_API_KEY || req.headers['x-admin-token'] !== ADMIN_API_KEY) {
+      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
         return res.status(403).json({ error: 'Yetkisiz.' });
       }
       const result = await pool.query('SELECT * FROM siparisler ORDER BY created_at DESC');
@@ -124,7 +124,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'update-status' && req.method === 'POST') {
-      if (!ADMIN_API_KEY || req.headers['x-admin-token'] !== ADMIN_API_KEY) {
+      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
         return res.status(403).json({ error: 'Yetkisiz.' });
       }
       const { id, durum, trackingNote, trackingCode } = req.body || {};

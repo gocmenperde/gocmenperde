@@ -30,7 +30,7 @@ const buildPoolConfig = (dbUrl) => {
 
   if (!dbUrl) {
     return {
-      max: Number(process.env.PG_POOL_MAX || (process.env.VERCEL ? 1 : 8)),
+      max: Number(process.env.PG_POOL_MAX || 1),
       idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS || 5000),
       connectionTimeoutMillis: Number(process.env.PG_CONNECT_TIMEOUT_MS || 5000),
       statement_timeout: Number(process.env.PG_STATEMENT_TIMEOUT_MS || 8000),
@@ -44,7 +44,7 @@ const buildPoolConfig = (dbUrl) => {
     console.warn('DATABASE_URL parse edilemedi, connectionString ile devam ediliyor.');
     return {
       connectionString: appendPgbouncerParams(dbUrl),
-      max: Number(process.env.PG_POOL_MAX || (process.env.VERCEL ? 1 : 8)),
+      max: Number(process.env.PG_POOL_MAX || 1),
       idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS || 5000),
       connectionTimeoutMillis: Number(process.env.PG_CONNECT_TIMEOUT_MS || 5000),
       statement_timeout: Number(process.env.PG_STATEMENT_TIMEOUT_MS || 8000),
@@ -64,7 +64,7 @@ const buildPoolConfig = (dbUrl) => {
     database: parsedUrl.pathname.replace(/^\//, ''),
     user: decodeURIComponent(parsedUrl.username || ''),
     password: decodeURIComponent(parsedUrl.password || ''),
-    max: Number(process.env.PG_POOL_MAX || (process.env.VERCEL ? 1 : 8)),
+    max: Number(process.env.PG_POOL_MAX || 1),
     idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS || 5000),
     connectionTimeoutMillis: Number(process.env.PG_CONNECT_TIMEOUT_MS || 5000),
       statement_timeout: Number(process.env.PG_STATEMENT_TIMEOUT_MS || 8000),
