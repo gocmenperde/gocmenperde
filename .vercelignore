@@ -1,0 +1,9 @@
+.git
+.gitignore
+.local
+.cache
+attached_assets
+node_modules
+*.md
+ODEME_ALTYAPISI.md
+CODEX_PROMPT.md
