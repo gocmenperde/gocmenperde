@@ -1,33 +1,5 @@
 [
   {
-    "id": "fon-1777069742997-708",
-    "name": "Fon",
-    "desc": "",
-    "image": "https://res.cloudinary.com/ddb9lvapm/image/upload/v1777069731/gocmenperde/product-0/1777069728431-caf24f14-46deba40-07ef-4a08-a16f-4c4ae0d977dd.jpg",
-    "images": [
-      "https://res.cloudinary.com/ddb9lvapm/image/upload/v1777069731/gocmenperde/product-0/1777069728431-caf24f14-46deba40-07ef-4a08-a16f-4c4ae0d977dd.jpg"
-    ],
-    "price": 2999,
-    "oldPrice": null,
-    "cat": "fonperdeler",
-    "unit": "adet",
-    "isMeter": false,
-    "isSquareMeter": false,
-    "features": "",
-    "badge": "",
-    "discountType": "manual",
-    "discountValue": null,
-    "stock": null,
-    "serialNumber": null,
-    "barcode": null,
-    "seoKeywords": [],
-    "isLiveShowcase": false,
-    "isFeatured": false,
-    "active": true,
-    "specs": {},
-    "care": {}
-  },
-  {
     "id": "fon-perde-1776962265352-639",
     "name": "Fon Perde",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
