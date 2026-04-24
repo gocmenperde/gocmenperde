@@ -944,11 +944,15 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-inline-help{font-size:0.72rem;color:var(--slate);display:block;flex:1 1 100%}
 .modal-rating-line{display:flex;align-items:center;gap:8px;margin:-4px 0 12px;color:var(--slate);font-size:0.82rem}
 .modal-rating-line .stars{color:var(--gold);letter-spacing:1px}
-.modal-live-viewers{display:inline-flex;align-items:center;gap:6px;margin:-4px 0 12px;padding:5px 11px;border-radius:999px;background:rgba(207,168,82,0.10);border:1px solid rgba(207,168,82,0.28);color:#7a5a14;font-size:0.74rem;font-weight:500;letter-spacing:0.2px}
-.modal-live-viewers i{color:#cfa852;font-size:0.78rem}
-.modal-live-viewers strong{color:#3a2a05;font-weight:700}
+.modal-live-viewers{display:flex;align-items:center;gap:8px;margin:10px 0 14px;padding:8px 14px;border-radius:999px;background:rgba(207,168,82,0.12);border:1px solid rgba(207,168,82,0.32);color:#7a5a14;font-size:0.82rem;font-weight:500;letter-spacing:0.2px;width:fit-content;max-width:100%;box-sizing:border-box}
+.modal-live-viewers i{color:#cfa852;font-size:0.88rem}
+.modal-live-viewers strong{color:#3a2a05;font-weight:700;font-size:0.9rem}
 .modal-live-viewers.pulse{animation:liveViewerPulse 320ms ease-out}
-@keyframes liveViewerPulse{0%{transform:scale(1)}50%{transform:scale(1.08);background:rgba(207,168,82,0.22)}100%{transform:scale(1)}}
+@keyframes liveViewerPulse{0%{transform:scale(1)}50%{transform:scale(1.06);background:rgba(207,168,82,0.24)}100%{transform:scale(1)}}
+@media(max-width:520px){
+  .modal-live-viewers{font-size:0.78rem;padding:7px 12px;margin:8px 0 12px}
+  .modal-live-viewers strong{font-size:0.86rem}
+}
 .modal-reviews-wrap{margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--cream)}
 .modal-reviews-title{font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:10px}
 .modal-review-list{display:flex;flex-direction:column;gap:10px;max-height:170px;overflow-y:auto;padding-right:4px}
@@ -4734,13 +4738,16 @@ function stopLiveViewerCounter(){
 function startLiveViewerCounter(productId){
   stopLiveViewerCounter();
   if(!productId) return;
-  const ratingLine = document.querySelector('.modal-rating-line');
   const liveMarkup = '<div class="modal-live-viewers" id="mLiveViewers"><i class="fas fa-eye"></i> Şu an <strong id="mLiveViewersCount">7</strong> kişi bu ürüne bakıyor</div>';
   if(!document.getElementById('mLiveViewers')){
-    if(ratingLine){
-      ratingLine.insertAdjacentHTML('afterend', liveMarkup);
+    const priceWrap = document.getElementById('mPriceWrap');
+    const tabs = document.querySelector('.modal-tabs');
+    if(priceWrap){
+      priceWrap.insertAdjacentHTML('afterend', liveMarkup);
+    } else if(tabs){
+      tabs.insertAdjacentHTML('beforebegin', liveMarkup);
     } else {
-      document.getElementById('mTitle')?.insertAdjacentHTML('afterend', liveMarkup);
+      document.querySelector('.modal-rating-line')?.insertAdjacentHTML('afterend', liveMarkup);
     }
   }
   __liveViewerCurrent = getLiveViewerSeed(productId);
@@ -5464,7 +5471,6 @@ function openModalFromProduct(id){
   const p = PRODUCTS.find(x => x.id === id);
   if(!p) return;
   bumpSocialProof(id);
-  startLiveViewerCounter(id);
   currentModalProductId = id;
   trackRecentlyViewed(id);
   const social = getProductSocial(id);
@@ -5613,6 +5619,7 @@ function openModalFromProduct(id){
     bindMeterDimensionsAutoCalc(p, qid, wid, hid, pid);
   }
   renderModalReviews(id);
+  startLiveViewerCounter(id);
   syncReviewNameField(id);
   document.getElementById('reviewTextInput').value = '';
   resetReviewPhotoPicker();
