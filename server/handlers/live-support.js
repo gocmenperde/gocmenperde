@@ -2,9 +2,9 @@ const fs = require('fs/promises');
 const path = require('path');
 const { pool } = require('../lib/_db');
 const { sendResendEmail, normalizeRecipients, normalizeEmail } = require('../lib/_resend-mail');
+const { requireAdmin } = require('../lib/_admin-auth');
 
 const FILE_NAME = 'live-support-messages.json';
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 const DEFAULT_NOTIFY_EMAIL = 'muhammedeminturk.16@gmail.com';
 const { applyCors } = require('../lib/_cors');
 let resolvedDataFilePath = '';
@@ -235,9 +235,7 @@ module.exports = async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-        return res.status(403).json({ error: 'Yetkisiz.' });
-      }
+      if (!requireAdmin(req, res)) return;
       const items = await readItems();
       items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       return res.status(200).json({ success: true, items });
@@ -353,9 +351,7 @@ module.exports = async function handler(req, res) {
       }
 
       if (action === 'reply') {
-        if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-          return res.status(403).json({ error: 'Yetkisiz.' });
-        }
+        if (!requireAdmin(req, res)) return;
 
         const id = Number(req.body?.id);
         const subject = ensureText(req.body?.subject, 140);
