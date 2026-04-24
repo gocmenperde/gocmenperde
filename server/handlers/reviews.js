@@ -7,7 +7,7 @@ const { applyCors } = require('../lib/_cors');
 
 const UPLOAD_DIR = path.join(__dirname, '..', '..', 'public', 'uploads', 'reviews');
 const MAX_PHOTOS = 4;
-const MAX_PHOTO_BYTES = 900 * 1024;
+const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 const _ipMap = new Map();
 
 function rateOk(ip) {
@@ -34,10 +34,17 @@ function badWordSafe(text) {
 }
 
 async function savePhoto(productId, dataUrl) {
-  const m = /^data:image\/(jpeg|jpg|png|webp);base64,(.+)$/i.exec(String(dataUrl || ''));
-  if (!m) return null;
+  const raw = String(dataUrl || '').trim();
+  if (!raw) return null;
+  const m = /^data:image\/(jpeg|jpg|png|webp);base64,(.+)$/i.exec(raw);
+  if (!m) {
+    console.warn('[reviews:photo] geçersiz dataUrl formatı');
+    throw new Error('Fotoğraf formatı desteklenmiyor. JPEG/PNG/WEBP yükleyin.');
+  }
   const buf = Buffer.from(m[2], 'base64');
-  if (buf.length > MAX_PHOTO_BYTES) return null;
+  if (buf.length > MAX_PHOTO_BYTES) {
+    throw new Error('Fotoğraf boyutu 3 MB sınırını aşıyor.');
+  }
   const ext = m[1].toLowerCase() === 'png' ? 'png' : (m[1].toLowerCase() === 'webp' ? 'webp' : 'jpg');
   const safePid = String(productId).replace(/[^a-z0-9_-]/gi, '_').slice(0, 80);
   const dir = path.join(UPLOAD_DIR, safePid);
@@ -75,59 +82,64 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const action = String(req.body?.action || 'create').trim();
+    try {
+      const action = String(req.body?.action || 'create').trim();
 
-    if (action === 'helpful') {
-      const id = Number(req.body?.id);
-      if (!Number.isFinite(id)) return res.status(400).json({ error: 'id geçersiz' });
-      await pool.query('UPDATE product_reviews SET helpful_count = helpful_count + 1 WHERE id=$1 AND status=\'approved\'', [id]);
-      return res.status(200).json({ success: true });
-    }
-
-    const ip = clientIp(req);
-    if (!rateOk(ip)) return res.status(429).json({ error: 'Çok fazla deneme. Lütfen daha sonra tekrar deneyin.' });
-
-    const productId = String(req.body?.productId || '').trim();
-    const name = String(req.body?.name || '').trim().slice(0, 80) || 'Misafir Müşteri';
-    const text = String(req.body?.text || '').trim().slice(0, 2000);
-    const rating = Math.max(1, Math.min(5, Math.round(Number(req.body?.rating) || 0)));
-    const email = String(req.body?.email || '').trim().toLowerCase();
-    const inviteToken = String(req.body?.inviteToken || '').trim();
-    const photosIn = Array.isArray(req.body?.photos) ? req.body.photos.slice(0, MAX_PHOTOS) : [];
-
-    if (!productId || !text || !rating) return res.status(400).json({ error: 'productId, text ve rating zorunlu' });
-    if (text.length < 6) return res.status(400).json({ error: 'Yorum en az 6 karakter olmalı' });
-    if (!badWordSafe(text)) return res.status(400).json({ error: 'Yorum metninde uygunsuz ifade var.' });
-
-    let verified = false;
-    let orderId = null;
-    let autoApprove = false;
-    let source = 'user';
-    if (inviteToken) {
-      const t = await pool.query('SELECT order_id, product_id, email FROM review_invites WHERE token=$1 AND used_at IS NULL', [inviteToken]);
-      if (t.rows[0] && t.rows[0].product_id === productId) {
-        verified = true;
-        orderId = t.rows[0].order_id;
-        autoApprove = true;
-        source = 'verified';
-        await pool.query('UPDATE review_invites SET used_at = NOW() WHERE token=$1', [inviteToken]);
+      if (action === 'helpful') {
+        const id = Number(req.body?.id);
+        if (!Number.isFinite(id)) return res.status(400).json({ error: 'id geçersiz' });
+        await pool.query('UPDATE product_reviews SET helpful_count = helpful_count + 1 WHERE id=$1 AND status=\'approved\'', [id]);
+        return res.status(200).json({ success: true });
       }
-    }
 
-    const savedPhotos = [];
-    for (const p of photosIn) {
-      const url = await savePhoto(productId, p);
-      if (url) savedPhotos.push(url);
-    }
+      const ip = clientIp(req);
+      if (!rateOk(ip)) return res.status(429).json({ error: 'Saatte en fazla 5 yorum gönderebilirsiniz.' });
 
-    const AUTO_APPROVE = String(process.env.REVIEW_AUTO_APPROVE || '1') === '1';
-    const status = (autoApprove || AUTO_APPROVE) ? 'approved' : 'pending';
-    const ins = await pool.query(
-      `INSERT INTO product_reviews(product_id,email_hash,name,rating,text,photos,verified_purchase,order_id,status,source,ip_hash)
-       VALUES($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11) RETURNING id`,
-      [productId, email ? sha256(email) : null, name, rating, text, JSON.stringify(savedPhotos), verified, orderId, status, source, sha256(ip)]
-    );
-    return res.status(200).json({ success: true, id: ins.rows[0].id, status, autoApproved: status === 'approved' });
+      const productId = String(req.body?.productId || '').trim();
+      const name = String(req.body?.name || '').trim().slice(0, 80) || 'Misafir Müşteri';
+      const text = String(req.body?.text || '').trim().slice(0, 2000);
+      const rating = Math.max(1, Math.min(5, Math.round(Number(req.body?.rating) || 0)));
+      const email = String(req.body?.email || '').trim().toLowerCase();
+      const inviteToken = String(req.body?.inviteToken || '').trim();
+      const photosIn = Array.isArray(req.body?.photos) ? req.body.photos.slice(0, MAX_PHOTOS) : [];
+
+      if (!productId || !text || !rating) return res.status(400).json({ error: 'productId, text ve rating zorunlu' });
+      if (text.length < 6) return res.status(400).json({ error: 'Yorum en az 6 karakter olmalı' });
+      if (!badWordSafe(text)) return res.status(400).json({ error: 'Yorum metninde uygunsuz ifade var.' });
+
+      let verified = false;
+      let orderId = null;
+      let autoApprove = false;
+      let source = 'user';
+      if (inviteToken) {
+        const t = await pool.query('SELECT order_id, product_id, email FROM review_invites WHERE token=$1 AND used_at IS NULL', [inviteToken]);
+        if (t.rows[0] && t.rows[0].product_id === productId) {
+          verified = true;
+          orderId = t.rows[0].order_id;
+          autoApprove = true;
+          source = 'verified';
+          await pool.query('UPDATE review_invites SET used_at = NOW() WHERE token=$1', [inviteToken]);
+        }
+      }
+
+      const savedPhotos = [];
+      for (const p of photosIn) {
+        const url = await savePhoto(productId, p);
+        if (url) savedPhotos.push(url);
+      }
+
+      const AUTO_APPROVE = String(process.env.REVIEW_AUTO_APPROVE || '1') === '1';
+      const status = (autoApprove || AUTO_APPROVE) ? 'approved' : 'pending';
+      const ins = await pool.query(
+        `INSERT INTO product_reviews(product_id,email_hash,name,rating,text,photos,verified_purchase,order_id,status,source,ip_hash)
+         VALUES($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11) RETURNING id`,
+        [productId, email ? sha256(email) : null, name, rating, text, JSON.stringify(savedPhotos), verified, orderId, status, source, sha256(ip)]
+      );
+      return res.status(200).json({ success: true, id: ins.rows[0].id, status, autoApproved: status === 'approved' });
+    } catch (err) {
+      console.error('[reviews:create]', err);
+      return res.status(500).json({ error: err?.message || 'Sunucu hatası', code: err?.code || null });
+    }
   }
 
   return res.status(405).json({ error: 'Method Not Allowed' });

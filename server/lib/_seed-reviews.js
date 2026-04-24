@@ -27,47 +27,130 @@ const TPL = [
 ];
 
 function rng(seed){ let h=2166136261>>>0; for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i); h=Math.imul(h,16777619)>>>0;} return ()=>{h=Math.imul(h^(h>>>15),2246822507)>>>0; h=Math.imul(h^(h>>>13),3266489909)>>>0; return ((h^=h>>>16)>>>0)/4294967295;}; }
-const pick=(a,r)=>a[Math.floor(r()*a.length)];
-function nm(r,used){ for(let i=0;i<10;i++){ const n=pick(FIRST,r)+' '+pick(LAST,r).charAt(0)+'.'; if(!used.has(n)){used.add(n); return n;} } return pick(FIRST,r)+' '+pick(LAST,r).charAt(0)+'.'; }
-function dt(r){ return new Date(Date.now()-(Math.floor(r()*180)+7)*86400000); }
+
+function shuffled(arr, r){
+  const out = [...arr];
+  for(let i = out.length - 1; i > 0; i--){
+    const j = Math.floor(r() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+function dt(r, i){
+  const days = 7 + ((i * 17) + Math.floor(r() * 23)) % 180;
+  return new Date(Date.now() - days * 86400000);
+}
+
+function formatName(first, last){
+  const a = String(last || '').charAt(0).toUpperCase();
+  const b = String(last || '').charAt(1).toUpperCase();
+  return b ? `${first} ${a}.${b}.` : `${first} ${a}.`;
+}
+
+function buildNamePool(r){
+  const sf = shuffled(FIRST, r);
+  const sl = shuffled(LAST, r);
+  const pool = [];
+  for(const f of sf){
+    for(const l of sl){
+      pool.push(formatName(f, l));
+    }
+  }
+  return pool;
+}
+
+function getProductId(product){
+  return String(product?.id || product?.slug || product?.productId || product?.code || '').trim();
+}
 
 async function readProducts(){
   try { return JSON.parse(await fs.readFile(PRODUCTS_PATH,'utf8')); } catch (_) { return []; }
 }
 
 async function ensureSeedsForProduct(productId){
-  await ensureReviewSchema();
-  const c = await pool.query(`SELECT COUNT(*)::int n FROM product_reviews WHERE product_id=$1 AND is_seed=TRUE`,[productId]);
-  const have = c.rows[0]?.n||0;
-  if(have>=TARGET) return {added:0,productId};
-  const need = TARGET-have;
-  const r = rng(`gocmen-${productId}-${have}`);
-  const used = new Set();
-  let added = 0;
+  try {
+    await ensureReviewSchema();
+    const existing = await pool.query(
+      `SELECT name, text FROM product_reviews WHERE product_id=$1 AND is_seed=TRUE`,
+      [productId]
+    );
+    const have = existing.rowCount || 0;
+    if (have >= TARGET) return { added: 0, productId, lastError: null };
 
-  for(let i=0;i<need;i++){
-    const t = TPL[Math.floor(r()*TPL.length)];
-    const name = nm(r,used);
-    const date = dt(r);
-    const dup = await pool.query(`SELECT 1 FROM product_reviews WHERE product_id=$1 AND is_seed=TRUE AND name=$2 AND text=$3 LIMIT 1`,[productId,name,t.t]);
-    if(dup.rowCount) continue;
-    await pool.query(`INSERT INTO product_reviews(product_id,name,rating,text,photos,verified_purchase,status,is_seed,source,created_at,moderated_at) VALUES($1,$2,$3,$4,'[]'::jsonb,FALSE,'approved',TRUE,'seed',$5,$5)`,[productId,name,t.r,t.t,date.toISOString()]);
-    added++;
+    const need = TARGET - have;
+    const r = rng(`gocmen-${productId}-${have}`);
+    const existingPairs = new Set(existing.rows.map((row) => `${row.name}|||${row.text}`));
+    const usedNames = new Set(existing.rows.map((row) => String(row.name || '').trim()).filter(Boolean));
+
+    const names = buildNamePool(r).filter((name) => !usedNames.has(name)).slice(0, need * 3);
+    const templates = shuffled(TPL, r);
+    const rowsToInsert = [];
+
+    for (let i = 0; i < need; i++) {
+      const tpl = templates[i % templates.length];
+      let name = names[i] || names[i % names.length] || formatName(FIRST[i % FIRST.length], LAST[i % LAST.length]);
+      if (!name || usedNames.has(name)) {
+        for (const candidate of buildNamePool(r)) {
+          if (!usedNames.has(candidate)) { name = candidate; break; }
+        }
+      }
+      const key = `${name}|||${tpl.t}`;
+      if (existingPairs.has(key)) continue;
+      usedNames.add(name);
+      existingPairs.add(key);
+      const when = dt(r, i).toISOString();
+      rowsToInsert.push({ name, rating: tpl.r, text: tpl.t, createdAt: when });
+    }
+
+    if (!rowsToInsert.length) return { added: 0, productId, lastError: null };
+
+    const values = [];
+    const args = [];
+    let n = 1;
+    for (const row of rowsToInsert) {
+      values.push(`($${n++},$${n++},$${n++},$${n++},'[]'::jsonb,FALSE,'approved',TRUE,'seed',$${n++},$${n++})`);
+      args.push(productId, row.name, row.rating, row.text, row.createdAt, row.createdAt);
+    }
+
+    await pool.query(
+      `INSERT INTO product_reviews(product_id,name,rating,text,photos,verified_purchase,status,is_seed,source,created_at,moderated_at)
+       VALUES ${values.join(',')}`,
+      args
+    );
+
+    return { added: rowsToInsert.length, productId, lastError: null };
+  } catch (err) {
+    const message = err?.message || String(err);
+    console.error('[seed]', productId, message);
+    return { added: 0, productId, lastError: message };
   }
-  return {added,productId};
 }
 
 async function ensureSeedsForAllProducts(){
-  const ps = await readProducts();
+  await ensureReviewSchema();
+  const psRaw = await readProducts();
+  const ps = Array.isArray(psRaw) ? psRaw.filter((p) => p && p.active !== false) : [];
   let total = 0;
   let touched = 0;
-  for(const p of ps){
-    const id = String(p?.id||'').trim();
-    if(!id) continue;
+  let lastError = null;
+
+  console.log('[seed] product sample keys', Object.keys(ps[0] || {}), 'first id =', getProductId(ps[0]));
+
+  for (const p of ps) {
+    const id = getProductId(p);
+    if (!id) continue;
     const r = await ensureSeedsForProduct(id);
-    if(r.added>0){ total+=r.added; touched++; }
+    if (r.added > 0) {
+      total += r.added;
+      touched++;
+    }
+    if (r.lastError) lastError = r.lastError;
   }
-  return { totalAdded: total, productsTouched: touched, productsTotal: ps.length };
+
+  const summary = { totalAdded: total, productsTouched: touched, productsTotal: ps.length, lastError };
+  console.log(`[review-seed] totalAdded=${summary.totalAdded} productsTouched=${summary.productsTouched} productsTotal=${summary.productsTotal}`);
+  return summary;
 }
 
 async function regenerateSeedsForProduct(productId){

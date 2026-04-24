@@ -67,5 +67,10 @@ module.exports = async function handler(req, res) {
 
   if(!validateBasicBody(req, res)) return;
   const endpoint = loader();
-  return endpoint(req, res);
+  try {
+    return await endpoint(req, res);
+  } catch (err) {
+    console.error('[api-router]', route, err);
+    return res.status(500).json({ error: err?.message || 'Sunucu hatası', code: err?.code || null });
+  }
 };

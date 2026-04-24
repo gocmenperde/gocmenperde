@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
     if (action === 'seed-all') {
       const { ensureSeedsForAllProducts } = require('../../lib/_seed-reviews');
       const r = await ensureSeedsForAllProducts();
-      return res.status(200).json({ success: true, ...r });
+      return res.status(200).json({ success: true, ...r, lastError: r.lastError || null });
     }
 
     if (action === 'regenerate-seeds') {

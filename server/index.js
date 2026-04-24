@@ -116,6 +116,7 @@ const routerHandler = require('../api/router');
 const { checkRestocks } = require('./lib/_stock-alert-runner');
 const { sendReviewInvites } = require('./lib/_review-invite-runner');
 const { ensureSeedsForAllProducts } = require('./lib/_seed-reviews');
+const { ensureReviewSchema } = require('./lib/_reviews_schema');
 const STOCK_CHECK_INTERVAL_MS = Number(process.env.STOCK_CHECK_INTERVAL_MS || 60000);
 if (process.env.DISABLE_STOCK_CHECK !== '1') {
   setInterval(() => {
@@ -128,14 +129,16 @@ if (process.env.DISABLE_STOCK_CHECK !== '1') {
 }
 if (process.env.DISABLE_REVIEW_SEED !== '1') {
   setTimeout(() => {
-    ensureSeedsForAllProducts()
+    ensureReviewSchema()
+      .then(() => ensureSeedsForAllProducts())
       .then((r) => {
         if (r.totalAdded) console.log(`[review-seed] startup eklendi=${r.totalAdded} ürün=${r.productsTouched}/${r.productsTotal}`);
       })
       .catch((e) => console.warn('[review-seed startup]', e?.message));
-  }, 8000);
+  }, 3000);
   setInterval(() => {
-    ensureSeedsForAllProducts()
+    ensureReviewSchema()
+      .then(() => ensureSeedsForAllProducts())
       .then((r) => {
         if (r.totalAdded) console.log(`[review-seed cron] eklendi=${r.totalAdded} ürün=${r.productsTouched}/${r.productsTotal}`);
       })
