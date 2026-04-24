@@ -14,7 +14,7 @@ function validateBasicBody(req, res){
     return false;
   }
   const serialized = JSON.stringify(body);
-  if(serialized.length > 200000){
+  if(serialized.length > 8 * 1024 * 1024){
     res.status(400).json({ error: 'Body çok büyük.' });
     return false;
   }
@@ -46,6 +46,9 @@ const ROUTES = {
   'premium-showcase': () => require('../server/handlers/premium-showcase'),
   'live-support': () => require('../server/handlers/live-support'),
   'measure-guide': () => require('../server/handlers/measure-guide'),
+  reviews: () => require('../server/handlers/reviews'),
+  'review-invite-token': () => require('../server/handlers/review-invite-token'),
+  'admin/reviews': () => require('../server/handlers/admin/reviews'),
   'admin/measure-guide': () => require('../server/handlers/admin/measure-guide'),
 };
 
