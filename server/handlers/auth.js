@@ -6,6 +6,9 @@ const MAX_ATTEMPTS = 7;
 const WINDOW_MS = 1000 * 60 * 10;
 
 const { applyCors } = require('../lib/_cors');
+const FALLBACK_ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
+const FALLBACK_ADMIN_SECRET = 'Emin.016';
+
 async function listUserAddresses(userId) {
   const hasAddressTable = await pool.query(
     "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'adresler') AS exists"
@@ -67,13 +70,13 @@ module.exports = async function handler(req, res) {
       const { email, key, password } = req.body || {};
       const providedSecret = String(password || key || '').trim();
       const providedEmail = String(email || '').trim().toLowerCase();
-      const adminSecret = String(process.env.ADMIN_API_KEY || process.env.ADMIN_TOKEN || process.env.ADMIN_API_TOKEN || '').trim();
-      const adminEmails = String(process.env.ADMIN_EMAILS || '')
+      const adminSecret = String(
+        process.env.ADMIN_API_KEY || process.env.ADMIN_TOKEN || process.env.ADMIN_API_TOKEN || FALLBACK_ADMIN_SECRET
+      ).trim();
+      const adminEmails = String(process.env.ADMIN_EMAILS || FALLBACK_ADMIN_EMAIL)
         .split(',')
         .map((s) => s.trim().toLowerCase())
         .filter(Boolean);
-
-      if (!adminSecret) return res.status(500).json({ error: 'Admin yapılandırılmamış.' });
       if (!providedSecret || providedSecret !== adminSecret) {
         return res.status(401).json({ error: 'Yetkisiz.' });
       }

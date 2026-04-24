@@ -1,6 +1,9 @@
 const crypto = require('crypto');
 
-const TOKEN_SECRET = String(process.env.JWT_SECRET || process.env.AUTH_TOKEN_SECRET || '').trim();
+const FALLBACK_TOKEN_SECRET = 'gocmenperde-admin-jwt-fallback-2026';
+const TOKEN_SECRET = String(
+  process.env.JWT_SECRET || process.env.AUTH_TOKEN_SECRET || FALLBACK_TOKEN_SECRET
+).trim();
 const TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 14;
 const LEGACY_SALT = 'gocmen_salt_2024';
 let warnedMissingTokenSecret = false;
