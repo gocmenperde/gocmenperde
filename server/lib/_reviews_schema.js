@@ -26,6 +26,8 @@ async function ensureReviewSchema() {
 
     ALTER TABLE product_reviews ADD COLUMN IF NOT EXISTS is_seed BOOLEAN NOT NULL DEFAULT FALSE;
     ALTER TABLE product_reviews ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'user';
+    ALTER TABLE product_reviews ADD COLUMN IF NOT EXISTS admin_reply TEXT;
+    ALTER TABLE product_reviews ADD COLUMN IF NOT EXISTS admin_reply_at TIMESTAMPTZ;
 
     CREATE INDEX IF NOT EXISTS idx_reviews_product ON product_reviews(product_id, status);
     CREATE INDEX IF NOT EXISTS idx_reviews_status ON product_reviews(status, created_at DESC);

@@ -19,15 +19,27 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'GET') {
     const status = String(req.query?.status || 'pending').trim();
+    const productId = String(req.query?.productId || '').trim();
     const valid = new Set(['pending', 'approved', 'rejected', 'all']);
     if (!valid.has(status)) return res.status(400).json({ error: 'status geçersiz' });
-    const where = status === 'all' ? '' : 'WHERE status=$1';
-    const params = status === 'all' ? [] : [status];
+    const conds = [];
+    const params = [];
+    if (status !== 'all') {
+      params.push(status);
+      conds.push(`status=$${params.length}`);
+    }
+    if (productId) {
+      params.push(productId);
+      conds.push(`product_id=$${params.length}`);
+    }
+    const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
     const list = await pool.query(
-      `SELECT id, product_id, name, rating, text, photos, verified_purchase, order_id, status, helpful_count, is_seed, source, ip_hash, created_at, moderated_at
+      `SELECT id, product_id, name, rating, text, photos, verified_purchase, order_id,
+              status, helpful_count, is_seed, source, ip_hash, created_at, moderated_at,
+              admin_reply, admin_reply_at
        FROM product_reviews ${where}
        ORDER BY created_at DESC
-       LIMIT 100`,
+       LIMIT 200`,
       params
     );
     return res.status(200).json({ success: true, items: list.rows });
@@ -72,6 +84,15 @@ module.exports = async function handler(req, res) {
         await safeDeletePhotoByUrl(p);
       }
       await pool.query('DELETE FROM product_reviews WHERE id=$1', [id]);
+      return res.status(200).json({ success: true });
+    }
+    if (action === 'reply') {
+      const reply = String(req.body?.reply || '').trim().slice(0, 1500);
+      if (!reply) {
+        await pool.query(`UPDATE product_reviews SET admin_reply=NULL, admin_reply_at=NULL WHERE id=$1`, [id]);
+      } else {
+        await pool.query(`UPDATE product_reviews SET admin_reply=$2, admin_reply_at=NOW() WHERE id=$1`, [id, reply]);
+      }
       return res.status(200).json({ success: true });
     }
 

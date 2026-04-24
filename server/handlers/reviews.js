@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { pool } = require('../lib/_db');
 const { ensureReviewSchema } = require('../lib/_reviews_schema');
 const { applyCors } = require('../lib/_cors');
+const { uploadDataUrl, isConfigured: cloudinaryReady } = require('../lib/_cloudinary');
 
 const UPLOAD_DIR = process.env.VERCEL
   ? path.join('/tmp', 'uploads', 'reviews')
@@ -47,6 +48,13 @@ async function savePhoto(productId, dataUrl) {
   if (buf.length > MAX_PHOTO_BYTES) {
     throw new Error('Fotoğraf boyutu 3 MB sınırını aşıyor.');
   }
+  if (process.env.VERCEL && !cloudinaryReady()) {
+    throw new Error('Cloudinary yapılandırılmamış');
+  }
+  if (process.env.VERCEL && cloudinaryReady()) {
+    const safePid = String(productId).replace(/[^a-z0-9_-]/gi, '_').slice(0, 80);
+    return uploadDataUrl(raw, `reviews/${safePid}`);
+  }
   const ext = m[1].toLowerCase() === 'png' ? 'png' : (m[1].toLowerCase() === 'webp' ? 'webp' : 'jpg');
   const safePid = String(productId).replace(/[^a-z0-9_-]/gi, '_').slice(0, 80);
   const dir = path.join(UPLOAD_DIR, safePid);
@@ -63,10 +71,20 @@ module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     const productId = String(req.query?.productId || '').trim();
     if (!productId) return res.status(400).json({ error: 'productId zorunlu' });
+    try {
+      const seedCount = await pool.query(
+        `SELECT COUNT(*)::int AS c FROM product_reviews WHERE product_id=$1 AND is_seed=TRUE`,
+        [productId]
+      );
+      if ((seedCount.rows[0]?.c || 0) < 8) {
+        const { ensureSeedsForProduct } = require('../lib/_seed-reviews');
+        await ensureSeedsForProduct(productId).catch(() => null);
+      }
+    } catch (_) {}
     const limit = Math.min(50, Math.max(1, Number(req.query?.limit || 20)));
     const offset = Math.max(0, Number(req.query?.offset || 0));
     const r = await pool.query(
-      `SELECT id, name, rating, text, photos, verified_purchase, helpful_count, is_seed, source, created_at
+      `SELECT id, name, rating, text, photos, verified_purchase, helpful_count, is_seed, source, created_at, admin_reply, admin_reply_at
        FROM product_reviews WHERE product_id=$1 AND status='approved'
        ORDER BY verified_purchase DESC, is_seed ASC, helpful_count DESC NULLS LAST, created_at DESC
        LIMIT $2 OFFSET $3`,

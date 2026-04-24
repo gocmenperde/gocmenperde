@@ -1,9 +1,8 @@
-const fs = require('fs/promises');
-const path = require('path');
+const { pool } = require('../lib/_db');
+const { ensureStockAlertSchema } = require('../lib/_stock_alerts_schema');
 const { sendResendEmail, normalizeEmail } = require('../lib/_resend-mail');
 const { normalizePhoneTR, isValidPhoneTR } = require('../lib/_phone');
 
-const FILE_PATH = path.join(__dirname, '..', 'data', 'stock-alerts.json');
 const _rateMap = new Map();
 
 function rateOk(ip) {
@@ -15,30 +14,14 @@ function rateOk(ip) {
   return true;
 }
 
-async function readAlerts() {
-  try {
-    const raw = await fs.readFile(FILE_PATH, 'utf8');
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (_) {
-    return [];
-  }
-}
-
-async function writeAlerts(alerts) {
-  await fs.mkdir(path.dirname(FILE_PATH), { recursive: true });
-  await fs.writeFile(FILE_PATH, JSON.stringify(alerts, null, 2), 'utf8');
-}
-
 module.exports = async function handler(req, res) {
+  await ensureStockAlertSchema();
+
   if (req.method === 'POST') {
     const action = String(req.body?.action || '').trim();
-
     if (action === 'subscribe') {
-      const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip || 'unknown';
-      if (!rateOk(String(ip).split(',')[0].trim())) {
-        return res.status(429).json({ error: 'Çok fazla istek. Lütfen biraz bekleyin.' });
-      }
+      const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
+      if (!rateOk(ip)) return res.status(429).json({ error: 'Çok fazla istek. Lütfen biraz bekleyin.' });
 
       const productId = String(req.body?.productId || '').trim();
       const productName = String(req.body?.productName || '').trim();
@@ -46,16 +29,9 @@ module.exports = async function handler(req, res) {
       const phoneRaw = String(req.body?.phone || '').trim();
       const phone = phoneRaw ? normalizePhoneTR(phoneRaw) : '';
       const channelReq = String(req.body?.channel || '').trim().toLowerCase();
-
-      if (!productId || !productName) {
-        return res.status(400).json({ error: 'productId ve productName zorunlu.' });
-      }
-      if (phoneRaw && !isValidPhoneTR(phoneRaw)) {
-        return res.status(400).json({ error: 'Geçerli bir Türkiye cep numarası girin (+905XXXXXXXXX).' });
-      }
-      if (!email && !phone) {
-        return res.status(400).json({ error: 'En az e-posta veya telefon zorunlu.' });
-      }
+      if (!productId || !productName) return res.status(400).json({ error: 'productId ve productName zorunlu.' });
+      if (phoneRaw && !isValidPhoneTR(phoneRaw)) return res.status(400).json({ error: 'Geçerli bir Türkiye cep numarası girin (+905XXXXXXXXX).' });
+      if (!email && !phone) return res.status(400).json({ error: 'En az e-posta veya telefon zorunlu.' });
 
       let channel = channelReq;
       if (!['email', 'whatsapp', 'both'].includes(channel)) {
@@ -64,53 +40,46 @@ module.exports = async function handler(req, res) {
         else channel = 'email';
       }
 
-      const alerts = await readAlerts();
-      const exists = alerts.some(
-        (item) =>
-          String(item.productId) === productId &&
-          ((email && String(item.email || '').toLowerCase() === email) ||
-            (phone && String(item.phone || '') === phone))
+      const existsQ = await pool.query(
+        `SELECT 1 FROM stock_alerts
+         WHERE product_id=$1 AND notified_at IS NULL
+           AND ((($2 <> '') AND email=$2) OR (($3 <> '') AND phone=$3))
+         LIMIT 1`,
+        [productId, email, phone]
       );
+      const alreadyExists = existsQ.rowCount > 0;
 
-      if (!exists) {
-        alerts.push({
-          productId,
-          productName,
-          email: email || '',
-          phone: phone || '',
-          channel,
-          createdAt: new Date().toISOString(),
-          notifiedAt: null,
-          notifiedChannels: [],
-        });
-        await writeAlerts(alerts);
+      if (!alreadyExists) {
+        await pool.query(
+          `INSERT INTO stock_alerts(product_id, product_name, email, phone, channel)
+           VALUES ($1,$2,$3,$4,$5)`,
+          [productId, productName, email || '', phone || '', channel]
+        );
       }
 
-      await sendResendEmail({
-        to: email,
-        subject: `${productName} stok bildirimi kaydınız alındı`,
-        html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1a1a1a;max-width:520px">
-          <h2 style="margin:0 0 12px;color:#a3823f">Kaydınız alındı ✅</h2>
-          <p><strong>${productName}</strong> ürününün stok bildirimi için aboneliğiniz oluşturuldu.</p>
-          <p>Ürün tekrar stokta olduğunda bu adrese tek seferlik bilgilendirme e-postası göndereceğiz.</p>
-          <p style="font-size:.85rem;color:#666">Bu e-posta bilgi amaçlıdır.</p>
-        </div>`,
-      }).catch(() => null);
+      if (email) {
+        await sendResendEmail({
+          to: email,
+          subject: `${productName} stok bildirimi kaydınız alındı`,
+          html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1a1a1a;max-width:520px">
+            <h2 style="margin:0 0 12px;color:#a3823f">Kaydınız alındı ✅</h2>
+            <p><strong>${productName}</strong> ürününün stok bildirimi için aboneliğiniz oluşturuldu.</p>
+            <p>Ürün tekrar stokta olduğunda bu adrese tek seferlik bilgilendirme e-postası göndereceğiz.</p>
+          </div>`,
+        }).catch(() => null);
+      }
 
-      return res.status(200).json({ success: true, alreadyExists: exists, channel });
+      return res.status(200).json({ success: true, alreadyExists, channel });
     }
-
     return res.status(400).json({ error: 'Geçersiz action.' });
   }
 
   if (req.method === 'GET') {
     const productId = String(req.query?.productId || '').trim();
-    const alerts = await readAlerts();
-    const pending = productId
-      ? alerts.filter((item) => String(item.productId) === productId && !item.notifiedAt)
-      : alerts.filter((item) => !item.notifiedAt);
-
-    return res.status(200).json({ success: true, pendingCount: pending.length });
+    const q = productId
+      ? await pool.query(`SELECT COUNT(*)::int AS c FROM stock_alerts WHERE product_id=$1 AND notified_at IS NULL`, [productId])
+      : await pool.query(`SELECT COUNT(*)::int AS c FROM stock_alerts WHERE notified_at IS NULL`);
+    return res.status(200).json({ success: true, pendingCount: q.rows[0].c });
   }
 
   return res.status(405).json({ error: 'Method Not Allowed' });

@@ -2,9 +2,10 @@ const fs = require('fs/promises');
 const path = require('path');
 const { sendResendEmail } = require('./_resend-mail');
 const { sendStockBackTemplate } = require('./_whatsapp');
+const { pool } = require('./_db');
+const { ensureStockAlertSchema } = require('./_stock_alerts_schema');
 
 const PRODUCTS_PATH = path.join(__dirname, '..', '..', 'products.json');
-const ALERTS_PATH = path.join(__dirname, '..', 'data', 'stock-alerts.json');
 const SNAPSHOT_PATH = path.join(__dirname, '..', 'data', 'stock-snapshot.json');
 
 async function readJsonSafe(p, fallback) {
@@ -23,8 +24,8 @@ async function writeJsonSafe(p, v) {
 }
 
 async function checkRestocks({ dryRun = false } = {}) {
+  await ensureStockAlertSchema();
   const products = await readJsonSafe(PRODUCTS_PATH, []);
-  const alerts = await readJsonSafe(ALERTS_PATH, []);
   const snapshot = await readJsonSafe(SNAPSHOT_PATH, {});
   const restocked = [];
   const nextSnap = {};
@@ -49,12 +50,18 @@ async function checkRestocks({ dryRun = false } = {}) {
   const nowIso = new Date().toISOString();
 
   for (const r of restocked) {
-    const pending = alerts.filter((a) => String(a.productId) === r.productId && !a.notifiedAt);
-    for (const item of pending) {
+    const pending = await pool.query(
+      `SELECT id, email, phone, channel, notified_channels
+       FROM stock_alerts
+       WHERE product_id=$1 AND notified_at IS NULL`,
+      [r.productId]
+    );
+
+    for (const item of pending.rows) {
       const wantsEmail = item.channel === 'email' || item.channel === 'both' || (!item.channel && item.email);
       const wantsWa = item.channel === 'whatsapp' || item.channel === 'both';
       const productUrl = `https://gocmenperde.com.tr/?product=${encodeURIComponent(r.productId)}`;
-      const channelsDone = Array.isArray(item.notifiedChannels) ? [...item.notifiedChannels] : [];
+      const channelsDone = Array.isArray(item.notified_channels) ? [...item.notified_channels] : [];
 
       if (wantsEmail && item.email && !channelsDone.includes('email')) {
         const result = await sendResendEmail({
@@ -91,13 +98,17 @@ async function checkRestocks({ dryRun = false } = {}) {
         }
       }
 
-      item.notifiedChannels = channelsDone;
       const allDone = (!wantsEmail || channelsDone.includes('email')) && (!wantsWa || channelsDone.includes('whatsapp'));
-      if (allDone) item.notifiedAt = nowIso;
+      await pool.query(
+        `UPDATE stock_alerts
+         SET notified_channels=$2::jsonb,
+             notified_at=CASE WHEN $3 THEN $4::timestamptz ELSE notified_at END
+         WHERE id=$1`,
+        [item.id, JSON.stringify(channelsDone), allDone, nowIso]
+      );
     }
   }
 
-  await writeJsonSafe(ALERTS_PATH, alerts);
   return { restockedCount: restocked.length, sent, failed };
 }
 

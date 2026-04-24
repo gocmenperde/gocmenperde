@@ -47,6 +47,7 @@ const ROUTES = {
   'live-support': () => require('../server/handlers/live-support'),
   'measure-guide': () => require('../server/handlers/measure-guide'),
   reviews: () => require('../server/handlers/reviews'),
+  'reviews-summary': () => require('../server/handlers/reviews-summary'),
   'review-invite-token': () => require('../server/handlers/review-invite-token'),
   'admin/reviews': () => require('../server/handlers/admin/reviews'),
   'admin/measure-guide': () => require('../server/handlers/admin/measure-guide'),
