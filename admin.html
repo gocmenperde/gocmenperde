@@ -698,6 +698,104 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
   .admin-tab-header{position:sticky;top:0;background:rgba(251,249,245,0.96);backdrop-filter:blur(8px);z-index:10;padding:10px 0;border-bottom:1px solid #f0eee9;margin:-10px -10px 10px;padding-left:10px;padding-right:10px}
 }
 
+*{word-break:break-word}
+.topbar{z-index:400}
+.modal-bg{z-index:1000}
+.a-toast,.toast,.admin-toast{z-index:1100}
+.modal-footer,.form-modal-footer,.modal-actions{transform:translateY(calc(-1 * var(--keyboard-offset, 0px)))}
+
+@media (max-width:1024px){
+  .sidebar-toggle{
+    display:flex !important;
+    width:48px;
+    height:48px;
+    align-items:center;
+    justify-content:center;
+    background:transparent;
+    border:none;
+    color:var(--ink);
+    font-size:22px;
+    cursor:pointer;
+  }
+}
+
+@media (max-width:768px){
+  :root{--topbar-h:56px}
+  .topbar{left:0;padding:10px 14px;height:56px}
+  .topbar-left{gap:10px}
+  .topbar-title{font-size:1rem;letter-spacing:.08em}
+  .topbar-right{gap:8px}
+  .topbar-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+  .admin-tab-header{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    top:calc(var(--topbar-h) + env(safe-area-inset-top));
+  }
+  .admin-tab-header::-webkit-scrollbar{display:none}
+  .admin-tab-header > div{display:flex;gap:8px;flex-wrap:nowrap}
+  .admin-tab-header .btn,.admin-tab-header .admin-btn,.admin-tab-header select,.admin-tab-header .admin-picker{flex-shrink:0}
+  .admin-tab-pill{flex-shrink:0;min-height:40px;padding:8px 14px;font-size:13px;white-space:nowrap}
+
+  .review-filters{display:flex;flex-direction:column;gap:8px;width:100%}
+  .review-filters select,.review-filters .filter-pill,.review-filters .admin-picker,.review-filters .admin-picker-trigger,.review-filters .admin-action-btn{width:100%}
+  .review-mod-item,.review-mod-card,.review-card{padding:14px;margin-bottom:12px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.05);position:relative;z-index:1}
+  .review-mod-meta{font-size:11px;color:#6b7681;display:flex;flex-wrap:wrap;gap:6px}
+  .review-mod-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .review-mod-actions button{min-height:44px;font-size:13px;padding:10px 14px;white-space:normal;word-break:break-word;line-height:1.2}
+  .review-mod-actions .btn-full{grid-column:1/-1}
+  .review-mod-reply .reply-textarea{width:100%;min-height:80px;font-size:14px;padding:10px;border-radius:10px}
+
+  .admin-table thead{display:none}
+  .admin-table,.admin-table tbody,.admin-table tr,.admin-table td{display:block;width:100%}
+  .admin-table tr{border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin-bottom:10px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .admin-table td{display:grid;grid-template-columns:110px 1fr;gap:8px;padding:6px 0;border-top:1px solid #f3f4f6;font-size:13px}
+  .admin-table td:first-child{border-top:none}
+  .admin-table td::before{content:attr(data-label);font-size:10px;color:#6b7681;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+
+  #stockAlertTbody tr{border:1px solid #e5e7eb;border-radius:14px;padding:14px;margin-bottom:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  #stockAlertTbody td{display:grid;grid-template-columns:100px 1fr;gap:8px;padding:8px 0;border-top:1px solid #f3f4f6;align-items:center}
+  #stockAlertTbody td:first-child{border-top:none}
+  #stockAlertTbody td::before{content:attr(data-label);font-size:11px;color:#6b7681;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  #stockAlertTbody td[data-label="İşlem"]{grid-template-columns:1fr;margin-top:8px}
+  #stockAlertTbody td[data-label="İşlem"] button{width:100%;min-height:44px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px}
+  #stockAlertTbody td[data-label="İşlem"] button::before{content:"🗑";font-size:16px}
+  #stockAlertTbody td[data-label="Durum"] span{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600}
+  #stockAlertTbody td[data-label="Durum"] .durum-bekliyor{background:#fef3c7;color:#92400e}
+  #stockAlertTbody td[data-label="Durum"] .durum-gonderildi{background:#d1fae5;color:#065f46}
+  .stock-summary-bar{position:sticky;top:calc(var(--topbar-h) + env(safe-area-inset-top));background:rgba(255,255,255,.95);backdrop-filter:blur(8px);padding:10px 14px;z-index:50;border-bottom:1px solid var(--line);font-size:13px;font-weight:600}
+  .stock-product-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;cursor:pointer;transition:background .15s;min-height:60px}
+  .stock-product-item.selected{background:rgba(200,163,90,.12);border-left:3px solid var(--gold)}
+  .stock-product-item img{width:44px;height:44px;object-fit:cover;border-radius:8px}
+
+  .toast,.admin-toast,.a-toast{top:calc(var(--topbar-h,56px) + env(safe-area-inset-top) + 12px);left:14px;right:14px;width:auto;max-width:100%}
+}
+
+@media (max-width:767px){
+  input,select,textarea{font-size:16px !important;min-height:44px}
+  textarea{min-height:80px}
+}
+
+@media (max-width:640px){
+  .modal-content,.admin-modal,.modal-bg .form-modal{
+    width:100%;
+    height:100dvh;
+    max-height:100dvh;
+    border-radius:0;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+  }
+  .modal-header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px;z-index:5}
+  .modal-body,.modal-bg .form-modal-body{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+  .modal-footer,.form-modal-footer,.modal-actions{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 14px;padding-bottom:calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px}
+  .modal-footer button,.form-modal-footer button,.modal-actions button{flex:1;min-height:44px}
+}
+
+@media (pointer:coarse){
+  button,.btn,a.btn,[role="button"]{min-height:44px;min-width:44px}
+}
+
 </style>
 
 </head>
@@ -737,7 +835,7 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
-      <button class="hamburger-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <button class="hamburger-btn sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
       <div class="topbar-title">Göçmen <span style="color:var(--gold);font-style:italic">Perde</span></div>
     </div>
     <div class="topbar-search">
@@ -1430,7 +1528,7 @@ Işık: Yarı Geçirgen"></textarea></div>
         <button id="stockAlertRefreshBtn" class="admin-btn admin-btn-ghost"><i class="fas fa-arrows-rotate"></i> Listeyi Yenile</button>
       </div>
     </div>
-    <div id="stockAlertSummary" class="admin-summary" style="margin-bottom:10px"></div>
+    <div id="stockAlertSummary" class="admin-summary stock-summary-bar" style="margin-bottom:10px"></div>
     <table class="admin-table">
       <thead><tr><th>Ürün</th><th>E-posta</th><th>Telefon</th><th>Kanal</th><th>Kayıt</th><th>Bildirim</th><th></th></tr></thead>
       <tbody id="stockAlertTbody"></tbody>
@@ -1444,7 +1542,7 @@ Işık: Yarı Geçirgen"></textarea></div>
   <section id="adminReviews" class="admin-tab" style="display:block">
     <div class="admin-tab-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
       <h3><i class="fas fa-comments"></i> Yorum Moderasyonu</h3>
-      <div>
+      <div class="review-filters">
         <select id="reviewStatusFilter">
           <option value="pending">Bekleyen</option>
           <option value="approved">Onaylı</option>
@@ -2831,10 +2929,11 @@ async function fillProductPickers(){
 function renderProductPickerList(listId, items, scope){
   const el = document.getElementById(listId); if (!el) return;
   if (!items.length) { el.innerHTML = '<div class="admin-picker-empty">Ürün bulunamadı</div>'; return; }
-  const head = `<div class="admin-picker-item" data-id=""><div class="admin-picker-item-info"><div class="admin-picker-item-name">📋 Tüm ürünler</div></div></div>`;
+  const itemClass = scope === 'stockAlert' ? 'admin-picker-item stock-product-item' : 'admin-picker-item';
+  const head = `<div class="${itemClass}" data-id=""><div class="admin-picker-item-info"><div class="admin-picker-item-name">📋 Tüm ürünler</div></div></div>`;
   el.innerHTML = head + items.slice(0, 300).map(p=>{
     const img = (Array.isArray(p.images) && p.images[0]) || p.image || p.thumbnail || '';
-    return `<div class="admin-picker-item" data-id="${esc(p.id)}">
+    return `<div class="${itemClass}" data-id="${esc(p.id)}">
       ${img ? `<img src="${esc(img)}" loading="lazy" alt="" onerror="this.style.visibility='hidden'">` : '<div style="width:40px;height:40px;border-radius:8px;background:#f0eee9"></div>'}
       <div class="admin-picker-item-info">
         <div class="admin-picker-item-name">${esc(p.name||p.id)}</div>
@@ -2859,6 +2958,10 @@ function renderProductPickerList(listId, items, scope){
       } else {
         lbl.textContent = 'Tüm ürünler';
         thumb.hidden = true;
+      }
+      if(scope === 'stockAlert'){
+        el.querySelectorAll('.stock-product-item').forEach((item)=>item.classList.remove('selected'));
+        node.classList.add('selected');
       }
       if (hidden) hidden.value = id;
       togglePicker(cfg.panel, false);
@@ -2947,7 +3050,7 @@ async function adminFetchReviews(){
       const prod = findProductById(r.product_id);
       const pname = prod?.name || r.product_id;
       const pimg = (prod && (Array.isArray(prod.images)&&prod.images[0])) || prod?.image || prod?.thumbnail || '';
-      return `<article class="review-mod-item" data-id="${r.id}">
+      return `<article class="review-mod-item review-mod-card review-card" data-id="${r.id}">
         <div class="review-mod-prod">
           ${pimg ? `<img src="${pimg}" alt="" class="review-mod-prod-thumb" loading="lazy" onerror="this.style.display='none'">` : ''}
           <div class="review-mod-prod-info">
@@ -2963,11 +3066,11 @@ async function adminFetchReviews(){
         <div class="review-mod-foot">IP: ${(r.ip_hash||'').slice(0,12)}... · Durum: ${esc(r.status)} · ${new Date(r.created_at).toLocaleDateString('tr-TR')}</div>
         <div class="review-mod-photos">${(Array.isArray(r.photos)?r.photos:[]).map(p=>`<img src="${esc(p)}" loading="lazy" alt="" onerror="this.style.display='none'">`).join('')}</div>
         <div class="review-mod-reply">
-          <textarea id="reply-${r.id}" placeholder="Mağaza cevabı (müşteriye görünür)">${esc(r.admin_reply||'')}</textarea>
+          <textarea class="reply-textarea" id="reply-${r.id}" placeholder="Mağaza cevabı (müşteriye görünür)">${esc(r.admin_reply||'')}</textarea>
           <div class="review-mod-reply-meta">${r.admin_reply_at ? 'Son cevap: '+new Date(r.admin_reply_at).toLocaleString('tr-TR') : 'Henüz cevap yok'}</div>
         </div>
         <div class="review-mod-actions">
-          <button class="btn btn-success btn-sm" onclick="adminReviewAction('approve',${r.id})">Onayla</button>
+          <button class="btn btn-success btn-sm btn-full" onclick="adminReviewAction('approve',${r.id})">Onayla</button>
           <button class="btn btn-outline btn-sm" onclick="adminReviewAction('reject',${r.id})">Reddet</button>
           <button class="btn btn-outline btn-sm" onclick="adminReplyReview(${r.id})">💬 Cevabı Kaydet</button>
           <button class="btn btn-danger btn-sm" onclick="adminReviewAction('delete',${r.id})">Sil</button>
@@ -3047,10 +3150,10 @@ async function adminFetchStockAlerts(){
     const channels = Array.isArray(item.notifiedChannels) ? item.notifiedChannels : [];
     const channelLabel = (item.channel || (item.email && item.phone ? 'both' : item.phone ? 'whatsapp' : 'email')).toUpperCase();
     const statusHtml = item.notifiedAt
-      ? '<span style="color:#1d7a3b">✓ Tamamlandı</span>'
+      ? '<span class="durum-gonderildi">✓ Tamamlandı</span>'
       : channels.length
         ? `<span style="color:#a3823f">Kısmen (${channels.join(', ')})</span>`
-        : '<span style="color:#a3823f">Bekliyor</span>';
+        : '<span class="durum-bekliyor">Bekliyor</span>';
     const delKey = item.email ? `data-email="${item.email}"` : `data-phone="${item.phone}"`;
     return `<tr>
       <td data-label="Ürün">${item.productName || ''}<br><small>${item.productId}</small></td>
@@ -3103,12 +3206,18 @@ document.getElementById('reviewsSeedSelectedBtn')?.addEventListener('click', asy
 document.getElementById('reviewsRefresh')?.addEventListener('click', adminFetchReviews);
 document.getElementById('reviewStatusFilter')?.addEventListener('change', adminFetchReviews);
 function toggleSidebar(){
-  const sb=document.getElementById('sidebar'), ov=document.getElementById('sidebarOverlay');
-  sb.classList.contains('open') ? closeSidebar() : (sb.classList.add('open'), ov.classList.add('open'));
+  const sb = document.getElementById('sidebar');
+  sb?.classList.contains('open') ? closeSidebar() : openSidebar();
+}
+function openSidebar(){
+  document.getElementById('sidebar')?.classList.add('open');
+  document.getElementById('sidebarOverlay')?.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
+  document.getElementById('sidebar')?.classList.remove('open');
+  document.getElementById('sidebarOverlay')?.classList.remove('open');
+  document.body.style.overflow = '';
 }
 function showPage(id){
   const nextPage = document.getElementById('page-'+id);
@@ -3166,13 +3275,15 @@ function navigateFromStat(target, filter){
 }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function syncResponsiveTableLabels(root=document){
-  root.querySelectorAll('.table-wrap table').forEach((table)=>{
+  root.querySelectorAll('.table-wrap table, .admin-table').forEach((table)=>{
     const headers = Array.from(table.querySelectorAll('thead th')).map((th)=>th.textContent.trim());
     if(!headers.length) return;
     table.querySelectorAll('tbody tr').forEach((tr)=>{
       Array.from(tr.children).forEach((td, index)=>{
         if(td.tagName !== 'TD') return;
-        td.setAttribute('data-label', headers[index] || 'Alan');
+        if(!td.dataset.label && headers[index]){
+          td.setAttribute('data-label', headers[index] || 'Alan');
+        }
       });
     });
   });
@@ -6318,90 +6429,28 @@ document.addEventListener('DOMContentLoaded',()=>{
   syncResponsiveTableLabels();
   const tableObserver = new MutationObserver(()=>syncResponsiveTableLabels());
   tableObserver.observe(document.body, {childList:true, subtree:true});
+  document.querySelectorAll('.nav-item').forEach((item)=>{
+    item.addEventListener('click', ()=>{
+      if(window.innerWidth <= 1024) closeSidebar();
+    });
+  });
+  document.querySelectorAll('input[type="file"]').forEach((input)=>{
+    if(!input.hasAttribute('accept')) input.setAttribute('accept', 'image/*');
+    input.setAttribute('capture', 'environment');
+  });
+  document.querySelectorAll('input[type="number"]').forEach((input)=>input.setAttribute('inputmode', 'numeric'));
+  document.querySelectorAll('input[type="tel"]').forEach((input)=>input.setAttribute('inputmode', 'tel'));
+  document.querySelectorAll('input[type="email"]').forEach((input)=>input.setAttribute('inputmode', 'email'));
+  if(window.visualViewport){
+    const setKeyboardOffset = () => {
+      const diff = Math.max(0, window.innerHeight - window.visualViewport.height);
+      document.documentElement.style.setProperty('--keyboard-offset', `${diff}px`);
+    };
+    window.visualViewport.addEventListener('resize', setKeyboardOffset);
+    setKeyboardOffset();
+  }
 });
 </script>
-
-<style>
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.shake{animation:shake 0.4s ease}
-
-.review-mod-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;box-shadow:0 4px 12px rgba(0,0,0,.04);transition:transform .15s ease, box-shadow .15s ease}
-.review-mod-item:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
-.review-mod-prod{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #f0eee9;margin-bottom:10px}
-.review-mod-prod-thumb{width:48px;height:48px;border-radius:10px;object-fit:cover;border:1px solid #eee;flex-shrink:0}
-.review-mod-prod-info{flex:1;min-width:0}
-.review-mod-prod-name{font-weight:700;font-size:.92rem;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.review-mod-prod-id{font-size:.7rem;color:#6b7681;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.review-mod-meta{font-size:.85rem;margin-bottom:6px}
-.review-mod-text{font-size:.9rem;line-height:1.5;color:#2d2d2d;margin-bottom:8px}
-.review-mod-foot{color:#6b7681;font-size:.75rem;margin-bottom:8px}
-.review-mod-reply{margin:8px 0}
-.review-mod-reply textarea{width:100%;min-height:60px;padding:10px 12px;border:1px solid #d5d9e5;border-radius:10px;font-size:.85rem;font-family:inherit;outline:none;resize:vertical}
-.review-mod-reply textarea:focus{border-color:#a3823f}
-.review-mod-reply-meta{font-size:.7rem;color:#6b7681;margin-top:4px}
-.review-mod-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-
-body[data-admin="1"] .mobile-bottom-nav,
-body[data-admin="1"] #floatingCta,
-body[data-admin="1"] #floatHelpHub,
-body[data-admin="1"] .social-proof-toast,
-body[data-admin="1"] .live-order-toast{display:none !important;}
-.admin-action-btn{white-space:normal;word-break:break-word;line-height:1.2;min-height:44px;padding:8px 12px;font-size:12px}
-.review-mod-item,.moderation-card{position:relative;z-index:1}
-.topbar{z-index:100}
-.admin-tab-header{z-index:90}
-.modal-bg{z-index:1000}
-.a-toast{z-index:1100}
-@media (max-width: 480px) {
-  .admin-action-row{flex-direction:column;gap:8px}
-  .admin-action-row>*{width:100%}
-}
-
-.admin-badge-grey{background:#eee;color:#555}
-.admin-picker{position:relative;min-width:240px;max-width:340px}
-.admin-picker-trigger{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:#fff;border:1px solid #d5d9e5;border-radius:12px;cursor:pointer;font-size:.85rem;text-align:left;transition:all .15s ease;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.admin-picker-trigger:hover{border-color:#a3823f;box-shadow:0 4px 14px rgba(163,130,63,.12)}
-.admin-picker-thumb{width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid #eee;flex-shrink:0}
-.admin-picker-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;color:#1a1a1a}
-.admin-picker-caret{color:#6b7681;font-size:.7rem}
-.admin-picker-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:100;background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:10px;max-height:60vh;overflow:hidden;display:flex;flex-direction:column}
-.admin-picker-panel[hidden]{display:none !important}
-.admin-picker-panel:not(.is-open){display:none}
-.admin-picker-search{width:100%;padding:10px 12px;border:1px solid #d5d9e5;border-radius:10px;font-size:.88rem;margin-bottom:8px;outline:none}
-.admin-picker-search:focus{border-color:#a3823f}
-.admin-picker-list{overflow-y:auto;display:flex;flex-direction:column;gap:2px;flex:1;min-height:0}
-.admin-picker-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:background .12s ease}
-.admin-picker-item:hover,.admin-picker-item.active{background:#faf5e8}
-.admin-picker-item img{width:40px;height:40px;border-radius:8px;object-fit:cover;border:1px solid #eee;flex-shrink:0;background:#f6f6f6}
-.admin-picker-item-info{flex:1;min-width:0}
-.admin-picker-item-name{font-weight:600;font-size:.85rem;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.admin-picker-item-meta{font-size:.7rem;color:#6b7681;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.admin-picker-empty{padding:20px;text-align:center;color:#6b7681;font-size:.82rem}
-@media (max-width:720px){
-  .reviews-mod-list{grid-template-columns:1fr;gap:8px}
-  .review-mod-item{padding:14px;border-radius:14px;font-size:.9rem}
-  .review-mod-actions{flex-wrap:wrap;gap:6px}
-  .review-mod-actions .btn{flex:1;min-width:42%;padding:9px 8px;font-size:.78rem}
-  .admin-tab-header{flex-direction:column;align-items:stretch !important}
-  .admin-tab-header > div{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
-  #reviewProductFilter, #reviewStatusFilter{width:100%;max-width:100%}
-  #reviewsSeedAllBtn, #reviewsSeedSelectedBtn, #reviewsRefresh{flex:1;min-width:46%}
-  #stockAlertTbody, #stockAlertTbody tr, #stockAlertTbody td{display:block;width:100%}
-  #stockAlertTbody tr{border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin-bottom:10px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.04)}
-  #stockAlertTbody td{padding:5px 0;border:none}
-  #stockAlertTbody td::before{content:attr(data-label);display:block;font-size:.7rem;color:#6b7681;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
-  #adminStockAlerts table thead{display:none}
-  .admin-picker{max-width:100%;width:100%}
-  .admin-picker-panel{position:fixed;left:10px;right:10px;top:auto;bottom:10px;max-height:70vh;border-radius:18px;padding:14px}
-  .admin-picker-list{max-height:55vh}
-  .review-mod-prod-thumb{width:42px;height:42px}
-  .review-mod-photos img{width:54px;height:54px}
-  #page-reviews .breadcrumb, #page-stock-alerts .breadcrumb, #page-reviews .page-header{padding-left:10px;padding-right:10px}
-  #page-reviews, #page-stock-alerts, #page-notifications{padding:10px}
-  .admin-tab-header{position:sticky;top:0;background:rgba(251,249,245,0.96);backdrop-filter:blur(8px);z-index:10;padding:10px 0;border-bottom:1px solid #f0eee9;margin:-10px -10px 10px;padding-left:10px;padding-right:10px}
-}
-
-</style>
 
 </body>
 </html>
