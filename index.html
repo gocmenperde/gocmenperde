@@ -3652,6 +3652,8 @@ let productRequestInFlight = null;
 let productRequestInFlightCacheTimer = 0;
 let productsStateVersion = 0;
 let lastAppliedFilterSignature = '';
+let productsDataSignature = '';
+let renderProductsSkipIfSameHead = false;
 let __productObserver = null;
 let PREMIUM_LIVE_PRODUCTS = [];
 let PREMIUM_FEATURED_PRODUCTS = [];
@@ -3776,14 +3778,35 @@ function updateProductSeoArtifacts(products=[]){
   ldNode.textContent = JSON.stringify(graph);
 }
 
+function productsListSignature(list){
+  return (Array.isArray(list) ? list : [])
+    .map((p)=>`${p.id}:${p.price}:${p.stock || 0}:${p.updatedAt || ''}`)
+    .join('|');
+}
+
 function renderProductState(list, {withObserver=true} = {}){
-  PRODUCTS = (Array.isArray(list) ? list : []).map(normalizeProductCatalog);
+  const normalized = (Array.isArray(list) ? list : []).map(normalizeProductCatalog);
+  const nextSignature = productsListSignature(normalized);
+  const sameProducts = nextSignature === productsDataSignature;
+  PRODUCTS = normalized;
+  productsDataSignature = nextSignature;
+  if(sameProducts){
+    hydrateProductSocialData();
+    renderProductsFeaturedBanner();
+    renderHomePromoPanel();
+    return;
+  }
   productsStateVersion += 1;
   lastAppliedFilterSignature = '';
   processRestockNotifications(PRODUCTS);
   hydrateProductSocialData();
   syncCategoriesFromAdmin();
-  renderProducts(PRODUCTS);
+  renderProductsSkipIfSameHead = true;
+  try{
+    renderProducts(PRODUCTS);
+  } finally {
+    renderProductsSkipIfSameHead = false;
+  }
   updateProductSeoArtifacts(PRODUCTS);
   renderHomeFeaturedProducts();
   renderProductsFeaturedBanner();
@@ -3793,15 +3816,12 @@ function renderProductState(list, {withObserver=true} = {}){
 }
 
 async function loadProductsResilient(){
-  const sources = [
-    `/products.json?v=${Date.now()}`,
-    `/products.json`,
-  ];
+  const sources = [`/products.json`];
   for (const url of sources) {
     try {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 4000);
-      const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+      const res = await fetch(url, { cache: 'default', signal: ctrl.signal });
       clearTimeout(timer);
       if (!res.ok) continue;
       const data = await res.json();
@@ -4959,6 +4979,11 @@ function renderProducts(list){
     grid.innerHTML = '<div class="products-loading" style="grid-column:1/-1">Bu kriterlere uygun ürün bulunamadı.</div>';
     return;
   }
+  if(renderProductsSkipIfSameHead){
+    const sameFirst = grid?.firstElementChild?.dataset?.id === active[0]?.id;
+    const sameCount = grid?.querySelectorAll('.product-card')?.length === active.length;
+    if(sameFirst && sameCount) return;
+  }
   const FIRST_PAINT = 24;
   const head = active.slice(0, FIRST_PAINT);
   const tail = active.slice(FIRST_PAINT);
@@ -5576,7 +5601,7 @@ function openModalFromProduct(id){
   if(window.innerWidth>767) document.body.classList.add('native-cursor-mode');
   const p = PRODUCTS.find(x => x.id === id);
   if(!p) return;
-  bumpSocialProof(id);
+  queueMicrotask(()=>bumpSocialProof(id));
   currentModalProductId = id;
   trackRecentlyViewed(id);
   const social = getProductSocial(id);
@@ -5584,7 +5609,7 @@ function openModalFromProduct(id){
   currentModalImages = getProductImages(p);
   currentModalImageIndex = 0;
   modalBrokenImageMap = new Set();
-  preloadModalBatch(currentModalImages, 5);
+  preloadModalBatch(currentModalImages, 2);
 
   document.getElementById('mTitle').innerText = p.name;
   document.querySelector('.modal-rating-line')?.remove();
@@ -5593,7 +5618,6 @@ function openModalFromProduct(id){
   const catMap = Object.fromEntries(CATEGORIES.map(c=>[c.key,c.label]));
   document.getElementById('mTag').innerText = catMap[p.cat]||p.cat;
   updateModalGalleryNav();
-  renderModalThumbs();
 
   const priceWrap = document.getElementById('mPriceWrap');
   const discBadge = document.getElementById('mDiscountBadge');
@@ -5726,8 +5750,6 @@ function openModalFromProduct(id){
     bindMeterDimensionsAutoCalc(p, qid, wid, hid, pid);
   }
   renderModalReviews(id);
-  renderModalRelated(p);
-  bindModalRelatedDelegation();
   startLiveViewerCounter(id);
   syncReviewNameField(id);
   document.getElementById('reviewTextInput').value = '';
@@ -5742,6 +5764,18 @@ function openModalFromProduct(id){
   document.body.classList.add('product-modal-open');
   lockPageScrollForModal();
   setProductDeepLink(id);
+  requestAnimationFrame(()=>{
+    const runDeferred = ()=>{
+      renderModalThumbs();
+      renderModalRelated(p);
+      bindModalRelatedDelegation();
+    };
+    if(typeof requestIdleCallback === 'function'){
+      requestIdleCallback(runDeferred, {timeout:250});
+    }else{
+      setTimeout(runDeferred, 0);
+    }
+  });
 }
 
 function openGalleryModal(src,title,desc){
@@ -6197,7 +6231,7 @@ function recoverUIAfterResume(){
 const VISIT_SESSION_KEY = 'gp_visit_session_id';
 let visitHeartbeatTimer = null;
 const FOREGROUND_REFRESH_MIN_INTERVAL_MS = 180000;
-const FOREGROUND_REFRESH_DEBOUNCE_MS = 650;
+const FOREGROUND_REFRESH_DEBOUNCE_MS = 1500;
 let foregroundRefreshTimer = null;
 let lastForegroundRefreshAt = 0;
 let lastForegroundScheduleAt = 0;
@@ -6269,7 +6303,7 @@ function refreshCatalogOnForeground({force=false} = {}){
   if(document.getElementById('productModal')?.classList.contains('open') || imageViewerOpen) return;
   if(!shouldRefreshProductsOnForeground({force})) return;
   lastForegroundRefreshAt = Date.now();
-  if(PRODUCTS.length===0 || shouldRefreshProductsOnForeground({force:true})) loadProducts().catch((err)=>console.warn('[foreground] loadProducts failed', err));
+  if(PRODUCTS.length===0 || shouldRefreshProductsOnForeground()) loadProducts().catch((err)=>console.warn('[foreground] loadProducts failed', err));
   loadHomeFeaturedProductIds();
   loadProductsFeaturedProductIds();
   loadActiveCampaigns();
@@ -6277,7 +6311,7 @@ function refreshCatalogOnForeground({force=false} = {}){
 
 function scheduleForegroundRefresh({force=false} = {}){
   const now = Date.now();
-  if(!force && now - lastForegroundScheduleAt < 1800) return;
+  if(!force && now - lastForegroundScheduleAt < 1500) return;
   lastForegroundScheduleAt = now;
   clearTimeout(foregroundRefreshTimer);
   foregroundRefreshTimer = setTimeout(()=>{
@@ -6560,7 +6594,7 @@ function scheduleSectionTransitionFailSafeUnlock(){
       __pendingSectionTarget = null;
       applySectionState(pending.id, {scroll:pending.scroll});
     }
-  }, 1000);
+  }, 350);
 }
 function scheduleSectionHeavyWork(sectionId, fn){
   const run = ()=>{
@@ -6749,7 +6783,7 @@ function go(id){
     if(nextId === 'products'){
       if(skipNextProductsReset){
         skipNextProductsReset = false;
-      } else {
+      } else if(activeSectionId !== 'products' && activeSectionId !== 'cart' && activeSectionId !== 'checkout'){
         resetCategorySelectionToAll();
         writeProductsViewState({});
       }
@@ -6809,7 +6843,10 @@ window.addEventListener('hashchange',()=>{
     queueMicrotask(()=>{ suppressNextHashChange = false; });
     return;
   }
-  applySectionState(getSectionFromLocation(), {scroll:'restore'});
+  const target = getSectionFromLocation();
+  const currentActive = document.querySelector('.section.active')?.id;
+  if(currentActive === target) return;
+  applySectionState(target, {scroll:'restore'});
   sendVisitEvent({heartbeat:false});
 });
 
