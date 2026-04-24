@@ -13,7 +13,22 @@ const PORT = Number(process.env.PORT || 5000);
 const HOST = process.env.HOST || '0.0.0.0';
 app.use(compression());
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      // TODO: inline'ları dış dosyaya çıkarınca 'unsafe-inline' kaldırılacak
+      "script-src": ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com'],
+      "style-src": ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com'],
+      "font-src": ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com', 'data:'],
+      "img-src": ["'self'", 'data:', 'blob:', 'https:'],
+      "connect-src": ["'self'", 'https://www.google-analytics.com'],
+      "frame-src": ["'self'", 'https://www.google.com', 'https://www.youtube.com'],
+      "object-src": ["'none'"],
+      "base-uri": ["'self'"],
+      "frame-ancestors": ["'self'"]
+    }
+  },
   crossOriginEmbedderPolicy: false,
 }));
 
@@ -31,6 +46,22 @@ app.get('/readyz', (req, res) => {
   res.status(200).json({ ready: true, pid: process.pid, host: HOST, port: PORT });
 });
 
+app.get('/sitemap.xml', (req, res) => {
+  try {
+    const products = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'products.json'), 'utf8'));
+    const base = 'https://gocmenperde.com.tr';
+    const staticUrls = ['/', '/hesap.html', '/gizlilik-politikasi.html', '/iade-politikasi.html', '/mesafeli-satis.html'];
+    const urls = staticUrls.map((u) => `<url><loc>${base}${u}</loc></url>`).join('');
+    const productUrls = products
+      .filter((p) => p?.active !== false)
+      .map((p) => `<url><loc>${base}/?product=${encodeURIComponent(p.id)}</loc></url>`)
+      .join('');
+    res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}${productUrls}</urlset>`);
+  } catch (_) {
+    res.status(500).type('text/plain').send('sitemap unavailable');
+  }
+});
+
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 120,
@@ -46,6 +77,18 @@ const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 const paymentLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/resimler/')) return next();
+  if (!/\.(jpe?g|png)$/i.test(req.path)) return next();
+  const accepts = String(req.headers.accept || '');
+  if (!accepts.includes('image/webp')) return next();
+  const webp = path.join(__dirname, '..', req.path.replace(/\.(jpe?g|png)$/i, '.webp'));
+  fs.access(webp, fs.constants.R_OK, (err) => {
+    if (err) return next();
+    res.type('image/webp');
+    res.sendFile(webp);
+  });
+});
 app.use(
   express.static(path.resolve(__dirname, '..'), {
     etag: true,
