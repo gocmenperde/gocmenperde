@@ -1420,7 +1420,7 @@ footer p{font-size:.76rem;letter-spacing:1.4px}
 .campaign-stream-grid.auto-scroll:hover .campaign-stream-rail{animation-play-state:paused}
 .campaign-stream-card{position:relative;background:linear-gradient(135deg,#1a1a1a 0%,#2a2118 100%);border:1px solid rgba(224,178,82,.4);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:12px;align-items:stretch;box-shadow:0 22px 40px rgba(26,26,26,.33);overflow:hidden;min-height:100%}
 .campaign-stream-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 85% 15%,rgba(243,205,120,.22),transparent 48%);pointer-events:none}
-.campaign-stream-media{position:relative;height:220px;border-radius:16px;overflow:hidden;background:#f0f2f7}
+.campaign-stream-media{position:relative;height:220px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#2a2118 0%,#1a1a1a 100%)}
 .campaign-stream-media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease}
 .campaign-stream-card:hover .campaign-stream-media img{transform:scale(1.04)}
 .campaign-stream-badge{position:absolute;top:10px;left:10px;background:rgba(19,18,26,.76);color:#fff;padding:5px 9px;border-radius:999px;font-size:.58rem;letter-spacing:1px;border:1px solid rgba(213,163,63,.35)}
@@ -6673,7 +6673,11 @@ function refreshCatalogOnForeground({force=false} = {}){
   loadProducts().catch((err)=>console.warn('[foreground] loadProducts failed', err));
   loadHomeFeaturedProductIds();
   loadProductsFeaturedProductIds();
-  loadActiveCampaigns();
+  // Kampanyalar zaten DOM'da varsa ve fingerprint değişmediyse loadActiveCampaigns
+  // çağrısı render'ı atlayacak. Ama ağ trafiğini de azaltmak için min interval uygula.
+  if (!_lastCampaignsLoadAt || (Date.now() - _lastCampaignsLoadAt) > 60000) {
+    loadActiveCampaigns();
+  }
 }
 
 function scheduleForegroundRefresh({force=false} = {}){
@@ -6738,7 +6742,22 @@ window.addEventListener('load',()=>{
   runSafely('startVisitTracking', ()=>startVisitTracking());
   runSafely('handlePaymentReturnState', ()=>handlePaymentReturnState());
   if('serviceWorker' in navigator && location.protocol === 'https:'){
-    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+    navigator.serviceWorker.register('/sw.js').then((reg)=>{
+      // Yeni SW geldiğinde sayfayı OTOMATİK reload etme — kullanıcı kafası karışıyor.
+      // Sadece sıradaki tam sayfa yüklemesinde devreye girsin.
+      reg.addEventListener('updatefound', ()=>{
+        const newWorker = reg.installing;
+        if(!newWorker) return;
+        newWorker.addEventListener('statechange', ()=>{
+          if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
+            // Yeni SW hazır ama eski sayfa açık. Kullanıcı sıradaki ziyarette geçiş yapacak.
+            console.info('[sw] new version installed, will activate on next visit');
+          }
+        });
+      });
+    }).catch(()=>{});
+    // controllerchange olayında OTOMATİK reload YOK. Bu satır kasıtlı boş.
+    // navigator.serviceWorker.addEventListener('controllerchange', ()=>location.reload()); // YAPMA
   }
 });
 window.addEventListener('pagehide', ()=>{
@@ -8636,12 +8655,38 @@ function renderCampaignCards(containerId, { compact=false } = {}){
   if(!box) return;
   box.classList.remove('auto-scroll');
   const campaigns = activeCampaigns.filter(isCampaignActiveNow);
+  // Fingerprint: render edilmiş halinin imzası. Aynıysa DOM'a dokunma → flicker yok.
+  const fingerprint = JSON.stringify({
+    compact,
+    items: campaigns.map(c => ({
+      id: c.id || c.couponCode || c.name,
+      img: c.imageUrl || '',
+      name: c.name || '',
+      desc: c.description || '',
+      coupon: c.couponCode || '',
+      disc: c.discountValue || 0,
+      type: c.discountType || '',
+      target: c.targetPath || '',
+      btn: c.buttonLabel || '',
+      start: c.startDate || '',
+      end: c.endDate || '',
+    })),
+  });
+  if(box.dataset.renderFp === fingerprint){
+    // Görünürlük durumunu garantile ama DOM'u yeniden yazma.
+    if(containerId === 'homeCampaignGrid'){
+      const section = document.getElementById('homeCampaignSection');
+      if(section) section.style.display = campaigns.length ? 'block' : 'none';
+    }
+    return;
+  }
   if(!campaigns.length){
     if(containerId === 'homeCampaignGrid'){
       const section = document.getElementById('homeCampaignSection');
       if(section) section.style.display = 'none';
     }
     box.innerHTML = '';
+    box.dataset.renderFp = fingerprint;
     return;
   }
   if(containerId === 'homeCampaignGrid'){
@@ -8679,6 +8724,7 @@ function renderCampaignCards(containerId, { compact=false } = {}){
       <button class="campaign-stream-btn" type="button" onclick="${action}">${btnLabel}</button>
     </article>`;
   }).join('');
+  box.dataset.renderFp = fingerprint;
   if(containerId === 'homeCampaignGrid') refreshPremiumPanel('homeCampaignViewport');
 }
 
@@ -8692,14 +8738,18 @@ function navigateToCampaign(targetPath=''){
   handleTargetPathNavigation(path);
 }
 
+let _lastCampaignsLoadAt = 0;
 async function loadActiveCampaigns(){
   try{
     const res = await fetch('/api/campaigns', { cache:'no-store' });
     if(!res.ok) throw new Error('Kampanya API hatası');
     const payload = await res.json();
     activeCampaigns = Array.isArray(payload?.items) ? payload.items : [];
-  }catch(err){ console.warn('[gp:warn]', err);
-    activeCampaigns = [];
+    _lastCampaignsLoadAt = Date.now();
+  }catch(err){
+    console.warn('[gp:warn]', err);
+    // Hata durumunda mevcut activeCampaigns'i KORU. Boş set'leme → flicker olmaz.
+    if (!Array.isArray(activeCampaigns)) activeCampaigns = [];
   }
   renderCampaignCards('homeCampaignGrid');
   renderCampaignCouponHints();
