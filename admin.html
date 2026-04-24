@@ -637,6 +637,23 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 .review-mod-reply textarea:focus{border-color:#a3823f}
 .review-mod-reply-meta{font-size:.7rem;color:#6b7681;margin-top:4px}
 .review-mod-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+
+body[data-admin="1"] .mobile-bottom-nav,
+body[data-admin="1"] #floatingCta,
+body[data-admin="1"] #floatHelpHub,
+body[data-admin="1"] .social-proof-toast,
+body[data-admin="1"] .live-order-toast{display:none !important;}
+.admin-action-btn{white-space:normal;word-break:break-word;line-height:1.2;min-height:44px;padding:8px 12px;font-size:12px}
+.review-mod-item,.moderation-card{position:relative;z-index:1}
+.topbar{z-index:100}
+.admin-tab-header{z-index:90}
+.modal-bg{z-index:1000}
+.a-toast{z-index:1100}
+@media (max-width: 480px) {
+  .admin-action-row{flex-direction:column;gap:8px}
+  .admin-action-row>*{width:100%}
+}
+
 .admin-badge-grey{background:#eee;color:#555}
 .admin-picker{position:relative;min-width:240px;max-width:340px}
 .admin-picker-trigger{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:#fff;border:1px solid #d5d9e5;border-radius:12px;cursor:pointer;font-size:.85rem;text-align:left;transition:all .15s ease;box-shadow:0 2px 8px rgba(0,0,0,.04)}
@@ -684,7 +701,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 </style>
 
 </head>
-<body>
+<body data-admin="1">
 
 <!-- LOGIN -->
 
@@ -885,7 +902,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
     <div><h1>Sipariş <em>Yönetimi</em></h1><p>Tüm müşteri siparişlerini takip edin</p></div>
     <button class="btn btn-outline btn-sm" onclick="loadAdminOrders()"><i class="fas fa-sync"></i> Yenile</button>
   </div>
-  <div class="toolbar">
+  <div class="toolbar admin-action-row">
     <input type="text" class="search-box" placeholder="🔍 Müşteri, sipariş #..." id="orderSearch" oninput="filterOrders()">
     <select class="filter-sel" id="orderStatusFilter" onchange="filterOrders()">
       <option value="">Tüm Durumlar</option>
@@ -1446,9 +1463,9 @@ Işık: Yarı Geçirgen"></textarea></div>
             <div class="admin-picker-list" id="reviewProductPickerList"></div>
           </div>
         </div>
-        <button id="reviewsSeedSelectedBtn" class="btn btn-outline btn-sm"><i class="fas fa-magic"></i> Seçili Ürüne Sahte Yorum Üret</button>
-        <button id="reviewsSeedAllBtn" class="btn btn-outline btn-sm"><i class="fas fa-magic"></i> Eksik Sahte Yorumları Tamamla</button>
-        <button id="reviewsRefresh" class="admin-btn">Yenile</button>
+        <button id="reviewsSeedSelectedBtn" class="btn btn-outline btn-sm admin-action-btn"><i class="fas fa-magic"></i> + Sahte Yorum</button>
+        <button id="reviewsSeedAllBtn" class="btn btn-outline btn-sm admin-action-btn"><i class="fas fa-magic"></i> Sahte Yorumları Tamamla</button>
+        <button id="reviewsRefresh" class="admin-btn admin-action-btn">Yenile</button>
       </div>
     </div>
     <div id="reviewsList" class="reviews-mod-list"></div>
@@ -2899,7 +2916,16 @@ document.addEventListener('keydown', (e)=>{
 
 fillProductPickers();
 
+const ALLOW_REVIEW_SEEDING = window.__ADMIN_FLAGS?.allowReviewSeeding === true || String(window.__ADMIN_FLAGS?.allowReviewSeeding || '') === '1';
+function syncReviewSeedUi(){
+  const seedButtons = ['reviewsSeedAllBtn','reviewsSeedSelectedBtn'];
+  seedButtons.forEach((id)=>{
+    const btn = document.getElementById(id);
+    if(btn) btn.style.display = ALLOW_REVIEW_SEEDING ? '' : 'none';
+  });
+}
 
+syncReviewSeedUi();
 
 async function adminFetchReviews(){
   const token = getAdminToken();
@@ -2945,7 +2971,7 @@ async function adminFetchReviews(){
           <button class="btn btn-outline btn-sm" onclick="adminReviewAction('reject',${r.id})">Reddet</button>
           <button class="btn btn-outline btn-sm" onclick="adminReplyReview(${r.id})">💬 Cevabı Kaydet</button>
           <button class="btn btn-danger btn-sm" onclick="adminReviewAction('delete',${r.id})">Sil</button>
-          <button class="btn btn-outline btn-sm" onclick="adminRegenerateSeeds('${esc(r.product_id)}')">🪄 Sahte Yorum Üret</button>
+          ${ALLOW_REVIEW_SEEDING ? `<button class="btn btn-outline btn-sm admin-action-btn" onclick="adminRegenerateSeeds('${esc(r.product_id)}')">🪄 Sahte Yorum Üret</button>` : ''}
         </div>
       </article>`;
     }).join('') || '<div class="review-mod-item">Kayıt yok.</div>';
@@ -6314,6 +6340,23 @@ document.addEventListener('DOMContentLoaded',()=>{
 .review-mod-reply textarea:focus{border-color:#a3823f}
 .review-mod-reply-meta{font-size:.7rem;color:#6b7681;margin-top:4px}
 .review-mod-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+
+body[data-admin="1"] .mobile-bottom-nav,
+body[data-admin="1"] #floatingCta,
+body[data-admin="1"] #floatHelpHub,
+body[data-admin="1"] .social-proof-toast,
+body[data-admin="1"] .live-order-toast{display:none !important;}
+.admin-action-btn{white-space:normal;word-break:break-word;line-height:1.2;min-height:44px;padding:8px 12px;font-size:12px}
+.review-mod-item,.moderation-card{position:relative;z-index:1}
+.topbar{z-index:100}
+.admin-tab-header{z-index:90}
+.modal-bg{z-index:1000}
+.a-toast{z-index:1100}
+@media (max-width: 480px) {
+  .admin-action-row{flex-direction:column;gap:8px}
+  .admin-action-row>*{width:100%}
+}
+
 .admin-badge-grey{background:#eee;color:#555}
 .admin-picker{position:relative;min-width:240px;max-width:340px}
 .admin-picker-trigger{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;background:#fff;border:1px solid #d5d9e5;border-radius:12px;cursor:pointer;font-size:.85rem;text-align:left;transition:all .15s ease;box-shadow:0 2px 8px rgba(0,0,0,.04)}

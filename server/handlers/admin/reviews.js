@@ -12,6 +12,8 @@ async function safeDeletePhotoByUrl(url) {
   await fs.unlink(filePath).catch(() => {});
 }
 
+const ALLOW_REVIEW_SEEDING = process.env.ALLOW_REVIEW_SEEDING === '1';
+
 module.exports = async function handler(req, res) {
   if (applyCors(req, res, { allowAdminHeaders: true })) return;
   if (!requireAdmin(req, res)) return;
@@ -51,12 +53,14 @@ module.exports = async function handler(req, res) {
     if (!action) return res.status(200).json({ success: true });
 
     if (action === 'seed-all') {
+      if (!ALLOW_REVIEW_SEEDING) return res.status(403).json({ error: "review seeding production'da kapalı" });
       const { ensureSeedsForAllProducts } = require('../../lib/_seed-reviews');
       const r = await ensureSeedsForAllProducts();
       return res.status(200).json({ success: true, ...r, lastError: r.lastError || null });
     }
 
     if (action === 'regenerate-seeds') {
+      if (!ALLOW_REVIEW_SEEDING) return res.status(403).json({ error: "review seeding production'da kapalı" });
       const productId = String(req.body?.productId || '').trim();
       if (!productId) return res.status(400).json({ error: 'productId zorunlu' });
       const { regenerateSeedsForProduct } = require('../../lib/_seed-reviews');

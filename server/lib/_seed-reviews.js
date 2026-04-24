@@ -10,6 +10,10 @@ const LAST = ['Yılmaz','Kaya','Demir','Şahin','Çelik','Yıldız','Yıldırım
 const SEED_CHECK_TTL_MS = 30 * 60 * 1000;
 const _seedCheckCache = new Map();
 
+function isSeedingAllowed(){
+  return process.env.ALLOW_REVIEW_SEEDING === '1';
+}
+
 const TPL = [
   {r:5,t:'Beklediğimden çok daha kaliteli geldi. Dikim çok düzgün, ölçüler tam tutuyor. Bursa içi aynı gün teslim de büyük artı, teşekkürler!'},
   {r:5,t:'Fiyat performans olarak harika. Renk fotoğraftaki gibi, salonumuza çok yakıştı. Tavsiye ederim.'},
@@ -68,7 +72,8 @@ function getProductId(product){
 }
 
 async function readProducts(){
-  try { return JSON.parse(await fs.readFile(PRODUCTS_PATH,'utf8')); } catch (_) { return []; }
+  try {
+    if (!isSeedingAllowed()) return { added: 0, productId, lastError: 'seeding disabled' }; return JSON.parse(await fs.readFile(PRODUCTS_PATH,'utf8')); } catch (_) { return []; }
 }
 
 async function ensureSeedsForProduct(productId){
@@ -79,7 +84,9 @@ async function ensureSeedsForProduct(productId){
       return { added: 0, productId, lastError: null, skippedByCache: true };
     }
     _seedCheckCache.set(productId, now);
-    await ensureReviewSchema();
+    if (!isSeedingAllowed()) return { totalAdded: 0, productsTouched: 0, productsTotal: 0, lastError: 'seeding disabled' };
+  if (!isSeedingAllowed()) return { added: 0, productId, lastError: 'seeding disabled' };
+  await ensureReviewSchema();
     const existing = await pool.query(
       `SELECT name, text FROM product_reviews WHERE product_id=$1 AND is_seed=TRUE`,
       [productId]

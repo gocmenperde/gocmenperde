@@ -29,3 +29,8 @@
 - Admin yorum moderasyonuna `seed-all` ve `regenerate-seeds` aksiyonları eklendi.
 - Public `/api/reviews` sıralama ve görünürlük düzeltildi (onaylı yorumlar, verified > gerçek > seed).
 - Ürün modalındaki “Yorum Yaz” formu submit akışı defansif şekilde yenilendi; auto-approve açıkken yorum anında listeye düşüyor.
+
+
+## Yasal Uyarı
+
+- Sahte yorum üretimi sadece geliştirme amaçlıdır, üretimde kullanılması yasal ihlaldir.
