@@ -12,30 +12,43 @@ const ADMIN_EMAILS = String(process.env.ADMIN_EMAILS || '')
   .filter(Boolean);
 
 function readAdminHeader(req) {
-  return (
+  return normalizeToken(
     req.headers['x-admin-token'] ||
     req.headers['x-admin-key'] ||
+    req.headers.authorization ||
     req.body?.adminToken ||
     req.query?.adminToken ||
     ''
   );
 }
 
+function normalizeToken(rawToken) {
+  let token = String(rawToken || '').trim();
+  if (!token) return '';
+  token = token.replace(/^['"]+|['"]+$/g, '').trim();
+  if (/^bearer\s+/i.test(token)) {
+    token = token.replace(/^bearer\s+/i, '').trim();
+  }
+  return token;
+}
+
 function tryStaticMatch(token) {
+  const normalizedToken = normalizeToken(token);
   if (!STATIC_TOKEN) return false;
-  if (!token) return false;
+  if (!normalizedToken) return false;
   // timing-safe değil ama statik token deprecated yol — JWT yolu öncelikli
-  return String(token) === STATIC_TOKEN;
+  return String(normalizedToken) === STATIC_TOKEN;
 }
 
 function tryJwtMatch(req, token) {
-  if (!token) return null;
+  const normalizedToken = normalizeToken(token);
+  if (!normalizedToken) return null;
   // verifyAuthToken `Authorization: Bearer ...` bekliyor; biz x-admin-token'dan alıyoruz.
   // Token'ı geçici olarak Authorization header'ına yerleştirip verifyAuthToken'ı kullan.
   const fakeReq = {
     headers: {
       ...req.headers,
-      authorization: `Bearer ${token}`,
+      authorization: `Bearer ${normalizedToken}`,
     },
   };
 

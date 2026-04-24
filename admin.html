@@ -2149,7 +2149,6 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
 // ════════════════════════════════════
 const ADMIN_PASS_KEY = 'gp_admin_pass';
 const ADMIN_SESSION_KEY = 'gp_admin_session_v1';
-const ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
 function getStoredPass(){ return (localStorage.getItem(ADMIN_PASS_KEY) || '').trim(); }
 function getAdminToken(){
   return localStorage.getItem('gp_admin_token')
@@ -2169,11 +2168,16 @@ async function doLogin(){
   const e = (document.getElementById('loginEmail').value || '').trim().toLowerCase();
   const p = (document.getElementById('loginPass').value || '').trim();
   const err = document.getElementById('loginError');
-  if(e !== ADMIN_EMAIL || !p){
+  if(!e || !p){
     err.style.display = 'block';
     return;
   }
   try{
+    // Eski/stale token'lar yeni login akışını bozmasın.
+    sessionStorage.removeItem('admin_api_key');
+    sessionStorage.removeItem('gp_admin_token');
+    localStorage.removeItem('admin_api_key');
+    localStorage.removeItem('gp_admin_token');
     const response = await fetch('/api/auth?action=admin-login', {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
