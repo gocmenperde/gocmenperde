@@ -64,12 +64,33 @@ module.exports = async function handler(req, res) {
     const isStrongPassword = (sifre = '') => /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(String(sifre));
 
     if (action === 'admin-login' && req.method === 'POST') {
-      const { key } = req.body || {};
-      if (!process.env.ADMIN_API_KEY) return res.status(500).json({ error: 'Admin yapılandırılmamış.' });
-      if (String(key).trim() !== process.env.ADMIN_API_KEY) {
+      const { email, key, password } = req.body || {};
+      const providedSecret = String(password || key || '').trim();
+      const providedEmail = String(email || '').trim().toLowerCase();
+      const adminSecret = String(process.env.ADMIN_API_KEY || process.env.ADMIN_TOKEN || process.env.ADMIN_API_TOKEN || '').trim();
+      const adminEmails = String(process.env.ADMIN_EMAILS || '')
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+
+      if (!adminSecret) return res.status(500).json({ error: 'Admin yapılandırılmamış.' });
+      if (!providedSecret || providedSecret !== adminSecret) {
         return res.status(401).json({ error: 'Yetkisiz.' });
       }
-      return res.status(200).json({ success: true, token: process.env.ADMIN_API_KEY });
+
+      if (adminEmails.length) {
+        if (!providedEmail || !adminEmails.includes(providedEmail)) {
+          return res.status(401).json({ error: 'Yetkisiz.' });
+        }
+      }
+
+      const adminUser = {
+        id: 0,
+        email: providedEmail || adminEmails[0] || 'admin@gocmenperde.local',
+      };
+      const token = createAuthToken(adminUser);
+      if (!token) return res.status(500).json({ error: 'Token üretilemedi.' });
+      return res.status(200).json({ success: true, token });
     }
 
     if (action === 'register' && req.method === 'POST') {
