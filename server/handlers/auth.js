@@ -79,7 +79,7 @@ module.exports = async function handler(req, res) {
       }
 
       const adminUser = {
-        id: 0,
+        id: 1,
         email: VALID_EMAIL,
         isAdmin: true,
       };
