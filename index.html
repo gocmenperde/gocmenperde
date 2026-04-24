@@ -965,12 +965,30 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 @media(prefers-reduced-motion:reduce){.modal-urgency-badge{animation:none}}
 .cart-sparkle-layer{position:fixed;width:0;height:0;pointer-events:none;z-index:9999}
 .cart-sparkle{position:absolute;left:0;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;background:radial-gradient(circle,#f4d77a 0%,#cfa852 60%,rgba(207,168,82,0) 100%);border-radius:50%;opacity:0;transform:translate(0,0) scale(0.4);animation:sparkleFly 750ms ease-out forwards;will-change:transform,opacity}
+.cart-btn-bounce{animation:cartBounce 600ms cubic-bezier(.36,.07,.19,.97) both}
 @keyframes sparkleFly{
   0%  {opacity:0;transform:translate(0,0) scale(0.4)}
   20% {opacity:1;transform:translate(calc(var(--dx)*0.3), calc(var(--dy)*0.3)) scale(1.1)}
   100%{opacity:0;transform:translate(var(--dx), var(--dy)) scale(0.6)}
 }
+@keyframes cartBounce{
+  0%   {transform:scale(1)}
+  20%  {transform:scale(1.16) rotate(-5deg)}
+  40%  {transform:scale(0.94) rotate(4deg)}
+  60%  {transform:scale(1.08) rotate(-2deg)}
+  100% {transform:scale(1) rotate(0)}
+}
 @media(prefers-reduced-motion:reduce){.cart-sparkle{animation:none;opacity:0}}
+@media(prefers-reduced-motion:reduce){.cart-btn-bounce{animation:none}}
+.modal-related-wrap{margin:18px 0 14px;padding:14px 0;border-top:1px solid var(--border)}
+.modal-related-title{font-family:var(--ff-display);font-size:0.95rem;color:var(--ink);margin:0 0 10px;letter-spacing:0.3px}
+.modal-related-track{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.modal-related-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:8px;background:#fff;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;text-align:left;font-family:inherit}
+.modal-related-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.08);border-color:rgba(207,168,82,0.45)}
+.modal-related-img{width:100%;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:var(--cream);display:block}
+.modal-related-img img{width:100%;height:100%;object-fit:cover;display:block}
+.modal-related-name{font-size:0.74rem;color:var(--ink);font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.modal-related-price{font-size:0.78rem;color:#c0392b;font-weight:700;font-family:var(--ff-display)}
 .modal-reviews-wrap{margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--cream)}
 .modal-reviews-title{font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:10px}
 .modal-review-list{display:flex;flex-direction:column;gap:10px;max-height:170px;overflow-y:auto;padding-right:4px}
@@ -997,6 +1015,9 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .modal-add-btn{min-width:180px}
 }
 @media(max-width:700px){
+  .modal-related-track{grid-template-columns:repeat(2,1fr);gap:8px}
+  .modal-related-name{font-size:0.7rem}
+  .modal-related-price{font-size:0.74rem}
   .modal-overlay{padding:0;background:#fff;backdrop-filter:none}
   .modal-box{max-width:none;width:100%;min-height:100dvh;border-radius:0;max-height:none;box-shadow:none;background:#fff;display:flex;flex-direction:column;padding-top:calc(env(safe-area-inset-top) + 56px)}
   .modal-close{display:none}
@@ -1631,7 +1652,7 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
       <button class="nav-icon" onclick="togglePopup('favoriteBar')" title="Favorilerim">
         <i class="far fa-heart"></i><span class="badge" id="favoriteCount">0</span>
       </button>
-      <button class="nav-cart" onclick="togglePopup('miniCart')">
+      <button class="nav-cart" id="topCartBtn" onclick="togglePopup('miniCart')">
         <i class="fas fa-bag-shopping" style="font-size:0.9rem"></i> Sepet
         <span class="cart-badge" id="cartCount">0</span>
       </button>
@@ -2288,6 +2309,10 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
       <div class="modal-tab-content" id="tab-specs"><div class="modal-specs" id="mSpecs"></div></div>
       <div class="modal-tab-content" id="tab-care"><div class="modal-specs" id="mCare"></div></div>
       <div class="modal-secondary-actions" id="mSecondaryActions"></div>
+      <div class="modal-related-wrap" id="mRelatedWrap" hidden>
+        <div class="modal-related-title">Bu ürüne bakanlar bunlara da baktı</div>
+        <div class="modal-related-track" id="mRelatedTrack"></div>
+      </div>
       <div class="modal-reviews-wrap">
         <div class="modal-reviews-title">Ürün Yorumları</div>
         <div class="modal-review-list" id="mReviews"></div>
@@ -4763,6 +4788,46 @@ function renderModalUrgencyBadge(product){
   const priceWrap = document.getElementById('mPriceWrap');
   if(priceWrap) priceWrap.insertAdjacentHTML('afterend', html);
 }
+function renderModalRelated(currentProduct){
+  const wrap = document.getElementById('mRelatedWrap');
+  const track = document.getElementById('mRelatedTrack');
+  if(!wrap || !track || !currentProduct) return;
+  const related = (Array.isArray(PRODUCTS) ? PRODUCTS : [])
+    .filter(x => x && x.active !== false && x.id !== currentProduct.id && x.cat === currentProduct.cat)
+    .slice(0, 4);
+  if(!related.length){
+    wrap.hidden = true;
+    track.innerHTML = '';
+    return;
+  }
+  wrap.hidden = false;
+  track.innerHTML = related.map((rp)=>{
+    const img = (getProductImages(rp)||[])[0] || BLANK_IMG;
+    const safeName = (rp.name||'').replace(/"/g,'&quot;');
+    const priceTxt = (rp.price||0).toLocaleString('tr-TR') + ' TL';
+    return `<button type="button" class="modal-related-card" data-related-id="${rp.id}" aria-label="${safeName} ürününü aç">
+      <span class="modal-related-img"><img src="${img}" alt="${safeName}" loading="lazy" decoding="async" onerror="this.src='${BLANK_IMG}'"></span>
+      <span class="modal-related-name">${safeName}</span>
+      <span class="modal-related-price">${priceTxt}</span>
+    </button>`;
+  }).join('');
+}
+let __relatedDelegationBound = false;
+function bindModalRelatedDelegation(){
+  if(__relatedDelegationBound) return;
+  const track = document.getElementById('mRelatedTrack');
+  if(!track) return;
+  track.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-related-id]');
+    if(!btn) return;
+    const id = btn.dataset.relatedId;
+    if(!id) return;
+    const modalBody = document.querySelector('#productModal .modal-body');
+    if(modalBody) modalBody.scrollTo({top:0, behavior:'auto'});
+    openModalFromProduct(id);
+  });
+  __relatedDelegationBound = true;
+}
 
 function startLiveViewerCounter(productId){
   stopLiveViewerCounter();
@@ -5661,6 +5726,8 @@ function openModalFromProduct(id){
     bindMeterDimensionsAutoCalc(p, qid, wid, hid, pid);
   }
   renderModalReviews(id);
+  renderModalRelated(p);
+  bindModalRelatedDelegation();
   startLiveViewerCounter(id);
   syncReviewNameField(id);
   document.getElementById('reviewTextInput').value = '';
@@ -5761,6 +5828,10 @@ function updateViewerImage(){
 function closeProductModal({syncUrl=true} = {}){
   stopLiveViewerCounter();
   document.getElementById('mUrgencyBadge')?.remove();
+  const __relatedTrack = document.getElementById('mRelatedTrack');
+  if(__relatedTrack) __relatedTrack.innerHTML = '';
+  const __relatedWrap = document.getElementById('mRelatedWrap');
+  if(__relatedWrap) __relatedWrap.hidden = true;
   document.getElementById('productModal').classList.remove('open');
   setModalStageLoading(false);
   clearModalSearch();
@@ -7064,6 +7135,15 @@ function spawnCartSparkles(anchorEl){
   document.body.appendChild(layer);
   setTimeout(()=>layer.remove(), 900);
 }
+function pulseTopCartButton(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const btn = document.getElementById('topCartBtn') || document.querySelector('.cart-btn, .nav-cart');
+  if(!btn) return;
+  btn.classList.remove('cart-btn-bounce');
+  void btn.offsetWidth;
+  btn.classList.add('cart-btn-bounce');
+  setTimeout(()=>btn.classList.remove('cart-btn-bounce'), 620);
+}
 
 function addToCartFromProduct(productId, qtyInputId, widthInputId, heightInputId, pileSelectId, triggerBtn){
   const __sparkleAnchor = document.querySelector('.modal-add-wrap .add-btn, .modal-add-wrap button[type="submit"], .modal-add-btn');
@@ -7210,6 +7290,7 @@ function addToCart(itemPayload){
   }
   total = basket.reduce((a,b)=>a+b.sub,0);
   updateCartCount();
+  pulseTopCartButton();
   openCartSheet(cartItem);
   showToast('✓ Sepete eklendi: '+name);
   saveCartToStorage();
