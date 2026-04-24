@@ -3107,6 +3107,14 @@ function escapeHtml(str){
     "'":'&#39;'
   }[ch]));
 }
+function escAttr(s){
+  return String(s || '')
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
 function sanitizeCustomerText(str){
   return String(str || '').replace(/\bbilmem\s*be\b/gi,'').replace(/\s{2,}/g,' ').trim();
 }
@@ -4290,8 +4298,13 @@ async function submitProductReview(){
     set('Yorumunuz gönderiliyor...', null);
     const body = { action:'create', productId: currentModalProductId, name, text, rating, photos, email: window.__reviewInviteEmail||'', inviteToken: window.__reviewInviteToken||'' };
     const r = await fetch('/api/reviews', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-    const j = await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(j?.error || 'Yorum gönderilemedi (HTTP '+r.status+').');
+    const raw = await r.text();
+    let j = {};
+    try{ j = raw ? JSON.parse(raw) : {}; }catch(_){ j = {}; }
+    if(!r.ok){
+      const debug = raw ? ' ' + String(raw).slice(0, 200) : '';
+      throw new Error(j?.error || ('Yorum gönderilemedi (HTTP '+r.status+').' + debug));
+    }
     if(j.autoApproved || j.status==='approved'){
       set('Yorumunuz yayınlandı. Teşekkür ederiz!', true);
       try{
@@ -4808,10 +4821,9 @@ function isOutOfStock(product){
 }
 
 function buildOutOfStockActions(productId, productName){
-  const safeName = String(productName || '').replace(/'/g, "\\'");
   return `<div class="qty-wrap qty-wrap-oos">
     <button type="button" class="add-btn add-btn-oos" disabled aria-disabled="true">Tükendi</button>
-    <button type="button" class="add-btn add-btn-notify" onclick="event.stopPropagation();subscribeStockAlert('${productId}','${safeName}')">
+    <button type="button" class="add-btn add-btn-notify" data-product-id="${escAttr(productId)}" data-product-name="${escAttr(productName || '')}">
       <i class="fas fa-bell" aria-hidden="true"></i> Gelince Haber Ver
     </button>
   </div>`;
@@ -4860,6 +4872,16 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(!m) return;
   m.querySelector('.stock-alert-close')?.addEventListener('click', closeStockAlertModal);
   m.addEventListener('click', (e)=>{ if(e.target === m) closeStockAlertModal(); });
+  document.addEventListener('click', (e)=>{
+    const btn = e.target?.closest?.('.modal-add-btn-notify, .add-btn-notify');
+    if(!btn) return;
+    const productId = String(btn.dataset.productId || '').trim();
+    const productName = String(btn.dataset.productName || '').trim() || 'Bu ürün';
+    if(!productId) return;
+    e.preventDefault();
+    e.stopPropagation();
+    openStockAlertModal(productId, productName);
+  });
   document.getElementById('stockAlertForm')?.addEventListener('submit', async (e)=>{
     e.preventDefault();
     if(!__stockAlertCtx) return;
@@ -5958,13 +5980,13 @@ function openModalFromProduct(id){
       ${squareProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
       ${pleatedMeterProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
       ${meterDimensionsProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir. Lütfen metre cinsinden giriniz (Örn: 2.50)</span>` : ''}
-      ${outOfStock ? `<button type="button" class="modal-add-btn" onclick="subscribeStockAlert('${p.id}','${String(p.name||'').replace(/'/g, "\\'")}')">Gelince Haber Ver</button>` : ''}
+      ${outOfStock ? `<button type="button" class="modal-add-btn modal-add-btn-notify" data-product-id="${escAttr(p.id)}" data-product-name="${escAttr(p.name || '')}">Gelince Haber Ver</button>` : ''}
       <a href="https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Merhaba, ${p.name} ürünü için canlı destek rica ediyorum: ${location.origin}${location.pathname}?product=${p.id}`)}" target="_blank" rel="noopener noreferrer" class="modal-add-btn modal-support-btn"><i class="fab fa-whatsapp" style="margin-right:8px"></i>Canlı Destek</a>
     </div>
     <span class="shipping-note">${uxCopy.shippingNote}</span>`;
   const mobileAddMarkup = `
     ${outOfStock
-      ? `<button type="button" class="modal-add-btn modal-add-btn-mini" onclick="subscribeStockAlert('${p.id}','${String(p.name||'').replace(/'/g, "\\'")}')">Gelince Haber Ver</button>`
+      ? `<button type="button" class="modal-add-btn modal-add-btn-mini modal-add-btn-notify" data-product-id="${escAttr(p.id)}" data-product-name="${escAttr(p.name || '')}">Gelince Haber Ver</button>`
       : `
       <div class="modal-bottom-actions"><div class="modal-add-bottom-row">
         <div class="modal-add-inputs">
@@ -5988,7 +6010,7 @@ function openModalFromProduct(id){
   document.getElementById('mAddWrap').innerHTML = isMobileModal ? mobileAddMarkup : desktopAddMarkup;
   if(outOfStock){
     document.getElementById('mAddWrap').innerHTML = `
-      <button class="modal-add-btn modal-add-btn-notify" type="button" onclick="openStockAlertModal('${id}', ${JSON.stringify(p.name || '')})">
+      <button class="modal-add-btn modal-add-btn-notify" type="button" data-product-id="${escAttr(id)}" data-product-name="${escAttr(p.name || '')}">
         <i class="fas fa-bell" aria-hidden="true"></i> Stok Gelince Haber Ver
       </button>
       <button class="modal-add-btn modal-add-btn-store" type="button" onclick="closeProductModal();go('contact')">
