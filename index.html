@@ -911,6 +911,27 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-add-main-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:nowrap;width:100%;padding:10px 15px 0;position:relative;z-index:999}
 .modal-add-extra-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;justify-content:center}
 .modal-add-action-row{display:flex;align-items:center;gap:10px;width:100%;padding:0 15px;flex-wrap:wrap}
+.modal-add-bottom-row{display:grid;grid-template-columns:1fr auto 44px;align-items:center;gap:8px}
+.modal-add-inputs{min-width:0}
+.modal-dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.modal-dim-input{width:100%;padding:10px 8px;font-size:14px;border:1px solid var(--border);border-radius:10px;background:#fff}
+.modal-dim-input.is-error{border-color:#c0392b;background:#fff5f4}
+.modal-qty-stepper-mini{display:flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden;height:44px;background:#fff}
+.modal-qty-stepper-mini button{width:36px;height:44px;border:none;background:#fafaf8;font-size:18px;cursor:pointer;color:var(--ink)}
+.modal-qty-stepper-mini .modal-qty-input{width:48px;height:44px;border:none;text-align:center;font-size:14px;font-weight:600;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.modal-add-btn.modal-add-btn-mini{height:44px;padding:0 16px;font-size:13px;letter-spacing:.6px;border-radius:12px;flex:0 0 auto;white-space:nowrap;min-width:0}
+.modal-fav-btn-mini{width:44px;height:44px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--gold-dark);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-fav-btn-mini.is-active{color:#e74c3c}
+.modal-secondary-actions{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.modal-secondary-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;text-decoration:none;font:600 13px var(--ff-body);border:1px solid var(--border);background:#fff;color:var(--ink);justify-content:center;transition:.2s;cursor:pointer}
+.modal-secondary-btn:hover{background:#f8f8f6}
+.modal-support-btn{background:#25D366;color:#fff;border-color:#1eba56}
+.modal-support-btn:hover{background:#1eba56}
+.modal-measure-link{color:var(--gold-dark)}
+.modal-measure-link:hover{background:rgba(201,168,76,.08)}
+.modal-shipping-hint{font:500 12px var(--ff-body);color:var(--slate);margin:0;text-align:center}
+.modal-shipping-hint i{color:var(--gold);margin-right:6px}
+.modal-formula-hint{font:400 11px var(--ff-body);color:var(--slate);margin:0;text-align:center;opacity:.85}
 .modal-quick-buy-bar{display:none}
 .modal-qty-stepper{flex:0 0 100px;height:48px;display:flex;align-items:center;justify-content:space-between;border:1px solid #e3dfd6;border-radius:10px;background:#fff;overflow:hidden}
 .modal-qty-step-btn{width:32px;height:100%;border:none;background:transparent;color:#1f2941;font-size:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -944,7 +965,8 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 @media(min-width:701px){
   .modal-box{height:calc(100dvh - 40px)}
   .modal-info-col{padding-bottom:28px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-  .modal-add-wrap{position:sticky;bottom:0;margin-top:18px;padding:12px 0 0;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#fff 28%)}
+  .modal-add-wrap{position:static;bottom:auto;margin-top:18px;padding:12px 0 0;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#fff 28%)}
+  .modal-secondary-actions{display:none}
   .modal-add-btn{min-width:180px}
 }
 @media(max-width:700px){
@@ -957,26 +979,19 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
   .mh-search{min-width:0}
   .modal-search-input{min-width:0}
   .modal-img-stage{height:38dvh;min-height:250px;max-height:340px}
-  .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(24px + env(safe-area-inset-bottom))}
+  .modal-info-col{flex:1;overflow-y:auto;padding:16px 14px calc(env(safe-area-inset-bottom) + 132px)}
   .modal-add-wrap{
-    position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:4;margin:12px 0 0;padding:8px;border-radius:14px;background:rgba(255,255,255,.97);border:1px solid rgba(201,168,76,0.28);box-shadow:0 8px 22px rgba(17,28,58,.12);
-    max-height:none;overflow:visible;
-    pointer-events:auto;
+    position:fixed;left:0;right:0;bottom:0;margin:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0;background:rgba(255,255,255,0.97);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(201,168,76,0.28);border-bottom:none;box-shadow:0 -14px 36px rgba(15,14,13,0.16);z-index:5;display:flex;flex-direction:column;gap:8px
   }
   .modal-quick-buy-bar{display:none}
   .modal-quick-buy-bar b{font-size:.74rem;color:#1f2941}
   .modal-quick-buy-bar span{font-size:.68rem;color:#606a84}
   .modal-quick-buy-bar button{border:none;background:#1f2941;color:#fff;border-radius:999px;padding:8px 12px;font-size:.64rem;letter-spacing:.8px}
   .modal-add-wrap .modal-add-btn{font-size:12px}
-  .modal-add-main-row .modal-add-btn{padding-inline:12px}
-  .modal-add-action-row{padding:0;gap:8px}
   .modal-add-wrap .modal-inline-help{font-size:.68rem;line-height:1.35}
-  .modal-add-wrap .modal-qty-stepper{height:44px}
-  .modal-add-wrap .modal-add-btn{height:44px}
-  .modal-add-wrap .modal-qty-input{height:40px}
-  .modal-add-wrap .modal-add-main-row{padding:6px 8px 0;gap:8px}
-  .modal-add-wrap .modal-add-extra-row{gap:8px}
-  .modal-add-wrap .modal-add-action-row{margin-top:2px}
+  .modal-add-main-row,
+  .modal-add-extra-row,
+  .modal-add-action-row{display:none}
   .modal-review-form{grid-template-columns:1fr}
   .modal-reviews-wrap{margin-bottom:16px}
   .qty-input,
@@ -2245,6 +2260,7 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
       </div>
       <div class="modal-tab-content" id="tab-specs"><div class="modal-specs" id="mSpecs"></div></div>
       <div class="modal-tab-content" id="tab-care"><div class="modal-specs" id="mCare"></div></div>
+      <div class="modal-secondary-actions" id="mSecondaryActions"></div>
       <div class="modal-reviews-wrap">
         <div class="modal-reviews-title">Ürün Yorumları</div>
         <div class="modal-review-list" id="mReviews"></div>
@@ -4983,6 +4999,15 @@ function adjustQuantityInput(inputId, delta, isMeter){
   el.value = isMeter ? next.toFixed(1).replace(/\.0$/, '') : String(Math.round(next));
   el.dispatchEvent(new Event('input', { bubbles:true }));
 }
+function modalQtyStep(delta){
+  const wrap = document.getElementById('mAddWrap');
+  if(!wrap) return;
+  const qtyEl = wrap.querySelector('.modal-qty-stepper-mini .modal-qty-input');
+  if(!qtyEl) return;
+  const product = PRODUCTS.find(x => x.id === currentModalProductId);
+  const isMeter = !!product && isMeterProduct(product);
+  adjustQuantityInput(qtyEl.id, delta, isMeter);
+}
 
 const fallbackMeasureGuide = {
   title: 'Doğru Ölçü Nasıl Alınır?',
@@ -5453,12 +5478,21 @@ function openModalFromProduct(id){
   const pid = 'modal-price-info-'+Date.now();
   const meterProduct = isMeterProduct(p);
   const squareProduct = isSquareMeterProduct(p);
-  const requireSize = needsDimensions(p);
   const requireWidth = requiresWidthMeasurement(p);
   const pleatedMeterProduct = isPleatedMeterProduct(p);
   const meterDimensionsProduct = meterProduct && !pleatedMeterProduct && !squareProduct && requiresHeightMeasurement(p);
   const requireHeight = requiresHeightMeasurement(p);
-  document.getElementById('mAddWrap').innerHTML = `
+  const secondaryWrap = document.getElementById('mSecondaryActions');
+  if(secondaryWrap){
+    secondaryWrap.innerHTML = `
+      <a href="https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Merhaba, ${p.name} ürünü için canlı destek rica ediyorum: ${location.origin}${location.pathname}?product=${p.id}`)}" target="_blank" rel="noopener" class="modal-secondary-btn modal-support-btn"><i class="fab fa-whatsapp"></i> Canlı Destek</a>
+      ${(requireWidth || requireHeight) ? `<button type="button" class="modal-secondary-btn modal-measure-link" onclick="openMeasureHelp()"><i class="fas fa-ruler-combined"></i> Doğru Ölçü Nasıl Alınır?</button>` : ''}
+      <p class="modal-shipping-hint"><i class="fas fa-truck-fast"></i>${uxCopy.shippingNote}</p>
+      ${(requireWidth || requireHeight) ? `<p class="modal-formula-hint">En ve boy girildiğinde m² ve fiyat otomatik hesaplanır.</p>` : ''}
+    `;
+  }
+  const isMobileModal = window.innerWidth <= 700;
+  const desktopAddMarkup = `
     <div class="modal-add-main-row">
       <div class="modal-qty-stepper">
         <button type="button" class="modal-qty-step-btn" onclick="event.stopPropagation();adjustQuantityInput('${qid}',-1,${meterProduct ? 'true' : 'false'})">-</button>
@@ -5487,6 +5521,30 @@ function openModalFromProduct(id){
       <a href="https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Merhaba, ${p.name} ürünü için canlı destek rica ediyorum: ${location.origin}${location.pathname}?product=${p.id}`)}" target="_blank" rel="noopener" class="modal-add-btn modal-support-btn"><i class="fab fa-whatsapp" style="margin-right:8px"></i>Canlı Destek</a>
     </div>
     <span class="shipping-note">${uxCopy.shippingNote}</span>`;
+  const mobileAddMarkup = `
+    ${outOfStock
+      ? `<button type="button" class="modal-add-btn modal-add-btn-mini" onclick="subscribeStockAlert('${p.id}','${String(p.name||'').replace(/'/g, "\\'")}')">Gelince Haber Ver</button>`
+      : `
+      <div class="modal-add-bottom-row">
+        <div class="modal-add-inputs">
+          ${(requireWidth || requireHeight)
+            ? `<div class="modal-dim-grid">
+                ${requireWidth ? `<input type="text" inputmode="decimal" class="modal-dim-input" id="${wid}" placeholder="En (m)">` : ''}
+                ${requireHeight ? `<input type="text" inputmode="decimal" class="modal-dim-input" id="${hid}" placeholder="Boy (m)">` : ''}
+              </div>`
+            : `<div class="modal-qty-stepper-mini">
+                <button type="button" onclick="modalQtyStep(-1)">−</button>
+                ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<input type="text" class="modal-qty-input" id="${qid}" value="0" readonly>` : `<input ${meterProduct ? `type="text" inputmode="decimal" placeholder="1,5"` : `type="number" min="1" step="1"`} class="modal-qty-input" id="${qid}" value="1">`}
+                <button type="button" onclick="modalQtyStep(1)">+</button>
+              </div>`}
+        </div>
+        <button type="button" class="modal-add-btn modal-add-btn-mini" onclick="addToCartFromProduct('${p.id}','${qid}','${wid}','${hid}','modal-pile-${p.id}',this)"><i class="fas fa-bag-shopping" style="margin-right:6px"></i>Sepete Ekle</button>
+        <button type="button" onclick="toggleFavoriteById('${p.id}')" id="modal-fav-btn" class="modal-fav-btn-mini ${isFav ? 'is-active' : ''}" aria-label="Favoriye ekle"><i class="${isFav?'fas':'far'} fa-heart"></i></button>
+      </div>
+      ${pleatedMeterProduct ? `<select class="modal-qty-input pile-select" id="modal-pile-${p.id}" onclick="event.stopPropagation()" onchange="updatePilePreview('modal-${p.id}',this.value)"><option value="seyrek">Seyrek Pile (1m→2m)</option><option value="orta" selected>Orta Pile (1m→2.5m)</option><option value="sik">Sık Pile (1m→3m)</option></select><span id="pile-preview-modal-${p.id}" class="pile-preview-tag">Orta Pile</span>` : ''}
+      ${squareProduct || pleatedMeterProduct || meterDimensionsProduct ? `<span id="${pid}" class="modal-inline-help">Seçtiğiniz ölçülere göre hesaplanan fiyat gösterilir.</span>` : ''}
+    `}`;
+  document.getElementById('mAddWrap').innerHTML = isMobileModal ? mobileAddMarkup : desktopAddMarkup;
   const quickName = document.getElementById('modalQuickBuyName');
   const quickPrice = document.getElementById('modalQuickBuyPrice');
   if(quickName) quickName.textContent = p.name;
@@ -5533,6 +5591,7 @@ function openGalleryModal(src,title,desc){
   document.getElementById('mFeatures').innerHTML = '<div class="modal-feat"><i class="fas fa-store"></i> Osmangazi, Bursa</div><div class="modal-feat"><i class="fas fa-calendar"></i> 1993\'ten bu yana</div><div class="modal-feat"><i class="fas fa-star"></i> 5 Yıldızlı hizmet</div>';
   document.getElementById('mSpecs').innerHTML = '';
   document.getElementById('mCare').innerHTML = '';
+  document.getElementById('mSecondaryActions').innerHTML = '';
   document.getElementById('mAddWrap').innerHTML = '<button class="modal-add-btn" onclick="closeProductModal();go(\'contact\')"><i class="fas fa-map-marker-alt" style="margin-right:8px"></i>Mağazamıza Gel</button>';
   document.getElementById('mReviews').innerHTML = '<div class="modal-review-item"><div class="modal-review-text">Ürün yorumu sadece ürün detay ekranında görünür.</div></div>';
   switchTab('desc');
@@ -6687,8 +6746,7 @@ function toggleFavorite(id, btn){
   const mfb = document.getElementById('modal-fav-btn');
   if(mfb){
     const isFav = favorites.some(f=>f.id===id);
-    mfb.style.background = isFav ? '#fff0f0' : 'white';
-    mfb.style.color = isFav ? '#c0392b' : 'var(--slate)';
+    mfb.classList.toggle('is-active', isFav);
     mfb.innerHTML = `<i class="${isFav?'fas':'far'} fa-heart"></i>`;
   }
 }
@@ -6867,6 +6925,12 @@ function showCardDimensionError(triggerBtn, widthInputId, heightInputId, require
   errorEl.hidden = false;
   return true;
 }
+function _flashModalDimError(){
+  document.querySelectorAll('.modal-dim-input').forEach(i=>{
+    if(!String(i.value || '').trim()) i.classList.add('is-error');
+  });
+  setTimeout(()=>document.querySelectorAll('.modal-dim-input.is-error').forEach(i=>i.classList.remove('is-error')), 2000);
+}
 
 function addToCartFromProduct(productId, qtyInputId, widthInputId, heightInputId, pileSelectId, triggerBtn){
   const product = PRODUCTS.find(x => x.id === productId);
@@ -6896,6 +6960,7 @@ function addToCartFromProduct(productId, qtyInputId, widthInputId, heightInputId
   };
   const showDimensionValidationFeedback = ()=>{
     const shownInline = showCardDimensionError(triggerBtn, widthInputId, heightInputId, requireWidth, requireHeight, width, height);
+    _flashModalDimError();
     if(!shownInline) showToast('Lütfen en ve boy değerlerini metre cinsinden girin (örn: 2,50)');
     focusMissingDimension();
   };
