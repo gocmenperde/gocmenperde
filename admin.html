@@ -593,6 +593,11 @@ tbody tr:hover td{background:#fdfcf8}
 .admin-table thead th,table thead th{background:var(--cream);color:var(--ink);font:600 11px var(--ff-body);letter-spacing:.18em;text-transform:uppercase;padding:14px 18px;text-align:left}
 .admin-table tbody td,table tbody td{padding:14px 18px;border-top:1px solid var(--line);font:400 14px var(--ff-body);color:var(--ink)}
 .admin-table tbody tr:hover,table tbody tr:hover{background:var(--paper)}
+.reviews-mod-list{display:grid;gap:10px}
+.review-mod-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px}
+.review-mod-photos{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.review-mod-photos img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
+.review-mod-actions{display:flex;gap:8px;margin-top:10px}
 .admin-badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#f8f1e0;color:#a3823f;font-size:.72rem;font-weight:700;letter-spacing:.5px}
 input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;background:#fff;font:500 15px var(--ff-body);color:var(--ink)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}
@@ -685,6 +690,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
         <div class="sidebar-section-label">Sistem</div>
         <div class="nav-item" onclick="showPage('live-support');loadLiveSupportMessages()"><i class="fas fa-headset"></i> Canlı Destek <span class="nav-badge" id="liveSupportBadge" style="display:none">0</span></div>
         <div class="nav-item" onclick="showPage('stock-alerts');adminFetchStockAlerts()"><i class="fas fa-bell"></i> Stok Uyarıları</div>
+        <div class="nav-item" onclick="showPage('reviews');adminFetchReviews()"><i class="fas fa-comments"></i> Yorumlar</div>
         <div class="nav-item" onclick="showPage('notifications')"><i class="fas fa-bell"></i> Bildirimler</div>
         <div class="nav-item" onclick="showPage('settings')"><i class="fas fa-gear"></i> Ayarlar</div>
       </div>
@@ -1322,6 +1328,26 @@ Işık: Yarı Geçirgen"></textarea></div>
       <thead><tr><th>Ürün</th><th>E-posta</th><th>Telefon</th><th>Kanal</th><th>Kayıt</th><th>Bildirim</th><th></th></tr></thead>
       <tbody id="stockAlertTbody"></tbody>
     </table>
+  </section>
+</div>
+
+<div class="page" id="page-reviews">
+  <div class="breadcrumb"><i class="fas fa-home"></i> <span>Yorumlar</span></div>
+  <div class="page-header"><div><h1>Yorum <em>Moderasyonu</em></h1></div></div>
+  <section id="adminReviews" class="admin-tab" style="display:block">
+    <div class="admin-tab-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <h3><i class="fas fa-comments"></i> Yorum Moderasyonu</h3>
+      <div>
+        <select id="reviewStatusFilter">
+          <option value="pending">Bekleyen</option>
+          <option value="approved">Onaylı</option>
+          <option value="rejected">Reddedilen</option>
+          <option value="all">Tümü</option>
+        </select>
+        <button id="reviewsRefresh" class="admin-btn">Yenile</button>
+      </div>
+    </div>
+    <div id="reviewsList" class="reviews-mod-list"></div>
   </section>
 </div>
 
@@ -2645,6 +2671,33 @@ async function removeFromYouItem(index){
 }
 
 
+
+async function adminFetchReviews(){
+  const token = localStorage.getItem('gp_admin_token') || '';
+  const status = document.getElementById('reviewStatusFilter')?.value || 'pending';
+  const res = await fetch('/api/admin/reviews?status='+encodeURIComponent(status), { headers:{'X-Admin-Token': token} });
+  if(res.status === 401){ alert('Admin yetkiniz yok'); return; }
+  const json = await res.json();
+  const list = document.getElementById('reviewsList');
+  const items = Array.isArray(json.items) ? json.items : [];
+  list.innerHTML = items.map((r)=>`<article class="review-mod-item">
+    <div><b>Ürün:</b> ${r.product_id} · <b>${r.name}</b> · <b>${r.rating}★</b> ${r.verified_purchase ? '<span class="admin-badge">Doğrulanmış</span>':''}</div>
+    <div style="margin-top:6px">${r.text}</div>
+    <div style="margin-top:6px;color:#6b7681;font-size:.8rem">IP: ${(r.ip_hash||'').slice(0,12)}... · Durum: ${r.status}</div>
+    <div class="review-mod-photos">${(Array.isArray(r.photos)?r.photos:[]).map((p)=>`<img src="${p}" loading="lazy" alt="">`).join('')}</div>
+    <div class="review-mod-actions">
+      <button class="btn btn-success btn-sm" onclick="adminReviewAction('approve',${r.id})">Onayla</button>
+      <button class="btn btn-outline btn-sm" onclick="adminReviewAction('reject',${r.id})">Reddet</button>
+      <button class="btn btn-danger btn-sm" onclick="adminReviewAction('delete',${r.id})">Sil</button>
+    </div>
+  </article>`).join('') || '<div class="review-mod-item">Kayıt yok.</div>';
+}
+async function adminReviewAction(action,id){
+  const token = localStorage.getItem('gp_admin_token') || '';
+  await fetch('/api/admin/reviews', {method:'POST',headers:{'Content-Type':'application/json','X-Admin-Token':token}, body:JSON.stringify({action,id})});
+  adminFetchReviews();
+}
+
 async function adminFetchStockAlerts(){
   const token = localStorage.getItem('gp_admin_token') || '';
   const res = await fetch('/api/admin/stock-alerts', { headers:{'X-Admin-Token': token} });
@@ -2695,6 +2748,8 @@ async function adminCheckStockNow(){
 
 document.getElementById('stockAlertCheckBtn')?.addEventListener('click', adminCheckStockNow);
 document.getElementById('stockAlertRefreshBtn')?.addEventListener('click', adminFetchStockAlerts);
+document.getElementById('reviewsRefresh')?.addEventListener('click', adminFetchReviews);
+document.getElementById('reviewStatusFilter')?.addEventListener('change', adminFetchReviews);
 
 function toggleSidebar(){
   const sb=document.getElementById('sidebar'), ov=document.getElementById('sidebarOverlay');
@@ -2729,6 +2784,7 @@ function showPage(id){
   if(id==='notifications') renderNotifs();
   if(id==='live-support') loadLiveSupportMessages();
   if(id==='stock-alerts') adminFetchStockAlerts();
+  if(id==='reviews') adminFetchReviews();
   if(id==='settings'){ renderFooterLogoRows(); }
 }
 function handleStatCardKey(event, target, filter){

@@ -1030,6 +1030,13 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .modal-review-text{font-size:0.78rem;color:var(--ink);line-height:1.45}
 .modal-review-photo{margin-top:8px}
 .modal-review-photo img{width:100%;max-height:180px;object-fit:cover;border-radius:8px;border:1px solid #e6e6e6}
+.modal-photo-strip{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 10px;margin-top:10px;scroll-snap-type:x mandatory}
+.modal-photo-strip[hidden]{display:none}
+.modal-photo-strip img{width:96px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--border);scroll-snap-align:start;cursor:pointer;transition:transform .2s}
+.modal-photo-strip img:hover{transform:scale(1.04);border-color:var(--gold)}
+.review-verified-badge{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:#1d7a3b;background:#e7f4ec;padding:2px 8px;border-radius:999px;margin-left:6px}
+.review-helpful{margin-top:6px;background:none;border:1px solid var(--border);color:var(--slate);padding:4px 10px;border-radius:999px;font-size:.72rem;cursor:pointer}
+.review-helpful:hover{background:var(--cream);border-color:var(--gold);color:var(--gold-dark)}
 .modal-review-form{margin-top:12px;display:grid;grid-template-columns:minmax(0,1fr) 120px auto;gap:8px}
 .modal-review-form input,.modal-review-form select{height:38px;border:1px solid var(--border);border-radius:8px;padding:0 10px;background:#fff;font-family:var(--ff-body);font-size:0.82rem}
 .modal-review-form button{height:38px;border:none;border-radius:8px;background:var(--ink);color:#fff;padding:0 12px;font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
@@ -2387,6 +2394,7 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
       </div>
       <div class="modal-reviews-wrap">
         <div class="modal-reviews-title">Ürün Yorumları</div>
+        <div class="modal-photo-strip" id="mPhotoStrip" hidden></div>
         <div class="modal-review-list" id="mReviews"></div>
         <div class="modal-review-form">
           <input type="text" id="reviewNameInput" placeholder="Adınız (opsiyonel)">
@@ -3569,16 +3577,6 @@ const REVIEW_LAST_NAMES = [
   'Korkmaz','Köse','Mutlu','Özdemir','Özkan','Sarı','Soylu','Taş','Tekin','Toprak',
   'Tunç','Türkmen','Uçar','Uslu','Üstün','Yaşar','Yavuz','Yetkin','Yıldırım','Zorlu'
 ];
-const REVIEW_TEXTS = [
-  'Kumaş kalitesi beklediğimden iyi çıktı, teşekkürler.',
-  'Renk tonu fotoğraftakine çok yakın geldi, memnun kaldım.',
-  'Dikiş ve ölçü oldukça başarılı, tavsiye ederim.',
-  'Kargo hızlıydı, montaj sonrası görünüm çok şık oldu.',
-  'Fiyat/performans olarak gerçekten iyi bir ürün.',
-  'Evimde çok zarif durdu, tekrar sipariş verebilirim.',
-  'Satıcı sorularımı hızlı cevapladı, süreç rahattı.',
-  'Beklediğimden kaliteli ve kullanışlı bir ürün oldu.'
-];
 
 // === Canlı sipariş bildirimi (örnek veri — sonradan gerçek API'ye bağlanacak) ===
 const LIVE_ORDER_DEMO_DATA = {
@@ -4060,6 +4058,34 @@ function normalizeCategoryKey(input=''){
   return matched ? String(matched.key) : decoded;
 }
 
+
+async function handleReviewInviteTokenFlow(){
+  const params = new URLSearchParams(location.search);
+  const token = String(params.get('reviewToken') || '').trim();
+  if(!token) return;
+  try{
+    const json = await fetch('/api/review-invite-token?token='+encodeURIComponent(token)).then(r=>r.json());
+    if(json?.alreadyUsed){ showToast('Bu davet daha önce kullanıldı.'); }
+    if(json?.productId && !json?.alreadyUsed){
+      window.__reviewInviteToken = token;
+      window.__reviewInviteEmail = String(json.email || '');
+      setTimeout(()=>openModalFromProduct(json.productId), 120);
+      setTimeout(()=>{
+        const wrap = document.querySelector('.modal-reviews-wrap');
+        if(wrap && !document.getElementById('inviteHint')){
+          const hint = document.createElement('div');
+          hint.id='inviteHint';
+          hint.style.cssText='margin-bottom:8px;padding:8px 10px;border-radius:8px;background:#fff7e6;color:#8b6a1f;font-size:.78rem';
+          hint.textContent='Sizi davet ettik: bu yorum doğrulanmış alıcı olarak yayınlanır.';
+          wrap.insertBefore(hint, wrap.firstChild);
+        }
+      }, 350);
+    }
+  } catch(_){ }
+  params.delete('reviewToken');
+  history.replaceState(history.state || {}, '', `${location.pathname}${params.toString() ? `?${params}` : ''}${location.hash}`);
+}
+
 function handleInitialProductDeepLink(){
   const params = new URLSearchParams(window.location.search);
   const productId = String(params.get('product') || '').trim();
@@ -4117,16 +4143,6 @@ function createSeededRandom(seedStr){
 function renderStarText(rating){
   const rounded = Math.max(1, Math.min(5, Math.round(Number(rating)||0)));
   return '★'.repeat(rounded) + '☆'.repeat(5-rounded);
-}
-function reviewStorageKey(productId){
-  return `gp_reviews_${productId}`;
-}
-function loadUserReviews(productId){
-  try{
-    return JSON.parse(localStorage.getItem(reviewStorageKey(productId)) || '[]');
-  } catch(e){
-    return [];
-  }
 }
 function buildReviewFullName(rand, usedNames = new Set()){
   for(let i=0;i<60;i++){
@@ -4228,33 +4244,14 @@ async function readReviewPhotoAsDataUrl(file){
 }
 function hydrateProductSocialData(){
   PRODUCT_SOCIAL = {};
-  PRODUCTS.forEach((p, index)=>{
-    const rand = createSeededRandom(`${p.id || p.name || 'urun'}-${index}`);
-    const baseCount = 6 + Math.floor(rand() * 7);
-    const usedNames = new Set();
-    const generatedReviews = Array.from({length:baseCount}, (_,i)=>{
-      const rSeed = rand();
-      const rating = rSeed > 0.6 ? 5 : rSeed > 0.18 ? 4 : 3;
-      return {
-        name: buildReviewFullName(rand, usedNames),
-        text: REVIEW_TEXTS[Math.floor(rand()*REVIEW_TEXTS.length)],
-        rating,
-        date: `2026-0${1 + Math.floor(rand()*3)}-${String(10 + i).padStart(2,'0')}`,
-        source: 'seed'
-      };
-    });
-    const userReviews = loadUserReviews(p.id).map((review)=>{
-      const uniqueName = makeUniqueName(review?.name || '', usedNames);
-      return {...review, name: uniqueName || buildReviewFullName(rand, usedNames)};
-    });
-    const allReviews = [...generatedReviews, ...userReviews];
-    const reviewCount = allReviews.length;
-    const avgRating = reviewCount ? allReviews.reduce((sum,r)=>sum + (Number(r.rating)||0),0) / reviewCount : 0;
+  PRODUCTS.forEach((p)=>{
     PRODUCT_SOCIAL[p.id] = {
-      salesCount: 70 + Math.floor(rand()*460),
-      reviews: allReviews,
-      reviewCount,
-      avgRating: Math.round(avgRating * 10) / 10
+      salesCount: 0,
+      reviews: [],
+      reviewCount: 0,
+      avgRating: 0,
+      withPhoto: 0,
+      verified: 0
     };
   });
 }
@@ -4268,43 +4265,41 @@ async function submitProductReview(){
   const nameEl = document.getElementById('reviewNameInput');
   const photoInput = document.getElementById('reviewPhotoInput');
   const text = (textEl?.value || '').trim();
-  if(text.length < 6){
-    showToast('Yorum en az 6 karakter olmalı.');
-    return;
-  }
-  let photo = '';
+  if(text.length < 6){ showToast('Yorum en az 6 karakter olmalı.'); return; }
+  const photos = [];
   try{
-    const selectedPhoto = photoInput?.files?.[0];
-    if(selectedPhoto){
-      photo = await readReviewPhotoAsDataUrl(selectedPhoto);
+    const file = photoInput?.files?.[0];
+    if(file){ photos.push(await readReviewPhotoAsDataUrl(file)); }
+    const typedName = (nameEl?.value || '').trim();
+    const res = await fetch('/api/reviews', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action:'create',
+        productId: currentModalProductId,
+        name: typedName || 'Anonim Müşteri',
+        text,
+        rating: Number(ratingEl?.value || 5),
+        photos,
+        email: window.__reviewInviteEmail || '',
+        inviteToken: window.__reviewInviteToken || ''
+      })
+    });
+    const json = await res.json();
+    if(!res.ok) throw new Error(json?.error || 'Yorum gönderilemedi');
+    if(json.status === 'pending'){
+      showToast('Yorumunuz alındı. Onaylandıktan sonra yayınlanacak.');
+    } else {
+      showToast('Yorumunuz yayınlandı. Teşekkür ederiz!');
     }
+    await refreshProductReviews(currentModalProductId);
+    if(textEl) textEl.value = '';
+    syncReviewNameField(currentModalProductId);
+    resetReviewPhotoPicker();
+    if(ratingEl) ratingEl.value = '5';
   } catch(err){
-    showToast(err?.message || 'Yorum fotoğrafı okunamadı.');
-    return;
+    showToast(err?.message || 'Yorum gönderilemedi');
   }
-  const social = getProductSocial(currentModalProductId);
-  const usedNames = new Set((social.reviews || []).map((r)=>String(r?.name || '').trim()).filter(Boolean));
-  const typedName = (nameEl?.value || '').trim();
-  const selectedName = typedName || getAutoReviewName(currentModalProductId);
-  const nextReview = {
-    name: makeUniqueName(selectedName, usedNames),
-    text,
-    photo,
-    rating: Number(ratingEl?.value || 5),
-    date: new Date().toISOString().slice(0,10),
-    source: 'user'
-  };
-  const currentUserReviews = loadUserReviews(currentModalProductId);
-  currentUserReviews.push(nextReview);
-  localStorage.setItem(reviewStorageKey(currentModalProductId), JSON.stringify(currentUserReviews));
-  hydrateProductSocialData();
-  applyFilters();
-  renderModalReviews(currentModalProductId);
-  if(textEl) textEl.value = '';
-  syncReviewNameField(currentModalProductId);
-  resetReviewPhotoPicker();
-  if(ratingEl) ratingEl.value = '5';
-  showToast('Yorumunuz eklendi. Teşekkür ederiz!');
 }
 function renderModalReviews(productId){
   const listEl = document.getElementById('mReviews');
@@ -4312,19 +4307,72 @@ function renderModalReviews(productId){
   const social = getProductSocial(productId);
   if(!social.reviewCount){
     listEl.innerHTML = '<div class="modal-review-item"><div class="modal-review-text">Henüz yorum yok. İlk yorumu siz bırakın.</div></div>';
+    renderProductPhotoStrip(productId);
     return;
   }
-  const sortedReviews = [...social.reviews]
-    .sort((a,b)=>(b.rating-a.rating) || String(b.date).localeCompare(String(a.date)))
-    .slice(0, 12);
+  const sortedReviews = [...social.reviews].sort((a,b)=>((b.verified?1:0)-(a.verified?1:0)) || ((b.helpful||0)-(a.helpful||0)) || String(b.date).localeCompare(String(a.date))).slice(0,12);
   listEl.innerHTML = sortedReviews.map(r=>`
     <div class="modal-review-item">
-      <div class="modal-review-head"><strong>${r.name}</strong><span class="modal-review-stars">${renderStarText(r.rating)}</span></div>
+      <div class="modal-review-head"><strong>${r.name}</strong><span class="modal-review-stars">${renderStarText(r.rating)}</span>${r.verified ? '<span class="review-verified-badge"><i class="fas fa-check-circle"></i> Doğrulanmış Alıcı</span>' : ''}</div>
       <div class="modal-review-text">${r.text}</div>
-      ${r.photo ? `<div class="modal-review-photo"><img src="${r.photo}" alt="${r.name} ürün yorumu fotoğrafı" loading="lazy" decoding="async" width="420 height="280"></div>` : ''}
+      ${(r.photos||[]).map(p=>`<div class="modal-review-photo"><img src="${p}" loading="lazy" alt=""></div>`).join('')}
+      <button class="review-helpful" data-id="${r.id}" type="button"><i class="far fa-thumbs-up"></i> Faydalı (${r.helpful||0})</button>
     </div>
   `).join('');
+  listEl.querySelectorAll('.review-helpful').forEach((btn)=>{
+    btn.onclick = async ()=>{
+      const id = Number(btn.dataset.id);
+      if(!id) return;
+      const key = `gp_review_helpful_done_${id}`;
+      if(localStorage.getItem(key)==='1') return;
+      try{
+        const r = await fetch('/api/reviews', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'helpful', id})});
+        if(!r.ok) return;
+        localStorage.setItem(key,'1');
+        await refreshProductReviews(productId);
+      }catch(_){ }
+    };
+  });
+  renderProductPhotoStrip(productId);
   _patchLegacyReviewerNames();
+}
+
+async function refreshProductReviews(productId){
+  if(!productId) return;
+  try{
+    const json = await fetch('/api/reviews?productId='+encodeURIComponent(productId)).then(r=>r.json());
+    PRODUCT_SOCIAL[productId] = {
+      salesCount: 0,
+      reviews: (json.items||[]).map((it)=>({
+        id: it.id, name: it.name, text: it.text, rating: it.rating,
+        date: String(it.created_at).slice(0,10),
+        photos: Array.isArray(it.photos)?it.photos:[],
+        verified: !!it.verified_purchase,
+        helpful: it.helpful_count|0,
+        source:'server'
+      })),
+      reviewCount: json.stats?.total || 0,
+      avgRating: Math.round((json.stats?.avg||0)*10)/10,
+      withPhoto: json.stats?.with_photo || 0,
+      verified: json.stats?.verified || 0
+    };
+    renderModalReviews(productId);
+  }catch(_){ }
+}
+function openLightbox(src){
+  if(!src) return;
+  if(typeof openImageViewer === 'function'){
+    currentModalImages=[src]; currentModalImageIndex=0; openImageViewer(); return;
+  }
+}
+function renderProductPhotoStrip(pid){
+  const strip = document.getElementById('mPhotoStrip');
+  if(!strip) return;
+  const social = PRODUCT_SOCIAL[pid] || {reviews:[]};
+  const photos = social.reviews.flatMap(r => Array.isArray(r.photos)?r.photos:[]).slice(0,12);
+  if(!photos.length){ strip.hidden = true; strip.innerHTML=''; return; }
+  strip.hidden = false;
+  strip.innerHTML = photos.map((p)=>`<img src="${p}" loading="lazy" alt="Müşteri fotoğrafı" onclick="openLightbox('${p}')">`).join('');
 }
 
 // Admin'deki kategorileri senkronize et
@@ -5919,6 +5967,7 @@ function openModalFromProduct(id){
     bindMeterDimensionsAutoCalc(p, qid, wid, hid, pid);
   }
   renderModalReviews(id);
+  refreshProductReviews(id);
   startLiveViewerCounter(id);
   syncReviewNameField(id);
   document.getElementById('reviewTextInput').value = '';
@@ -6264,6 +6313,7 @@ document.getElementById('reviewPhotoInput')?.addEventListener('change', (event)=
 
 attachModalSwipeHandlers();
 bindMenuTriggers();
+handleReviewInviteTokenFlow();
 const modalImageElement = document.getElementById('mImg');
 if(modalImageElement && !modalImageElement.dataset.errorBound){
   modalImageElement.addEventListener('error', handleModalImageLoadError);

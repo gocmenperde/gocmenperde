@@ -1,7 +1,9 @@
+const crypto = require('crypto');
 const { verifyAuthToken } = require('../lib/_auth-utils');
 const { pool } = require('../lib/_db');
 const { sendResendEmail } = require('../lib/_resend-mail');
 const { applyCors } = require('../lib/_cors');
+const { ensureReviewSchema } = require('../lib/_reviews_schema');
 
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 const ORDER_STATUSES = ['Beklemede', 'Hazırlanıyor', 'Kargoya Verildi', 'Yolda', 'Dağıtımda', 'Teslim Edildi', 'İptal'];
@@ -153,6 +155,10 @@ module.exports = async function handler(req, res) {
           previousStatus: oldStatus,
           newStatus: normalizedStatus,
         });
+      }
+
+      if (normalizedStatus === 'Teslim Edildi') {
+        await createReviewInvitesForOrder(order).catch((e) => console.warn('Review invite kayıt hatası:', e?.message));
       }
 
       return res.status(200).json({ success: true });
@@ -341,6 +347,27 @@ async function sendOrderStatusEmail({ order, previousStatus, newStatus }) {
     subject: `Göçmen Perde | Sipariş Durum Güncellemesi: ${newStatus}`,
     html,
   });
+}
+
+
+async function createReviewInvitesForOrder(order) {
+  const email = await resolveOrderCustomerEmail(order);
+  if (!email) return;
+  const orderItems = parseOrderItems(order?.urunler);
+  if (!orderItems.length) return;
+  await ensureReviewSchema();
+  const scheduled = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+  for (const item of orderItems) {
+    const productId = String(item?.productId || item?.id || '').trim();
+    if (!productId) continue;
+    const productName = String(item?.name || item?.title || productId).trim();
+    const token = crypto.randomBytes(20).toString('base64url');
+    await pool.query(
+      `INSERT INTO review_invites(order_id,email,product_id,product_name,token,scheduled_at)
+       VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT (token) DO NOTHING`,
+      [String(order.id || ''), email, productId, productName, token, scheduled]
+    );
+  }
 }
 
 function parseOrderItems(value) {

@@ -75,8 +75,9 @@ const apiLimiter = rateLimit({
 });
 const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 const paymentLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '8mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads'), { maxAge: '30d', immutable: true }));
 app.use((req, res, next) => {
   if (!req.path.startsWith('/resimler/')) return next();
   if (!/\.(jpe?g|png)$/i.test(req.path)) return next();
@@ -113,6 +114,7 @@ if (!process.env.VERCEL) {
 }
 const routerHandler = require('../api/router');
 const { checkRestocks } = require('./lib/_stock-alert-runner');
+const { sendReviewInvites } = require('./lib/_review-invite-runner');
 const STOCK_CHECK_INTERVAL_MS = Number(process.env.STOCK_CHECK_INTERVAL_MS || 60000);
 if (process.env.DISABLE_STOCK_CHECK !== '1') {
   setInterval(() => {
@@ -134,3 +136,7 @@ const server = app.listen(PORT, HOST, () => {
     setTimeout(() => process.exit(1), 5000).unref();
   });
 });
+
+setInterval(() => {
+  sendReviewInvites().catch((e) => console.warn('[review-invite]', e?.message));
+}, 15 * 60 * 1000);
