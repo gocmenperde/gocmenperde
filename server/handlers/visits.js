@@ -1,6 +1,6 @@
 
 const { pool } = require('../lib/_db');
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+const { requireAdmin } = require('../lib/_admin-auth');
 const { applyCors } = require('../lib/_cors');
 let schemaReady = false;
 
@@ -53,9 +53,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'stats' && req.method === 'GET') {
-      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-        return res.status(403).json({ error: 'Yetkisiz.' });
-      }
+      if (!requireAdmin(req, res)) return;
 
       await ensureSchema();
 

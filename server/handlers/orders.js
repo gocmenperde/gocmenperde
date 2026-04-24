@@ -1,11 +1,11 @@
 const crypto = require('crypto');
 const { verifyAuthToken } = require('../lib/_auth-utils');
+const { requireAdmin } = require('../lib/_admin-auth');
 const { pool } = require('../lib/_db');
 const { sendResendEmail } = require('../lib/_resend-mail');
 const { applyCors } = require('../lib/_cors');
 const { ensureReviewSchema } = require('../lib/_reviews_schema');
 
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 const ORDER_STATUSES = ['Beklemede', 'Hazırlanıyor', 'Kargoya Verildi', 'Yolda', 'Dağıtımda', 'Teslim Edildi', 'İptal'];
 const ORDER_STATUS_ALIASES = {
   beklemede: 'Beklemede',
@@ -97,9 +97,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'all' && req.method === 'GET') {
-      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-        return res.status(403).json({ error: 'Yetkisiz.' });
-      }
+      if (!requireAdmin(req, res)) return;
       const result = await pool.query('SELECT * FROM siparisler ORDER BY created_at DESC');
       const orders = await withTrackingData(result.rows);
       return res.status(200).json({ success: true, orders });
@@ -124,9 +122,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'update-status' && req.method === 'POST') {
-      if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-        return res.status(403).json({ error: 'Yetkisiz.' });
-      }
+      if (!requireAdmin(req, res)) return;
       const { id, durum, trackingNote, trackingCode } = req.body || {};
       const normalizedStatus = normalizeOrderStatus(durum);
       if (!id || !normalizedStatus || !ORDER_STATUSES.includes(normalizedStatus)) {
