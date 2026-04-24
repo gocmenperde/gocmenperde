@@ -1362,6 +1362,10 @@ Işık: Yarı Geçirgen"></textarea></div>
           <option value="rejected">Reddedilen</option>
           <option value="all">Tümü</option>
         </select>
+        <select id="reviewProductFilter" style="max-width:280px">
+          <option value="">Tüm ürünler</option>
+        </select>
+        <button id="reviewsSeedSelectedBtn" class="btn btn-outline btn-sm"><i class="fas fa-magic"></i> Seçili Ürüne Sahte Yorum Üret</button>
         <button id="reviewsSeedAllBtn" class="btn btn-outline btn-sm"><i class="fas fa-magic"></i> Eksik Sahte Yorumları Tamamla</button>
         <button id="reviewsRefresh" class="admin-btn">Yenile</button>
       </div>
@@ -2703,30 +2707,111 @@ async function removeFromYouItem(index){
 
 
 
+async function fillReviewProductFilter(){
+  try {
+    const list = await fetch('/products.json',{cache:'no-store'}).then(r=>r.json());
+    const sel = document.getElementById('reviewProductFilter');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Tüm ürünler</option>' +
+      (Array.isArray(list)?list:[]).map(p=>`<option value="${p.id}">${(p.name||p.id)} — ${p.id}</option>`).join('');
+    sel.value = cur;
+  } catch(_){ }
+}
+
 async function adminFetchReviews(){
   const token = getAdminToken();
+  if (!token) { alert('Admin token boş — önce giriş yapın.'); return; }
   const status = document.getElementById('reviewStatusFilter')?.value || 'pending';
-  const res = await fetch('/api/admin/reviews?status='+encodeURIComponent(status), { headers:{'X-Admin-Token': token} });
-  if(res.status === 401){ alert('Admin yetkiniz yok'); return; }
-  const json = await res.json();
-  const list = document.getElementById('reviewsList');
-  const items = Array.isArray(json.items) ? json.items : [];
-  list.innerHTML = items.map((r)=>`<article class="review-mod-item">
-    <div><b>Ürün:</b> ${r.product_id} · <b>${r.name}</b> · <b>${r.rating}★</b> ${r.verified_purchase ? '<span class="admin-badge">Doğrulanmış</span>':''}</div>
-    <div style="margin-top:6px">${r.text}</div>
-    <div style="margin-top:6px;color:#6b7681;font-size:.8rem">IP: ${(r.ip_hash||'').slice(0,12)}... · Durum: ${r.status}</div>
-    <div class="review-mod-photos">${(Array.isArray(r.photos)?r.photos:[]).map((p)=>`<img src="${p}" loading="lazy" alt="">`).join('')}</div>
-    <div class="review-mod-actions">
-      <button class="btn btn-success btn-sm" onclick="adminReviewAction('approve',${r.id})">Onayla</button>
-      <button class="btn btn-outline btn-sm" onclick="adminReviewAction('reject',${r.id})">Reddet</button>
-      <button class="btn btn-danger btn-sm" onclick="adminReviewAction('delete',${r.id})">Sil</button>
-    </div>
-  </article>`).join('') || '<div class="review-mod-item">Kayıt yok.</div>';
+  const productId = document.getElementById('reviewProductFilter')?.value || '';
+  const url = `/api/admin/reviews?status=${encodeURIComponent(status)}` + (productId ? `&productId=${encodeURIComponent(productId)}` : '');
+  try {
+    const res = await fetch(url, { headers:{'X-Admin-Token': token} });
+    if(res.status === 401){ alert('Admin yetkiniz yok'); return; }
+    const json = await res.json().catch(()=>({}));
+    if (!res.ok || !json.success) {
+      alert('Yorumlar alınamadı: ' + (json?.error || ('HTTP '+res.status)));
+      return;
+    }
+    const list = document.getElementById('reviewsList');
+    const items = Array.isArray(json.items) ? json.items : [];
+    list.innerHTML = items.map((r)=>`<article class="review-mod-item" data-id="${r.id}">
+      <div><b>Ürün:</b> ${r.product_id} · <b>${r.name}</b> · <b>${r.rating}★</b>
+        ${r.verified_purchase ? '<span class="admin-badge">Doğrulanmış</span>':''}
+        ${r.is_seed ? '<span class="admin-badge" style="background:#eee;color:#555">Sahte</span>':''}
+      </div>
+      <div style="margin-top:6px">${(r.text||'').replace(/</g,'&lt;')}</div>
+      <div style="margin-top:6px;color:#6b7681;font-size:.8rem">IP: ${(r.ip_hash||'').slice(0,12)}... · Durum: ${r.status} · ${new Date(r.created_at).toLocaleDateString('tr-TR')}</div>
+      <div class="review-mod-photos">${(Array.isArray(r.photos)?r.photos:[]).map((p)=>`<img src="${p}" loading="lazy" alt="" onerror="this.style.display='none'">`).join('')}</div>
+      <div class="review-mod-reply" style="margin-top:8px">
+        <textarea id="reply-${r.id}" placeholder="Mağaza cevabı (müşteriye görünür)" style="width:100%;min-height:60px;padding:8px;border:1px solid #d5d9e5;border-radius:8px">${r.admin_reply||''}</textarea>
+        <div style="font-size:.7rem;color:#6b7681;margin-top:4px">${r.admin_reply_at ? 'Son cevap: '+new Date(r.admin_reply_at).toLocaleString('tr-TR') : 'Henüz cevap yok'}</div>
+      </div>
+      <div class="review-mod-actions" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn btn-success btn-sm" onclick="adminReviewAction('approve',${r.id})">Onayla</button>
+        <button class="btn btn-outline btn-sm" onclick="adminReviewAction('reject',${r.id})">Reddet</button>
+        <button class="btn btn-outline btn-sm" onclick="adminReplyReview(${r.id})">💬 Cevabı Kaydet</button>
+        <button class="btn btn-danger btn-sm" onclick="adminReviewAction('delete',${r.id})">Sil</button>
+        <button class="btn btn-outline btn-sm" onclick="adminRegenerateSeeds('${r.product_id}')">🪄 Bu ürün için sahte yorum üret</button>
+      </div>
+    </article>`).join('') || '<div class="review-mod-item">Kayıt yok.</div>';
+  } catch (err) {
+    alert('Ağ hatası: ' + (err?.message||'bilinmiyor'));
+  }
 }
-async function adminReviewAction(action,id){
+
+async function adminReviewAction(action, id){
   const token = getAdminToken();
-  await fetch('/api/admin/reviews', {method:'POST',headers:{'Content-Type':'application/json','X-Admin-Token':token}, body:JSON.stringify({action,id})});
-  adminFetchReviews();
+  if (!token) { alert('Admin token boş — önce giriş yapın.'); return; }
+  if (action === 'delete' && !confirm('Bu yorumu silmek istiyor musunuz?')) return;
+  try {
+    const r = await fetch('/api/admin/reviews', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Admin-Token':token},
+      body: JSON.stringify({ action, id })
+    });
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || !j.success) {
+      alert('İşlem başarısız: ' + (j?.error || ('HTTP '+r.status)));
+      return;
+    }
+    await adminFetchReviews();
+  } catch (err) {
+    alert('Ağ hatası: ' + (err?.message||'bilinmiyor'));
+  }
+}
+
+async function adminReplyReview(id){
+  const token = getAdminToken();
+  const reply = (document.getElementById('reply-'+id)?.value||'').trim();
+  try {
+    const r = await fetch('/api/admin/reviews',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Admin-Token':token},
+      body: JSON.stringify({ action:'reply', id, reply })
+    });
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || !j.success) { alert('Cevap kaydedilemedi: '+(j?.error||r.status)); return; }
+    alert('Cevap kaydedildi.');
+    adminFetchReviews();
+  } catch (err) { alert('Ağ hatası: '+(err?.message||'')); }
+}
+
+async function adminRegenerateSeeds(productId){
+  if (!productId) return;
+  if (!confirm(`"${productId}" ürünü için sahte yorumlar yenilensin mi? (Mevcut sahte yorumlar silinip yeniden oluşturulur, gerçek yorumlar etkilenmez.)`)) return;
+  const token = getAdminToken();
+  try {
+    const r = await fetch('/api/admin/reviews',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Admin-Token':token},
+      body: JSON.stringify({ action:'regenerate-seeds', productId })
+    });
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || !j.success) { alert('Hata: '+(j?.error||r.status)); return; }
+    alert(`Sahte yorumlar oluşturuldu (eklenen: ${j.added||0}).`);
+    adminFetchReviews();
+  } catch(err){ alert('Ağ hatası: '+(err?.message||'')); }
 }
 
 async function adminFetchStockAlerts(){
@@ -2780,14 +2865,22 @@ async function adminCheckStockNow(){
 document.getElementById('stockAlertCheckBtn')?.addEventListener('click', adminCheckStockNow);
 document.getElementById('stockAlertRefreshBtn')?.addEventListener('click', adminFetchStockAlerts);
 document.getElementById('reviewsSeedAllBtn')?.addEventListener('click', async ()=>{
-  if(!confirm('Tüm ürünlerde eksik sahte yorumlar tamamlansın mı? (Gerçek yorumlar etkilenmez.)')) return;
+  if(!confirm('Tüm ürünlerde eksik sahte yorumlar tamamlansın mı?')) return;
   const r = await fetch('/api/admin/reviews', { method:'POST', headers:{'X-Admin-Token':getAdminToken(),'Content-Type':'application/json'}, body: JSON.stringify({action:'seed-all'}) });
   const j = await r.json().catch(()=>({}));
-  alert(j.success ? `${j.totalAdded||0} sahte yorum eklendi (${j.productsTouched||0} ürün).` : (j.error||'Hata'));
+  if (!r.ok || !j.success) { alert('Hata: '+(j?.error||r.status)); return; }
+  alert(`${j.totalAdded||0} sahte yorum eklendi (${j.productsTouched||0} ürün).`);
   adminFetchReviews?.();
+});
+document.getElementById('reviewsSeedSelectedBtn')?.addEventListener('click', async ()=>{
+  const pid = document.getElementById('reviewProductFilter')?.value || '';
+  if (!pid) { alert('Önce bir ürün seçin.'); return; }
+  await adminRegenerateSeeds(pid);
 });
 document.getElementById('reviewsRefresh')?.addEventListener('click', adminFetchReviews);
 document.getElementById('reviewStatusFilter')?.addEventListener('change', adminFetchReviews);
+document.getElementById('reviewProductFilter')?.addEventListener('change', adminFetchReviews);
+fillReviewProductFilter();
 
 function toggleSidebar(){
   const sb=document.getElementById('sidebar'), ov=document.getElementById('sidebarOverlay');
@@ -2822,7 +2915,7 @@ function showPage(id){
   if(id==='notifications') renderNotifs();
   if(id==='live-support') loadLiveSupportMessages();
   if(id==='stock-alerts') adminFetchStockAlerts();
-  if(id==='reviews') adminFetchReviews();
+  if(id==='reviews'){ fillReviewProductFilter(); adminFetchReviews(); }
   if(id==='settings'){ renderFooterLogoRows(); }
 }
 function handleStatCardKey(event, target, filter){

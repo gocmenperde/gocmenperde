@@ -1,22 +1,43 @@
 const { checkRestocks } = require('../../lib/_stock-alert-runner');
-const fs = require('fs/promises');
-const path = require('path');
 const { requireAdmin } = require('../../lib/_admin-auth');
+const { pool } = require('../../lib/_db');
+const { ensureStockAlertSchema } = require('../../lib/_stock_alerts_schema');
 
-const ALERTS_PATH = path.join(__dirname, '..', '..', 'data', 'stock-alerts.json');
+function mapRow(row) {
+  return {
+    productId: row.product_id,
+    productName: row.product_name,
+    email: row.email || '',
+    phone: row.phone || '',
+    channel: row.channel,
+    createdAt: row.created_at,
+    notifiedAt: row.notified_at,
+    notifiedChannels: Array.isArray(row.notified_channels) ? row.notified_channels : [],
+  };
+}
 
 module.exports = async function handler(req, res) {
   if (!requireAdmin(req, res)) return;
+  await ensureStockAlertSchema();
 
   if (req.method === 'GET') {
-    const raw = await fs.readFile(ALERTS_PATH, 'utf8').catch(() => '[]');
-    const alerts = JSON.parse(raw);
-    const pending = alerts.filter((a) => !a.notifiedAt);
+    const counts = await pool.query(
+      `SELECT COUNT(*)::int AS total,
+              COUNT(*) FILTER (WHERE notified_at IS NULL)::int AS pending
+       FROM stock_alerts`
+    );
+    const list = await pool.query(
+      `SELECT product_id, product_name, email, phone, channel, created_at, notified_at, notified_channels
+       FROM stock_alerts
+       ORDER BY created_at DESC
+       LIMIT 200`
+    );
+
     return res.status(200).json({
       success: true,
-      total: alerts.length,
-      pending: pending.length,
-      items: alerts.slice(-200).reverse(),
+      total: counts.rows[0]?.total || 0,
+      pending: counts.rows[0]?.pending || 0,
+      items: list.rows.map(mapRow),
     });
   }
 
@@ -41,18 +62,13 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: 'productId ve (email veya phone) zorunlu' });
       }
 
-      const raw = await fs.readFile(ALERTS_PATH, 'utf8').catch(() => '[]');
-      const alerts = JSON.parse(raw);
-      const next = alerts.filter(
-        (a) =>
-          !(
-            String(a.productId) === productId &&
-            ((email && String(a.email || '').toLowerCase() === email) ||
-              (phone && String(a.phone || '') === phone))
-          )
+      const del = await pool.query(
+        `DELETE FROM stock_alerts
+         WHERE product_id=$1
+           AND ((($2 <> '') AND LOWER(email)=LOWER($2)) OR (($3 <> '') AND phone=$3))`,
+        [productId, email, phone]
       );
-      await fs.writeFile(ALERTS_PATH, JSON.stringify(next, null, 2), 'utf8');
-      return res.status(200).json({ success: true, removed: alerts.length - next.length });
+      return res.status(200).json({ success: true, removed: del.rowCount || 0 });
     }
 
     return res.status(400).json({ error: 'Geçersiz action' });

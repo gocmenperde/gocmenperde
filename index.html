@@ -1040,6 +1040,9 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .modal-review-text{font-size:0.78rem;color:var(--ink);line-height:1.45}
 .modal-review-photo{margin-top:8px}
 .modal-review-photo img{width:100%;max-height:180px;object-fit:cover;border-radius:8px;border:1px solid #e6e6e6}
+.modal-review-admin-reply{margin-top:10px;padding:10px 12px;background:#faf5e8;border-left:3px solid var(--gold);border-radius:8px}
+.modal-review-admin-reply-head{font-weight:700;font-size:0.78rem;color:#a3823f;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.modal-review-admin-reply-text{font-size:0.85rem;color:#3d3a32;line-height:1.5}
 .modal-photo-strip{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 10px;margin-top:10px;scroll-snap-type:x mandatory}
 .modal-photo-strip[hidden]{display:none}
 .modal-photo-strip img{width:96px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--border);scroll-snap-align:start;cursor:pointer;transition:transform .2s}
@@ -4004,6 +4007,7 @@ async function loadProducts({forceRefresh=false} = {}){
       writeProductsToCache(normalizedFresh);
       await loadPremiumShowcaseFromApi();
       renderProductState(normalizedFresh, {withObserver:true});
+      await loadReviewsSummary();
       restoreProductsViewState({respectCategoryQuery:true});
       applyFilters();
       productsLoadedOnce = true;
@@ -4014,6 +4018,7 @@ async function loadProducts({forceRefresh=false} = {}){
       const fallbackProducts = staleCache.length ? staleCache : legacyCache;
       if(fallbackProducts.length){
         renderProductState(fallbackProducts, {withObserver:true});
+        await loadReviewsSummary();
         restoreProductsViewState({respectCategoryQuery:true});
         applyFilters();
         productsLoadedOnce = true;
@@ -4029,6 +4034,21 @@ async function loadProducts({forceRefresh=false} = {}){
   })();
 
   return productRequestInFlight;
+}
+
+async function loadReviewsSummary(){
+  try {
+    const sum = await fetch('/api/reviews-summary').then((r)=>r.json());
+    if (sum?.success && sum.summary) {
+      for (const [pid, s] of Object.entries(sum.summary)) {
+        PRODUCT_SOCIAL[pid] = Object.assign({ salesCount: 0, reviews: [] }, PRODUCT_SOCIAL[pid] || {}, {
+          reviewCount: s.total || 0,
+          avgRating: s.avg || 0,
+        });
+      }
+      if (typeof renderProducts === 'function') renderProducts(PRODUCTS);
+    }
+  } catch (_) {}
 }
 
 function applyCategoryDeepLink(categoryKey=''){
@@ -4312,11 +4332,19 @@ async function submitProductReview(){
         if(fresh?.success){
           PRODUCT_SOCIAL[currentModalProductId] = {
             salesCount: 0,
-            reviews: (fresh.items||[]).map(it=>({ id:it.id, name:it.name, text:it.text, rating:it.rating, date: String(it.created_at).slice(0,10), photos: Array.isArray(it.photos)?it.photos:[], verified: !!it.verified_purchase, helpful: it.helpful_count|0, source: it.source||(it.is_seed?'seed':'user') })),
+            reviews: (fresh.items||[]).map(it=>({ id:it.id, name:it.name, text:it.text, rating:it.rating, date: String(it.created_at).slice(0,10), photos: Array.isArray(it.photos)?it.photos:[], verified: !!it.verified_purchase, helpful: it.helpful_count|0, source: it.source||(it.is_seed?'seed':'user'), adminReply: it.admin_reply||'', adminReplyDate: it.admin_reply_at||null })),
             reviewCount: fresh.stats?.total||0,
             avgRating: Math.round((fresh.stats?.avg||0)*10)/10
           };
           renderModalReviews(currentModalProductId);
+          const headerLine = document.querySelector('.modal-rating-line');
+          if (headerLine && PRODUCT_SOCIAL[currentModalProductId]) {
+            const s = PRODUCT_SOCIAL[currentModalProductId];
+            headerLine.innerHTML =
+              `<span class="stars">${renderStarText(s.avgRating)}</span>` +
+              `<strong>${(s.avgRating||0).toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1})}</strong>` +
+              `<span>${s.reviewCount||0} yorum</span>`;
+          }
           if(typeof renderProductPhotoStrip==='function') renderProductPhotoStrip(currentModalProductId);
         }
       }catch(_){ }
@@ -4345,7 +4373,12 @@ function renderModalReviews(productId){
     <div class="modal-review-item">
       <div class="modal-review-head"><strong>${r.name}</strong><span class="modal-review-stars">${renderStarText(r.rating)}</span>${(r.source==='verified') ? '<span class="review-verified-badge"><i class="fas fa-check-circle"></i> Doğrulanmış Alıcı</span>' : ''}</div>
       <div class="modal-review-text">${r.text}</div>
-      ${(r.photos||[]).map(p=>`<div class="modal-review-photo"><img src="${p}" loading="lazy" alt=""></div>`).join('')}
+      ${(r.photos||[]).map(p=>`<div class="modal-review-photo"><img src="${p}" loading="lazy" alt="" onerror="this.parentElement.style.display='none'"></div>`).join('')}
+      ${r.adminReply ? `
+        <div class="modal-review-admin-reply">
+          <div class="modal-review-admin-reply-head"><i class="fas fa-store"></i> Göçmen Perde Yanıtı</div>
+          <div class="modal-review-admin-reply-text">${String(r.adminReply).replace(/</g,'&lt;')}</div>
+        </div>` : ''}
       <button class="review-helpful" data-id="${r.id}" type="button"><i class="far fa-thumbs-up"></i> Faydalı (${r.helpful||0})</button>
     </div>
   `).join('');
@@ -4379,7 +4412,9 @@ async function refreshProductReviews(productId){
         photos: Array.isArray(it.photos)?it.photos:[],
         verified: !!it.verified_purchase,
         helpful: it.helpful_count|0,
-        source: it.source || (it.is_seed ? 'seed' : 'user')
+        source: it.source || (it.is_seed ? 'seed' : 'user'),
+        adminReply: it.admin_reply||'',
+        adminReplyDate: it.admin_reply_at||null
       })),
       reviewCount: json.stats?.total || 0,
       avgRating: Math.round((json.stats?.avg||0)*10)/10,
@@ -4387,6 +4422,14 @@ async function refreshProductReviews(productId){
       verified: json.stats?.verified || 0
     };
     renderModalReviews(productId);
+    const headerLine = document.querySelector('.modal-rating-line');
+    if (headerLine && PRODUCT_SOCIAL[productId]) {
+      const s = PRODUCT_SOCIAL[productId];
+      headerLine.innerHTML =
+        `<span class="stars">${renderStarText(s.avgRating)}</span>` +
+        `<strong>${(s.avgRating||0).toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1})}</strong>` +
+        `<span>${s.reviewCount||0} yorum</span>`;
+    }
   }catch(_){ }
 }
 function openLightbox(src){
@@ -4402,7 +4445,7 @@ function renderProductPhotoStrip(pid){
   const photos = social.reviews.flatMap(r => Array.isArray(r.photos)?r.photos:[]).slice(0,12);
   if(!photos.length){ strip.hidden = true; strip.innerHTML=''; return; }
   strip.hidden = false;
-  strip.innerHTML = photos.map((p)=>`<img src="${p}" loading="lazy" alt="Müşteri fotoğrafı" onclick="openLightbox('${p}')">`).join('');
+  strip.innerHTML = photos.map((p)=>`<img src="${p}" loading="lazy" alt="Müşteri fotoğrafı" onclick="openLightbox('${p}')" onerror="this.style.display='none'">`).join('');
 }
 
 // Admin'deki kategorileri senkronize et
@@ -5882,7 +5925,13 @@ function openModalFromProduct(id){
 
   document.getElementById('mTitle').innerText = p.name;
   document.querySelector('.modal-rating-line')?.remove();
-  document.getElementById('mTitle').insertAdjacentHTML('afterend', `<div class="modal-rating-line"><span class="stars">${renderStarText(social.avgRating)}</span><strong>${social.avgRating.toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1})}</strong><span>${social.reviewCount} yorum</span></div>`);
+  document.getElementById('mTitle').insertAdjacentHTML('afterend',
+    `<div class="modal-rating-line" data-pid="${id}">
+      <span class="stars">${renderStarText(social.avgRating)}</span>
+      <strong>${(social.avgRating||0).toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1})}</strong>
+      <span>${social.reviewCount||0} yorum</span>
+    </div>`
+  );
   setModalImage(0);
   const catMap = Object.fromEntries(CATEGORIES.map(c=>[c.key,c.label]));
   document.getElementById('mTag').innerText = catMap[p.cat]||p.cat;
