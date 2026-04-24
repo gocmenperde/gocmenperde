@@ -6678,7 +6678,7 @@ function refreshCatalogOnForeground({force=false} = {}){
 
 function scheduleForegroundRefresh({force=false} = {}){
   const now = Date.now();
-  if(!force && now - lastForegroundScheduleAt < 1500) return;
+  if(!force && now - lastForegroundScheduleAt < 30000) return;
   if(!force && isMobileSafari() && (now - lastForegroundRefreshAt) < 30000) return;
   lastForegroundScheduleAt = now;
   clearTimeout(foregroundRefreshTimer);
