@@ -23,7 +23,7 @@ function applyCors(req, res, { allowAdminHeaders = false } = {}) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 
   const headers = ['Content-Type', 'Authorization'];
-  if (allowAdminHeaders) headers.push('x-admin-key');
+  if (allowAdminHeaders) headers.push('x-admin-key', 'x-admin-token');
   res.setHeader('Access-Control-Allow-Headers', headers.join(', '));
 
   if (req.method === 'OPTIONS') {
