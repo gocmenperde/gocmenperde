@@ -110,10 +110,11 @@ module.exports = async function handler(req, res) {
     const userName = safeString(customer.name, 'Müşteri').slice(0, 60);
     const userPhone = normalizePhone(customer.phone);
     const userAddress = normalizeAddress(shippingAddress || customer.address || 'Türkiye');
-    const okUrl = safeString(successUrl, 'https://gocmenperde.com.tr');
-    const failUrl = safeString(cancelUrl, 'https://gocmenperde.com.tr');
+    const baseUrl = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://gocmenperde.com.tr');
+    const okUrl = safeString(successUrl, `${baseUrl}/?paytr=success`);
+    const failUrl = safeString(cancelUrl, `${baseUrl}/?paytr=fail`);
 
-    const testMode = '0';
+    const testMode = process.env.PAYTR_TEST_MODE === '1' ? '1' : '0';
     const debugOn = process.env.NODE_ENV === 'production' ? '0' : '1';
     const noInstallment = '0';
     const maxInstallment = '0';

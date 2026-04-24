@@ -67,8 +67,7 @@ function readCloudinaryConfig() {
   const cloudinaryUrl = pickFirstEnvValue([
     'CLOUDINARY_URL',
     'CLOUDINARY_API_URL',
-    'NEXT_PUBLIC_CLOUDINARY_URL',
-  ]) || pickFromMatchingEnvKeys([
+      ]) || pickFromMatchingEnvKeys([
     /cloudinary.*url/i,
   ]);
   const parsedFromUrl = parseCloudinaryUrl(cloudinaryUrl);
@@ -77,9 +76,7 @@ function readCloudinaryConfig() {
     'CLOUDINARY_CLOUD_NAME',
     'CLOUDINARY_CLOUDNAME',
     'CLOUD_NAME',
-    'NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME',
-    'NEXT_PUBLIC_CLOUDINARY_CLOUDNAME',
-  ]) || pickFromMatchingEnvKeys([
+          ]) || pickFromMatchingEnvKeys([
     /cloudinary.*cloud.*name/i,
     /^cloud_name$/i,
   ]) || parsedFromUrl?.cloudName || '';
@@ -87,8 +84,7 @@ function readCloudinaryConfig() {
   const apiKey = pickFirstEnvValue([
     'CLOUDINARY_API_KEY',
     'API_KEY',
-    'NEXT_PUBLIC_CLOUDINARY_API_KEY',
-  ]) || pickFromMatchingEnvKeys([
+      ]) || pickFromMatchingEnvKeys([
     /cloudinary.*api.*key/i,
   ]) || parsedFromUrl?.apiKey || '';
 
@@ -96,8 +92,7 @@ function readCloudinaryConfig() {
     'CLOUDINARY_API_SECRET',
     'CLOUDINARY_SECRET',
     'API_SECRET',
-    'NEXT_PUBLIC_CLOUDINARY_API_SECRET',
-  ]) || pickFromMatchingEnvKeys([
+      ]) || pickFromMatchingEnvKeys([
     /cloudinary.*api.*secret/i,
     /cloudinary.*secret/i,
     /^api_secret$/i,

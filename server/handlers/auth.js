@@ -60,7 +60,7 @@ module.exports = async function handler(req, res) {
   const { action } = req.query;
 
   try {
-    const isAllowedEmailDomain = (email = '') => /@(gmail\.com|hotmail\.com)$/i.test(String(email).trim());
+    const isAllowedEmailDomain = (email = '') => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(email).trim());
     const isStrongPassword = (sifre = '') => /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(String(sifre));
 
     if (action === 'admin-login' && req.method === 'POST') {
@@ -77,7 +77,7 @@ module.exports = async function handler(req, res) {
       if (!ad_soyad || !email || !sifre)
         return res.status(400).json({ error: 'Ad soyad, email ve şifre zorunludur.' });
       if (!isAllowedEmailDomain(email))
-        return res.status(400).json({ error: 'E-posta yalnızca @gmail.com veya @hotmail.com olabilir.' });
+        return res.status(400).json({ error: 'Geçerli bir e-posta adresi giriniz.' });
       if (!isStrongPassword(sifre))
         return res.status(400).json({ error: 'Şifre en az 8 karakter olmalı ve harf ile sayı içermelidir.' });
 
@@ -191,9 +191,10 @@ module.exports = async function handler(req, res) {
       const { baslik, adres } = req.body || {};
       if (!baslik || !adres) return res.status(400).json({ error: 'Başlık ve adres zorunludur.' });
 
-      const parts = String(adres).split('\n').map((x) => x.trim()).filter(Boolean);
-      if (parts.length < 5) {
-        return res.status(400).json({ error: 'Adres; mahalle, sokak/cadde, kapı numarası, ilçe ve il bilgileri ile girilmelidir.' });
+      const normalizedAddress = String(adres || '').trim();
+      const hasStreetInfo = /(mahalle|mah\.?|sokak|sk\.?|cadde|cd\.?|bulvar)/i.test(normalizedAddress);
+      if (normalizedAddress.length < 15 || !hasStreetInfo) {
+        return res.status(400).json({ error: 'Adres en az 15 karakter olmalı ve mahalle/sokak/cadde bilgisi içermelidir.' });
       }
 
       await pool.query('INSERT INTO adresler (musteri_id, baslik, adres) VALUES ($1,$2,$3)', [user.id, baslik, adres]);

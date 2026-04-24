@@ -9,8 +9,7 @@ const PAYTR_ENV_ALIASES = {
     'PAYTR_MERCHANTID',
     'PAYTR_ID',
     'MERCHANT_ID',
-    'merchant_id',
-    'NEXT_PUBLIC_PAYTR_MERCHANT_ID'
+    'merchant_id'
   ],
   key: [
     'PAYTR_MERCHANT_KEY',
@@ -19,8 +18,7 @@ const PAYTR_ENV_ALIASES = {
     'PAYTR_API_KEY',
     'PAYTR_KEY',
     'MERCHANT_KEY',
-    'merchant_key',
-    'NEXT_PUBLIC_PAYTR_MERCHANT_KEY'
+    'merchant_key'
   ],
   salt: [
     'PAYTR_MERCHANT_SALT',
@@ -29,8 +27,7 @@ const PAYTR_ENV_ALIASES = {
     'PAYTR_API_SALT',
     'PAYTR_SALT',
     'MERCHANT_SALT',
-    'merchant_salt',
-    'NEXT_PUBLIC_PAYTR_MERCHANT_SALT'
+    'merchant_salt'
   ]
 };
 

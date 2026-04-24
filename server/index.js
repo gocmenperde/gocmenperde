@@ -4,9 +4,18 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const helmet = require('helmet');
-if (process.env.NODE_ENV !== 'production' && typeof process.loadEnvFile === 'function') {
-  const envPath = path.resolve(__dirname, '..', '.env');
-  if (fs.existsSync(envPath)) process.loadEnvFile(envPath);
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+  } catch (_) {}
+  if (typeof process.loadEnvFile === 'function') {
+    const envPath = path.resolve(__dirname, '..', '.env');
+    if (fs.existsSync(envPath)) process.loadEnvFile(envPath);
+  }
+}
+
+if (!process.env.JWT_SECRET && !process.env.AUTH_TOKEN_SECRET) {
+  console.error('[FATAL] JWT_SECRET tanımlı değil. Auth çalışmaz.');
 }
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
@@ -22,20 +31,21 @@ app.use(helmet({
       "style-src": ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com'],
       "font-src": ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com', 'data:'],
       "img-src": ["'self'", 'data:', 'blob:', 'https:'],
-      "connect-src": ["'self'", 'https://www.google-analytics.com'],
-      "frame-src": ["'self'", 'https://www.google.com', 'https://www.youtube.com'],
+      "connect-src": ["'self'", 'https://www.google-analytics.com', 'https://www.paytr.com', 'https://*.paytr.com'],
+      "frame-src": ["'self'", 'https://www.google.com', 'https://www.youtube.com', 'https://www.paytr.com', 'https://*.paytr.com'],
       "object-src": ["'none'"],
       "base-uri": ["'self'"],
       "frame-ancestors": ["'self'"]
     }
   },
   crossOriginEmbedderPolicy: false,
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
 }));
 
 
 const APP_BOOTSTAMP = new Date().toISOString();
 function isLoopbackIp(ip = '') {
-  return ip === '127.0.0.1' || ip === '::1' || String(ip).startsWith('192.168.');
+  return ip === '127.0.0.1' || ip === '::1';
 }
 
 app.get('/healthz', (req, res) => {
@@ -75,7 +85,7 @@ const apiLimiter = rateLimit({
 });
 const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 const paymentLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
-app.use(express.json({ limit: '8mb' }));
+app.use(express.json({ limit: '4mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads'), { maxAge: '30d', immutable: true }));
 app.use((req, res, next) => {
@@ -115,35 +125,12 @@ if (!process.env.VERCEL) {
 const routerHandler = require('../api/router');
 const { checkRestocks } = require('./lib/_stock-alert-runner');
 const { sendReviewInvites } = require('./lib/_review-invite-runner');
-const { ensureSeedsForAllProducts } = require('./lib/_seed-reviews');
 const { ensureReviewSchema } = require('./lib/_reviews_schema');
-const STOCK_CHECK_INTERVAL_MS = Number(process.env.STOCK_CHECK_INTERVAL_MS || 60000);
-if (process.env.DISABLE_STOCK_CHECK !== '1') {
-  setInterval(() => {
-    checkRestocks()
-      .then((r) => {
-        if (r.restockedCount) console.log(`[stock-check] restocked=${r.restockedCount} sent=${r.sent} failed=${r.failed}`);
-      })
-      .catch((e) => console.warn('[stock-check] err', e?.message));
-  }, STOCK_CHECK_INTERVAL_MS);
-}
-if (process.env.DISABLE_REVIEW_SEED !== '1') {
+if (process.env.ALLOW_REVIEW_SEEDING === '1' && process.env.DISABLE_REVIEW_SEED !== '1') {
   setTimeout(() => {
     ensureReviewSchema()
-      .then(() => ensureSeedsForAllProducts())
-      .then((r) => {
-        if (r.totalAdded) console.log(`[review-seed] startup eklendi=${r.totalAdded} ürün=${r.productsTouched}/${r.productsTotal}`);
-      })
       .catch((e) => console.warn('[review-seed startup]', e?.message));
   }, 3000);
-  setInterval(() => {
-    ensureReviewSchema()
-      .then(() => ensureSeedsForAllProducts())
-      .then((r) => {
-        if (r.totalAdded) console.log(`[review-seed cron] eklendi=${r.totalAdded} ürün=${r.productsTouched}/${r.productsTotal}`);
-      })
-      .catch((e) => console.warn('[review-seed cron]', e?.message));
-  }, Number(process.env.REVIEW_SEED_INTERVAL_MS || 5 * 60 * 1000));
 }
 app.all('/api/*', routerHandler);
 const server = app.listen(PORT, HOST, () => {
@@ -157,6 +144,8 @@ const server = app.listen(PORT, HOST, () => {
   });
 });
 
-setInterval(() => {
-  sendReviewInvites().catch((e) => console.warn('[review-invite]', e?.message));
-}, 15 * 60 * 1000);
+if (!process.env.VERCEL) {
+  setInterval(() => {
+    sendReviewInvites().catch((e) => console.warn('[review-invite]', e?.message));
+  }, 15 * 60 * 1000);
+}

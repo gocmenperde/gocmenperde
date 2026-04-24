@@ -1,9 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-if (process.env.NODE_ENV !== 'production' && typeof process.loadEnvFile === 'function') {
-  const envPath = path.resolve(__dirname, '..', '.env');
-  if (fs.existsSync(envPath)) process.loadEnvFile(envPath);
+if (process.env.NODE_ENV !== 'production') {
+  try { require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') }); } catch {}
+  if (typeof process.loadEnvFile === 'function') {
+    const envPath = path.resolve(__dirname, '..', '.env');
+    if (fs.existsSync(envPath)) process.loadEnvFile(envPath);
+  }
 }
 
 function validateBasicBody(req, res){

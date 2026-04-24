@@ -1,12 +1,17 @@
-const CACHE = 'gp-v1';
-const RUNTIME = 'gp-runtime-v1';
-const PRECACHE = ['/', '/products.json', '/categories.json'];
+const version = (self.registration?.scope || '').slice(-7) || 'v2';
+const CACHE = `gp-${version}`;
+const RUNTIME = `gp-runtime-${version}`;
+const PRECACHE = ['/products.json', '/categories.json'];
 self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/') && url.pathname !== '/api/reviews-summary') return;
+  if (e.request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('.html')) {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
   if (/\.(png|jpe?g|webp|svg|woff2?)$/i.test(url.pathname)) {
     e.respondWith(caches.open(RUNTIME).then(async (c) => {
       const hit = await c.match(e.request);
