@@ -20,3 +20,12 @@
 12. `loadProducts` dedupe (1500ms cooldown)
 13. Global error logger
 14. `__sectionTransitionLock` ile atomik geçiş
+
+## Tur 6 — Yorum Sistemi Düzeltmeleri (2026-04-24)
+
+- Admin auth tekilleştirildi: yeni `server/lib/_admin-auth.js` ile `ADMIN_TOKEN`/`ADMIN_API_KEY` uyumlu doğrulama, admin handler'ları ortak `requireAdmin` kullanıyor.
+- Admin panel token saklama/okuma normalize edildi: hem `admin_api_key` hem `gp_admin_token` localStorage+sessionStorage senkron tutuluyor.
+- Yorum seed altyapısı geri eklendi: `is_seed` + `source` alanları, `server/lib/_seed-reviews.js`, startup/cron otomatik tamamlama.
+- Admin yorum moderasyonuna `seed-all` ve `regenerate-seeds` aksiyonları eklendi.
+- Public `/api/reviews` sıralama ve görünürlük düzeltildi (onaylı yorumlar, verified > gerçek > seed).
+- Ürün modalındaki “Yorum Yaz” formu submit akışı defansif şekilde yenilendi; auto-approve açıkken yorum anında listeye düşüyor.

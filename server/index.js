@@ -115,6 +115,7 @@ if (!process.env.VERCEL) {
 const routerHandler = require('../api/router');
 const { checkRestocks } = require('./lib/_stock-alert-runner');
 const { sendReviewInvites } = require('./lib/_review-invite-runner');
+const { ensureSeedsForAllProducts } = require('./lib/_seed-reviews');
 const STOCK_CHECK_INTERVAL_MS = Number(process.env.STOCK_CHECK_INTERVAL_MS || 60000);
 if (process.env.DISABLE_STOCK_CHECK !== '1') {
   setInterval(() => {
@@ -124,6 +125,22 @@ if (process.env.DISABLE_STOCK_CHECK !== '1') {
       })
       .catch((e) => console.warn('[stock-check] err', e?.message));
   }, STOCK_CHECK_INTERVAL_MS);
+}
+if (process.env.DISABLE_REVIEW_SEED !== '1') {
+  setTimeout(() => {
+    ensureSeedsForAllProducts()
+      .then((r) => {
+        if (r.totalAdded) console.log(`[review-seed] startup eklendi=${r.totalAdded} ürün=${r.productsTouched}/${r.productsTotal}`);
+      })
+      .catch((e) => console.warn('[review-seed startup]', e?.message));
+  }, 8000);
+  setInterval(() => {
+    ensureSeedsForAllProducts()
+      .then((r) => {
+        if (r.totalAdded) console.log(`[review-seed cron] eklendi=${r.totalAdded} ürün=${r.productsTouched}/${r.productsTotal}`);
+      })
+      .catch((e) => console.warn('[review-seed cron]', e?.message));
+  }, Number(process.env.REVIEW_SEED_INTERVAL_MS || 5 * 60 * 1000));
 }
 app.all('/api/*', routerHandler);
 const server = app.listen(PORT, HOST, () => {

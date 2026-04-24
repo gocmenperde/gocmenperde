@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 const { parseUrlWithFallback } = require('../../lib/_safe-url');
 
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+const { requireAdmin } = require('../../lib/_admin-auth');
 const MAX_DATA_URL_SIZE_BYTES = 12 * 1024 * 1024; // ~12MB
 const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg','image/jpg','image/png','image/webp','image/avif','image/gif']);
 
@@ -192,9 +192,7 @@ function buildSignedUploadPayload({ cloudinaryConfig, fileName, prefix, folder =
 
 module.exports = async function handler(req, res) {
   if (applyCors(req, res, { allowAdminHeaders: true })) return;
-  if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
-    return res.status(403).json({ error: 'Yetkisiz.' });
-  }
+  if (!requireAdmin(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Desteklenmeyen method.' });

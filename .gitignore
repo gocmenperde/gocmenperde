@@ -2,3 +2,7 @@ node_modules/
 .vercel/
 .npm/
 attached_assets/
+server/data/stock-snapshot.json
+server/data/stock-alerts.json
+.DS_Store
+*.log
