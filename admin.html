@@ -2169,6 +2169,7 @@ async function doLogin(){
   const p = (document.getElementById('loginPass').value || '').trim();
   const err = document.getElementById('loginError');
   if(!e || !p){
+    err.textContent = 'E-posta veya şifre hatalı.';
     err.style.display = 'block';
     return;
   }
@@ -2197,6 +2198,8 @@ async function doLogin(){
     err.style.display = 'none';
     initAdmin();
   } catch(_error){
+    const message = String(_error?.message || '').trim();
+    err.textContent = message || 'E-posta veya şifre hatalı.';
     err.style.display = 'block';
     document.getElementById('loginEmail').value = '';
     document.getElementById('loginPass').value = '';
@@ -6742,12 +6745,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   const restoreSession = sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
   const restoreToken = getAdminToken();
-  if(restoreSession && restoreToken){
+  if((restoreSession || restoreToken) && restoreToken){
     fetch('/api/visits', { headers:{ 'X-Admin-Token': restoreToken } })
       .then((res)=>{
-        if(res.status === 401){
+        if(res.status === 401 || res.status === 403){
           throw new Error('unauthorized');
         }
+        sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
         document.getElementById('loginScreen').classList.add('hide');
         document.getElementById('adminApp').classList.add('show');
         initAdmin();
