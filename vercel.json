@@ -6,6 +6,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/payment-logos/(.*)",
+      "destination": "/payment-logos/$1"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/router?route=$1"
     }

@@ -715,12 +715,90 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
 .modal-bg{z-index:1000}
 .a-toast,.toast,.admin-toast{z-index:1100}
 .modal-footer,.form-modal-footer,.modal-actions{transform:translateY(calc(-1 * var(--keyboard-offset, 0px)))}
-.payment-logos-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-.payment-logo-admin-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
-.payment-logo-admin-card img{height:48px;object-fit:contain;background:#f6f6f6;border-radius:8px;padding:8px}
-.payment-logo-admin-card .actions{display:flex;gap:6px}
-.payment-logo-admin-card .actions button{flex:1;min-height:38px;border-radius:8px;font-size:12px}
-@media (max-width:768px){.payment-logos-admin-grid{grid-template-columns:1fr 1fr;gap:10px}}
+.payment-logos-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.payment-logo-admin-card{background:#fff;border:1px solid #f0eee9;border-radius:16px;padding:0;display:flex;flex-direction:column;overflow:hidden;transition:transform .15s,box-shadow .15s;position:relative}
+.payment-logo-admin-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.08)}
+.payment-logo-admin-card.is-disabled{opacity:.55}
+.pl-card-preview{height:120px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#f8f8f8 0% 25%,#fff 0% 50%) 50%/14px 14px;border-bottom:1px solid #f0eee9;padding:14px}
+.pl-card-preview img{max-width:75%;max-height:75%;object-fit:contain}
+.pl-card-body{padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.pl-card-name{font-weight:700;font-size:.92rem;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-card-meta{font-size:.7rem;color:#6b7681;display:flex;align-items:center;gap:8px}
+.pl-card-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.pl-card-status.on{background:#d1fae5;color:#065f46}
+.pl-card-status.off{background:#fee2e2;color:#991b1b}
+.pl-card-actions{display:flex;gap:6px;padding:10px 14px;border-top:1px solid #f0eee9;background:#fbf9f5}
+.pl-card-actions button{flex:1;min-height:36px;border-radius:8px;font-size:.75rem;font-weight:600;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.pl-card-actions .btn-edit{background:#fff;color:#1a1a1a;border:1px solid #d5d9e5}
+.pl-card-actions .btn-edit:hover{background:#f6f6f6}
+.pl-card-actions .btn-toggle{background:#fbf9f5;color:#a3823f;border:1px solid #e8d8a8}
+.pl-card-actions .btn-toggle:hover{background:#faf5e8}
+.pl-card-actions .btn-delete{background:#fff;color:#dc2626;border:1px solid #fecaca}
+.pl-card-actions .btn-delete:hover{background:#fef2f2}
+.pl-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:plFadeIn .2s ease-out}
+.pl-modal[hidden]{display:none}
+.pl-modal-backdrop{position:absolute;inset:0;background:rgba(15,17,23,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.pl-modal-card{position:relative;width:min(820px,100%);max-height:calc(100dvh - 40px);background:#fff;border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.08);display:flex;flex-direction:column;overflow:hidden;animation:plSlideUp .25s cubic-bezier(.2,.9,.2,1)}
+.pl-modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:22px 26px 18px;border-bottom:1px solid #f0eee9;background:linear-gradient(180deg,#fbf9f5 0%,#fff 100%)}
+.pl-modal-eyebrow{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#a3823f;font-weight:600;margin-bottom:4px}
+.pl-modal-header h3{font:600 1.25rem var(--ff-display);color:#1a1a1a;margin:0}
+.pl-modal-close{width:38px;height:38px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;color:#6b7681;cursor:pointer;font-size:1rem;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.pl-modal-close:hover{background:#f6f6f6;color:#1a1a1a;transform:rotate(90deg)}
+.pl-modal-body{padding:24px 26px;overflow-y:auto;flex:1}
+.pl-modal-footer{padding:16px 26px;border-top:1px solid #f0eee9;display:flex;gap:10px;justify-content:flex-end;background:#fbf9f5}
+.pl-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.pl-upload-col{display:flex;flex-direction:column;gap:12px}
+.pl-fields-col{display:flex;flex-direction:column;gap:14px}
+.pl-preview{position:relative;height:160px;border-radius:14px;background:repeating-conic-gradient(#f6f6f6 0% 25%,#fff 0% 50%) 50%/20px 20px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pl-preview img{max-width:80%;max-height:80%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,.08))}
+.pl-preview-empty{display:flex;flex-direction:column;align-items:center;gap:8px;color:#b8b8b8;font-size:.82rem}
+.pl-preview-empty i{font-size:2rem}
+.pl-dropzone{position:relative;display:block;border:2px dashed #d5d9e5;border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all .18s;background:#fbf9f5}
+.pl-dropzone:hover,.pl-dropzone.is-drag{border-color:#a3823f;background:#faf5e8;transform:translateY(-1px)}
+.pl-dropzone-inner{display:flex;flex-direction:column;align-items:center;gap:4px}
+.pl-dropzone i{font-size:1.6rem;color:#a3823f;margin-bottom:4px}
+.pl-dropzone strong{font-size:.92rem;color:#1a1a1a;font-weight:600}
+.pl-dropzone span{font-size:.78rem;color:#6b7681}
+.pl-dropzone small{font-size:.7rem;color:#9aa0a6;letter-spacing:.04em;margin-top:6px}
+.pl-dropzone-progress{position:absolute;inset:0;background:rgba(255,255,255,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:12px}
+.pl-spinner{width:32px;height:32px;border:3px solid #f0eee9;border-top-color:#a3823f;border-radius:50%;animation:plSpin .8s linear infinite}
+.pl-or{text-align:center;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:#b8b8b8;position:relative;padding:6px 0}
+.pl-or::before,.pl-or::after{content:'';position:absolute;top:50%;width:30%;height:1px;background:#f0eee9}
+.pl-or::before{left:0}.pl-or::after{right:0}
+.pl-field{display:flex;flex-direction:column;gap:6px}
+.pl-label{font-size:.78rem;font-weight:600;color:#3a3a3a;letter-spacing:.02em}
+.pl-input{width:100%;padding:11px 14px;border:1px solid #d5d9e5;border-radius:10px;font-size:.92rem;font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s;background:#fff;color:#1a1a1a}
+.pl-input:focus{border-color:#a3823f;box-shadow:0 0 0 3px rgba(163,130,63,.12)}
+.pl-hint{font-size:.7rem;color:#9aa0a6;margin-top:2px}
+.pl-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pl-toggle{display:flex;align-items:center;height:42px}
+.pl-toggle input{display:none}
+.pl-toggle label{display:flex;align-items:center;gap:10px;cursor:pointer}
+.pl-toggle-track{width:44px;height:24px;border-radius:999px;background:#e5e7eb;position:relative;transition:background .18s}
+.pl-toggle-track::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .18s}
+.pl-toggle input:checked+label .pl-toggle-track{background:#a3823f}
+.pl-toggle input:checked+label .pl-toggle-track::after{transform:translateX(20px)}
+.pl-toggle-text{font-size:.85rem;font-weight:500;color:#1a1a1a}
+.pl-help{background:#f6f3ec;border-left:3px solid #a3823f;border-radius:8px;padding:10px 12px;font-size:.78rem;color:#5a5043;line-height:1.5}
+.pl-help i{color:#a3823f;margin-right:6px}
+.pl-btn{padding:11px 20px;border-radius:10px;font-size:.88rem;font-weight:600;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:8px;min-height:42px}
+.pl-btn-primary{background:#1a1a1a;color:#fff}
+.pl-btn-primary:hover{background:#2a2a2a;transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.pl-btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.pl-btn-ghost{background:transparent;color:#6b7681;border:1px solid #d5d9e5}
+.pl-btn-ghost:hover{background:#f6f6f6;color:#1a1a1a}
+@keyframes plFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes plSlideUp{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes plSpin{to{transform:rotate(360deg)}}
+@media (max-width:760px){
+  .pl-modal{padding:0;align-items:flex-end}
+  .pl-modal-card{max-height:96dvh;border-radius:20px 20px 0 0;width:100%}
+  .pl-grid{grid-template-columns:1fr;gap:16px}
+  .pl-modal-header,.pl-modal-body,.pl-modal-footer{padding-left:18px;padding-right:18px}
+  .pl-row-2{grid-template-columns:1fr}
+  .pl-btn{flex:1;justify-content:center}
+}
+@media (max-width:640px){.payment-logos-admin-grid{grid-template-columns:1fr 1fr;gap:10px}.pl-card-preview{height:88px}}
 
 @media (max-width:1024px){
   .sidebar-toggle{
@@ -1605,11 +1683,93 @@ Işık: Yarı Geçirgen"></textarea></div>
   <section id="tab-paymentLogos" class="tab-content">
     <div class="admin-tab-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
       <h3><i class="fas fa-credit-card"></i> Ödeme Logoları</h3>
-      <button class="admin-btn" onclick="openPaymentLogoForm()">+ Logo Ekle</button>
+      <button class="admin-btn" onclick="openPaymentLogoModal()"><i class="fas fa-plus"></i> Yeni Logo Ekle</button>
     </div>
     <div id="paymentLogosList" class="payment-logos-admin-grid"></div>
   </section>
 </div>
+
+
+<div class="pl-modal" id="paymentLogoModal" hidden role="dialog" aria-modal="true" aria-labelledby="plModalTitle">
+  <div class="pl-modal-backdrop" onclick="closePaymentLogoModal()"></div>
+  <div class="pl-modal-card">
+    <header class="pl-modal-header">
+      <div>
+        <span class="pl-modal-eyebrow">Ödeme Logosu</span>
+        <h3 id="plModalTitle">Yeni Logo Ekle</h3>
+      </div>
+      <button type="button" class="pl-modal-close" onclick="closePaymentLogoModal()" aria-label="Kapat">
+        <i class="fas fa-xmark"></i>
+      </button>
+    </header>
+    <div class="pl-modal-body">
+      <div class="pl-grid">
+        <div class="pl-upload-col">
+          <div class="pl-preview" id="plPreview">
+            <img id="plPreviewImg" alt="" hidden>
+            <div class="pl-preview-empty" id="plPreviewEmpty">
+              <i class="fas fa-image"></i>
+              <span>Önizleme</span>
+            </div>
+          </div>
+          <label class="pl-dropzone" id="plDropzone" for="plFileInput">
+            <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+            <div class="pl-dropzone-inner">
+              <i class="fas fa-cloud-arrow-up"></i>
+              <strong>Bilgisayardan görsel seç</strong>
+              <span>veya buraya sürükle-bırak</span>
+              <small>PNG · JPG · WebP · SVG · max 2 MB</small>
+            </div>
+            <div class="pl-dropzone-progress" id="plProgress" hidden>
+              <div class="pl-spinner"></div>
+              <span id="plProgressText">Yükleniyor…</span>
+            </div>
+          </label>
+          <div class="pl-or">veya URL yapıştır</div>
+          <input type="url" class="pl-input" id="plImageUrl" placeholder="https://res.cloudinary.com/…">
+        </div>
+        <div class="pl-fields-col">
+          <label class="pl-field">
+            <span class="pl-label">Logo Adı *</span>
+            <input type="text" class="pl-input" id="plName" placeholder="örn. Visa" required maxlength="60">
+          </label>
+          <label class="pl-field">
+            <span class="pl-label">Alt Metin (erişilebilirlik)</span>
+            <input type="text" class="pl-input" id="plAltText" placeholder="Boş bırakırsanız Logo Adı kullanılır" maxlength="120">
+          </label>
+          <div class="pl-row-2">
+            <label class="pl-field">
+              <span class="pl-label">Sıra</span>
+              <input type="number" class="pl-input" id="plSortOrder" value="0" step="10" min="0">
+              <small class="pl-hint">Küçük değer önce görünür</small>
+            </label>
+            <label class="pl-field">
+              <span class="pl-label">Durum</span>
+              <div class="pl-toggle">
+                <input type="checkbox" id="plEnabled" checked>
+                <label for="plEnabled">
+                  <span class="pl-toggle-track"></span>
+                  <span class="pl-toggle-text">Aktif</span>
+                </label>
+              </div>
+            </label>
+          </div>
+          <div class="pl-help">
+            <i class="fas fa-circle-info"></i>
+            Tavsiye: <b>SVG</b> veya şeffaf arka planlı PNG yükleyin. Logo footer'da <b>28 px yüksekliğinde</b> render edilir.
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="pl-modal-footer">
+      <button type="button" class="pl-btn pl-btn-ghost" onclick="closePaymentLogoModal()">İptal</button>
+      <button type="button" class="pl-btn pl-btn-primary" id="plSaveBtn" onclick="submitPaymentLogo()">
+        <i class="fas fa-check"></i> Kaydet
+      </button>
+    </footer>
+  </div>
+</div>
+
 
 <!-- ══ AYARLAR ══ -->
 
@@ -2279,42 +2439,161 @@ async function loadPaymentLogos(){
   }
   const wrap = document.getElementById('paymentLogosList');
   if (!wrap) return;
-  wrap.innerHTML = paymentLogosAdmin.map((l) => `
-    <div class="payment-logo-admin-card" data-id="${l.id}">
-      <img src="${esc(l.image_url || l.imageUrl)}" alt="${esc(l.alt_text || l.altText || l.name)}" onerror="this.style.opacity=.3">
-      <div><b>${esc(l.name)}</b></div>
-      <div style="font-size:11px;color:#6b7681">Sıra: ${Number(l.sort_order ?? l.sortOrder ?? 0)} · ${(l.enabled !== false) ? 'Aktif' : 'Pasif'}</div>
-      <div class="actions">
-        <button onclick="editPaymentLogo(${l.id})">Düzenle</button>
-        <button onclick="togglePaymentLogo(${l.id}, ${(l.enabled !== false) ? 'false' : 'true'})">${(l.enabled !== false) ? 'Gizle' : 'Göster'}</button>
-        <button onclick="deletePaymentLogo(${l.id})" class="btn-danger">Sil</button>
+  wrap.innerHTML = paymentLogosAdmin.map((l) => {
+    const enabled = l.enabled !== false;
+    return `
+      <div class="payment-logo-admin-card ${enabled ? '' : 'is-disabled'}" data-id="${l.id}">
+        <div class="pl-card-preview">
+          <img src="${esc(l.image_url || l.imageUrl)}" alt="${esc(l.alt_text || l.altText || l.name)}" onerror="this.style.opacity=.2;this.parentElement.insertAdjacentHTML('beforeend','<div style=\'color:#dc2626;font-size:11px;\'>Görsel yüklenemedi</div>');">
+        </div>
+        <div class="pl-card-body">
+          <div class="pl-card-name">${esc(l.name)}</div>
+          <div class="pl-card-meta">
+            <span class="pl-card-status ${enabled ? 'on' : 'off'}">${enabled ? '● Aktif' : '○ Pasif'}</span>
+            <span>Sıra ${Number(l.sort_order ?? l.sortOrder ?? 0)}</span>
+          </div>
+        </div>
+        <div class="pl-card-actions">
+          <button class="btn-edit" onclick="editPaymentLogo(${l.id})"><i class="fas fa-pen"></i> Düzenle</button>
+          <button class="btn-toggle" onclick="togglePaymentLogo(${l.id}, ${!enabled})">
+            <i class="fas fa-${enabled ? 'eye-slash' : 'eye'}"></i> ${enabled ? 'Gizle' : 'Göster'}
+          </button>
+          <button class="btn-delete" onclick="deletePaymentLogo(${l.id})"><i class="fas fa-trash"></i></button>
+        </div>
       </div>
-    </div>
-  `).join('') || '<div>Henüz logo yok.</div>';
+    `;
+  }).join('') || '<div class="empty-state" style="padding:40px;text-align:center;color:#6b7681">Henüz logo yok. <b>"Yeni Logo Ekle"</b> ile başlayın.</div>';
 }
 
-async function openPaymentLogoForm(existing){
-  const name = prompt('Logo adı', existing?.name || '');
-  if (!name) return;
-  const imageUrl = prompt('Logo görsel URL', existing?.image_url || existing?.imageUrl || '');
-  if (!imageUrl) return;
-  const altText = prompt('Alt metin', existing?.alt_text || existing?.altText || name) || name;
-  const sortOrder = Number(prompt('Sıra', String(existing?.sort_order ?? existing?.sortOrder ?? 0)) || 0);
-  const enabled = confirm('Logo aktif olsun mu? (İptal = pasif)');
-  const payload = { name, imageUrl, altText, sortOrder, enabled };
-  const method = existing?.id ? 'PATCH' : 'POST';
-  if (existing?.id) payload.id = existing.id;
-  await apiFetch('/api/admin/payment-logos', {
-    method,
-    headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()},
-    body: JSON.stringify(payload)
-  });
-  await loadPaymentLogos();
+let _plEditingId = null;
+function openPaymentLogoModal(existing){
+  _plEditingId = existing?.id || null;
+  document.getElementById('plModalTitle').textContent = existing ? 'Logoyu Düzenle' : 'Yeni Logo Ekle';
+  document.getElementById('plName').value = existing?.name || '';
+  document.getElementById('plAltText').value = existing?.alt_text || existing?.altText || '';
+  document.getElementById('plSortOrder').value = Number(existing?.sort_order ?? existing?.sortOrder ?? 0);
+  document.getElementById('plEnabled').checked = (existing?.enabled !== false);
+  const url = existing?.image_url || existing?.imageUrl || '';
+  document.getElementById('plImageUrl').value = url;
+  setPlPreview(url);
+  document.getElementById('plFileInput').value = '';
+  document.getElementById('plProgress').hidden = true;
+  document.getElementById('paymentLogoModal').hidden = false;
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('plName').focus(), 50);
 }
+function closePaymentLogoModal(){
+  document.getElementById('paymentLogoModal').hidden = true;
+  document.body.style.overflow = '';
+  _plEditingId = null;
+}
+function setPlPreview(url){
+  const img = document.getElementById('plPreviewImg');
+  const empty = document.getElementById('plPreviewEmpty');
+  if (url) { img.src = url; img.hidden = false; empty.hidden = true; }
+  else { img.removeAttribute('src'); img.hidden = true; empty.hidden = false; }
+}
+
+document.getElementById('plFileInput')?.addEventListener('change', async (e) => {
+  const file = e.target.files?.[0];
+  if (file) await handlePlFile(file);
+});
+const plDz = document.getElementById('plDropzone');
+['dragenter','dragover'].forEach(ev => plDz?.addEventListener(ev, (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  plDz.classList.add('is-drag');
+}));
+['dragleave','drop'].forEach(ev => plDz?.addEventListener(ev, (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  plDz.classList.remove('is-drag');
+}));
+plDz?.addEventListener('drop', async (e) => {
+  const file = e.dataTransfer?.files?.[0];
+  if (file) await handlePlFile(file);
+});
+async function handlePlFile(file){
+  if (!/^image\//.test(file.type) && !file.name.endsWith('.svg')) {
+    alert('Sadece görsel dosyaları yükleyebilirsiniz (PNG/JPG/WebP/SVG).');
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Dosya 2 MB'dan büyük olamaz.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => setPlPreview(e.target.result);
+  reader.readAsDataURL(file);
+
+  const progress = document.getElementById('plProgress');
+  const progressText = document.getElementById('plProgressText');
+  progress.hidden = false;
+  progressText.textContent = 'Yükleniyor…';
+  try {
+    const url = await uploadImageWithRetry(file, { prefix: 'payment-logo' });
+    document.getElementById('plImageUrl').value = url;
+    setPlPreview(url);
+    progressText.textContent = 'Yüklendi ✓';
+    setTimeout(() => { progress.hidden = true; }, 600);
+    const nameEl = document.getElementById('plName');
+    if (!nameEl.value.trim()) {
+      const base = file.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+      nameEl.value = base.charAt(0).toUpperCase() + base.slice(1);
+    }
+  } catch (err) {
+    progress.hidden = true;
+    alert('Yükleme hatası: ' + (err?.message || 'bilinmiyor'));
+  }
+}
+
+document.getElementById('plImageUrl')?.addEventListener('input', (e) => {
+  const v = e.target.value.trim();
+  if (/^https?:\/\/|^\//.test(v)) setPlPreview(v);
+});
+
+async function submitPaymentLogo(){
+  const name = document.getElementById('plName').value.trim();
+  const imageUrl = document.getElementById('plImageUrl').value.trim();
+  const altText = document.getElementById('plAltText').value.trim();
+  const sortOrder = Number(document.getElementById('plSortOrder').value) || 0;
+  const enabled = document.getElementById('plEnabled').checked;
+  if (!name) {
+    alert('Logo adı zorunlu.');
+    document.getElementById('plName').focus();
+    return;
+  }
+  if (!imageUrl) {
+    alert('Görsel seçin veya URL girin.');
+    return;
+  }
+  const btn = document.getElementById('plSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Kaydediliyor…';
+  try {
+    const payload = { name, imageUrl, altText: altText || name, sortOrder, enabled };
+    const method = _plEditingId ? 'PATCH' : 'POST';
+    if (_plEditingId) payload.id = _plEditingId;
+    const res = await apiFetch('/api/admin/payment-logos', {
+      method,
+      headers:{ 'Content-Type':'application/json', 'x-admin-token': getAdminApiKey() },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Kayıt hatası');
+    closePaymentLogoModal();
+    await loadPaymentLogos();
+  } catch (err) {
+    alert('Kayıt hatası: ' + (err?.message || ''));
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check"></i> Kaydet';
+  }
+}
+
 async function editPaymentLogo(id){
-  const row = paymentLogosAdmin.find((item)=>Number(item.id) === Number(id));
+  const row = paymentLogosAdmin.find((item) => Number(item.id) === Number(id));
   if (!row) return;
-  await openPaymentLogoForm(row);
+  openPaymentLogoModal(row);
 }
 async function togglePaymentLogo(id, enabled){
   await apiFetch('/api/admin/payment-logos', {
@@ -2332,6 +2611,11 @@ async function deletePaymentLogo(id){
   });
   await loadPaymentLogos();
 }
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !document.getElementById('paymentLogoModal').hidden) {
+    closePaymentLogoModal();
+  }
+});
 
 function getSocialLinks(){
   try{
