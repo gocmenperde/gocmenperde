@@ -1510,17 +1510,16 @@ let user = (() => { try { return JSON.parse(localStorage.getItem('user') || 'nul
 
 if (!token) {
     const nextPath = encodeURIComponent('/hesabim.html');
-    const cnt = Number(sessionStorage.getItem('__redirect_count') || 0);
-    if (cnt >= 2) {
-        sessionStorage.removeItem('__redirect_count');
-        alert('Oturum açılamadı, tekrar deneyin.');
+    const redirectCount = Number(sessionStorage.getItem('__redirect_count') || '0') + 1;
+    sessionStorage.setItem('__redirect_count', String(redirectCount));
+    if (redirectCount > 2) {
+        showToast('Oturum açılamadı, tekrar deneyin.');
     } else {
-        sessionStorage.setItem('__redirect_count', String(cnt + 1));
         window.location.href = `/hesap.html?next=${nextPath}`;
     }
 }
 if (token) {
-    sessionStorage.removeItem('__redirect_count');
+    sessionStorage.setItem('__redirect_count', '0');
 }
 if (token && !user) {
     user = { ad_soyad: '', email: '', created_at: null };
@@ -2584,12 +2583,12 @@ activateTabFromQuery();
 <div style="padding:18px 16px 24px;border-top:1px solid rgba(201,168,76,.2);background:#fff8ec;text-align:center">
   <div style="font-size:12px;color:#5a4e3f;margin-bottom:10px">Ödeme adımında PayTR güvenli ödeme sayfasına yönlendirilirsiniz.</div>
   <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">
-    <img class="payment-logo-img" src="/resimler/troy.jpg" alt="Troy" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
-      <img class="payment-logo-img" src="/resimler/american.jpg" alt="American Express" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
-      <img class="payment-logo-img" src="/resimler/visa.png" alt="Visa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
-      <img class="payment-logo-img" src="/resimler/mastercard.png" alt="Mastercard" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
-      <img class="payment-logo-img" src="/resimler/unionpay.png" alt="UnionPay" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
-      <img class="payment-logo-img" src="/resimler/3dsecure.jpg" alt="3D Secure" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
+    <img class="payment-logo-img" src="/resimler/Troy.jpg" alt="Troy" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/American.jpg" alt="American Express" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/Visa.PNG" alt="Visa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/Mastercard.PNG" alt="Mastercard" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/Unionpay.PNG" alt="UnionPay" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
+      <img class="payment-logo-img" src="/resimler/3dsecure.JPG" alt="3D Secure" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/resimler/guvenli.jpg'" width="420" height="280">
       <img class="payment-logo-img" src="/resimler/guvenli.jpg" alt="Güvenli Öde" loading="lazy" decoding="async" width="420" height="280">
   </div>
 </div>

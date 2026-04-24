@@ -1,11 +1,10 @@
 const TOKEN = process.env.ADMIN_TOKEN || process.env.ADMIN_API_KEY || '';
-const { verifyAuthToken } = require('./_auth-utils');
 
 function isAdmin(req) {
   const got = req.headers['x-admin-token'] || req.headers['x-admin-key'] || req.body?.adminToken || req.query?.adminToken;
   if (TOKEN && got === TOKEN) return true;
   try {
-    const decoded = verifyAuthToken({ headers: { authorization: `Bearer ${got}` } });
+    const decoded = require('./_auth-utils').verifyAuthToken({ headers: { authorization: `Bearer ${got}` } });
     return decoded?.role === 'admin';
   } catch {
     return false;
