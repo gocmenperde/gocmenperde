@@ -2443,6 +2443,14 @@ function closePaymentLogoModal(){
   document.getElementById('paymentLogoModal').hidden = true;
   document.body.style.overflow = '';
   _plEditingId = null;
+  document.getElementById('plFileInput').value = '';
+  document.getElementById('plProgress').hidden = true;
+  document.getElementById('plProgressText').textContent = 'Yükleniyor…';
+  const plDzEl = document.getElementById('plDropzone');
+  plDzEl?.classList.remove('is-drag','is-uploading');
+  plDzEl?.style.removeProperty('pointer-events');
+  const errBox = document.getElementById('plError');
+  if (errBox) { errBox.hidden = true; errBox.textContent = ''; }
 }
 function setPlPreview(url){
   const img = document.getElementById('plPreviewImg');
@@ -3516,6 +3524,7 @@ function showPage(id){
   });
   document.querySelector('.topbar-title').innerHTML = `Göçmen <span style="color:var(--gold);font-style:italic">Perde</span>`;
   currentPage = id;
+  if(visitAutoRefreshTimer) { clearInterval(visitAutoRefreshTimer); visitAutoRefreshTimer = null; }
   closeSidebar();
   if(id==='favorites') renderFavorites();
   if(id==='products') renderHomepageMerchEditor();
@@ -3710,7 +3719,7 @@ async function apiFetch(url, options = {}, timeoutMs = 12000){
   const token = getAdminToken();
   const mergedHeaders = { ...(options?.headers || {}) };
   if(token && String(url || '').startsWith('/api/')){
-    if(!mergedHeaders['X-Admin-Token']) mergedHeaders['X-Admin-Token'] = token;
+    if(!mergedHeaders['x-admin-token']) mergedHeaders['x-admin-token'] = token;
     if(!mergedHeaders['x-admin-key']) mergedHeaders['x-admin-key'] = token;
   }
   const fetchOptions = { ...options, headers: mergedHeaders, signal: controller.signal };
@@ -6272,7 +6281,10 @@ async function uploadImageToCloudinary(file,{prefix='image'}={}){
   directFormData.append('public_id', String(signPayload?.publicId||''));
   directFormData.append('signature', String(signPayload?.signature||''));
 
-  const uploadRes=await fetch(uploadUrl,{ method:'POST', body:directFormData });
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), 60_000);
+  const uploadRes=await fetch(uploadUrl,{ method:'POST', body:directFormData, signal: ctrl.signal });
+  clearTimeout(t);
   const uploadPayload=await uploadRes.json().catch(()=>({}));
   if(!uploadRes.ok){
     throw new Error(uploadPayload?.error?.message || uploadPayload?.error || 'Cloudinary yükleme hatası');

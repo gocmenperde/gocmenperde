@@ -158,7 +158,7 @@
     renderFooterPaymentLogos();
     const urlParams = new URLSearchParams(window.location.search);
     const nextParam = (urlParams.get('next') || '').trim();
-    const safeNextPath = (() => {
+    let safeNextPath = (() => {
         if (!nextParam) return '/hesabim.html';
         try {
             const resolved = new URL(nextParam, window.location.origin);
@@ -168,6 +168,7 @@
             return '/hesabim.html';
         }
     })();
+    if (!/^\/[a-z0-9_\-./?=&]*$/i.test(safeNextPath) || safeNextPath.startsWith('/hesap.html')) safeNextPath = '/hesabim.html';
     if(urlParams.get('mod') === 'register') showForm('register');
 
     function showForm(type) {
