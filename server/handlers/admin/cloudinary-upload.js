@@ -187,6 +187,8 @@ function buildSignedUploadPayload({ cloudinaryConfig, fileName, prefix, folder =
 
 module.exports = async function handler(req, res) {
   if (applyCors(req, res, { allowAdminHeaders: true })) return;
+  console.log('[cloudinary-upload] header keys:', Object.keys(req.headers || {}));
+  console.log('[cloudinary-upload] x-admin-token:', req.headers['x-admin-token']?.slice(0, 20));
   if (!requireAdmin(req, res)) return;
 
   if (req.method !== 'POST') {

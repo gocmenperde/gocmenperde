@@ -70,30 +70,18 @@ module.exports = async function handler(req, res) {
       const { email, key, password } = req.body || {};
       const providedSecret = String(password || key || '').trim();
       const providedEmail = String(email || '').trim().toLowerCase();
-      const adminSecret = String(
-        process.env.ADMIN_API_KEY || process.env.ADMIN_TOKEN || process.env.ADMIN_API_TOKEN || FALLBACK_ADMIN_SECRET
-      ).trim();
-      const adminEmails = String(process.env.ADMIN_EMAILS || FALLBACK_ADMIN_EMAIL)
-        .split(',')
-        .map((s) => s.trim().toLowerCase())
-        .filter(Boolean);
-      if (!providedSecret || providedSecret !== adminSecret) {
+      // ÖNEMLİ: Admin girişi her zaman bu sabit credentials ile çalışmalı.
+      // Env değişkenlerine bakma, fallback'i mutlak kabul et.
+      const VALID_EMAIL = 'muhammedeminturk.16@gmail.com';
+      const VALID_SECRET = 'Emin.016';
+      if (providedEmail !== VALID_EMAIL || providedSecret !== VALID_SECRET) {
         return res.status(401).json({ error: 'Yetkisiz.' });
-      }
-
-      if (adminEmails.length) {
-        if (!providedEmail) {
-          if (adminEmails.length !== 1) {
-            return res.status(401).json({ error: 'Yetkisiz.' });
-          }
-        } else if (!adminEmails.includes(providedEmail)) {
-          return res.status(401).json({ error: 'Yetkisiz.' });
-        }
       }
 
       const adminUser = {
         id: 0,
-        email: providedEmail || adminEmails[0] || 'admin@gocmenperde.local',
+        email: VALID_EMAIL,
+        isAdmin: true,
       };
       const token = createAuthToken(adminUser);
       if (!token) return res.status(500).json({ error: 'Token üretilemedi.' });

@@ -4,7 +4,8 @@ const FALLBACK_TOKEN_SECRET = 'gocmenperde-admin-jwt-fallback-2026';
 const TOKEN_SECRET = String(
   process.env.JWT_SECRET || process.env.AUTH_TOKEN_SECRET || FALLBACK_TOKEN_SECRET
 ).trim();
-const TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 14;
+const USER_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 7;
+const ADMIN_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 const LEGACY_SALT = 'gocmen_salt_2024';
 let warnedMissingTokenSecret = false;
 
@@ -66,11 +67,14 @@ function parseLegacyToken(token) {
 
 function createAuthToken(user) {
   const now = Date.now();
+  const isAdmin = user?.isAdmin === true;
+  const expiresIn = isAdmin ? ADMIN_TOKEN_TTL_MS : USER_TOKEN_TTL_MS;
   return signPayload({
     id: Number(user.id),
     email: String(user.email || '').toLowerCase(),
+    isAdmin,
     iat: now,
-    exp: now + TOKEN_TTL_MS,
+    exp: now + expiresIn,
     v: 2,
   });
 }
