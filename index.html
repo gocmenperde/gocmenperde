@@ -1047,10 +1047,14 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .review-verified-badge{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:#1d7a3b;background:#e7f4ec;padding:2px 8px;border-radius:999px;margin-left:6px}
 .review-helpful{margin-top:6px;background:none;border:1px solid var(--border);color:var(--slate);padding:4px 10px;border-radius:999px;font-size:.72rem;cursor:pointer}
 .review-helpful:hover{background:var(--cream);border-color:var(--gold);color:var(--gold-dark)}
-.modal-review-form{margin-top:12px;display:grid;grid-template-columns:minmax(0,1fr) 120px auto;gap:8px}
+.modal-review-form{margin-top:12px;display:grid !important;grid-template-columns:minmax(0,1fr) 120px auto;gap:8px}
 .modal-review-form input,.modal-review-form select{height:38px;border:1px solid var(--border);border-radius:8px;padding:0 10px;background:#fff;font-family:var(--ff-body);font-size:0.82rem}
-.modal-review-form button{height:38px;border:none;border-radius:8px;background:var(--ink);color:#fff;padding:0 12px;font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
-.modal-review-form button:hover{background:var(--gold);color:var(--ink)}
+.modal-review-submit{grid-column:1/-1;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-dark,#a3823f) 100%);color:#1a1a1a;border:none;padding:12px 16px;border-radius:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:.85rem;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 6px 14px rgba(201,168,76,.28)}
+.modal-review-submit:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.modal-review-submit:disabled{opacity:.6;cursor:wait}
+.modal-review-msg{grid-column:1/-1;font-size:.82rem;margin-top:4px;min-height:18px}
+.modal-review-msg.ok{color:#1d7a3b}
+.modal-review-msg.err{color:#a3273f}
 .modal-review-form input:last-child{grid-column:1/-1}
 .modal-review-form .review-photo-upload{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 10px;border:1px dashed #d5d9e5;border-radius:8px;background:#f9fafc;font-size:0.75rem;color:#4a5568}
 .modal-review-form .review-photo-upload input{display:none}
@@ -2419,7 +2423,8 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
             <span class="review-photo-name" id="reviewPhotoName">İsteğe bağlı</span>
             <input type="file" id="reviewPhotoInput" accept="image/*">
           </label>
-          <button type="button" onclick="submitProductReview()">Yorum Ekle</button>
+          <button type="button" id="submitReviewBtn" class="modal-review-submit"><i class="fas fa-paper-plane"></i> Yorum Gönder</button>
+          <div class="modal-review-msg" id="reviewMsg" aria-live="polite"></div>
         </div>
       </div>
       <div class="modal-add-wrap" id="mAddWrap"></div>
@@ -4269,47 +4274,49 @@ function getProductSocial(productId){
   return PRODUCT_SOCIAL[productId] || {salesCount:0,reviews:[],reviewCount:0,avgRating:0};
 }
 async function submitProductReview(){
-  if(!currentModalProductId) return;
-  const textEl = document.getElementById('reviewTextInput');
-  const ratingEl = document.getElementById('reviewRatingInput');
-  const nameEl = document.getElementById('reviewNameInput');
-  const photoInput = document.getElementById('reviewPhotoInput');
-  const text = (textEl?.value || '').trim();
-  if(text.length < 6){ showToast('Yorum en az 6 karakter olmalı.'); return; }
-  const photos = [];
+  const btn = document.getElementById('submitReviewBtn');
+  const msg = document.getElementById('reviewMsg');
+  const set = (t,k)=>{ if(msg){ msg.textContent=t; msg.className='modal-review-msg '+(k===true?'ok':k===false?'err':''); } };
   try{
-    const file = photoInput?.files?.[0];
-    if(file){ photos.push(await readReviewPhotoAsDataUrl(file)); }
-    const typedName = (nameEl?.value || '').trim();
-    const res = await fetch('/api/reviews', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        action:'create',
-        productId: currentModalProductId,
-        name: typedName || 'Anonim Müşteri',
-        text,
-        rating: Number(ratingEl?.value || 5),
-        photos,
-        email: window.__reviewInviteEmail || '',
-        inviteToken: window.__reviewInviteToken || ''
-      })
-    });
-    const json = await res.json();
-    if(!res.ok) throw new Error(json?.error || 'Yorum gönderilemedi');
-    if(json.status === 'pending'){
-      showToast('Yorumunuz alındı. Onaylandıktan sonra yayınlanacak.');
+    if(!currentModalProductId){ set('Önce bir ürün seçili olmalı.', false); return; }
+    const text = (document.getElementById('reviewTextInput')?.value||'').trim();
+    const rating = Math.max(1,Math.min(5,Number(document.getElementById('reviewRatingInput')?.value||5)));
+    const name = (document.getElementById('reviewNameInput')?.value||'').trim() || 'Misafir Müşteri';
+    if(text.length < 6){ set('Yorum en az 6 karakter olmalı.', false); return; }
+    const file = document.getElementById('reviewPhotoInput')?.files?.[0];
+    const photos = [];
+    if(file){ try{ photos.push(await readReviewPhotoAsDataUrl(file)); }catch(e){ set(e?.message||'Görsel okunamadı.', false); return; } }
+    if(btn){ btn.disabled = true; }
+    set('Yorumunuz gönderiliyor...', null);
+    const body = { action:'create', productId: currentModalProductId, name, text, rating, photos, email: window.__reviewInviteEmail||'', inviteToken: window.__reviewInviteToken||'' };
+    const r = await fetch('/api/reviews', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j?.error || 'Yorum gönderilemedi (HTTP '+r.status+').');
+    if(j.autoApproved || j.status==='approved'){
+      set('Yorumunuz yayınlandı. Teşekkür ederiz!', true);
+      try{
+        const fresh = await fetch('/api/reviews?productId='+encodeURIComponent(currentModalProductId)).then(x=>x.json());
+        if(fresh?.success){
+          PRODUCT_SOCIAL[currentModalProductId] = {
+            salesCount: 0,
+            reviews: (fresh.items||[]).map(it=>({ id:it.id, name:it.name, text:it.text, rating:it.rating, date: String(it.created_at).slice(0,10), photos: Array.isArray(it.photos)?it.photos:[], verified: !!it.verified_purchase, helpful: it.helpful_count|0, source: it.source||(it.is_seed?'seed':'user') })),
+            reviewCount: fresh.stats?.total||0,
+            avgRating: Math.round((fresh.stats?.avg||0)*10)/10
+          };
+          renderModalReviews(currentModalProductId);
+          if(typeof renderProductPhotoStrip==='function') renderProductPhotoStrip(currentModalProductId);
+        }
+      }catch(_){ }
     } else {
-      showToast('Yorumunuz yayınlandı. Teşekkür ederiz!');
+      set('Yorumunuz alındı, onaylandıktan sonra yayınlanacak.', true);
     }
-    await refreshProductReviews(currentModalProductId);
-    if(textEl) textEl.value = '';
-    syncReviewNameField(currentModalProductId);
-    resetReviewPhotoPicker();
-    if(ratingEl) ratingEl.value = '5';
-  } catch(err){
-    showToast(err?.message || 'Yorum gönderilemedi');
-  }
+    const t1=document.getElementById('reviewTextInput'); if(t1) t1.value='';
+    const t2=document.getElementById('reviewRatingInput'); if(t2) t2.value='5';
+    resetReviewPhotoPicker?.();
+  }catch(err){
+    console.error('[review-submit]', err);
+    set(err?.message||'Yorum gönderilemedi. Lütfen tekrar deneyin.', false);
+  } finally { if(btn) btn.disabled=false; }
 }
 function renderModalReviews(productId){
   const listEl = document.getElementById('mReviews');
@@ -4323,7 +4330,7 @@ function renderModalReviews(productId){
   const sortedReviews = [...social.reviews].sort((a,b)=>((b.verified?1:0)-(a.verified?1:0)) || ((b.helpful||0)-(a.helpful||0)) || String(b.date).localeCompare(String(a.date))).slice(0,12);
   listEl.innerHTML = sortedReviews.map(r=>`
     <div class="modal-review-item">
-      <div class="modal-review-head"><strong>${r.name}</strong><span class="modal-review-stars">${renderStarText(r.rating)}</span>${r.verified ? '<span class="review-verified-badge"><i class="fas fa-check-circle"></i> Doğrulanmış Alıcı</span>' : ''}</div>
+      <div class="modal-review-head"><strong>${r.name}</strong><span class="modal-review-stars">${renderStarText(r.rating)}</span>${(r.source==='verified') ? '<span class="review-verified-badge"><i class="fas fa-check-circle"></i> Doğrulanmış Alıcı</span>' : ''}</div>
       <div class="modal-review-text">${r.text}</div>
       ${(r.photos||[]).map(p=>`<div class="modal-review-photo"><img src="${p}" loading="lazy" alt=""></div>`).join('')}
       <button class="review-helpful" data-id="${r.id}" type="button"><i class="far fa-thumbs-up"></i> Faydalı (${r.helpful||0})</button>
@@ -4359,7 +4366,7 @@ async function refreshProductReviews(productId){
         photos: Array.isArray(it.photos)?it.photos:[],
         verified: !!it.verified_purchase,
         helpful: it.helpful_count|0,
-        source:'server'
+        source: it.source || (it.is_seed ? 'seed' : 'user')
       })),
       reviewCount: json.stats?.total || 0,
       avgRating: Math.round((json.stats?.avg||0)*10)/10,
@@ -6338,6 +6345,12 @@ document.addEventListener('keydown', (e)=>{
   el.addEventListener('focus', ensureReviewFormVisibleOnMobile);
   el.addEventListener('click', ensureReviewFormVisibleOnMobile);
 });
+document.addEventListener('DOMContentLoaded', ()=>{
+  const sb = document.getElementById('submitReviewBtn');
+  if(sb && !sb.dataset.bound){ sb.dataset.bound='1'; sb.addEventListener('click', submitProductReview); }
+  document.querySelectorAll('button[onclick*="submitProductReview"]').forEach((b)=>{ b.removeAttribute('onclick'); if(!b.dataset.bound){ b.dataset.bound='1'; b.addEventListener('click', submitProductReview); } });
+});
+
 document.getElementById('reviewPhotoInput')?.addEventListener('change', (event)=>{
   const nameEl = document.getElementById('reviewPhotoName');
   const file = event?.target?.files?.[0];

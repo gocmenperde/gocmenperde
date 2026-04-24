@@ -1,17 +1,12 @@
 const { checkRestocks } = require('../../lib/_stock-alert-runner');
 const fs = require('fs/promises');
 const path = require('path');
+const { requireAdmin } = require('../../lib/_admin-auth');
 
 const ALERTS_PATH = path.join(__dirname, '..', '..', 'data', 'stock-alerts.json');
 
-function isAdmin(req) {
-  const token = req.headers['x-admin-token'] || req.body?.adminToken || req.query?.adminToken;
-  const expected = process.env.ADMIN_TOKEN || '';
-  return expected && token === expected;
-}
-
 module.exports = async function handler(req, res) {
-  if (!isAdmin(req)) return res.status(401).json({ error: 'Yetkisiz erişim' });
+  if (!requireAdmin(req, res)) return;
 
   if (req.method === 'GET') {
     const raw = await fs.readFile(ALERTS_PATH, 'utf8').catch(() => '[]');
