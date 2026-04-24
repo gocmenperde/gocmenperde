@@ -735,8 +735,8 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
 .pl-card-actions .btn-toggle:hover{background:#faf5e8}
 .pl-card-actions .btn-delete{background:#fff;color:#dc2626;border:1px solid #fecaca}
 .pl-card-actions .btn-delete:hover{background:#fef2f2}
-.pl-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:plFadeIn .2s ease-out}
-.pl-modal[hidden]{display:none}
+.pl-modal{position:fixed;inset:0;z-index:10500;display:flex;align-items:center;justify-content:center;padding:20px;animation:plFadeIn .2s ease-out}
+.pl-modal[hidden]{display:none !important;visibility:hidden;pointer-events:none}
 .pl-modal-backdrop{position:absolute;inset:0;background:rgba(15,17,23,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .pl-modal-card{position:relative;width:min(820px,100%);max-height:calc(100dvh - 40px);background:#fff;border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.08);display:flex;flex-direction:column;overflow:hidden;animation:plSlideUp .25s cubic-bezier(.2,.9,.2,1)}
 .pl-modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:22px 26px 18px;border-bottom:1px solid #f0eee9;background:linear-gradient(180deg,#fbf9f5 0%,#fff 100%)}
@@ -1690,86 +1690,6 @@ Işık: Yarı Geçirgen"></textarea></div>
 </div>
 
 
-<div class="pl-modal" id="paymentLogoModal" hidden role="dialog" aria-modal="true" aria-labelledby="plModalTitle">
-  <div class="pl-modal-backdrop" onclick="closePaymentLogoModal()"></div>
-  <div class="pl-modal-card">
-    <header class="pl-modal-header">
-      <div>
-        <span class="pl-modal-eyebrow">Ödeme Logosu</span>
-        <h3 id="plModalTitle">Yeni Logo Ekle</h3>
-      </div>
-      <button type="button" class="pl-modal-close" onclick="closePaymentLogoModal()" aria-label="Kapat">
-        <i class="fas fa-xmark"></i>
-      </button>
-    </header>
-    <div class="pl-modal-body">
-      <div class="pl-grid">
-        <div class="pl-upload-col">
-          <div class="pl-preview" id="plPreview">
-            <img id="plPreviewImg" alt="" hidden>
-            <div class="pl-preview-empty" id="plPreviewEmpty">
-              <i class="fas fa-image"></i>
-              <span>Önizleme</span>
-            </div>
-          </div>
-          <label class="pl-dropzone" id="plDropzone" for="plFileInput">
-            <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
-            <div class="pl-dropzone-inner">
-              <i class="fas fa-cloud-arrow-up"></i>
-              <strong>Bilgisayardan görsel seç</strong>
-              <span>veya buraya sürükle-bırak</span>
-              <small>PNG · JPG · WebP · SVG · max 2 MB</small>
-            </div>
-            <div class="pl-dropzone-progress" id="plProgress" hidden>
-              <div class="pl-spinner"></div>
-              <span id="plProgressText">Yükleniyor…</span>
-            </div>
-          </label>
-          <div class="pl-or">veya URL yapıştır</div>
-          <input type="url" class="pl-input" id="plImageUrl" placeholder="https://res.cloudinary.com/…">
-        </div>
-        <div class="pl-fields-col">
-          <label class="pl-field">
-            <span class="pl-label">Logo Adı *</span>
-            <input type="text" class="pl-input" id="plName" placeholder="örn. Visa" required maxlength="60">
-          </label>
-          <label class="pl-field">
-            <span class="pl-label">Alt Metin (erişilebilirlik)</span>
-            <input type="text" class="pl-input" id="plAltText" placeholder="Boş bırakırsanız Logo Adı kullanılır" maxlength="120">
-          </label>
-          <div class="pl-row-2">
-            <label class="pl-field">
-              <span class="pl-label">Sıra</span>
-              <input type="number" class="pl-input" id="plSortOrder" value="0" step="10" min="0">
-              <small class="pl-hint">Küçük değer önce görünür</small>
-            </label>
-            <label class="pl-field">
-              <span class="pl-label">Durum</span>
-              <div class="pl-toggle">
-                <input type="checkbox" id="plEnabled" checked>
-                <label for="plEnabled">
-                  <span class="pl-toggle-track"></span>
-                  <span class="pl-toggle-text">Aktif</span>
-                </label>
-              </div>
-            </label>
-          </div>
-          <div class="pl-help">
-            <i class="fas fa-circle-info"></i>
-            Tavsiye: <b>SVG</b> veya şeffaf arka planlı PNG yükleyin. Logo footer'da <b>28 px yüksekliğinde</b> render edilir.
-          </div>
-        </div>
-      </div>
-    </div>
-    <footer class="pl-modal-footer">
-      <button type="button" class="pl-btn pl-btn-ghost" onclick="closePaymentLogoModal()">İptal</button>
-      <button type="button" class="pl-btn pl-btn-primary" id="plSaveBtn" onclick="submitPaymentLogo()">
-        <i class="fas fa-check"></i> Kaydet
-      </button>
-    </footer>
-  </div>
-</div>
-
 
 <!-- ══ AYARLAR ══ -->
 
@@ -2303,6 +2223,27 @@ function bindLoginEvents(){
   });
 }
 bindLoginEvents();
+// Savunma: Sayfa yüklenir yüklenmez login input'larının yazılabilir olduğunu doğrula
+document.addEventListener('DOMContentLoaded', () => {
+  const emailInput = document.getElementById('loginEmail');
+  const passInput = document.getElementById('loginPass');
+  if (!emailInput || !passInput) return;
+
+  [emailInput, passInput].forEach(el => {
+    el.removeAttribute('disabled');
+    el.removeAttribute('readonly');
+    el.style.pointerEvents = 'auto';
+    el.style.userSelect = 'auto';
+  });
+
+  const modal = document.getElementById('paymentLogoModal');
+  if (modal && !modal.hidden) {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  if (sidebarOverlay) sidebarOverlay.classList.remove('open');
+});
 document.addEventListener('DOMContentLoaded', bindLoginEvents);
 ['f-price','f-oldprice'].forEach(id=>document.getElementById(id)?.addEventListener('input',updateDiscountBadgeFromInputs));
 
@@ -6744,7 +6685,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   document.querySelectorAll('input[type="file"]').forEach((input)=>{
     if(!input.hasAttribute('accept')) input.setAttribute('accept', 'image/*');
-    input.setAttribute('capture', 'environment');
+    // capture="environment" SADECE input'ta data-camera="1" varsa eklensin (varsayılan: dosya seç)
+    if (input.dataset.camera === '1') input.setAttribute('capture', 'environment');
   });
   document.querySelectorAll('input[type="number"]').forEach((input)=>input.setAttribute('inputmode', 'numeric'));
   document.querySelectorAll('input[type="tel"]').forEach((input)=>input.setAttribute('inputmode', 'tel'));
@@ -6759,6 +6701,86 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 });
 </script>
+
+<div class="pl-modal" id="paymentLogoModal" hidden role="dialog" aria-modal="true" aria-labelledby="plModalTitle">
+  <div class="pl-modal-backdrop" onclick="closePaymentLogoModal()"></div>
+  <div class="pl-modal-card">
+    <header class="pl-modal-header">
+      <div>
+        <span class="pl-modal-eyebrow">Ödeme Logosu</span>
+        <h3 id="plModalTitle">Yeni Logo Ekle</h3>
+      </div>
+      <button type="button" class="pl-modal-close" onclick="closePaymentLogoModal()" aria-label="Kapat">
+        <i class="fas fa-xmark"></i>
+      </button>
+    </header>
+    <div class="pl-modal-body">
+      <div class="pl-grid">
+        <div class="pl-upload-col">
+          <div class="pl-preview" id="plPreview">
+            <img id="plPreviewImg" alt="" hidden>
+            <div class="pl-preview-empty" id="plPreviewEmpty">
+              <i class="fas fa-image"></i>
+              <span>Önizleme</span>
+            </div>
+          </div>
+          <label class="pl-dropzone" id="plDropzone" for="plFileInput">
+            <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+            <div class="pl-dropzone-inner">
+              <i class="fas fa-cloud-arrow-up"></i>
+              <strong>Bilgisayardan görsel seç</strong>
+              <span>veya buraya sürükle-bırak</span>
+              <small>PNG · JPG · WebP · SVG · max 2 MB</small>
+            </div>
+            <div class="pl-dropzone-progress" id="plProgress" hidden>
+              <div class="pl-spinner"></div>
+              <span id="plProgressText">Yükleniyor…</span>
+            </div>
+          </label>
+          <div class="pl-or">veya URL yapıştır</div>
+          <input type="url" class="pl-input" id="plImageUrl" placeholder="https://res.cloudinary.com/…">
+        </div>
+        <div class="pl-fields-col">
+          <label class="pl-field">
+            <span class="pl-label">Logo Adı *</span>
+            <input type="text" class="pl-input" id="plName" placeholder="örn. Visa" required maxlength="60">
+          </label>
+          <label class="pl-field">
+            <span class="pl-label">Alt Metin (erişilebilirlik)</span>
+            <input type="text" class="pl-input" id="plAltText" placeholder="Boş bırakırsanız Logo Adı kullanılır" maxlength="120">
+          </label>
+          <div class="pl-row-2">
+            <label class="pl-field">
+              <span class="pl-label">Sıra</span>
+              <input type="number" class="pl-input" id="plSortOrder" value="0" step="10" min="0">
+              <small class="pl-hint">Küçük değer önce görünür</small>
+            </label>
+            <label class="pl-field">
+              <span class="pl-label">Durum</span>
+              <div class="pl-toggle">
+                <input type="checkbox" id="plEnabled" checked>
+                <label for="plEnabled">
+                  <span class="pl-toggle-track"></span>
+                  <span class="pl-toggle-text">Aktif</span>
+                </label>
+              </div>
+            </label>
+          </div>
+          <div class="pl-help">
+            <i class="fas fa-circle-info"></i>
+            Tavsiye: <b>SVG</b> veya şeffaf arka planlı PNG yükleyin. Logo footer'da <b>28 px yüksekliğinde</b> render edilir.
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="pl-modal-footer">
+      <button type="button" class="pl-btn pl-btn-ghost" onclick="closePaymentLogoModal()">İptal</button>
+      <button type="button" class="pl-btn pl-btn-primary" id="plSaveBtn" onclick="submitPaymentLogo()">
+        <i class="fas fa-check"></i> Kaydet
+      </button>
+    </footer>
+  </div>
+</div>
 
 </body>
 </html>
