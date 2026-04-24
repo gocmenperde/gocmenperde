@@ -1607,8 +1607,9 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
 .site-footer{background:var(--ink);color:rgba(255,255,255,.78);margin-top:80px}.footer-top{padding:72px 20px 56px}.footer-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1.1fr;gap:56px}@media (max-width:980px){.footer-grid{grid-template-columns:1fr 1fr;gap:40px}}@media (max-width:580px){.footer-grid{grid-template-columns:1fr;gap:36px}.footer-top{padding:56px 20px 40px}}.footer-brand .footer-logo{display:flex;align-items:center;gap:14px;margin-bottom:18px}.footer-brand .footer-logo img{width:48px;height:48px;object-fit:contain}.footer-brand h3{font:500 1.4rem var(--ff-display);color:#fff;letter-spacing:.14em}.footer-brand small{font:600 9px var(--ff-body);letter-spacing:.26em;color:var(--gold)}.footer-tag{font:400 14px var(--ff-body);line-height:1.7;color:rgba(255,255,255,.65);margin-bottom:22px}.footer-trust{display:flex;flex-wrap:wrap;gap:14px;font:500 12px var(--ff-body);color:rgba(255,255,255,.78)}.footer-trust i{color:var(--gold);margin-right:6px}.footer-col h4{font:600 12px var(--ff-body);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}.footer-col ul{list-style:none;padding:0;margin:0}.footer-col li{margin-bottom:10px}.footer-col a{color:rgba(255,255,255,.7);text-decoration:none;font:400 14px var(--ff-body);transition:color .2s}.footer-col a:hover{color:var(--gold)}.footer-contact i{color:var(--gold);width:16px;margin-right:8px}.footer-social{display:flex;gap:12px;margin-top:18px}.footer-social a{width:36px;height:36px;border-radius:50%;border:1px solid rgba(200,163,90,.4);color:var(--gold);display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}.footer-social a:hover{background:var(--gold);color:var(--ink)}.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding:18px 20px}.footer-bottom-inner{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;font:400 12px var(--ff-body);color:rgba(255,255,255,.55)}.footer-payments{display:flex;gap:10px;align-items:center}.footer-payments img{height:24px;opacity:.85}.footer-trust-row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:center;padding:18px 12px;border-top:1px solid rgba(255,255,255,.08);margin-top:18px}.footer-trust-row .trust-item{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:.82rem;font-weight:600}.footer-trust-row .trust-item img{filter:brightness(0) invert(1);opacity:.85}@media (max-width:880px){.site-footer{margin-bottom:76px}}
 
 
-.stock-alert-modal{position:fixed;inset:0;background:rgba(15,15,15,.55);display:none;align-items:center;justify-content:center;z-index:5000;padding:16px}
+.stock-alert-modal{position:fixed;inset:0;background:rgba(15,15,15,.55);display:none;align-items:center;justify-content:center;z-index:13500;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .stock-alert-modal.open{display:flex}
+.stock-alert-modal .stock-alert-card{width:100%;max-width:440px;max-height:calc(100dvh - 32px);overflow-y:auto;-webkit-overflow-scrolling:touch;margin:auto}
 .stock-alert-card{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:28px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.35);border:1px solid var(--gold-soft)}
 .stock-alert-card h3{margin:0 0 8px;color:var(--ink);font-family:var(--ff-display);display:flex;align-items:center;gap:10px}
 .stock-alert-card h3 i{color:var(--gold)}
@@ -1633,6 +1634,13 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
   #stockAlertModal input, .stock-alert-modal input{font-size:16px;padding:13px 14px}
   #stockAlertModal label, .stock-alert-modal label{font-size:.74rem}
   #stockAlertModal button[type=submit], .stock-alert-modal .btn-primary{padding:14px 18px;font-size:.85rem}
+}
+@media (max-width:520px){
+  .stock-alert-modal{padding:12px 12px calc(env(safe-area-inset-bottom, 0px) + 16px);align-items:flex-start}
+  .stock-alert-modal .stock-alert-card{margin-top:max(env(safe-area-inset-top, 0px), 12px);margin-bottom:0;padding:18px 16px 22px;border-radius:18px;max-height:none}
+  body.stock-alert-open .mobile-bottom-nav,
+  body.stock-alert-open #mobileBottomNav,
+  body.stock-alert-open .mbn-bar{display:none !important}
 }
 
 </style>
@@ -2478,7 +2486,7 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
     <button class="stock-alert-close" type="button" aria-label="Kapat">&times;</button>
     <h3 id="stockAlertTitle"><i class="fas fa-bell"></i> Stok gelince haber al</h3>
     <p id="stockAlertSub"></p>
-    <form id="stockAlertForm">
+    <form id="stockAlertForm" onsubmit="event.preventDefault(); submitStockAlert();">
       <label for="stockAlertEmail">E-posta adresiniz</label>
       <input type="email" id="stockAlertEmail" autocomplete="email" inputmode="email" placeholder="ornek@mail.com">
       <label for="stockAlertPhone">Telefon (WhatsApp için, opsiyonel)</label>
@@ -2579,6 +2587,8 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
 
 <script>
 const WA_NUMBER = '905012110958';
+const __DEBUG = location.hostname === 'localhost' || location.hostname.includes('replit');
+if (!__DEBUG) console.warn = ()=>{};
 const LIVE_SUPPORT_ENDPOINT = '/api/live-support';
 const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
@@ -3759,7 +3769,7 @@ function initLiveOrderToasts(){
 }
 
 const PRODUCTS_CACHE_KEY = 'gp_products_cache_v2';
-const PRODUCTS_CACHE_TTL_MS = 1000 * 60 * 10;
+const PRODUCTS_CACHE_TTL_MS = 5 * 60 * 1000;
 const BLANK_IMG = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 const IMAGE_PLACEHOLDER_DATA_URI = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='420' height='280'><rect width='100%' height='100%' fill='#f1eee7'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8a8480' font-family='Outfit,Arial' font-size='16'>Görsel yüklenemedi</text></svg>")}`;
 function _blankImg(el){ if(el) el.src = BLANK_IMG; }
@@ -3797,6 +3807,7 @@ let productRequestInFlightCacheTimer = 0;
 let productsStateVersion = 0;
 let lastAppliedFilterSignature = '';
 let productsDataSignature = '';
+let _lastProductsLoadAt = 0;
 let renderProductsSkipIfSameHead = false;
 let __productObserver = null;
 let PREMIUM_LIVE_PRODUCTS = [];
@@ -3996,6 +4007,7 @@ async function loadProducts({forceRefresh=false} = {}){
     if(cached.length){
       renderProductState(cached, {withObserver:false});
       productsLoadedOnce = true;
+      _lastProductsLoadAt = Date.now();
       handleInitialProductDeepLink();
     }
   }
@@ -4020,10 +4032,11 @@ async function loadProducts({forceRefresh=false} = {}){
       writeProductsToCache(normalizedFresh);
       await loadPremiumShowcaseFromApi();
       renderProductState(normalizedFresh, {withObserver:true});
-      await loadReviewsSummary();
+      queueReviewsSummaryLoad();
       restoreProductsViewState({respectCategoryQuery:true});
       applyFilters();
       productsLoadedOnce = true;
+      _lastProductsLoadAt = Date.now();
       handleInitialProductDeepLink();
     } catch(e){
       const staleCache = readProductsFromCacheWithMode({allowStale:true});
@@ -4031,10 +4044,11 @@ async function loadProducts({forceRefresh=false} = {}){
       const fallbackProducts = staleCache.length ? staleCache : legacyCache;
       if(fallbackProducts.length){
         renderProductState(fallbackProducts, {withObserver:true});
-        await loadReviewsSummary();
+        queueReviewsSummaryLoad();
         restoreProductsViewState({respectCategoryQuery:true});
         applyFilters();
         productsLoadedOnce = true;
+        _lastProductsLoadAt = Date.now();
       } else if(!productsLoadedOnce){
         console.error('[products] load failed:', e);
         const elapsed = Date.now() - startedAt;
@@ -4049,19 +4063,33 @@ async function loadProducts({forceRefresh=false} = {}){
   return productRequestInFlight;
 }
 
-async function loadReviewsSummary(){
-  try {
-    const sum = await fetch('/api/reviews-summary').then((r)=>r.json());
-    if (sum?.success && sum.summary) {
-      for (const [pid, s] of Object.entries(sum.summary)) {
-        PRODUCT_SOCIAL[pid] = Object.assign({ salesCount: 0, reviews: [] }, PRODUCT_SOCIAL[pid] || {}, {
-          reviewCount: s.total || 0,
-          avgRating: s.avg || 0,
-        });
-      }
-      if (typeof renderProducts === 'function') renderProducts(PRODUCTS);
-    }
-  } catch (_) {}
+function applyReviewsSummary(sum){
+  const data = sum?.summary || sum?.items || sum;
+  if (!data || typeof data !== 'object') return;
+  Object.entries(data).forEach(([pid, s])=>{
+    PRODUCT_SOCIAL[pid] = Object.assign({ salesCount: 0, reviews: [] }, PRODUCT_SOCIAL[pid] || {}, {
+      reviewCount: Number(s?.total ?? s?.count ?? 0) || 0,
+      avgRating: Number(s?.avg ?? s?.average ?? 0) || 0,
+    });
+  });
+  document.querySelectorAll('[data-id]').forEach((card)=>{
+    const pid = card.getAttribute('data-id');
+    const social = PRODUCT_SOCIAL[pid];
+    if(!social) return;
+    const starsWrap = card.querySelector('.product-rating .stars');
+    const starsVal = card.querySelector('.product-rating b');
+    const countEl = card.querySelector('.product-rating span:last-child');
+    if(starsWrap) starsWrap.textContent = renderStarText(social.avgRating);
+    if(starsVal) starsVal.textContent = Number(social.avgRating || 0).toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1});
+    if(countEl) countEl.textContent = `(${social.reviewCount || 0} yorum)`;
+  });
+}
+
+function queueReviewsSummaryLoad(){
+  fetch('/api/reviews-summary', { cache: 'no-store' })
+    .then((r)=>r.json())
+    .then((sum)=>{ if(sum?.success || sum?.summary || sum?.items) applyReviewsSummary(sum); })
+    .catch(()=>{});
 }
 
 function applyCategoryDeepLink(categoryKey=''){
@@ -4885,16 +4913,6 @@ function buildOutOfStockActions(productId, productName){
   </div>`;
 }
 
-function subscribeStockAlert(productId, productName){
-  try{
-    if(!productId){ console.warn('[stockAlert] productId yok'); return; }
-    openStockAlertModal(productId, productName || 'Bu ürün');
-  }catch(err){
-    console.error('[stockAlert] open hatası', err);
-    alert('Bildirim formu açılamadı. Sayfayı yenileyip tekrar deneyin.');
-  }
-}
-
 function processRestockNotifications(){
 }
 
@@ -4914,16 +4932,18 @@ function openStockAlertModal(productId, productName){
   if(phoneEl) phoneEl.value = '';
   if(kvkkEl) kvkkEl.checked = false;
   if(msgEl){ msgEl.textContent = ''; msgEl.className = 'stock-alert-msg'; msgEl.hidden = true; }
-  modal.classList.add('open');
+  requestAnimationFrame(()=> modal.classList.add('open'));
   document.body.style.overflow = 'hidden';
-  setTimeout(()=> emailEl?.focus(), 60);
+  document.body.classList.add('stock-alert-open');
+  setTimeout(()=> emailEl?.focus(), 80);
 }
 function closeStockAlertModal(){
   document.getElementById('stockAlertModal')?.classList.remove('open');
   document.body.style.overflow = '';
+  document.body.classList.remove('stock-alert-open');
   __stockAlertCtx = null;
 }
-async function subscribeStockAlert(){
+async function submitStockAlert(){
   const btn = document.getElementById('stockAlertSubmitBtn') || document.querySelector('#stockAlertForm button[type="submit"]');
   const msg = document.getElementById('stockAlertMsg');
   const setMsg = (text, kind)=>{
@@ -4964,21 +4984,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(!m) return;
   m.querySelector('.stock-alert-close')?.addEventListener('click', closeStockAlertModal);
   m.addEventListener('click', (e)=>{ if(e.target === m) closeStockAlertModal(); });
-  document.addEventListener('click', (e)=>{
-    const btn = e.target?.closest?.('.modal-add-btn-notify, .add-btn-notify');
-    if(!btn) return;
-    const productId = String(btn.dataset.productId || '').trim();
-    const productName = String(btn.dataset.productName || '').trim() || 'Bu ürün';
-    if(!productId) return;
+  let __stockAlertOpening = false;
+['pointerdown','click'].forEach((evtName)=>{
+  document.addEventListener(evtName, (e)=>{
+    const btn = e.target?.closest?.('.add-btn-notify, [data-stock-alert], .modal-add-btn-notify');
+    if (!btn) return;
     e.preventDefault();
-    e.stopPropagation();
+    if (__stockAlertOpening) return;
+    __stockAlertOpening = true;
+    setTimeout(()=>{ __stockAlertOpening = false; }, 600);
+    const productId = btn.dataset.productId || btn.getAttribute('data-product-id');
+    const productName = btn.dataset.productName || btn.getAttribute('data-product-name') || 'Bu ürün';
     openStockAlertModal(productId, productName);
-  });
-  document.getElementById('stockAlertForm')?.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    if(!__stockAlertCtx) return;
-    await subscribeStockAlert();
-  });
+  }, { capture: true, passive: false });
+});
+
   document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeStockAlertModal(); });
 });
 
@@ -5245,7 +5265,7 @@ function buildCard(p, index=0){
     </button>
     <div class="product-img-wrap">
       <button class="product-media-open" type="button" data-action="open-modal" data-id="${p.id}" aria-label="${p.name} ürün detayını aç">
-        <img src="${primaryImage}" alt="${p.name}" loading="lazy" decoding="async" fetchpriority="low" width="420 height="280">
+        <img src="${primaryImage}" alt="${p.name}" loading="lazy" decoding="async" fetchpriority="low" width="600" height="800" onerror="this.style.opacity=0.3;this.src='resimler/placeholder.png'">
       </button>
       ${showCampaignSlot ? '<span class="product-campaign-tint"></span><span class="product-campaign-pill"><i class="fas fa-bullhorn"></i>Kampanya Alanı</span>' : ''}
       ${productImages.length>1?`<span class="product-gallery-meta"><i class="fas fa-images"></i> ${productImages.length} fotoğraf</span>`:''}
@@ -6627,18 +6647,8 @@ function startVisitTracking(){
 function shouldRefreshProductsOnForeground({force=false} = {}){
   if(force) return true;
   if(productRequestInFlight) return false;
-  const now = Date.now();
-  if(now - lastForegroundRefreshAt < FOREGROUND_REFRESH_MIN_INTERVAL_MS) return false;
-  try{
-    const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
-    if(!raw) return true;
-    const parsed = JSON.parse(raw);
-    const savedAt = Number(parsed?.savedAt || 0);
-    if(!savedAt) return true;
-    return PRODUCTS.length===0 || now - savedAt > 5 * 60 * 1000;
-  }catch(err){ console.warn('[gp:warn]', err);
-    return true;
-  }
+  if(!PRODUCTS.length) return true;
+  return (Date.now() - _lastProductsLoadAt) > PRODUCTS_CACHE_TTL_MS;
 }
 
 function refreshCatalogOnForeground({force=false} = {}){
@@ -6648,7 +6658,7 @@ function refreshCatalogOnForeground({force=false} = {}){
   if(document.getElementById('productModal')?.classList.contains('open') || imageViewerOpen) return;
   if(!shouldRefreshProductsOnForeground({force})) return;
   lastForegroundRefreshAt = Date.now();
-  if(PRODUCTS.length===0 || shouldRefreshProductsOnForeground()) loadProducts().catch((err)=>console.warn('[foreground] loadProducts failed', err));
+  loadProducts().catch((err)=>console.warn('[foreground] loadProducts failed', err));
   loadHomeFeaturedProductIds();
   loadProductsFeaturedProductIds();
   loadActiveCampaigns();

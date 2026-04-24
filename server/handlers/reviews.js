@@ -5,6 +5,18 @@ const { pool } = require('../lib/_db');
 const { ensureReviewSchema } = require('../lib/_reviews_schema');
 const { applyCors } = require('../lib/_cors');
 const { uploadDataUrl, isConfigured: cloudinaryReady } = require('../lib/_cloudinary');
+const { ensureSeedsForProduct } = require('../lib/_seed-reviews');
+
+const __seedingInFlight = new Set();
+function ensureSeedsForProductSafe(pid){
+  if (!pid || __seedingInFlight.has(pid)) return;
+  __seedingInFlight.add(pid);
+  setImmediate(async ()=>{
+    try { await ensureSeedsForProduct(pid); }
+    catch(_){}
+    finally { __seedingInFlight.delete(pid); }
+  });
+}
 
 const UPLOAD_DIR = process.env.VERCEL
   ? path.join('/tmp', 'uploads', 'reviews')
@@ -71,16 +83,7 @@ module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     const productId = String(req.query?.productId || '').trim();
     if (!productId) return res.status(400).json({ error: 'productId zorunlu' });
-    try {
-      const seedCount = await pool.query(
-        `SELECT COUNT(*)::int AS c FROM product_reviews WHERE product_id=$1 AND is_seed=TRUE`,
-        [productId]
-      );
-      if ((seedCount.rows[0]?.c || 0) < 8) {
-        const { ensureSeedsForProduct } = require('../lib/_seed-reviews');
-        await ensureSeedsForProduct(productId).catch(() => null);
-      }
-    } catch (_) {}
+    ensureSeedsForProductSafe(productId);
     const limit = Math.min(50, Math.max(1, Number(req.query?.limit || 20)));
     const offset = Math.max(0, Number(req.query?.offset || 0));
     const r = await pool.query(

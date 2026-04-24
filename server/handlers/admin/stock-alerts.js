@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
   await ensureStockAlertSchema();
 
   if (req.method === 'GET') {
-    const productId = String(req.query?.productId || '').trim();
+    const productId = String(req.query?.productId || req.query?.product_id || '').trim();
     const where = productId ? ' WHERE product_id = $1' : '';
     const params = productId ? [productId] : [];
     const counts = await pool.query(

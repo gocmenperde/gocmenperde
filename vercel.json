@@ -12,11 +12,29 @@
   ],
   "headers": [
     {
-      "source": "/(products|categories)\\.json",
+      "source": "/products.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, stale-while-revalidate=300"
+        }
+      ]
+    },
+    {
+      "source": "/categories\\.json",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=60, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/api/reviews-summary",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, stale-while-revalidate=300"
         }
       ]
     },

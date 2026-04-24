@@ -6,7 +6,7 @@ self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith('/api/')) return;
+  if (url.pathname.startsWith('/api/') && url.pathname !== '/api/reviews-summary') return;
   if (/\.(png|jpe?g|webp|svg|woff2?)$/i.test(url.pathname)) {
     e.respondWith(caches.open(RUNTIME).then(async (c) => {
       const hit = await c.match(e.request);
@@ -17,7 +17,7 @@ self.addEventListener('fetch', (e) => {
     }));
     return;
   }
-  if (url.pathname === '/products.json' || url.pathname === '/categories.json') {
+  if (url.pathname === '/products.json' || url.pathname === '/categories.json' || url.pathname === '/api/reviews-summary') {
     e.respondWith((async () => {
       try {
         const fresh = await fetch(e.request);
