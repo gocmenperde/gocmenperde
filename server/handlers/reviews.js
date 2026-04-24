@@ -5,7 +5,9 @@ const { pool } = require('../lib/_db');
 const { ensureReviewSchema } = require('../lib/_reviews_schema');
 const { applyCors } = require('../lib/_cors');
 
-const UPLOAD_DIR = path.join(__dirname, '..', '..', 'public', 'uploads', 'reviews');
+const UPLOAD_DIR = process.env.VERCEL
+  ? path.join('/tmp', 'uploads', 'reviews')
+  : path.join(__dirname, '..', '..', 'public', 'uploads', 'reviews');
 const MAX_PHOTOS = 4;
 const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 const _ipMap = new Map();
