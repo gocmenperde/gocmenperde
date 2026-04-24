@@ -6741,10 +6741,30 @@ document.addEventListener('DOMContentLoaded',()=>{
     requestAnimationFrame(() => { document.body.style.opacity = ''; });
   });
   const restoreSession = sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
-  if(restoreSession){
-    document.getElementById('loginScreen').classList.add('hide');
-    document.getElementById('adminApp').classList.add('show');
-    initAdmin();
+  const restoreToken = getAdminToken();
+  if(restoreSession && restoreToken){
+    fetch('/api/visits', { headers:{ 'X-Admin-Token': restoreToken } })
+      .then((res)=>{
+        if(res.status === 401){
+          throw new Error('unauthorized');
+        }
+        document.getElementById('loginScreen').classList.add('hide');
+        document.getElementById('adminApp').classList.add('show');
+        initAdmin();
+      })
+      .catch(()=>{
+        logout();
+      });
+  } else {
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    if(!restoreToken){
+      sessionStorage.removeItem('admin_api_key');
+      sessionStorage.removeItem('gp_admin_token');
+      localStorage.removeItem('admin_api_key');
+      localStorage.removeItem('gp_admin_token');
+    }
+    document.getElementById('loginScreen').classList.remove('hide');
+    document.getElementById('adminApp').classList.remove('show');
   }
   syncResponsiveTableLabels();
   const tableObserver = new MutationObserver(()=>syncResponsiveTableLabels());
