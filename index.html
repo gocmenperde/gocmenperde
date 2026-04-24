@@ -668,6 +668,16 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 @media(max-width:380px){.product-dimensions input.dimension-input{font-size:16px}}
 .add-btn{display:flex;align-items:center;justify-content:center;background:var(--ink);color:white;border:none;cursor:pointer;padding:9px 16px;border-radius:8px;font-size:0.68rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);white-space:nowrap;font-family:var(--ff-body)}
 .add-btn:hover{background:var(--gold);color:var(--ink)}
+.qty-wrap-oos{display:flex;flex-direction:column;gap:8px;width:100%}
+.add-btn-oos{background:#9ca3af !important;color:#fff !important;cursor:not-allowed;opacity:.85}
+.add-btn-oos:hover{transform:none;box-shadow:none}
+.add-btn-notify{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-dark,#a3823f) 100%) !important;color:#1a1a1a !important;font-weight:700;border:none !important;box-shadow:0 8px 18px rgba(201,168,76,.35) !important;display:inline-flex !important;align-items:center;justify-content:center;gap:8px}
+.add-btn-notify:hover{filter:brightness(1.05);transform:translateY(-2px) !important}
+.add-btn-notify i{font-size:.9rem}
+.modal-add-btn-notify{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-dark,#a3823f) 100%) !important;color:#1a1a1a !important;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;margin-bottom:8px;box-shadow:0 8px 18px rgba(201,168,76,.3)}
+.modal-add-btn-notify:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.modal-add-btn-store{background:transparent !important;color:var(--ink) !important;border:1px solid var(--border) !important;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:12px;cursor:pointer;font-weight:600}
+.modal-add-btn-store:hover{background:var(--cream) !important;border-color:var(--gold) !important}
 @media(max-width:600px){.add-btn{padding:7px 10px;font-size:0.6rem;letter-spacing:1px}}
 
 /* Son Görüntülenen */
@@ -1590,7 +1600,7 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
 .site-footer{background:var(--ink);color:rgba(255,255,255,.78);margin-top:80px}.footer-top{padding:72px 20px 56px}.footer-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1.1fr;gap:56px}@media (max-width:980px){.footer-grid{grid-template-columns:1fr 1fr;gap:40px}}@media (max-width:580px){.footer-grid{grid-template-columns:1fr;gap:36px}.footer-top{padding:56px 20px 40px}}.footer-brand .footer-logo{display:flex;align-items:center;gap:14px;margin-bottom:18px}.footer-brand .footer-logo img{width:48px;height:48px;object-fit:contain}.footer-brand h3{font:500 1.4rem var(--ff-display);color:#fff;letter-spacing:.14em}.footer-brand small{font:600 9px var(--ff-body);letter-spacing:.26em;color:var(--gold)}.footer-tag{font:400 14px var(--ff-body);line-height:1.7;color:rgba(255,255,255,.65);margin-bottom:22px}.footer-trust{display:flex;flex-wrap:wrap;gap:14px;font:500 12px var(--ff-body);color:rgba(255,255,255,.78)}.footer-trust i{color:var(--gold);margin-right:6px}.footer-col h4{font:600 12px var(--ff-body);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}.footer-col ul{list-style:none;padding:0;margin:0}.footer-col li{margin-bottom:10px}.footer-col a{color:rgba(255,255,255,.7);text-decoration:none;font:400 14px var(--ff-body);transition:color .2s}.footer-col a:hover{color:var(--gold)}.footer-contact i{color:var(--gold);width:16px;margin-right:8px}.footer-social{display:flex;gap:12px;margin-top:18px}.footer-social a{width:36px;height:36px;border-radius:50%;border:1px solid rgba(200,163,90,.4);color:var(--gold);display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}.footer-social a:hover{background:var(--gold);color:var(--ink)}.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding:18px 20px}.footer-bottom-inner{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;font:400 12px var(--ff-body);color:rgba(255,255,255,.55)}.footer-payments{display:flex;gap:10px;align-items:center}.footer-payments img{height:24px;opacity:.85}.footer-trust-row{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:center;padding:18px 12px;border-top:1px solid rgba(255,255,255,.08);margin-top:18px}.footer-trust-row .trust-item{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:.82rem;font-weight:600}.footer-trust-row .trust-item img{filter:brightness(0) invert(1);opacity:.85}@media (max-width:880px){.site-footer{margin-bottom:76px}}
 
 
-.stock-alert-modal{position:fixed;inset:0;background:rgba(15,15,15,.55);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.stock-alert-modal{position:fixed;inset:0;background:rgba(15,15,15,.55);display:none;align-items:center;justify-content:center;z-index:5000;padding:16px}
 .stock-alert-modal.open{display:flex}
 .stock-alert-card{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:28px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.35);border:1px solid var(--gold-soft)}
 .stock-alert-card h3{margin:0 0 8px;color:var(--ink);font-family:var(--ff-display);display:flex;align-items:center;gap:10px}
@@ -4792,11 +4802,22 @@ function isOutOfStock(product){
 
 function buildOutOfStockActions(productId, productName){
   const safeName = String(productName || '').replace(/'/g, "\\'");
-  return `<div class="qty-wrap"><button type="button" class="add-btn" style="background:#6b7280" disabled>Tükendi</button><button type="button" class="add-btn" onclick="event.stopPropagation();subscribeStockAlert('${productId}','${safeName}')">Gelince Haber Ver</button></div>`;
+  return `<div class="qty-wrap qty-wrap-oos">
+    <button type="button" class="add-btn add-btn-oos" disabled aria-disabled="true">Tükendi</button>
+    <button type="button" class="add-btn add-btn-notify" onclick="event.stopPropagation();subscribeStockAlert('${productId}','${safeName}')">
+      <i class="fas fa-bell" aria-hidden="true"></i> Gelince Haber Ver
+    </button>
+  </div>`;
 }
 
 function subscribeStockAlert(productId, productName){
-  openStockAlertModal(productId, productName);
+  try{
+    if(!productId){ console.warn('[stockAlert] productId yok'); return; }
+    openStockAlertModal(productId, productName || 'Bu ürün');
+  }catch(err){
+    console.error('[stockAlert] open hatası', err);
+    alert('Bildirim formu açılamadı. Sayfayı yenileyip tekrar deneyin.');
+  }
 }
 
 function processRestockNotifications(){
@@ -4805,20 +4826,26 @@ function processRestockNotifications(){
 
 let __stockAlertCtx = null;
 function openStockAlertModal(productId, productName){
-  __stockAlertCtx = { productId, productName };
   const modal = document.getElementById('stockAlertModal');
-  if(!modal) return;
-  document.getElementById('stockAlertSub').textContent = `${productName} tekrar stokta olduğunda size haber vereceğiz.`;
-  document.getElementById('stockAlertEmail').value = '';
-  document.getElementById('stockAlertPhone').value = '';
-  document.getElementById('stockAlertKvkk').checked = false;
-  document.getElementById('stockAlertMsg').textContent = '';
-  document.getElementById('stockAlertMsg').className = 'stock-alert-msg';
+  if(!modal){ console.warn('[stockAlert] modal HTML bulunamadı'); return; }
+  __stockAlertCtx = { productId, productName };
+  const sub = document.getElementById('stockAlertSub');
+  const emailEl = document.getElementById('stockAlertEmail');
+  const phoneEl = document.getElementById('stockAlertPhone');
+  const kvkkEl = document.getElementById('stockAlertKvkk');
+  const msgEl = document.getElementById('stockAlertMsg');
+  if(sub) sub.textContent = `${productName} tekrar stokta olduğunda size haber vereceğiz.`;
+  if(emailEl) emailEl.value = '';
+  if(phoneEl) phoneEl.value = '';
+  if(kvkkEl) kvkkEl.checked = false;
+  if(msgEl){ msgEl.textContent = ''; msgEl.className = 'stock-alert-msg'; }
   modal.classList.add('open');
-  setTimeout(()=> document.getElementById('stockAlertEmail').focus(), 60);
+  document.body.style.overflow = 'hidden';
+  setTimeout(()=> emailEl?.focus(), 60);
 }
 function closeStockAlertModal(){
   document.getElementById('stockAlertModal')?.classList.remove('open');
+  document.body.style.overflow = '';
   __stockAlertCtx = null;
 }
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -5953,7 +5980,13 @@ function openModalFromProduct(id){
     `}`;
   document.getElementById('mAddWrap').innerHTML = isMobileModal ? mobileAddMarkup : desktopAddMarkup;
   if(outOfStock){
-    document.getElementById('mAddWrap').innerHTML = `<button class="modal-add-btn" type="button" onclick="openStockAlertModal('${id}', ${JSON.stringify(p.name || '')})"><i class="fas fa-bell"></i> Stok Gelince Haber Ver</button>`;
+    document.getElementById('mAddWrap').innerHTML = `
+      <button class="modal-add-btn modal-add-btn-notify" type="button" onclick="openStockAlertModal('${id}', ${JSON.stringify(p.name || '')})">
+        <i class="fas fa-bell" aria-hidden="true"></i> Stok Gelince Haber Ver
+      </button>
+      <button class="modal-add-btn modal-add-btn-store" type="button" onclick="closeProductModal();go('contact')">
+        <i class="fas fa-map-marker-alt" aria-hidden="true"></i> Mağazamıza Gel
+      </button>`;
   }
   const quickName = document.getElementById('modalQuickBuyName');
   const quickPrice = document.getElementById('modalQuickBuyPrice');
