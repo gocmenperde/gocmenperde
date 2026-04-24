@@ -49,12 +49,30 @@ app.use(helmet({
 }));
 
 app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy-Report-Only', "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://www.paytr.com https://*.paytr.com https://api.cloudinary.com https://res.cloudinary.com; frame-src 'self' https://www.google.com https://www.youtube.com https://www.paytr.com https://*.paytr.com; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; report-uri /csp-report");
+  res.setHeader('Content-Security-Policy-Report-Only', "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://www.paytr.com https://*.paytr.com https://api.cloudinary.com https://res.cloudinary.com; frame-src 'self' https://www.google.com https://www.youtube.com https://www.paytr.com https://*.paytr.com; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; report-uri /api/csp-report");
   next();
 });
 
-app.post('/csp-report', express.json({ type: ['application/csp-report', 'application/reports+json', 'application/json'] }), (req, res) => {
-  console.warn('[csp-report]', JSON.stringify(req.body || {}));
+app.use(helmet.contentSecurityPolicy({
+  useDefaults: true,
+  directives: {
+    "default-src": ["'self'"],
+    "script-src": ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com'],
+    "style-src": ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com'],
+    "font-src": ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com', 'data:'],
+    "img-src": ["'self'", 'data:', 'blob:', 'https:'],
+    "connect-src": ["'self'", 'https://www.google-analytics.com', 'https://www.paytr.com', 'https://*.paytr.com', 'https://api.cloudinary.com', 'https://res.cloudinary.com'],
+    "frame-src": ["'self'", 'https://www.google.com', 'https://www.youtube.com', 'https://www.paytr.com', 'https://*.paytr.com'],
+    "object-src": ["'none'"],
+    "base-uri": ["'self'"],
+    "frame-ancestors": ["'self'"],
+    "report-uri": ['/api/csp-report']
+  },
+  reportOnly: true,
+}));
+
+app.post('/api/csp-report', express.json({ type: ['application/csp-report','application/json'] }), (req, res) => {
+  console.warn('[csp-report]', JSON.stringify(req.body).slice(0, 1000));
   res.status(204).end();
 });
 
@@ -112,7 +130,7 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads
 const WEBP_AVAILABLE = new Set();
 try {
   fs.readdirSync(path.resolve(__dirname, '..', 'resimler'))
-    .filter((f) => f.endsWith('.webp'))
+.filter((f) => f.toLowerCase().endsWith('.webp'))
     .forEach((f) => WEBP_AVAILABLE.add('/resimler/' + f.replace(/\.webp$/i, '')));
 } catch (_) {}
 
@@ -126,12 +144,12 @@ app.use((req, res, next) => {
   res.sendFile(path.join(__dirname, '..', baseKey + '.webp'));
 });
 
-const READ_ONLY_GET = /^\/(slider|slider-ads|payment-logos|reviews-summary|premium-showcase|from-you-showcase|measure-guide|address-data|paytr-callback)(\?|\/|$)/;
+const READ_ONLY_GET = /^\/(slider|slider-ads|payment-logos|reviews-summary|premium-showcase|from-you-showcase|measure-guide|address-data)(\?|\/|$)/;
 if (!process.env.VERCEL) {
   app.use('/api/orders', orderLimiter);
   app.use('/api/payment', paymentLimiter);
   app.use('/api', (req, res, next) => {
-    if (req.path === '/paytr-callback') return next();
+    if (req.path.startsWith('/paytr-callback')) return next();
     if (req.method === 'GET' && READ_ONLY_GET.test(req.path)) return next();
     return apiLimiter(req, res, next);
   });

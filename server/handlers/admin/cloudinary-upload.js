@@ -7,6 +7,7 @@ const MAX_DATA_URL_SIZE_BYTES = 12 * 1024 * 1024; // ~12MB
 const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg','image/jpg','image/png','image/webp','image/avif','image/gif']);
 
 const { applyCors } = require('../../lib/_cors');
+let _envWarnedOnce = false;
 function parseCloudinaryUrl(value) {
   const raw = String(value || '').trim();
   if (!raw) return null;
@@ -196,29 +197,11 @@ module.exports = async function handler(req, res) {
   const cloudinaryConfig = readCloudinaryConfig();
   const missingConfig = getMissingConfigKeys(cloudinaryConfig);
   if (missingConfig.length) {
-    const nodeEnv = String(process.env.NODE_ENV || 'unknown').trim();
-    const detectedCloudinaryEnvKeys = listMatchingEnvKeys([
-      /cloudinary/i,
-      /^cloud_name$/i,
-      /^api_key$/i,
-      /^api_secret$/i,
-    ]);
-    console.error('[cloudinary-upload] Cloudinary env değişkenleri eksik veya undefined.', {
-      missing: missingConfig,
-      nodeEnv,
-      vercelEnv: process.env.VERCEL_ENV || null,
-      hasCloudName: Boolean(pickFirstEnvValue(['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_CLOUDNAME', 'CLOUD_NAME', 'NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME', 'NEXT_PUBLIC_CLOUDINARY_CLOUDNAME'])),
-      hasApiKey: Boolean(pickFirstEnvValue(['CLOUDINARY_API_KEY', 'API_KEY', 'NEXT_PUBLIC_CLOUDINARY_API_KEY'])),
-      hasApiSecret: Boolean(pickFirstEnvValue(['CLOUDINARY_API_SECRET', 'CLOUDINARY_SECRET', 'API_SECRET', 'NEXT_PUBLIC_CLOUDINARY_API_SECRET'])),
-      hasCloudinaryUrl: Boolean(pickFirstEnvValue(['CLOUDINARY_URL', 'CLOUDINARY_API_URL', 'NEXT_PUBLIC_CLOUDINARY_URL'])),
-      cloudinaryUrlParsable: cloudinaryConfig.hasCloudinaryUrl,
-      detectedCloudinaryEnvKeys,
-      hint: 'Vercel Project Settings > Environment Variables alanındaki değerlerin ilgili ortama (Production/Preview) atanıp redeploy edildiğini doğrulayın. Server-side endpoint için NEXT_PUBLIC_ prefix zorunlu değildir. CLOUDINARY_URL kullanıyorsanız format cloudinary://API_KEY:API_SECRET@CLOUD_NAME olmalıdır.',
-    });
-
-    return res.status(503).json({
-      error: 'Görsel yükleme servisi şu an yapılandırılamadı. Değişken adları doğruysa son deploy sonrası logları kontrol edin.',
-    });
+    if (!_envWarnedOnce) {
+      _envWarnedOnce = true;
+      console.error('[cloudinary-upload] ENV missing:', missingConfig);
+    }
+    return res.status(503).json({ error: 'Görsel yükleme servisi yapılandırılamadı.' });
   }
 
   const { dataUrl, fileName, prefix, mimeType, mode } = resolveUploadBody(req.body);
