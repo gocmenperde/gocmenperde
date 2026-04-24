@@ -948,11 +948,29 @@ nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-
 .modal-live-viewers i{color:#cfa852;font-size:0.88rem}
 .modal-live-viewers strong{color:#3a2a05;font-weight:700;font-size:0.9rem}
 .modal-live-viewers.pulse{animation:liveViewerPulse 320ms ease-out}
+.live-avatars{display:inline-flex;align-items:center}
+.live-avatars .live-avatar{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:700;color:#fff;border:2px solid #fff;margin-left:-7px;box-shadow:0 1px 2px rgba(0,0,0,0.12);font-family:var(--ff-display)}
+.live-avatars .live-avatar:first-child{margin-left:0}
+.modal-urgency-badge{display:flex;align-items:center;gap:8px;margin:8px 0 10px;padding:9px 14px;border-radius:10px;background:linear-gradient(135deg,rgba(231,76,60,0.10),rgba(231,76,60,0.18));border:1px solid rgba(231,76,60,0.35);color:#a02a1a;font-size:0.82rem;font-weight:600;width:fit-content;max-width:100%;box-sizing:border-box;animation:urgencyPulse 1.8s ease-in-out infinite}
+.modal-urgency-badge i{color:#c0392b;font-size:0.92rem}
+.modal-urgency-badge strong{color:#7a1f10;font-weight:800;font-size:0.88rem}
 @keyframes liveViewerPulse{0%{transform:scale(1)}50%{transform:scale(1.06);background:rgba(207,168,82,0.24)}100%{transform:scale(1)}}
+@keyframes urgencyPulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.30)}50%{box-shadow:0 0 0 6px rgba(231,76,60,0)}}
 @media(max-width:520px){
   .modal-live-viewers{font-size:0.78rem;padding:7px 12px;margin:8px 0 12px}
   .modal-live-viewers strong{font-size:0.86rem}
+  .live-avatars .live-avatar{width:20px;height:20px;font-size:0.58rem}
+  .modal-urgency-badge{font-size:0.78rem;padding:8px 12px}
 }
+@media(prefers-reduced-motion:reduce){.modal-urgency-badge{animation:none}}
+.cart-sparkle-layer{position:fixed;width:0;height:0;pointer-events:none;z-index:9999}
+.cart-sparkle{position:absolute;left:0;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;background:radial-gradient(circle,#f4d77a 0%,#cfa852 60%,rgba(207,168,82,0) 100%);border-radius:50%;opacity:0;transform:translate(0,0) scale(0.4);animation:sparkleFly 750ms ease-out forwards;will-change:transform,opacity}
+@keyframes sparkleFly{
+  0%  {opacity:0;transform:translate(0,0) scale(0.4)}
+  20% {opacity:1;transform:translate(calc(var(--dx)*0.3), calc(var(--dy)*0.3)) scale(1.1)}
+  100%{opacity:0;transform:translate(var(--dx), var(--dy)) scale(0.6)}
+}
+@media(prefers-reduced-motion:reduce){.cart-sparkle{animation:none;opacity:0}}
 .modal-reviews-wrap{margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--cream)}
 .modal-reviews-title{font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-bottom:10px}
 .modal-review-list{display:flex;flex-direction:column;gap:10px;max-height:170px;overflow-y:auto;padding-right:4px}
@@ -4735,10 +4753,32 @@ function stopLiveViewerCounter(){
   document.getElementById('mLiveViewers')?.remove();
 }
 
+function renderModalUrgencyBadge(product){
+  document.getElementById('mUrgencyBadge')?.remove();
+  if(!product) return;
+  if(isOutOfStock(product)) return;
+  const stock = getNormalizedStockCount(product);
+  if(stock <= 0 || stock > 5) return;
+  const html = `<div class="modal-urgency-badge" id="mUrgencyBadge"><i class="fas fa-bolt"></i> Acele edin! Sadece <strong>${stock}</strong> adet kaldı</div>`;
+  const priceWrap = document.getElementById('mPriceWrap');
+  if(priceWrap) priceWrap.insertAdjacentHTML('afterend', html);
+}
+
 function startLiveViewerCounter(productId){
   stopLiveViewerCounter();
   if(!productId) return;
-  const liveMarkup = '<div class="modal-live-viewers" id="mLiveViewers"><i class="fas fa-eye"></i> Şu an <strong id="mLiveViewersCount">7</strong> kişi bu ürüne bakıyor</div>';
+  const seedHash = Array.from(productId).reduce((a,c)=>a+c.charCodeAt(0),0);
+  const palette = ['#cfa852','#7a5a14','#3a2a05','#8a4d12','#5b6f7a','#7d4f5c','#4a6741','#9b6a3a'];
+  const initialsSource = (window.REVIEW_FIRST_NAMES && window.REVIEW_FIRST_NAMES.length)
+    ? window.REVIEW_FIRST_NAMES
+    : ['Ayşe','Mehmet','Elif','Selin','Deniz','Kemal','Burak','Zeynep'];
+  const avatars = [0,1,2].map((i)=>{
+    const bg = palette[(seedHash+i*3)%palette.length];
+    const name = String(initialsSource[(seedHash+i*7)%initialsSource.length] || 'A');
+    const ch = name.charAt(0).toLocaleUpperCase('tr-TR');
+    return `<span class="live-avatar" style="background:${bg}">${ch}</span>`;
+  }).join('');
+  const liveMarkup = `<div class="modal-live-viewers" id="mLiveViewers"><span class="live-avatars">${avatars}</span><i class="fas fa-eye"></i> Şu an <strong id="mLiveViewersCount">7</strong> kişi bu ürüne bakıyor</div>`;
   if(!document.getElementById('mLiveViewers')){
     const priceWrap = document.getElementById('mPriceWrap');
     const tabs = document.querySelector('.modal-tabs');
@@ -4947,6 +4987,7 @@ function bindProductsGridDelegation(){
     }
     if(action === 'add-cart'){
       e.stopPropagation();
+      spawnCartSparkles(actionEl);
       addToCartFromProduct(id, actionEl.dataset.qid, actionEl.dataset.wid, actionEl.dataset.hid, actionEl.dataset.pile);
     }
   });
@@ -5501,6 +5542,7 @@ function openModalFromProduct(id){
     priceWrap.innerHTML = `<div class="modal-normal-price">${p.price.toLocaleString('tr-TR')} TL<span class="modal-price-unit">${unitStr}</span></div><span class="bursa-badge"><i class="fas fa-award"></i>${uxCopy.bursaBadge}</span>`;
     discBadge.classList.add('hidden');
   }
+  renderModalUrgencyBadge(p);
 
   document.getElementById('mDesc').innerText = p.desc||'';
   const normalizedStock = getNormalizedStockCount(p);
@@ -5718,6 +5760,7 @@ function updateViewerImage(){
 }
 function closeProductModal({syncUrl=true} = {}){
   stopLiveViewerCounter();
+  document.getElementById('mUrgencyBadge')?.remove();
   document.getElementById('productModal').classList.remove('open');
   setModalStageLoading(false);
   clearModalSearch();
@@ -6063,6 +6106,7 @@ function ensureLoaderDoesNotBlockUi(){
 function recoverUIAfterResume(){
   hideLoader(true);
   stopLiveViewerCounter();
+  document.getElementById('mUrgencyBadge')?.remove();
   if(document.body.classList.contains('product-modal-open') && !document.getElementById('productModal')?.classList.contains('open')){
     unlockPageScrollForModal();
     document.body.classList.remove('product-modal-open');
@@ -6998,7 +7042,32 @@ function _flashModalDimError(){
   setTimeout(()=>document.querySelectorAll('.modal-dim-input.is-error').forEach(i=>i.classList.remove('is-error')), 2000);
 }
 
+function spawnCartSparkles(anchorEl){
+  if(!anchorEl || typeof anchorEl.getBoundingClientRect !== 'function') return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const rect = anchorEl.getBoundingClientRect();
+  if(!rect.width && !rect.height) return;
+  const layer = document.createElement('div');
+  layer.className = 'cart-sparkle-layer';
+  layer.style.left = (rect.left + rect.width/2) + 'px';
+  layer.style.top  = (rect.top  + rect.height/2) + 'px';
+  for(let i=0;i<6;i++){
+    const s = document.createElement('span');
+    s.className = 'cart-sparkle';
+    const angle = (Math.PI * 2 * i)/6 + (Math.random()*0.6-0.3);
+    const dist  = 38 + Math.random()*22;
+    s.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
+    s.style.setProperty('--dy', (Math.sin(angle)*dist - 18) + 'px');
+    s.style.animationDelay = (i*22) + 'ms';
+    layer.appendChild(s);
+  }
+  document.body.appendChild(layer);
+  setTimeout(()=>layer.remove(), 900);
+}
+
 function addToCartFromProduct(productId, qtyInputId, widthInputId, heightInputId, pileSelectId, triggerBtn){
+  const __sparkleAnchor = document.querySelector('.modal-add-wrap .add-btn, .modal-add-wrap button[type="submit"], .modal-add-btn');
+  if(document.getElementById('productModal')?.classList.contains('open') && __sparkleAnchor) spawnCartSparkles(__sparkleAnchor);
   const product = PRODUCTS.find(x => x.id === productId);
   if(!product) return;
   if(isOutOfStock(product)){
