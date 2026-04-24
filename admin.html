@@ -593,6 +593,7 @@ tbody tr:hover td{background:#fdfcf8}
 .admin-table thead th,table thead th{background:var(--cream);color:var(--ink);font:600 11px var(--ff-body);letter-spacing:.18em;text-transform:uppercase;padding:14px 18px;text-align:left}
 .admin-table tbody td,table tbody td{padding:14px 18px;border-top:1px solid var(--line);font:400 14px var(--ff-body);color:var(--ink)}
 .admin-table tbody tr:hover,table tbody tr:hover{background:var(--paper)}
+.admin-badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#f8f1e0;color:#a3823f;font-size:.72rem;font-weight:700;letter-spacing:.5px}
 input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;background:#fff;font:500 15px var(--ff-body);color:var(--ink)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}
 .btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#fff;padding:14px 28px;border-radius:999px;font:600 14px var(--ff-body);letter-spacing:.04em;border:none}
@@ -1318,7 +1319,7 @@ Işık: Yarı Geçirgen"></textarea></div>
     </div>
     <div id="stockAlertSummary" class="admin-summary" style="margin-bottom:10px"></div>
     <table class="admin-table">
-      <thead><tr><th>Ürün</th><th>E-posta</th><th>Kayıt</th><th>Bildirim</th><th></th></tr></thead>
+      <thead><tr><th>Ürün</th><th>E-posta</th><th>Telefon</th><th>Kanal</th><th>Kayıt</th><th>Bildirim</th><th></th></tr></thead>
       <tbody id="stockAlertTbody"></tbody>
     </table>
   </section>
@@ -2651,20 +2652,35 @@ async function adminFetchStockAlerts(){
   const json = await res.json();
   document.getElementById('stockAlertSummary').textContent = `Toplam: ${json.total} • Bekleyen: ${json.pending}`;
   const tbody = document.getElementById('stockAlertTbody');
-  tbody.innerHTML = (json.items || []).map(item=>`<tr>
-    <td>${item.productName || ''}<br><small>${item.productId}</small></td>
-    <td>${item.email}</td>
-    <td>${new Date(item.createdAt).toLocaleString('tr-TR')}</td>
-    <td>${item.notifiedAt ? '<span style="color:#1d7a3b">✓ Gönderildi</span>' : '<span style="color:#a3823f">Bekliyor</span>'}</td>
-    <td><button class="admin-btn admin-btn-danger" data-pid="${item.productId}" data-email="${item.email}">Sil</button></td>
-  </tr>`).join('');
+  tbody.innerHTML = (json.items || []).map(item=>{
+    const channels = Array.isArray(item.notifiedChannels) ? item.notifiedChannels : [];
+    const channelLabel = (item.channel || (item.email && item.phone ? 'both' : item.phone ? 'whatsapp' : 'email')).toUpperCase();
+    const statusHtml = item.notifiedAt
+      ? '<span style="color:#1d7a3b">✓ Tamamlandı</span>'
+      : channels.length
+        ? `<span style="color:#a3823f">Kısmen (${channels.join(', ')})</span>`
+        : '<span style="color:#a3823f">Bekliyor</span>';
+    const delKey = item.email ? `data-email="${item.email}"` : `data-phone="${item.phone}"`;
+    return `<tr>
+      <td>${item.productName || ''}<br><small>${item.productId}</small></td>
+      <td>${item.email || '<span style="color:#999">—</span>'}</td>
+      <td>${item.phone || '<span style="color:#999">—</span>'}</td>
+      <td><span class="admin-badge">${channelLabel}</span></td>
+      <td>${new Date(item.createdAt).toLocaleString('tr-TR')}</td>
+      <td>${statusHtml}</td>
+      <td><button class="admin-btn admin-btn-danger" data-pid="${item.productId}" ${delKey}>Sil</button></td>
+    </tr>`;
+  }).join('');
   tbody.querySelectorAll('button').forEach(btn=>btn.addEventListener('click', async ()=>{
     if(!confirm('Bu uyarıyı silmek istediğinizden emin misiniz?')) return;
     const tokenDel = localStorage.getItem('gp_admin_token') || '';
+    const payload = { action:'delete', productId: btn.dataset.pid };
+    if(btn.dataset.email) payload.email = btn.dataset.email;
+    else if(btn.dataset.phone) payload.phone = btn.dataset.phone;
     await fetch('/api/admin/stock-alerts', {
       method:'POST',
       headers:{'Content-Type':'application/json','X-Admin-Token':tokenDel},
-      body: JSON.stringify({action:'delete', productId: btn.dataset.pid, email: btn.dataset.email})
+      body: JSON.stringify(payload)
     });
     adminFetchStockAlerts();
   }));

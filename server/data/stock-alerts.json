@@ -1,0 +1,12 @@
+[
+  {
+    "productId": "X",
+    "productName": "T",
+    "email": "a@b.com",
+    "phone": "+905551112233",
+    "channel": "both",
+    "createdAt": "2026-04-24T11:06:08.762Z",
+    "notifiedAt": null,
+    "notifiedChannels": []
+  }
+]
