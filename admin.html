@@ -755,6 +755,14 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
 .pl-preview-empty svg{width:40px;height:40px}
 .pl-dropzone{position:relative;display:block;border:2px dashed #d5d9e5;border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all .18s;background:#fbf9f5}
 .pl-dropzone:hover,.pl-dropzone.is-drag{border-color:#a3823f;background:#faf5e8;transform:translateY(-1px)}
+.pl-file-input-hidden{
+  position:absolute !important;
+  width:1px;height:1px;
+  padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);
+  white-space:nowrap;border:0;
+  opacity:0;
+}
 .pl-dropzone-inner{display:flex;flex-direction:column;align-items:center;gap:4px}
 .pl-dropzone svg{width:28px;height:28px;color:#a3823f;margin-bottom:4px}
 .pl-dropzone strong{font-size:.92rem;color:#1a1a1a;font-weight:600}
@@ -2445,14 +2453,15 @@ function setPlPreview(url){
 
 document.getElementById('plFileInput')?.addEventListener('change', async (e) => {
   const file = e.target.files?.[0];
+  e.target.value = '';
   if (file) await handlePlFile(file);
 });
 const plDz = document.getElementById('plDropzone');
 plDz?.addEventListener('click', (e) => {
-  if (plDz.classList.contains('is-uploading')) return;
-  if (e.target.id === 'plFileInput') return;
-  e.preventDefault();
-  document.getElementById('plFileInput').click();
+  if (plDz.classList.contains('is-uploading')) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
 });
 ['dragenter','dragover'].forEach(ev => plDz?.addEventListener(ev, (e) => {
   e.preventDefault();
@@ -2490,6 +2499,9 @@ async function handlePlFile(file){
   progress.hidden = false;
   progressText.textContent = 'Yükleniyor…';
   try {
+    if (!navigator.onLine) {
+      throw new Error('İnternet bağlantısı yok görünüyor.');
+    }
     const url = await uploadImageWithRetry(file, { prefix: 'payment-logo' });
     document.getElementById('plImageUrl').value = url;
     setPlPreview(url);
@@ -6750,8 +6762,8 @@ document.addEventListener('DOMContentLoaded',()=>{
               <span>Önizleme</span>
             </div>
           </div>
+          <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="pl-file-input-hidden">
           <label class="pl-dropzone" id="plDropzone" for="plFileInput">
-            <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
             <div class="pl-dropzone-inner">
               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <path d="M7 18a4 4 0 010-8 6 6 0 0111.7-1.5A4.5 4.5 0 0117 18H7z"/>
