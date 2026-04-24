@@ -752,15 +752,17 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
 .pl-preview{position:relative;height:160px;border-radius:14px;background:repeating-conic-gradient(#f6f6f6 0% 25%,#fff 0% 50%) 50%/20px 20px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .pl-preview img{max-width:80%;max-height:80%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,.08))}
 .pl-preview-empty{display:flex;flex-direction:column;align-items:center;gap:8px;color:#b8b8b8;font-size:.82rem}
-.pl-preview-empty i{font-size:2rem}
+.pl-preview-empty svg{width:40px;height:40px}
 .pl-dropzone{position:relative;display:block;border:2px dashed #d5d9e5;border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all .18s;background:#fbf9f5}
 .pl-dropzone:hover,.pl-dropzone.is-drag{border-color:#a3823f;background:#faf5e8;transform:translateY(-1px)}
 .pl-dropzone-inner{display:flex;flex-direction:column;align-items:center;gap:4px}
-.pl-dropzone i{font-size:1.6rem;color:#a3823f;margin-bottom:4px}
+.pl-dropzone svg{width:28px;height:28px;color:#a3823f;margin-bottom:4px}
 .pl-dropzone strong{font-size:.92rem;color:#1a1a1a;font-weight:600}
 .pl-dropzone span{font-size:.78rem;color:#6b7681}
 .pl-dropzone small{font-size:.7rem;color:#9aa0a6;letter-spacing:.04em;margin-top:6px}
-.pl-dropzone-progress{position:absolute;inset:0;background:rgba(255,255,255,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:12px}
+.pl-dropzone-progress{position:absolute;inset:0;background:rgba(255,255,255,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:12px;pointer-events:none}
+.pl-dropzone-progress[hidden]{display:none !important}
+.pl-dropzone.is-uploading{pointer-events:none;opacity:.85}
 .pl-spinner{width:32px;height:32px;border:3px solid #f0eee9;border-top-color:#a3823f;border-radius:50%;animation:plSpin .8s linear infinite}
 .pl-or{text-align:center;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:#b8b8b8;position:relative;padding:6px 0}
 .pl-or::before,.pl-or::after{content:'';position:absolute;top:50%;width:30%;height:1px;background:#f0eee9}
@@ -2419,6 +2421,12 @@ function openPaymentLogoModal(existing){
   setPlPreview(url);
   document.getElementById('plFileInput').value = '';
   document.getElementById('plProgress').hidden = true;
+  document.getElementById('plProgressText').textContent = 'Yükleniyor…';
+  const plDzEl = document.getElementById('plDropzone');
+  plDzEl?.classList.remove('is-drag','is-uploading');
+  plDzEl?.style.removeProperty('pointer-events');
+  const errBox = document.getElementById('plError');
+  if (errBox) { errBox.hidden = true; errBox.textContent = ''; }
   document.getElementById('paymentLogoModal').hidden = false;
   document.body.style.overflow = 'hidden';
   setTimeout(() => document.getElementById('plName').focus(), 50);
@@ -2440,6 +2448,12 @@ document.getElementById('plFileInput')?.addEventListener('change', async (e) => 
   if (file) await handlePlFile(file);
 });
 const plDz = document.getElementById('plDropzone');
+plDz?.addEventListener('click', (e) => {
+  if (plDz.classList.contains('is-uploading')) return;
+  if (e.target.id === 'plFileInput') return;
+  e.preventDefault();
+  document.getElementById('plFileInput').click();
+});
 ['dragenter','dragover'].forEach(ev => plDz?.addEventListener(ev, (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -2455,6 +2469,8 @@ plDz?.addEventListener('drop', async (e) => {
   if (file) await handlePlFile(file);
 });
 async function handlePlFile(file){
+  const errBox = document.getElementById('plError');
+  if (errBox) { errBox.hidden = true; errBox.textContent = ''; }
   if (!/^image\//.test(file.type) && !file.name.endsWith('.svg')) {
     alert('Sadece görsel dosyaları yükleyebilirsiniz (PNG/JPG/WebP/SVG).');
     return;
@@ -2467,8 +2483,10 @@ async function handlePlFile(file){
   reader.onload = (e) => setPlPreview(e.target.result);
   reader.readAsDataURL(file);
 
+  const plDz = document.getElementById('plDropzone');
   const progress = document.getElementById('plProgress');
   const progressText = document.getElementById('plProgressText');
+  plDz?.classList.add('is-uploading');
   progress.hidden = false;
   progressText.textContent = 'Yükleniyor…';
   try {
@@ -2476,15 +2494,19 @@ async function handlePlFile(file){
     document.getElementById('plImageUrl').value = url;
     setPlPreview(url);
     progressText.textContent = 'Yüklendi ✓';
-    setTimeout(() => { progress.hidden = true; }, 600);
     const nameEl = document.getElementById('plName');
     if (!nameEl.value.trim()) {
       const base = file.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
       nameEl.value = base.charAt(0).toUpperCase() + base.slice(1);
     }
   } catch (err) {
+    if (errBox) {
+      errBox.textContent = 'Yükleme hatası: ' + (err?.message || 'bilinmiyor');
+      errBox.hidden = false;
+    }
+  } finally {
     progress.hidden = true;
-    alert('Yükleme hatası: ' + (err?.message || 'bilinmiyor'));
+    plDz?.classList.remove('is-uploading');
   }
 }
 
@@ -6720,14 +6742,21 @@ document.addEventListener('DOMContentLoaded',()=>{
           <div class="pl-preview" id="plPreview">
             <img id="plPreviewImg" alt="" hidden>
             <div class="pl-preview-empty" id="plPreviewEmpty">
-              <i class="fas fa-image"></i>
+              <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="2"/>
+                <circle cx="9" cy="10" r="1.6"/>
+                <path d="M21 16l-5-5-9 9"/>
+              </svg>
               <span>Önizleme</span>
             </div>
           </div>
           <label class="pl-dropzone" id="plDropzone" for="plFileInput">
             <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
             <div class="pl-dropzone-inner">
-              <i class="fas fa-cloud-arrow-up"></i>
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <path d="M7 18a4 4 0 010-8 6 6 0 0111.7-1.5A4.5 4.5 0 0117 18H7z"/>
+                <path d="M12 12v6M9 15l3-3 3 3"/>
+              </svg>
               <strong>Bilgisayardan görsel seç</strong>
               <span>veya buraya sürükle-bırak</span>
               <small>PNG · JPG · WebP · SVG · max 2 MB</small>
@@ -6737,6 +6766,7 @@ document.addEventListener('DOMContentLoaded',()=>{
               <span id="plProgressText">Yükleniyor…</span>
             </div>
           </label>
+          <div class="pl-error" id="plError" hidden style="margin-top:8px;color:#b42318;font-size:.85rem"></div>
           <div class="pl-or">veya URL yapıştır</div>
           <input type="url" class="pl-input" id="plImageUrl" placeholder="https://res.cloudinary.com/…">
         </div>
