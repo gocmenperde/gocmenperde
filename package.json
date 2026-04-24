@@ -2,6 +2,9 @@
   "name": "gocmen-perde",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "check:syntax": "node -e \"['admin.html','index.html'].forEach(f=>{const h=require('fs').readFileSync(f,'utf8');const blocks=[...h.matchAll(/<script>([\\\\s\\\\S]*?)<\\\\/script>/g)];blocks.forEach((b,i)=>{try{new Function(b[1])}catch(e){throw new Error(f+' script #'+i+': '+e.message)}});console.log(f,'OK')})\""
+  },
   "dependencies": {
     "pg": "^8.11.0",
     "express-rate-limit": "^7.5.0",
