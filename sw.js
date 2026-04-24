@@ -1,18 +1,36 @@
-const version = (self.registration?.scope || '').slice(-7) || 'v2';
-const CACHE = `gp-${version}`;
-const RUNTIME = `gp-runtime-${version}`;
+const CACHE = 'gp-v3';
+const RUNTIME = 'gp-runtime-v3';
 const PRECACHE = ['/products.json', '/categories.json'];
 self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting())));
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (e.request.method !== 'GET') return;
+  if (url.hostname.includes('cloudinary.com') || url.hostname.includes('res.cloudinary')) {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
+  if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/') && url.pathname !== '/api/reviews-summary') return;
   if (e.request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('.html')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
   if (/\.(png|jpe?g|webp|svg|woff2?)$/i.test(url.pathname)) {
+    if (url.pathname.includes('/payment-logos/') || url.pathname.includes('/resimler/')) {
+      e.respondWith((async () => {
+        const cache = await caches.open(RUNTIME);
+        const cached = await cache.match(e.request);
+        const freshPromise = fetch(e.request)
+          .then((res) => {
+            if (res.ok) cache.put(e.request, res.clone());
+            return res;
+          })
+          .catch(() => null);
+        return cached || freshPromise || caches.match(e.request);
+      })());
+      return;
+    }
     e.respondWith(caches.open(RUNTIME).then(async (c) => {
       const hit = await c.match(e.request);
       if (hit) return hit;

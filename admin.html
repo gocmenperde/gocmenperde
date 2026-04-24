@@ -645,8 +645,9 @@ body[data-admin="1"] .social-proof-toast,
 body[data-admin="1"] .live-order-toast{display:none !important;}
 .admin-action-btn{white-space:normal;word-break:break-word;line-height:1.2;min-height:44px;padding:8px 12px;font-size:12px}
 .review-mod-item,.moderation-card{position:relative;z-index:1}
-.topbar{z-index:100}
-.admin-tab-header{z-index:90}
+.topbar{z-index:400}
+.admin-tab-header{z-index:90;overflow:visible !important}
+.review-filters,.admin-picker-wrapper{overflow:visible !important}
 .modal-bg{z-index:1000}
 .a-toast{z-index:1100}
 @media (max-width: 480px) {
@@ -661,7 +662,7 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
 .admin-picker-thumb{width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid #eee;flex-shrink:0}
 .admin-picker-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;color:#1a1a1a}
 .admin-picker-caret{color:#6b7681;font-size:.7rem}
-.admin-picker-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:100;background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:10px;max-height:60vh;overflow:hidden;display:flex;flex-direction:column}
+.admin-picker-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:200;background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:10px;max-height:60vh;overflow:hidden;display:flex;flex-direction:column}
 .admin-picker-panel[hidden]{display:none !important}
 .admin-picker-panel:not(.is-open){display:none}
 .admin-picker-search{width:100%;padding:10px 12px;border:1px solid #d5d9e5;border-radius:10px;font-size:.88rem;margin-bottom:8px;outline:none}
@@ -688,9 +689,20 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
   #stockAlertTbody td{padding:5px 0;border:none}
   #stockAlertTbody td::before{content:attr(data-label);display:block;font-size:.7rem;color:#6b7681;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
   #adminStockAlerts table thead{display:none}
-  .admin-picker{max-width:100%;width:100%}
-  .admin-picker-panel{position:fixed;left:10px;right:10px;top:auto;bottom:10px;max-height:70vh;border-radius:18px;padding:14px}
-  .admin-picker-list{max-height:55vh}
+  .admin-picker{max-width:100%;width:100%;position:relative}
+  .admin-picker-panel{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;right:0;
+    bottom:auto;
+    width:100%;
+    max-height:min(60vh, 420px);
+    border-radius:14px;
+    padding:12px;
+    z-index:200;
+    box-shadow:0 18px 40px rgba(0,0,0,.18);
+  }
+  .admin-picker-list{max-height:calc(min(60vh, 420px) - 70px);overflow-y:auto;-webkit-overflow-scrolling:touch}
   .review-mod-prod-thumb{width:42px;height:42px}
   .review-mod-photos img{width:54px;height:54px}
   #page-reviews .breadcrumb, #page-stock-alerts .breadcrumb, #page-reviews .page-header{padding-left:10px;padding-right:10px}
@@ -703,6 +715,12 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
 .modal-bg{z-index:1000}
 .a-toast,.toast,.admin-toast{z-index:1100}
 .modal-footer,.form-modal-footer,.modal-actions{transform:translateY(calc(-1 * var(--keyboard-offset, 0px)))}
+.payment-logos-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.payment-logo-admin-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.payment-logo-admin-card img{height:48px;object-fit:contain;background:#f6f6f6;border-radius:8px;padding:8px}
+.payment-logo-admin-card .actions{display:flex;gap:6px}
+.payment-logo-admin-card .actions button{flex:1;min-height:38px;border-radius:8px;font-size:12px}
+@media (max-width:768px){.payment-logos-admin-grid{grid-template-columns:1fr 1fr;gap:10px}}
 
 @media (max-width:1024px){
   .sidebar-toggle{
@@ -876,6 +894,7 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
         <div class="nav-item" onclick="showPage('measure-guide');loadMeasureGuideAdmin()"><i class="fas fa-ruler-combined"></i> Ölçü Rehberi Yönetimi</div>
         <div class="nav-item" onclick="showPage('entrypanel');renderEntryPanelPage()"><i class="fas fa-door-open"></i> Giriş Paneli</div>
         <div class="nav-item" onclick="showPage('slider');loadSliderItems()"><i class="fas fa-rectangle-ad"></i> Reklam Yönetimi</div>
+        <div class="nav-item" onclick="showPage('payment-logos');loadPaymentLogos()"><i class="fas fa-credit-card"></i> Ödeme Logoları</div>
         <div class="nav-item" onclick="showPage('showcase');renderShowcaseAdminPage()"><i class="fas fa-images"></i> Montaj & Yorum Alanı</div>
         <div class="nav-item" onclick="showPage('fromyou');renderFromYouAdminPage()"><i class="fas fa-camera-retro"></i> Sizden Gelenler</div>
       </div>
@@ -1581,6 +1600,17 @@ Işık: Yarı Geçirgen"></textarea></div>
   <div id="notifList"></div>
 </div>
 
+<div class="page" id="page-payment-logos">
+  <div class="breadcrumb"><i class="fas fa-home"></i> <span>Ödeme Logoları</span></div>
+  <section id="tab-paymentLogos" class="tab-content">
+    <div class="admin-tab-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <h3><i class="fas fa-credit-card"></i> Ödeme Logoları</h3>
+      <button class="admin-btn" onclick="openPaymentLogoForm()">+ Logo Ekle</button>
+    </div>
+    <div id="paymentLogosList" class="payment-logos-admin-grid"></div>
+  </section>
+</div>
+
 <!-- ══ AYARLAR ══ -->
 
 <div class="page" id="page-settings">
@@ -1592,21 +1622,6 @@ Işık: Yarı Geçirgen"></textarea></div>
       <div class="settings-row"><div class="settings-row-label"><h4>Mağaza Adı</h4><p>Göçmen Perde</p></div><button class="btn btn-outline btn-sm" onclick="aToast('Düzenleme modu yakında')">Düzenle</button></div>
       <div class="settings-row"><div class="settings-row-label"><h4>WhatsApp</h4><p>0501 211 09 58</p></div><button class="btn btn-outline btn-sm" onclick="aToast('Düzenleme modu yakında')">Düzenle</button></div>
       <div class="settings-row"><div class="settings-row-label"><h4>Adres</h4><p>Bağlarbaşı Mah. Osmangazi / Bursa</p></div><button class="btn btn-outline btn-sm" onclick="aToast('Düzenleme modu yakında')">Düzenle</button></div>
-    </div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-section-header"><i class="fas fa-credit-card"></i> Footer Ödeme Logoları</div>
-    <div class="settings-body">
-      <div class="logo-settings-toolbar">
-        <input id="footerLogoSrc" class="search-box" style="max-width:none" type="text" placeholder="Logo görsel URL veya /resimler/logo.png">
-        <input id="footerLogoAlt" class="search-box" style="max-width:none" type="text" placeholder="Logo adı (örn: Mastercard)">
-        <button class="btn btn-primary" onclick="addFooterLogo()"><i class="fas fa-plus"></i> Ekle</button>
-      </div>
-      <div class="logo-settings-grid header">
-        <div>Logo URL</div><div>Ad / Alt</div><div>Önizleme</div><div style="text-align:right">İşlem</div>
-      </div>
-      <div id="footerLogoRows"></div>
-      <p class="logo-settings-note">Ekledikleriniz tüm sayfalarda footer ödeme logolarını anında günceller. Sıralama için ↑↓ butonlarını kullanın.</p>
     </div>
   </div>
   <div class="settings-section">
@@ -2135,11 +2150,10 @@ document.addEventListener('DOMContentLoaded', bindLoginEvents);
 //  NAVIGATION
 // ════════════════════════════════════
 let currentPage = 'dashboard';
-const pageTitles = {dashboard:'Dashboard',orders:'Siparişler',customers:'Müşteriler',favorites:'Favoriler',products:'Ürün Yönetimi',categories:'Kategoriler',campaigns:'Kampanyalar','measure-guide':'Ölçü Rehberi Yönetimi',entrypanel:'Giriş Paneli',showcase:'Montaj & Yorum Alanı',fromyou:'Sizden Gelenler',notifications:'Bildirimler',settings:'Ayarlar'};
+const pageTitles = {dashboard:'Dashboard',orders:'Siparişler',customers:'Müşteriler',favorites:'Favoriler',products:'Ürün Yönetimi',categories:'Kategoriler',campaigns:'Kampanyalar','measure-guide':'Ölçü Rehberi Yönetimi',entrypanel:'Giriş Paneli',showcase:'Montaj & Yorum Alanı',fromyou:'Sizden Gelenler','payment-logos':'Ödeme Logoları',notifications:'Bildirimler',settings:'Ayarlar'};
 const INSTALLATION_SHOWCASE_KEY = 'gp_installation_showcase_v1';
 const CUSTOMER_SHOWCASE_REVIEWS_KEY = 'gp_customer_showcase_reviews_v1';
 const FROM_YOU_SHOWCASE_KEY = 'gp_from_you_showcase_v1';
-const FOOTER_PAYMENT_LOGOS_KEY = 'gp_footer_payment_logos_v1';
 const SOCIAL_LINKS_KEY = 'gp_social_links_v1';
 const HOME_PROMO_PANEL_KEY = 'gp_home_promo_panel_v1';
 const SURPRISE_CAMPAIGN_KEY = 'gp_surprise_campaign_popup_v1';
@@ -2191,12 +2205,6 @@ const DEFAULT_SURPRISE_CAMPAIGN = {
   targetProduct:'',
   targetPath:'#products'
 };
-const DEFAULT_FOOTER_PAYMENT_LOGOS = [
-  {src:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Troy_logo.svg/320px-Troy_logo.svg.png',alt:'Troy'},
-  {src:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/320px-Mastercard-logo.svg.png',alt:'Mastercard'},
-  {src:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/320px-Visa_Inc._logo.svg.png',alt:'Visa'},
-  {src:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/3D_Secure_logo.svg/320px-3D_Secure_logo.svg.png',alt:'3D Secure'}
-];
 const DEFAULT_SOCIAL_LINKS = {
   instagram: 'https://www.instagram.com/gocmen.perde/',
   facebook: '',
@@ -2224,7 +2232,7 @@ let showcaseReviews = [];
 let fromYouItems = [];
 let adminInitialized = false;
 let editingFromYouIndex = -1;
-let footerPaymentLogos = [];
+let paymentLogosAdmin = [];
 
 async function fetchFromYouItemsFromApi(){
   try{
@@ -2261,70 +2269,68 @@ function getShowcaseState(key, fallback){
   localStorage.setItem(key, JSON.stringify(fallback));
   return [...fallback];
 }
-function getFooterPaymentLogoState(){
-  try{
-    const parsed = JSON.parse(localStorage.getItem(FOOTER_PAYMENT_LOGOS_KEY) || 'null');
-    if(Array.isArray(parsed) && parsed.length){
-      return parsed.map((item)=>({
-        src:String(item?.src||'').trim(),
-        alt:String(item?.alt||item?.name||'Ödeme logosu').trim()
-      })).filter((item)=>item.src);
-    }
-  }catch(_){}
-  localStorage.setItem(FOOTER_PAYMENT_LOGOS_KEY, JSON.stringify(DEFAULT_FOOTER_PAYMENT_LOGOS));
-  return [...DEFAULT_FOOTER_PAYMENT_LOGOS];
-}
-function saveFooterPaymentLogos(){
-  localStorage.setItem(FOOTER_PAYMENT_LOGOS_KEY, JSON.stringify(footerPaymentLogos));
-}
-function renderFooterLogoRows(){
-  const wrap = document.getElementById('footerLogoRows');
-  if(!wrap) return;
-  if(!footerPaymentLogos.length){
-    wrap.innerHTML = `<div class="logo-settings-grid"><div style="grid-column:1/-1;color:var(--slate-light)">Henüz logo eklenmedi.</div></div>`;
-    return;
+async function loadPaymentLogos(){
+  try {
+    const res = await apiFetch('/api/admin/payment-logos', { headers:{ 'x-admin-token': getAdminApiKey() }});
+    const data = await res.json();
+    paymentLogosAdmin = Array.isArray(data.logos) ? data.logos : [];
+  } catch (_) {
+    paymentLogosAdmin = [];
   }
-  wrap.innerHTML = footerPaymentLogos.map((item, idx)=>`
-    <div class="logo-settings-grid">
-      <div style="font-size:0.78rem;word-break:break-all">${item.src}</div>
-      <div style="font-size:0.84rem">${item.alt || 'Ödeme logosu'}</div>
-      <div><img decoding="async" loading="lazy" src="${item.src}" alt="${item.alt || 'Ödeme logosu'}" width="420 height="280"></div>
-      <div class="logo-settings-actions">
-        <button class="icon-btn edit" onclick="moveFooterLogo(${idx},-1)" title="Yukarı"><i class="fas fa-arrow-up"></i></button>
-        <button class="icon-btn edit" onclick="moveFooterLogo(${idx},1)" title="Aşağı"><i class="fas fa-arrow-down"></i></button>
-        <button class="icon-btn del" onclick="deleteFooterLogo(${idx})" title="Sil"><i class="fas fa-trash"></i></button>
+  const wrap = document.getElementById('paymentLogosList');
+  if (!wrap) return;
+  wrap.innerHTML = paymentLogosAdmin.map((l) => `
+    <div class="payment-logo-admin-card" data-id="${l.id}">
+      <img src="${esc(l.image_url || l.imageUrl)}" alt="${esc(l.alt_text || l.altText || l.name)}" onerror="this.style.opacity=.3">
+      <div><b>${esc(l.name)}</b></div>
+      <div style="font-size:11px;color:#6b7681">Sıra: ${Number(l.sort_order ?? l.sortOrder ?? 0)} · ${(l.enabled !== false) ? 'Aktif' : 'Pasif'}</div>
+      <div class="actions">
+        <button onclick="editPaymentLogo(${l.id})">Düzenle</button>
+        <button onclick="togglePaymentLogo(${l.id}, ${(l.enabled !== false) ? 'false' : 'true'})">${(l.enabled !== false) ? 'Gizle' : 'Göster'}</button>
+        <button onclick="deletePaymentLogo(${l.id})" class="btn-danger">Sil</button>
       </div>
     </div>
-  `).join('');
+  `).join('') || '<div>Henüz logo yok.</div>';
 }
-function addFooterLogo(){
-  const srcInput = document.getElementById('footerLogoSrc');
-  const altInput = document.getElementById('footerLogoAlt');
-  const src = (srcInput?.value || '').trim();
-  const alt = (altInput?.value || '').trim();
-  if(!src){ aToast('⚠️ Logo URL zorunlu','error'); return; }
-  footerPaymentLogos.push({src,alt:alt||'Ödeme logosu'});
-  saveFooterPaymentLogos();
-  renderFooterLogoRows();
-  if(srcInput) srcInput.value = '';
-  if(altInput) altInput.value = '';
-  aToast('✓ Footer logosu eklendi','success');
+
+async function openPaymentLogoForm(existing){
+  const name = prompt('Logo adı', existing?.name || '');
+  if (!name) return;
+  const imageUrl = prompt('Logo görsel URL', existing?.image_url || existing?.imageUrl || '');
+  if (!imageUrl) return;
+  const altText = prompt('Alt metin', existing?.alt_text || existing?.altText || name) || name;
+  const sortOrder = Number(prompt('Sıra', String(existing?.sort_order ?? existing?.sortOrder ?? 0)) || 0);
+  const enabled = confirm('Logo aktif olsun mu? (İptal = pasif)');
+  const payload = { name, imageUrl, altText, sortOrder, enabled };
+  const method = existing?.id ? 'PATCH' : 'POST';
+  if (existing?.id) payload.id = existing.id;
+  await apiFetch('/api/admin/payment-logos', {
+    method,
+    headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()},
+    body: JSON.stringify(payload)
+  });
+  await loadPaymentLogos();
 }
-function moveFooterLogo(index, direction){
-  const target = index + direction;
-  if(target < 0 || target >= footerPaymentLogos.length) return;
-  [footerPaymentLogos[index], footerPaymentLogos[target]] = [footerPaymentLogos[target], footerPaymentLogos[index]];
-  saveFooterPaymentLogos();
-  renderFooterLogoRows();
+async function editPaymentLogo(id){
+  const row = paymentLogosAdmin.find((item)=>Number(item.id) === Number(id));
+  if (!row) return;
+  await openPaymentLogoForm(row);
 }
-function deleteFooterLogo(index){
-  const item = footerPaymentLogos[index];
-  if(!item) return;
-  if(!confirm(`"${item.alt || 'Ödeme logosu'}" silinsin mi?`)) return;
-  footerPaymentLogos.splice(index,1);
-  saveFooterPaymentLogos();
-  renderFooterLogoRows();
-  aToast('Logo silindi');
+async function togglePaymentLogo(id, enabled){
+  await apiFetch('/api/admin/payment-logos', {
+    method:'PATCH',
+    headers:{'Content-Type':'application/json','x-admin-token':getAdminApiKey()},
+    body: JSON.stringify({ id, enabled })
+  });
+  await loadPaymentLogos();
+}
+async function deletePaymentLogo(id){
+  if (!confirm('Bu logoyu sil?')) return;
+  await apiFetch(`/api/admin/payment-logos?id=${id}`, {
+    method:'DELETE',
+    headers:{'x-admin-token':getAdminApiKey()}
+  });
+  await loadPaymentLogos();
 }
 
 function getSocialLinks(){
@@ -2911,8 +2917,26 @@ function togglePicker(panelId, open){
   const panel = document.getElementById(panelId);
   if (!panel) return;
   if (open === undefined) open = panel.hidden;
-  panel.hidden = !open;
-  panel.classList.toggle('is-open', open);
+  const shouldOpen = !!open;
+  if (shouldOpen) {
+    ['reviewProductPickerPanel','stockAlertProductPickerPanel']
+      .filter((id)=>id !== panelId)
+      .forEach((id)=>{
+        const other = document.getElementById(id);
+        if (other) { other.hidden = true; other.classList.remove('is-open'); }
+      });
+  }
+  panel.hidden = !shouldOpen;
+  panel.classList.toggle('is-open', shouldOpen);
+  if (shouldOpen) {
+    requestAnimationFrame(() => {
+      const rect = panel.getBoundingClientRect();
+      const overflow = rect.bottom - window.innerHeight;
+      if (overflow > 0) {
+        window.scrollBy({ top: overflow + 20, behavior: 'smooth' });
+      }
+    });
+  }
 }
 
 async function fillProductPickers(){
@@ -2988,12 +3012,13 @@ document.getElementById('stockAlertProductPickerBtn')?.addEventListener('click',
     document.getElementById('stockAlertProductPickerSearch')?.focus();
   }
 });
-document.addEventListener('click', (e)=>{
-  ['reviewProductPicker','stockAlertProductPicker'].forEach((pickerId)=>{
-    const picker = document.getElementById(pickerId);
-    if (!picker) return;
-    if (!picker.contains(e.target)) {
-      togglePicker(pickerId.replace('Picker','PickerPanel'), false);
+document.addEventListener('click', (e) => {
+  ['reviewProductPickerPanel','stockAlertProductPickerPanel'].forEach((id) => {
+    const panel = document.getElementById(id);
+    const trigger = document.getElementById(id.replace('Panel', 'Btn'));
+    if (!panel || panel.hidden) return;
+    if (!panel.contains(e.target) && !trigger?.contains(e.target)) {
+      togglePicker(id, false);
     }
   });
 });
@@ -3245,7 +3270,7 @@ function showPage(id){
   if(id==='live-support') loadLiveSupportMessages();
   if(id==='stock-alerts'){ fillProductPickers(); adminFetchStockAlerts(); }
   if(id==='reviews'){ fillProductPickers(); adminFetchReviews(); }
-  if(id==='settings'){ renderFooterLogoRows(); }
+  if(id==='payment-logos'){ loadPaymentLogos(); }
 }
 function handleStatCardKey(event, target, filter){
   if(event.key!=='Enter' && event.key!==' ') return;
@@ -6368,8 +6393,7 @@ async function initAdmin(){
   await renderCampaigns();
   loadSliderItems();
   renderShowcaseAdminPage();
-  footerPaymentLogos = getFooterPaymentLogoState();
-  renderFooterLogoRows();
+  loadPaymentLogos();
   adminLoadSocialLinks();
   renderHomePromoSettings();
   renderSurpriseCampaignSettings();
