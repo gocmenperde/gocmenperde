@@ -31,7 +31,13 @@ app.use(helmet({
       "style-src": ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com'],
       "font-src": ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com', 'data:'],
       "img-src": ["'self'", 'data:', 'blob:', 'https:'],
-      "connect-src": ["'self'", 'https://www.google-analytics.com', 'https://www.paytr.com', 'https://*.paytr.com'],
+      "connect-src": [
+        "'self'",
+        'https://www.google-analytics.com',
+        'https://www.paytr.com', 'https://*.paytr.com',
+        'https://api.cloudinary.com',
+        'https://res.cloudinary.com'
+      ],
       "frame-src": ["'self'", 'https://www.google.com', 'https://www.youtube.com', 'https://www.paytr.com', 'https://*.paytr.com'],
       "object-src": ["'none'"],
       "base-uri": ["'self'"],
