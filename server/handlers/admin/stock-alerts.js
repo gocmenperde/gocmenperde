@@ -21,16 +21,21 @@ module.exports = async function handler(req, res) {
   await ensureStockAlertSchema();
 
   if (req.method === 'GET') {
+    const productId = String(req.query?.productId || '').trim();
+    const where = productId ? ' WHERE product_id = $1' : '';
+    const params = productId ? [productId] : [];
     const counts = await pool.query(
       `SELECT COUNT(*)::int AS total,
               COUNT(*) FILTER (WHERE notified_at IS NULL)::int AS pending
-       FROM stock_alerts`
+       FROM stock_alerts${where}`,
+      params
     );
     const list = await pool.query(
       `SELECT product_id, product_name, email, phone, channel, created_at, notified_at, notified_channels
-       FROM stock_alerts
+       FROM stock_alerts${where}
        ORDER BY created_at DESC
-       LIMIT 200`
+       LIMIT 200`,
+      params
     );
 
     return res.status(200).json({
