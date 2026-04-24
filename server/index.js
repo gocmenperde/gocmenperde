@@ -48,6 +48,15 @@ app.use(helmet({
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
 }));
 
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy-Report-Only', "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://www.paytr.com https://*.paytr.com https://api.cloudinary.com https://res.cloudinary.com; frame-src 'self' https://www.google.com https://www.youtube.com https://www.paytr.com https://*.paytr.com; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; report-uri /csp-report");
+  next();
+});
+
+app.post('/csp-report', express.json({ type: ['application/csp-report', 'application/reports+json', 'application/json'] }), (req, res) => {
+  console.warn('[csp-report]', JSON.stringify(req.body || {}));
+  res.status(204).end();
+});
 
 const APP_BOOTSTAMP = new Date().toISOString();
 function isLoopbackIp(ip = '') {
@@ -62,7 +71,11 @@ app.get('/readyz', (req, res) => {
   res.status(200).json({ ready: true, pid: process.pid, host: HOST, port: PORT });
 });
 
+let _sitemapCache = { ts: 0, body: '' };
 app.get('/sitemap.xml', (req, res) => {
+  if (Date.now() - _sitemapCache.ts < 60_000 && _sitemapCache.body) {
+    return res.type('application/xml').send(_sitemapCache.body);
+  }
   try {
     const products = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'products.json'), 'utf8'));
     const base = 'https://gocmenperde.com.tr';
@@ -72,7 +85,9 @@ app.get('/sitemap.xml', (req, res) => {
       .filter((p) => p?.active !== false)
       .map((p) => `<url><loc>${base}/?product=${encodeURIComponent(p.id)}</loc></url>`)
       .join('');
-    res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}${productUrls}</urlset>`);
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}${productUrls}</urlset>`;
+    _sitemapCache = { ts: Date.now(), body: xml };
+    res.type('application/xml').send(xml);
   } catch (_) {
     res.status(500).type('text/plain').send('sitemap unavailable');
   }
@@ -80,7 +95,7 @@ app.get('/sitemap.xml', (req, res) => {
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 120,
+  max: 240,
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
@@ -94,22 +109,48 @@ const paymentLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 app.use(express.json({ limit: '4mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads'), { maxAge: '30d', immutable: true }));
+const WEBP_AVAILABLE = new Set();
+try {
+  fs.readdirSync(path.resolve(__dirname, '..', 'resimler'))
+    .filter((f) => f.endsWith('.webp'))
+    .forEach((f) => WEBP_AVAILABLE.add('/resimler/' + f.replace(/\.webp$/i, '')));
+} catch (_) {}
+
 app.use((req, res, next) => {
   if (!req.path.startsWith('/resimler/')) return next();
   if (!/\.(jpe?g|png)$/i.test(req.path)) return next();
-  const accepts = String(req.headers.accept || '');
-  if (!accepts.includes('image/webp')) return next();
-  const webp = path.join(__dirname, '..', req.path.replace(/\.(jpe?g|png)$/i, '.webp'));
-  fs.access(webp, fs.constants.R_OK, (err) => {
-    if (err) return next();
-    res.type('image/webp');
-    res.sendFile(webp);
-  });
+  if (!String(req.headers.accept || '').includes('image/webp')) return next();
+  const baseKey = req.path.replace(/\.(jpe?g|png)$/i, '');
+  if (!WEBP_AVAILABLE.has(baseKey)) return next();
+  res.type('image/webp');
+  res.sendFile(path.join(__dirname, '..', baseKey + '.webp'));
 });
+
+const READ_ONLY_GET = /^\/(slider|slider-ads|payment-logos|reviews-summary|premium-showcase|from-you-showcase|measure-guide|address-data|paytr-callback)(\?|\/|$)/;
+if (!process.env.VERCEL) {
+  app.use('/api/orders', orderLimiter);
+  app.use('/api/payment', paymentLimiter);
+  app.use('/api', (req, res, next) => {
+    if (req.path === '/paytr-callback') return next();
+    if (req.method === 'GET' && READ_ONLY_GET.test(req.path)) return next();
+    return apiLimiter(req, res, next);
+  });
+}
+const routerHandler = require('../api/router');
+app.all('/api/*', routerHandler);
+
+app.use((req, res, next) => {
+  if (/^\/(server|api|lib|scripts|node_modules|\.git|\.env)/i.test(req.path)) {
+    return res.status(404).end();
+  }
+  next();
+});
+
 app.use(
   express.static(path.resolve(__dirname, '..'), {
     etag: true,
     lastModified: true,
+    dotfiles: 'deny',
     setHeaders: (res, filePath) => {
       if (/\.html?$/i.test(filePath)) {
         res.setHeader('Cache-Control', 'no-cache, must-revalidate');
@@ -121,14 +162,10 @@ app.use(
         res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
       }
     },
+    extensions: ['html'],
+    index: 'index.html',
   })
 );
-if (!process.env.VERCEL) {
-  app.use('/api/orders', orderLimiter);
-  app.use('/api/payment', paymentLimiter);
-  app.use('/api', apiLimiter);
-}
-const routerHandler = require('../api/router');
 const { checkRestocks } = require('./lib/_stock-alert-runner');
 const { sendReviewInvites } = require('./lib/_review-invite-runner');
 const { ensureReviewSchema } = require('./lib/_reviews_schema');
@@ -138,7 +175,6 @@ if (process.env.ALLOW_REVIEW_SEEDING === '1' && process.env.DISABLE_REVIEW_SEED 
       .catch((e) => console.warn('[review-seed startup]', e?.message));
   }, 3000);
 }
-app.all('/api/*', routerHandler);
 const server = app.listen(PORT, HOST, () => {
   console.log(`Sunucu hazır: http://${HOST}:${PORT}`);
 });

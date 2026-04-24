@@ -1,8 +1,20 @@
-const CACHE = 'gp-v3';
-const RUNTIME = 'gp-runtime-v3';
+const VERSION = '2026-04-25-1';
+const CACHE = `gp-${VERSION}`;
+const RUNTIME = `gp-runtime-${VERSION}`;
 const PRECACHE = ['/products.json', '/categories.json'];
-self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting())));
-self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+
+self.addEventListener('install', (e) => e.waitUntil((async () => {
+  const c = await caches.open(CACHE);
+  await Promise.allSettled(PRECACHE.map((u) => c.add(u).catch(() => null)));
+  await self.skipWaiting();
+})()));
+
+self.addEventListener('activate', (e) => e.waitUntil((async () => {
+  const keys = await caches.keys();
+  await Promise.all(keys.filter((k) => ![CACHE, RUNTIME].includes(k)).map((k) => caches.delete(k)));
+  await self.clients.claim();
+})()));
+
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET') return;
@@ -21,13 +33,14 @@ self.addEventListener('fetch', (e) => {
       e.respondWith((async () => {
         const cache = await caches.open(RUNTIME);
         const cached = await cache.match(e.request);
-        const freshPromise = fetch(e.request)
-          .then((res) => {
-            if (res.ok) cache.put(e.request, res.clone());
-            return res;
-          })
-          .catch(() => null);
-        return cached || freshPromise || caches.match(e.request);
+        if (cached) return cached;
+        try {
+          const res = await fetch(e.request);
+          if (res.ok) cache.put(e.request, res.clone());
+          return res;
+        } catch (_) {
+          return cached || Response.error();
+        }
       })());
       return;
     }
