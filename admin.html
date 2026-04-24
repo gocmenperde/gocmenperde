@@ -683,6 +683,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
       <div class="sidebar-section">
         <div class="sidebar-section-label">Sistem</div>
         <div class="nav-item" onclick="showPage('live-support');loadLiveSupportMessages()"><i class="fas fa-headset"></i> Canlı Destek <span class="nav-badge" id="liveSupportBadge" style="display:none">0</span></div>
+        <div class="nav-item" onclick="showPage('stock-alerts');adminFetchStockAlerts()"><i class="fas fa-bell"></i> Stok Uyarıları</div>
         <div class="nav-item" onclick="showPage('notifications')"><i class="fas fa-bell"></i> Bildirimler</div>
         <div class="nav-item" onclick="showPage('settings')"><i class="fas fa-gear"></i> Ayarlar</div>
       </div>
@@ -1299,6 +1300,28 @@ Işık: Yarı Geçirgen"></textarea></div>
     <button class="btn btn-outline btn-sm" onclick="loadLiveSupportMessages()"><i class="fas fa-sync"></i> Yenile</button>
   </div>
   <div id="liveSupportList" class="live-support-list"></div>
+</div>
+
+
+<div class="page" id="page-stock-alerts">
+  <div class="breadcrumb"><i class="fas fa-home"></i> <span>Stok Uyarıları</span></div>
+  <div class="page-header">
+    <div><h1>Stok Uyarıları <em>Yönetimi</em></h1><p>Bekleyen stok bildirimi taleplerini görüntüleyin ve yönetin.</p></div>
+  </div>
+  <section id="adminStockAlerts" class="admin-tab">
+    <div class="admin-tab-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <h3><i class="fas fa-bell"></i> Bekleyen Stok Uyarıları</h3>
+      <div>
+        <button id="stockAlertCheckBtn" class="admin-btn"><i class="fas fa-rotate"></i> Şimdi Kontrol Et</button>
+        <button id="stockAlertRefreshBtn" class="admin-btn admin-btn-ghost"><i class="fas fa-arrows-rotate"></i> Listeyi Yenile</button>
+      </div>
+    </div>
+    <div id="stockAlertSummary" class="admin-summary" style="margin-bottom:10px"></div>
+    <table class="admin-table">
+      <thead><tr><th>Ürün</th><th>E-posta</th><th>Kayıt</th><th>Bildirim</th><th></th></tr></thead>
+      <tbody id="stockAlertTbody"></tbody>
+    </table>
+  </section>
 </div>
 
 <!-- ══ BİLDİRİMLER ══ -->
@@ -2620,6 +2643,43 @@ async function removeFromYouItem(index){
   aToast('Kayıt kaldırıldı');
 }
 
+
+async function adminFetchStockAlerts(){
+  const token = localStorage.getItem('gp_admin_token') || '';
+  const res = await fetch('/api/admin/stock-alerts', { headers:{'X-Admin-Token': token} });
+  if(res.status === 401){ alert('Admin yetkiniz yok'); return; }
+  const json = await res.json();
+  document.getElementById('stockAlertSummary').textContent = `Toplam: ${json.total} • Bekleyen: ${json.pending}`;
+  const tbody = document.getElementById('stockAlertTbody');
+  tbody.innerHTML = (json.items || []).map(item=>`<tr>
+    <td>${item.productName || ''}<br><small>${item.productId}</small></td>
+    <td>${item.email}</td>
+    <td>${new Date(item.createdAt).toLocaleString('tr-TR')}</td>
+    <td>${item.notifiedAt ? '<span style="color:#1d7a3b">✓ Gönderildi</span>' : '<span style="color:#a3823f">Bekliyor</span>'}</td>
+    <td><button class="admin-btn admin-btn-danger" data-pid="${item.productId}" data-email="${item.email}">Sil</button></td>
+  </tr>`).join('');
+  tbody.querySelectorAll('button').forEach(btn=>btn.addEventListener('click', async ()=>{
+    if(!confirm('Bu uyarıyı silmek istediğinizden emin misiniz?')) return;
+    const tokenDel = localStorage.getItem('gp_admin_token') || '';
+    await fetch('/api/admin/stock-alerts', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Admin-Token':tokenDel},
+      body: JSON.stringify({action:'delete', productId: btn.dataset.pid, email: btn.dataset.email})
+    });
+    adminFetchStockAlerts();
+  }));
+}
+async function adminCheckStockNow(){
+  const token = localStorage.getItem('gp_admin_token') || '';
+  const res = await fetch('/api/admin/stock-alerts', { method:'POST', headers:{'Content-Type':'application/json','X-Admin-Token':token}, body: JSON.stringify({action:'check-now'}) });
+  const json = await res.json();
+  alert(`Kontrol bitti. Stoğa gelen: ${json.restockedCount}, Gönderilen: ${json.sent}, Başarısız: ${json.failed}`);
+  adminFetchStockAlerts();
+}
+
+document.getElementById('stockAlertCheckBtn')?.addEventListener('click', adminCheckStockNow);
+document.getElementById('stockAlertRefreshBtn')?.addEventListener('click', adminFetchStockAlerts);
+
 function toggleSidebar(){
   const sb=document.getElementById('sidebar'), ov=document.getElementById('sidebarOverlay');
   sb.classList.contains('open') ? closeSidebar() : (sb.classList.add('open'), ov.classList.add('open'));
@@ -2652,6 +2712,7 @@ function showPage(id){
   if(id==='fromyou') renderFromYouAdminPage();
   if(id==='notifications') renderNotifs();
   if(id==='live-support') loadLiveSupportMessages();
+  if(id==='stock-alerts') adminFetchStockAlerts();
   if(id==='settings'){ renderFooterLogoRows(); }
 }
 function handleStatCardKey(event, target, filter){

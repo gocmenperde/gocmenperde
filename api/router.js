@@ -40,6 +40,7 @@ const ROUTES = {
   visits: () => require('../server/handlers/visits'),
   'address-data': () => require('../server/handlers/address-data'),
   'stock-alerts': () => require('../server/handlers/stock-alerts'),
+  'admin/stock-alerts': () => require('../server/handlers/admin/stock-alerts'),
   campaigns: () => require('../server/handlers/campaigns'),
   'admin/campaigns': () => require('../server/handlers/admin/campaigns'),
   'premium-showcase': () => require('../server/handlers/premium-showcase'),

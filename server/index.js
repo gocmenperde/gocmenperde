@@ -112,6 +112,17 @@ if (!process.env.VERCEL) {
   app.use('/api', apiLimiter);
 }
 const routerHandler = require('../api/router');
+const { checkRestocks } = require('./lib/_stock-alert-runner');
+const STOCK_CHECK_INTERVAL_MS = Number(process.env.STOCK_CHECK_INTERVAL_MS || 60000);
+if (process.env.DISABLE_STOCK_CHECK !== '1') {
+  setInterval(() => {
+    checkRestocks()
+      .then((r) => {
+        if (r.restockedCount) console.log(`[stock-check] restocked=${r.restockedCount} sent=${r.sent} failed=${r.failed}`);
+      })
+      .catch((e) => console.warn('[stock-check] err', e?.message));
+  }, STOCK_CHECK_INTERVAL_MS);
+}
 app.all('/api/*', routerHandler);
 const server = app.listen(PORT, HOST, () => {
   console.log(`Sunucu hazır: http://${HOST}:${PORT}`);
