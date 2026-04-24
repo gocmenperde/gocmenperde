@@ -1,91 +1,116 @@
 const { pool } = require('../../lib/_db');
-const { requireAdmin } = require('../../lib/_admin-auth');
 const { ensurePaymentLogosSchema } = require('../../lib/_payment_logos');
+const { requireAdmin } = require('../../lib/_admin-auth');
+const { applyCors } = require('../../lib/_cors');
 
 function isValidImageUrl(value) {
   const raw = String(value || '').trim();
-  if (!raw) return false;
-  return raw.startsWith('https://') || raw.startsWith('/');
+  return /^(https?:\/\/|\/)/.test(raw);
 }
 
-module.exports = async (req, res) => {
+module.exports = async function handler(req, res) {
+  if (applyCors(req, res, { allowAdminHeaders: true })) return;
+
   if (!requireAdmin(req, res)) return;
 
   try {
+    await ensurePaymentLogosSchema();
+
     if (req.method === 'GET') {
-      await ensurePaymentLogosSchema();
-      const { rows } = await pool.query('SELECT * FROM payment_logos ORDER BY sort_order ASC, id ASC');
-      return res.json({ logos: rows });
+      const { rows } = await pool.query(
+        `SELECT id,
+                name,
+                image_url AS "imageUrl",
+                alt_text AS "altText",
+                sort_order AS "sortOrder",
+                enabled
+         FROM payment_logos
+         ORDER BY sort_order ASC, id ASC`
+      );
+      return res.status(200).json({ logos: rows });
     }
 
     if (req.method === 'POST') {
-      await ensurePaymentLogosSchema();
       const { name, imageUrl, altText, sortOrder, enabled } = req.body || {};
       const safeName = String(name || '').trim();
       const safeImageUrl = String(imageUrl || '').trim();
-      if (!safeName || !safeImageUrl) return res.status(400).json({ error: 'missing' });
-      if (!isValidImageUrl(safeImageUrl)) return res.status(400).json({ error: 'invalid_image_url' });
 
-      const { rows } = await pool.query(
-        'INSERT INTO payment_logos (name, image_url, alt_text, sort_order, enabled) VALUES ($1,$2,$3,$4,$5) RETURNING id',
+      if (!safeName || !safeImageUrl) {
+        return res.status(400).json({ error: 'name ve imageUrl zorunlu' });
+      }
+      if (!isValidImageUrl(safeImageUrl)) {
+        return res.status(400).json({ error: 'Geçersiz imageUrl' });
+      }
+
+      const ins = await pool.query(
+        `INSERT INTO payment_logos (name, image_url, alt_text, sort_order, enabled)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING id`,
         [safeName, safeImageUrl, String(altText || safeName).trim(), Number(sortOrder) || 0, enabled !== false]
       );
-      return res.json({ ok: true, id: rows[0]?.id || null });
+
+      return res.status(200).json({ ok: true, id: ins.rows[0].id });
     }
 
     if (req.method === 'PATCH') {
-      await ensurePaymentLogosSchema();
       const { id, name, imageUrl, altText, sortOrder, enabled } = req.body || {};
-      if (!id) return res.status(400).json({ error: 'missing id' });
+      const numericId = Number(id);
+      if (!Number.isInteger(numericId) || numericId <= 0) {
+        return res.status(400).json({ error: 'id zorunlu' });
+      }
 
-      const fields = [];
-      const values = [id];
-      let idx = 2;
+      const sets = [];
+      const vals = [];
+      let i = 1;
 
-      if (typeof name !== 'undefined') {
+      if (name !== undefined) {
         const safeName = String(name || '').trim();
-        if (!safeName) return res.status(400).json({ error: 'invalid_name' });
-        fields.push(`name = $${idx++}`);
-        values.push(safeName);
+        if (!safeName) return res.status(400).json({ error: 'Geçersiz name' });
+        sets.push(`name = $${i++}`);
+        vals.push(safeName);
       }
-      if (typeof imageUrl !== 'undefined') {
+      if (imageUrl !== undefined) {
         const safeImageUrl = String(imageUrl || '').trim();
-        if (!isValidImageUrl(safeImageUrl)) return res.status(400).json({ error: 'invalid_image_url' });
-        fields.push(`image_url = $${idx++}`);
-        values.push(safeImageUrl);
+        if (!isValidImageUrl(safeImageUrl)) {
+          return res.status(400).json({ error: 'Geçersiz imageUrl' });
+        }
+        sets.push(`image_url = $${i++}`);
+        vals.push(safeImageUrl);
       }
-      if (typeof altText !== 'undefined') {
-        fields.push(`alt_text = $${idx++}`);
-        values.push(String(altText || '').trim());
+      if (altText !== undefined) {
+        sets.push(`alt_text = $${i++}`);
+        vals.push(String(altText || '').trim());
       }
-      if (typeof sortOrder !== 'undefined') {
-        fields.push(`sort_order = $${idx++}`);
-        values.push(Number(sortOrder) || 0);
+      if (sortOrder !== undefined) {
+        sets.push(`sort_order = $${i++}`);
+        vals.push(Number(sortOrder) || 0);
       }
-      if (typeof enabled !== 'undefined') {
-        fields.push(`enabled = $${idx++}`);
-        values.push(enabled !== false);
+      if (enabled !== undefined) {
+        sets.push(`enabled = $${i++}`);
+        vals.push(Boolean(enabled));
       }
 
-      if (!fields.length) return res.status(400).json({ error: 'no_fields' });
+      if (!sets.length) return res.status(200).json({ ok: true });
 
-      await pool.query(
-        `UPDATE payment_logos SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $1`,
-        values
-      );
-      return res.json({ ok: true });
+      sets.push('updated_at = NOW()');
+      vals.push(numericId);
+      await pool.query(`UPDATE payment_logos SET ${sets.join(', ')} WHERE id = $${i}`, vals);
+      return res.status(200).json({ ok: true });
     }
 
     if (req.method === 'DELETE') {
-      await ensurePaymentLogosSchema();
-      const id = req.query?.id;
-      if (!id) return res.status(400).json({ error: 'missing id' });
-      await pool.query('DELETE FROM payment_logos WHERE id=$1', [id]);
-      return res.json({ ok: true });
+      const id = Number(req.query?.id || req.body?.id);
+      if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ error: 'id zorunlu' });
+      }
+
+      await pool.query('DELETE FROM payment_logos WHERE id = $1', [id]);
+      return res.status(200).json({ ok: true });
     }
 
     return res.status(405).json({ error: 'method' });
   } catch (e) {
-    return res.status(500).json({ error: 'db', message: e?.message || 'db_error' });
+    console.error('[admin/payment-logos]', e);
+    return res.status(500).json({ error: 'db', message: e?.message || 'unknown' });
   }
 };
