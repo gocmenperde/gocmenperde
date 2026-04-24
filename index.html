@@ -3607,8 +3607,6 @@ const HOME_SLIDES_FALLBACK = [
   { imageUrl:'resimler/1774694045163-IMG_9907.jpeg', targetPath:'#products', title:'Stor Perde Serisi', subtitle:'Sade çizgiler, uzun ömürlü mekanik, kusursuz görünüm.', buttonLabel:'Hemen Keşfet' }
 ];
 let currentModalProductId = null;
-const __timers = new Set();
-function safeSetInterval(fn, ms){ const id = setInterval(fn, ms); __timers.add(id); return id; }
 let __liveViewerTimer = null;
 let __liveViewerCurrent = 0;
 // Kategoriler (admin'den senkronize edilir)
@@ -5212,7 +5210,7 @@ function startLiveViewerCounter(productId){
   __liveViewerCurrent = getLiveViewerSeed(productId);
   const countNode = document.getElementById('mLiveViewersCount');
   if(countNode) countNode.textContent = String(__liveViewerCurrent);
-  __liveViewerTimer = safeSetInterval(()=>{
+  __liveViewerTimer = setInterval(()=>{
     if(Math.random() >= 0.35) return;
     const delta = Math.random() < 0.55 ? 1 : -1;
     const nextValue = Math.max(2, Math.min(14, __liveViewerCurrent + delta));
@@ -6653,7 +6651,7 @@ function sendVisitEvent({heartbeat=false}={}){
 function startVisitTracking(){
   sendVisitEvent({heartbeat:false});
   if(visitHeartbeatTimer) clearInterval(visitHeartbeatTimer);
-  visitHeartbeatTimer = safeSetInterval(()=>{
+  visitHeartbeatTimer = setInterval(()=>{
     if(document.visibilityState !== 'visible') return;
     sendVisitEvent({heartbeat:true});
   }, 90000);
@@ -6742,13 +6740,11 @@ window.addEventListener('load',()=>{
   runSafely('startVisitTracking', ()=>startVisitTracking());
   runSafely('handlePaymentReturnState', ()=>handlePaymentReturnState());
   if('serviceWorker' in navigator && location.protocol === 'https:'){
-    navigator.serviceWorker.register('/sw.js').catch((e)=>{ console.warn('[sw] register fail', e); });
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
   }
 });
 window.addEventListener('pagehide', ()=>{
   try{ sessionStorage.setItem('gp_fast_resume','1'); }catch(_){}
-  __timers.forEach(clearInterval);
-  __timers.clear();
   if(typeof visitHeartbeatTimer !== 'undefined' && visitHeartbeatTimer){
     clearInterval(visitHeartbeatTimer); visitHeartbeatTimer=null;
   }
@@ -6780,7 +6776,6 @@ window.addEventListener('unhandledrejection', ()=>{
   setTimeout(ensureLoaderDoesNotBlockUi, 0);
 });
 document.addEventListener('visibilitychange',()=>{
-  if (document.visibilityState === 'hidden') { __timers.forEach(clearInterval); __timers.clear(); }
   if(document.hidden) __productObserver?.disconnect();
   if(document.visibilityState === 'visible'){
     recoverUIAfterResume();
@@ -9233,7 +9228,7 @@ function navigateToCategory(categorySlug){
   };
   if(applySelection()) return;
   let attempts = 0;
-  const timer = safeSetInterval(()=>{
+  const timer = setInterval(()=>{
     attempts += 1;
     if(applySelection() || attempts > 8) clearInterval(timer);
   }, 120);

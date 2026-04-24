@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
     await ensureSchema();
 
     if (req.method === 'GET') {
-      const isAdmin = req.headers['x-admin-token'] === ADMIN_API_KEY;
+      const isAdmin = req.headers['x-admin-key'] === ADMIN_API_KEY;
       const result = await pool.query(`
         SELECT id, title, image_url AS "imageUrl", link_url AS "linkUrl", display_order AS "displayOrder", is_active AS "isActive", created_at AS "createdAt", updated_at AS "updatedAt"
         FROM slider_content
@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, items: result.rows });
     }
 
-    if (!ADMIN_API_KEY || req.headers['x-admin-token'] !== ADMIN_API_KEY) {
+    if (!ADMIN_API_KEY || req.headers['x-admin-key'] !== ADMIN_API_KEY) {
       return res.status(403).json({ error: 'Yetkisiz.' });
     }
 

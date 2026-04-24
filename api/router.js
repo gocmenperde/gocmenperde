@@ -12,9 +12,13 @@ if (process.env.NODE_ENV !== 'production') {
 function validateBasicBody(req, res){
   if(!['POST','PUT','PATCH'].includes(String(req.method || '').toUpperCase())) return true;
   const body = req.body;
-  if(!body) return true;
-  if(typeof body !== 'object' || Array.isArray(body)){
+  if(!body || typeof body !== 'object' || Array.isArray(body)){
     res.status(400).json({ error: 'Geçersiz body formatı.' });
+    return false;
+  }
+  const serialized = JSON.stringify(body);
+  if(serialized.length > 8 * 1024 * 1024){
+    res.status(400).json({ error: 'Body çok büyük.' });
     return false;
   }
   return true;
@@ -55,8 +59,7 @@ const ROUTES = {
 };
 
 module.exports = async function handler(req, res) {
-  const isVercelRewrite = String(req.url || '').startsWith('/api/router');
-  const rewrittenRoute = isVercelRewrite && typeof req.query?.route === 'string' ? req.query.route : '';
+  const rewrittenRoute = typeof req.query?.route === 'string' ? req.query.route : '';
   const pathRoute = String(req.path || req.url || '')
     .replace(/^\/api\/?/, '')
     .replace(/^\/+|\/+$/g, '')
@@ -74,9 +77,6 @@ module.exports = async function handler(req, res) {
     return await endpoint(req, res);
   } catch (err) {
     console.error('[api-router]', route, err);
-    const safe = process.env.NODE_ENV === 'production'
-      ? { error: 'Sunucu hatası' }
-      : { error: err?.message || 'Sunucu hatası', code: err?.code || null };
-    return res.status(500).json(safe);
+    return res.status(500).json({ error: err?.message || 'Sunucu hatası', code: err?.code || null });
   }
 };

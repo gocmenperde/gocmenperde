@@ -5,11 +5,6 @@ const loginAttempts = new Map();
 const MAX_ATTEMPTS = 7;
 const WINDOW_MS = 1000 * 60 * 10;
 
-setInterval(() => {
-  const now = Date.now();
-  for (const [k, v] of loginAttempts) if (v.resetAt < now) loginAttempts.delete(k);
-}, 60_000).unref();
-
 const { applyCors } = require('../lib/_cors');
 async function listUserAddresses(userId) {
   const hasAddressTable = await pool.query(
@@ -67,13 +62,6 @@ module.exports = async function handler(req, res) {
   try {
     const isAllowedEmailDomain = (email = '') => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(email).trim());
     const isStrongPassword = (sifre = '') => /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(String(sifre));
-    const normalizePhone = (value = '') => {
-      const digits = String(value || '').replace(/\D/g, '');
-      if (!digits) return '';
-      if (digits.length === 10) return `0${digits}`;
-      if (digits.length > 11) return digits.slice(-11);
-      return digits;
-    };
 
     if (action === 'admin-login' && req.method === 'POST') {
       const { key } = req.body || {};
@@ -81,8 +69,7 @@ module.exports = async function handler(req, res) {
       if (String(key).trim() !== process.env.ADMIN_API_KEY) {
         return res.status(401).json({ error: 'Yetkisiz.' });
       }
-      const adminToken = createAuthToken({ id: 'admin', role: 'admin' }, { expiresInSec: 8 * 3600 });
-      return res.status(200).json({ success: true, token: adminToken });
+      return res.status(200).json({ success: true, token: process.env.ADMIN_API_KEY });
     }
 
     if (action === 'register' && req.method === 'POST') {
@@ -95,19 +82,14 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: 'Şifre en az 8 karakter olmalı ve harf ile sayı içermelidir.' });
 
       const safeEmail = String(email).trim().toLowerCase();
-      const normalizedPhone = normalizePhone(telefon);
       const existing = await pool.query('SELECT id FROM musteriler WHERE email = $1', [safeEmail]);
       if (existing.rows.length > 0)
         return res.status(409).json({ error: 'Bu email zaten kayıtlı.' });
-      if (normalizedPhone) {
-        const phoneExists = await pool.query('SELECT id FROM musteriler WHERE telefon = $1 LIMIT 1', [normalizedPhone]);
-        if (phoneExists.rows.length > 0) return res.status(409).json({ error: 'Bu telefon zaten kayıtlı.' });
-      }
 
       const sifre_hash = hashPassword(sifre);
       const result = await pool.query(
         'INSERT INTO musteriler (ad_soyad, email, telefon, sifre_hash) VALUES ($1,$2,$3,$4) RETURNING id, ad_soyad, email, telefon, created_at',
-        [ad_soyad, safeEmail, normalizedPhone, sifre_hash]
+        [ad_soyad, safeEmail, telefon || '', sifre_hash]
       );
       const user = result.rows[0];
       const token = createAuthToken(user);
