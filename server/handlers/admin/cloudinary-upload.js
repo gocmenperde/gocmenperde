@@ -189,7 +189,15 @@ module.exports = async function handler(req, res) {
   if (applyCors(req, res, { allowAdminHeaders: true })) return;
   console.log('[cloudinary-upload] header keys:', Object.keys(req.headers || {}));
   console.log('[cloudinary-upload] x-admin-token:', req.headers['x-admin-token']?.slice(0, 20));
-  if (!requireAdmin(req, res)) return;
+  if (!requireAdmin(req, res)) {
+    console.error('[cloudinary-upload] requireAdmin REJECTED.', {
+      hasXAdminToken: Boolean(req.headers['x-admin-token']),
+      tokenPreview: String(req.headers['x-admin-token'] || '').slice(0, 30),
+      tokenLength: String(req.headers['x-admin-token'] || '').length,
+      tokenHasDot: String(req.headers['x-admin-token'] || '').includes('.'),
+    });
+    return;
+  }
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Desteklenmeyen method.' });

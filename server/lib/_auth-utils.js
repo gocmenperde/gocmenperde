@@ -50,7 +50,7 @@ function verifySignedToken(token) {
   if (!safeEqual(expected, signature)) return null;
 
   const decoded = JSON.parse(base64urlDecode(body));
-  if (!decoded?.id || !decoded?.email || !decoded?.exp) return null;
+  if (decoded?.id === undefined || decoded?.id === null || !decoded?.email || !decoded?.exp) return null;
   if (Date.now() > Number(decoded.exp)) return null;
   return decoded;
 }
@@ -58,7 +58,7 @@ function verifySignedToken(token) {
 function parseLegacyToken(token) {
   try {
     const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
-    if (!decoded?.id || !decoded?.email) return null;
+    if (decoded?.id === undefined || decoded?.id === null || !decoded?.email) return null;
     return decoded;
   } catch {
     return null;
@@ -69,8 +69,10 @@ function createAuthToken(user) {
   const now = Date.now();
   const isAdmin = user?.isAdmin === true;
   const expiresIn = isAdmin ? ADMIN_TOKEN_TTL_MS : USER_TOKEN_TTL_MS;
+  const numericId = Number(user?.id);
+  const safeId = Number.isFinite(numericId) ? numericId : 1;
   return signPayload({
-    id: Number(user.id),
+    id: safeId,
     email: String(user.email || '').toLowerCase(),
     isAdmin,
     iat: now,
