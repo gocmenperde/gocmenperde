@@ -718,9 +718,11 @@ tbody tr:hover td{background:#fdfcf8}
 .form-modal-footer,.modal-actions,.modal-footer{flex-wrap:wrap;gap:8px;position:sticky;bottom:0;background:#fff;padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
 .form-modal-footer .btn,.modal-actions .btn,.modal-footer .btn{min-width:0;flex:1 1 calc(50% - 8px);padding:11px 12px;font-size:.85rem}
 .form-modal-footer .btn.btn-block,.modal-actions .btn.btn-block{flex-basis:100%}
-.sidebar{height:calc(100dvh - 64px - env(safe-area-inset-bottom));height:calc(100svh - 64px - env(safe-area-inset-bottom));overflow:hidden;display:flex;flex-direction:column}
+.sidebar{height:100dvh;height:100svh;overflow:hidden;display:flex;flex-direction:column}
+body.sidebar-open .sidebar{height:100dvh;height:100svh}
 .sidebar-nav{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:16px}
 .sidebar-footer{padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
+body.sidebar-open .sidebar-footer{padding-bottom:calc(14px + env(safe-area-inset-bottom))}
 .sidebar-user{margin-bottom:10px;gap:9px}
 .sidebar-avatar{width:32px;height:32px;font-size:.9rem}
 .sidebar-user-info h4{font-size:.78rem}

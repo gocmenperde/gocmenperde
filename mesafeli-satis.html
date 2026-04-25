@@ -10,7 +10,8 @@
 :root{--gold:#c9a84c;--ink:#0f0e0d;--cream:#f7f4ef;--slate:#4a4743;--ff:'DM Sans',sans-serif;--ffd:'Cormorant Garamond',serif}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--ff);background:var(--cream);color:var(--ink);line-height:1.7}
-header{background:var(--ink);padding:20px 0;text-align:center}
+header{position:sticky;top:0;z-index:30;background:rgba(15,14,13,.86);backdrop-filter:blur(12px) saturate(170%);-webkit-backdrop-filter:blur(12px) saturate(170%);padding:20px 0;text-align:center;transition:padding .25s ease,background .25s ease}
+header.is-shrunk{padding:14px 0;background:rgba(15,14,13,.94)}
 header a{font-family:var(--ffd);font-size:1.6rem;color:var(--gold);text-decoration:none;letter-spacing:1px}
 header span{display:block;font-size:0.65rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:2px}
 .container{max-width:780px;margin:0 auto;padding:60px 24px}
@@ -35,6 +36,8 @@ footer a{color:var(--gold);text-decoration:none}
 .back-link{display:inline-flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--slate);text-decoration:none;margin-bottom:32px;padding:8px 16px;background:white;border-radius:8px;border:1px solid rgba(0,0,0,0.08);transition:0.2s}
 .back-link:hover{border-color:var(--gold);color:var(--gold)}
 @media(max-width:600px){.parties{grid-template-columns:1fr}}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -181,8 +184,12 @@ const DEFAULT_FOOTER_PAYMENT_LOGOS=[
   }catch(_){}
   const strip=document.querySelector('.payment-logo-strip');
   if(!strip) return;
-  strip.innerHTML=logos.map(item=>`<img class="payment-logo-img" src="${item.src}" alt="${item.alt||'Ödeme logosu'}" loading="lazy" decoding="async">`).join('');
+  strip.innerHTML=logos.map(item=>`<img class="payment-logo-img" src="${item.src}" alt="${item.alt||'Ödeme logosu'}" loading="lazy" decoding="async" width="160" height="34">`).join('');
 })();
+
+function updateHeaderShrinkState(){const header=document.querySelector('header');if(!header)return;header.classList.toggle('is-shrunk',(window.scrollY||0)>80);}
+window.addEventListener('scroll',updateHeaderShrinkState,{passive:true});
+document.addEventListener('DOMContentLoaded',updateHeaderShrinkState);
 </script>
 </body>
 </html>
