@@ -3774,8 +3774,14 @@ async function apiFetch(url, options = {}, timeoutMs = 12000){
   const token = getAdminToken();
   const mergedHeaders = { ...(options?.headers || {}) };
   if(token && String(url || '').startsWith('/api/')){
-    if(!mergedHeaders['X-Admin-Token']) mergedHeaders['X-Admin-Token'] = token;
-    if(!mergedHeaders['x-admin-token']) mergedHeaders['x-admin-token'] = getAdminApiKey();
+    // Sadece TEK admin header'ı gönder. Hem 'X-Admin-Token' hem 'x-admin-token'
+    // birlikte set edilirse iOS Safari bunları virgülle birleştirip
+    // tek değere ('JWT, JWT') dönüştürüyor ve JWT imza doğrulaması bozuluyor.
+    const hasUpper = Object.prototype.hasOwnProperty.call(mergedHeaders, 'X-Admin-Token');
+    const hasLower = Object.prototype.hasOwnProperty.call(mergedHeaders, 'x-admin-token');
+    if(!hasUpper && !hasLower){
+      mergedHeaders['X-Admin-Token'] = token;
+    }
   }
   const fetchOptions = { ...options, headers: mergedHeaders, signal: controller.signal };
   try{
