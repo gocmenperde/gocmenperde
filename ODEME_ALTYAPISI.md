@@ -81,6 +81,8 @@ Not: Cloudinary için `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY
   - Tablolar (`stock_alerts`, `stock_snapshot`) ilk istekte otomatik oluşturulur.
 - `RESEND_API_KEY` — Stok geri-geldi e-posta bildirimleri için.
 - (Opsiyonel) WhatsApp bildirimleri için `WHATSAPP_*` env'leri.
+- `ADMIN_NOTIFY_EMAIL` — Kritik sunucu hatalarında bildirim gönderilecek admin e-postası.
+  Boş bırakılırsa bildirim devre dışı kalır.
 
 > Önemli: Vercel serverless'ında dosya sistemine yazma yapılamaz. Stok snapshot artık
 > `stock_snapshot` tablosunda tutulur.
