@@ -718,8 +718,8 @@ tbody tr:hover td{background:#fdfcf8}
 .form-modal-footer,.modal-actions,.modal-footer{flex-wrap:wrap;gap:8px;position:sticky;bottom:0;background:#fff;padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
 .form-modal-footer .btn,.modal-actions .btn,.modal-footer .btn{min-width:0;flex:1 1 calc(50% - 8px);padding:11px 12px;font-size:.85rem}
 .form-modal-footer .btn.btn-block,.modal-actions .btn.btn-block{flex-basis:100%}
-.sidebar{height:100dvh;height:100svh;overflow:hidden;display:flex;flex-direction:column}
-.sidebar-nav{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:8px}
+.sidebar{height:calc(100dvh - 64px - env(safe-area-inset-bottom));height:calc(100svh - 64px - env(safe-area-inset-bottom));overflow:hidden;display:flex;flex-direction:column}
+.sidebar-nav{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:16px}
 .sidebar-footer{padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
 .sidebar-user{margin-bottom:10px;gap:9px}
 .sidebar-avatar{width:32px;height:32px;font-size:.9rem}
@@ -729,6 +729,14 @@ tbody tr:hover td{background:#fdfcf8}
 button, .btn, .nav-item, a.btn, .pagination a{min-height:44px}
 input, select, textarea{min-height:44px;font-size:16px}
 .nav-item{padding:12px 22px;font-size:.92rem}
+.icon-btn{min-width:44px;min-height:44px}
+body.sidebar-open .gp-mnav{display:none!important}
+body.has-gp-mnav .form-modal,
+body.has-gp-mnav .modal,
+body.has-gp-mnav .modal-overlay > .modal-content{
+  max-height:calc(100dvh - 24px - 70px - env(safe-area-inset-bottom));
+  margin-bottom:calc(70px + env(safe-area-inset-bottom));
+}
 }
 @media(max-width:480px){
 .stats-grid{grid-template-columns:1fr}
@@ -742,6 +750,8 @@ input, select, textarea{min-height:44px;font-size:16px}
 .admin-picker{width:100%;max-width:100%}
 .toolbar{flex-wrap:wrap;gap:6px}
 .toolbar .btn,.toolbar .filter-sel{flex:1 1 calc(50% - 6px);min-height:44px}
+#page-products tbody tr td.actions-cell .icon-btn.fav{display:none}
+#page-products tbody tr td.actions-cell .action-btns{grid-template-columns:repeat(3,1fr)}
 }
 
 
@@ -1584,6 +1594,14 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
   #page-orders tbody tr td.actions-cell::before,
   #page-customers tbody tr td.actions-cell::before,
   #page-products tbody tr td.actions-cell::before{display:none}
+  #page-products tbody tr td.actions-cell .action-btns,
+  #page-customers tbody tr td.actions-cell .action-btns,
+  #page-orders tbody tr td.actions-cell .action-btns{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    width:100%;
+  }
   #page-orders tbody tr td.actions-cell .btn,
   #page-customers tbody tr td.actions-cell .btn,
   #page-products tbody tr td.actions-cell .btn,
@@ -4317,6 +4335,7 @@ function openSidebar(){
   __scrollLockY = window.scrollY || 0;
   document.getElementById('sidebar')?.classList.add('open');
   document.getElementById('sidebarOverlay')?.classList.add('open');
+  document.body.classList.add('sidebar-open');
   document.body.style.position = 'fixed';
   document.body.style.top = `-${__scrollLockY}px`;
   document.body.style.left = '0';
@@ -4326,6 +4345,7 @@ function openSidebar(){
 function closeSidebar(){
   document.getElementById('sidebar')?.classList.remove('open');
   document.getElementById('sidebarOverlay')?.classList.remove('open');
+  document.body.classList.remove('sidebar-open');
   document.body.style.position = '';
   document.body.style.top = '';
   document.body.style.left = '';
@@ -4389,7 +4409,7 @@ function navigateFromStat(target, filter){
   }
   if(target==='customers') loadCustomers();
 }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function closeModal(id){ document.getElementById(id)?.classList.remove('open'); }
 function syncResponsiveTableLabels(){
   document.querySelectorAll('.table-wrap table, .admin-table').forEach(table => {
     const heads = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim());
@@ -4893,7 +4913,7 @@ function renderSliderTable(){
     <td style="max-width:220px">${item.title || '<span style="opacity:.55">—</span>'}</td>
     <td style="max-width:260px;word-break:break-all">${item.targetPath || '-'}</td>
     <td>${Number(item.orderNo)||0}</td>
-    <td><div class="action-btns"><button class="icon-btn edit" onclick="editSliderItem(${item.id})"><i class="fas fa-pen"></i></button><button class="icon-btn del" onclick="deleteSliderItem(${item.id})"><i class="fas fa-trash"></i></button></div></td>
+    <td class="actions-cell" data-label="İşlem"><div class="action-btns"><button class="icon-btn edit" onclick="editSliderItem(${item.id})"><i class="fas fa-pen"></i></button><button class="icon-btn del" onclick="deleteSliderItem(${item.id})"><i class="fas fa-trash"></i></button></div></td>
   </tr>`).join('');
 }
 
@@ -5081,9 +5101,11 @@ const ORDER_STATUS_STYLES = {
 
 function renderOrdersTable(orders){
   const tbody = document.getElementById('ordersTableBody');
+  const orderCountEl = document.getElementById('orderCount');
+  if(!tbody) return;
   if(!orders.length){
     tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><i class="fas fa-search"></i><h3>Sipariş bulunamadı</h3><p>Farklı filtreler deneyin</p></div></td></tr>`;
-    document.getElementById('orderCount').innerText='';
+    if(orderCountEl) orderCountEl.innerText='';
     return;
   }
   tbody.innerHTML = orders.map(o=>{
@@ -5112,7 +5134,7 @@ function renderOrdersTable(orders){
       </div></td>
     </tr>`;
   }).join('');
-  document.getElementById('orderCount').innerText = `${orders.length} / ${ALL_ORDERS.length} sipariş gösteriliyor`;
+  if(orderCountEl) orderCountEl.innerText = `${orders.length} / ${ALL_ORDERS.length} sipariş gösteriliyor`;
 }
 
 function openOrderModal(id){
@@ -5239,9 +5261,11 @@ function filterCustomers(){
 }
 function renderCustomerGrid(users){
   const grid = document.getElementById('customerGrid');
+  const customerCountEl = document.getElementById('customerCount');
+  if(!grid) return;
   if(!users.length){
     grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state"><i class="fas fa-users"></i><h3>Müşteri bulunamadı</h3><p>Arama kriterlerini değiştirin</p></div></div>`;
-    document.getElementById('customerCount').innerText='';
+    if(customerCountEl) customerCountEl.innerText='';
     return;
   }
   grid.innerHTML = users.map(u=>{
@@ -5264,7 +5288,7 @@ function renderCustomerGrid(users){
       </div>
     </div>`;
   }).join('');
-  document.getElementById('customerCount').innerText = `${users.length} / ${ALL_CUSTOMERS.length} müşteri`;
+  if(customerCountEl) customerCountEl.innerText = `${users.length} / ${ALL_CUSTOMERS.length} müşteri`;
 }
 
 function getFavCountForCustomer(id){
@@ -5442,6 +5466,7 @@ function setMainImage(index){
 function renderTable(list){
   const data = list||PRODUCTS;
   const tbody = document.getElementById('productTableBody');
+  if(!tbody) return;
   if(!data.length){
     tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><i class="fas fa-boxes-stacked"></i><h3>Ürün bulunamadı</h3></div></td></tr>`;
     return;
@@ -5461,7 +5486,7 @@ function renderTable(list){
       <td class="price-cell">${Number(p.price).toLocaleString('tr-TR')} ₺${p.unit&&p.unit!=='adet'?'<span class="price-old" style="text-decoration:none;font-size:0.72rem">/ '+p.unit+'</span>':''}${p.oldPrice?`<span class="price-old">${Number(p.oldPrice).toLocaleString('tr-TR')} ₺</span>`:''}</td>
       <td><span class="badge ${p.active?'badge-active':'badge-inactive'}">${p.active?'Aktif':'Pasif'}</span> ${p.isLiveShowcase?'<span class="premium-chip">Canlı</span>':''} ${p.isFeatured?'<span class="premium-chip">Öne Çıkan</span>':''}</td>
       <td>${stockLabel}</td>
-      <td><div class="action-btns">
+      <td class="actions-cell" data-label="İşlem"><div class="action-btns">
         <button class="icon-btn edit" onclick="editProduct(${realIdx})" title="Düzenle"><i class="fas fa-pen"></i></button>
         <button class="icon-btn ${p.active?'toggle-on':'toggle-off'}" onclick="toggleProduct(${realIdx})" title="${p.active?'Pasife Al':'Aktive Et'}"><i class="fas fa-${p.active?'eye':'eye-slash'}"></i></button>
         <button class="icon-btn fav" onclick="addFavFromProduct(${realIdx})" title="Favoriye Ekle"><i class="fas fa-heart"></i></button>
@@ -5469,8 +5494,10 @@ function renderTable(list){
       </div></td>
     </tr>`;
   }).join('');
-  document.getElementById('tableCount').innerText = `${data.length} ürün / ${PRODUCTS.length} toplam`;
-  document.getElementById('productCountHeader').innerText = `${PRODUCTS.filter(p=>p.active).length} aktif, ${PRODUCTS.filter(p=>!p.active).length} pasif`;
+  const tableCountEl = document.getElementById('tableCount');
+  if(tableCountEl) tableCountEl.innerText = `${data.length} ürün / ${PRODUCTS.length} toplam`;
+  const headerEl = document.getElementById('productCountHeader');
+  if(headerEl) headerEl.innerText = `${PRODUCTS.filter(p=>p.active).length} aktif, ${PRODUCTS.filter(p=>!p.active).length} pasif`;
 }
 
 function filterTable(){
@@ -6101,7 +6128,9 @@ async function handleCategoryImageSelect(input){
 }
 
 function renderCatTable(){
-  document.getElementById('catTableBody').innerHTML=CATEGORIES.map((c,i)=>{
+  const catTableBody = document.getElementById('catTableBody');
+  if(!catTableBody) return;
+  catTableBody.innerHTML=CATEGORIES.map((c,i)=>{
     const count=PRODUCTS.filter(p=>p.cat===c.key).length;
     const visual = c.image
       ? `<img decoding="async" loading="lazy" src="${resolveAssetUrl(c.image)}" alt="${c.label}" style="width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid var(--border)" width="420" height="280">`
@@ -6111,7 +6140,7 @@ function renderCatTable(){
       <td><code style="background:#f0f2f5;padding:3px 8px;border-radius:5px;font-size:0.8rem">${c.key}</code></td>
       <td><strong>${count}</strong> <span style="color:var(--slate-light);font-size:0.8rem">ürün</span></td>
       <td><span class="badge badge-active">Aktif</span></td>
-      <td><div class="action-btns">
+      <td class="actions-cell" data-label="İşlem"><div class="action-btns">
         <button class="icon-btn edit" onclick="editCat(${i})" title="Düzenle"><i class="fas fa-pen"></i></button>
         <button class="icon-btn del" onclick="deleteCat(${i})" title="Sil"><i class="fas fa-trash"></i></button>
       </div></td>
@@ -6303,7 +6332,9 @@ async function renderCampaigns(){
     await fetchProducts();
   }
   const list = await getCampaigns();
-  document.getElementById('campaignList').innerHTML = list.map((c,i)=>`
+  const campaignListEl = document.getElementById('campaignList');
+  if(!campaignListEl) return;
+  campaignListEl.innerHTML = list.map((c,i)=>`
     <div class="campaign-card">
       <div class="campaign-card-header">
         <div><span class="campaign-badge ${c.isActive?'active':'paused'}"><i class="fas fa-circle" style="font-size:0.45rem"></i> ${c.isActive?'Aktif':'Pasif'}</span><h3 style="margin-top:6px">${c.name}</h3></div>
