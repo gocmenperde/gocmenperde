@@ -1,8 +1,7 @@
 const crypto = require('crypto');
 
-const FALLBACK_TOKEN_SECRET = 'gocmenperde-admin-jwt-fallback-2026';
 const TOKEN_SECRET = String(
-  process.env.JWT_SECRET || process.env.AUTH_TOKEN_SECRET || FALLBACK_TOKEN_SECRET
+  process.env.JWT_SECRET || process.env.AUTH_TOKEN_SECRET || ''
 ).trim();
 const USER_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 const ADMIN_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30;
