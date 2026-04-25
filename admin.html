@@ -3,7 +3,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex,nofollow">
 <title>Göçmen Perde — Admin Paneli</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -93,7 +93,7 @@ code{font-family:'Courier New',monospace}
 .nav-item.active{background:rgba(200,163,90,.12);color:var(--gold);border-left-color:var(--gold)}
 .nav-item i{width:17px;font-size:0.85rem;text-align:center}
 .nav-badge{margin-left:auto;background:var(--red);color:white;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:10px;min-width:18px;text-align:center}
-.sidebar-footer{margin-top:auto;padding:18px 22px;border-top:1px solid rgba(255,255,255,0.07)}
+.sidebar-footer{margin-top:auto;padding:18px 22px;border-top:1px solid rgba(255,255,255,0.07);flex:0 0 auto}
 .sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .sidebar-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:var(--ffd);font-size:1rem;font-weight:700;flex-shrink:0}
 .sidebar-user-info h4{font-size:0.82rem;color:rgba(255,255,255,0.85);font-weight:600}
@@ -557,9 +557,10 @@ tbody tr:hover td{background:#fdfcf8}
 :root{--sidebar-w:0px}
 .sidebar{transform:translateX(-260px);width:260px}
 .sidebar.open{transform:translateX(0)}
-.topbar{left:0}
-.hamburger-btn{display:flex!important}
+.topbar{left:0;right:0;padding:10px 14px}
+.hamburger-btn{display:flex!important;font-size:1.4rem;padding:10px 12px;min-width:44px;min-height:44px;align-items:center;justify-content:center}
 .topbar-search{display:none}
+.topbar-title{font-size:1rem!important;flex:1;text-align:center;margin-left:0}
 .admin-wrapper{margin-left:0}
 .main-content{padding:16px}
 .stats-grid{grid-template-columns:1fr 1fr}
@@ -587,14 +588,37 @@ tbody tr:hover td{background:#fdfcf8}
 .table-wrap tbody td{border:none;padding:8px 10px;font-size:.82rem}
 .table-wrap tbody td::before{content:attr(data-label);display:block;font-size:.62rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--slate-light);margin-bottom:4px;font-weight:700}
 .table-wrap tbody td:empty{display:none}
+.table-wrap tbody td:has(> :only-child:empty){display:none}
+.table-wrap tbody tr{margin-bottom:10px}
+.table-wrap tbody td[data-label]:not([data-label=""])::before{font-weight:700}
 .campaign-card{padding:16px}
 .campaign-card-header{flex-direction:column;align-items:flex-start}
 .logo-settings-actions{justify-content:flex-start}
+.sidebar-search{display:block!important}
+.sidebar-search input::placeholder{color:rgba(255,255,255,0.5)}
+.form-modal{max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);margin:12px;border-radius:14px}
+.form-modal-footer,.modal-actions,.modal-footer{flex-wrap:wrap;gap:8px;position:sticky;bottom:0;background:#fff;padding-top:10px;border-top:1px solid var(--line)}
+.form-modal-footer .btn,.modal-actions .btn,.modal-footer .btn{min-width:0;flex:1 1 calc(50% - 8px);padding:11px 12px;font-size:.85rem}
+.form-modal-footer .btn.btn-block,.modal-actions .btn.btn-block{flex-basis:100%}
+.sidebar{height:100dvh;height:100svh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.sidebar-nav{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
+.sidebar-footer{position:sticky;bottom:0;background:var(--ink);border-top:1px solid rgba(255,255,255,0.08);padding:14px 22px calc(14px + env(safe-area-inset-bottom));z-index:2}
+.logout-btn{padding:13px;font-size:.88rem}
+button, .btn, .nav-item, a.btn, .pagination a{min-height:44px}
+input, select, textarea{min-height:44px;font-size:16px}
 }
 @media(max-width:480px){
 .stats-grid{grid-template-columns:1fr}
 .stat-number{font-size:1.8rem}
-.page-header h1{font-size:1.7rem}
+.page-header{gap:6px}
+.page-header h1{font-size:1.4rem;line-height:1.2;word-break:break-word}
+.page-header h1 em{font-style:italic}
+.breadcrumb{font-size:.7rem;flex-wrap:wrap}
+.review-mod-actions{flex-direction:column}
+.review-mod-actions .btn{width:100%;font-size:.82rem}
+.admin-picker{width:100%;max-width:100%}
+.toolbar{flex-wrap:wrap;gap:6px}
+.toolbar .btn,.toolbar .filter-sel{flex:1 1 calc(50% - 6px)}
 }
 
 .login-right{padding:56px 48px}
@@ -955,7 +979,7 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
     </div>
     <div class="topbar-search">
       <i class="fas fa-search"></i>
-      <input type="text" placeholder="Ürün, sipariş, müşteri ara..." oninput="globalSearch(this.value)">
+      <input type="text" id="topbarSearchInput" placeholder="Ürün, sipariş, müşteri ara..." oninput="globalSearch(this.value)">
     </div>
     <div class="topbar-right">
       <button class="topbar-btn" onclick="showPage('notifications')" title="Bildirimler">
@@ -974,6 +998,10 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
     <div class="sidebar-logo">
       <h2>Göçmen <em>Perde</em></h2>
       <p>Admin Paneli</p>
+    </div>
+    <div class="sidebar-search" style="padding:0 22px 12px;display:none">
+      <input type="search" id="sidebarSearch" placeholder="Ara..." class="search-box"
+         style="background:rgba(255,255,255,0.06);color:#fff;border-color:rgba(255,255,255,0.12);width:100%">
     </div>
     <div class="sidebar-nav" style="flex:1">
       <div class="sidebar-section">
@@ -3557,15 +3585,26 @@ function toggleSidebar(){
   const sb = document.getElementById('sidebar');
   sb?.classList.contains('open') ? closeSidebar() : openSidebar();
 }
+let __scrollLockY = 0;
 function openSidebar(){
+  __scrollLockY = window.scrollY || 0;
   document.getElementById('sidebar')?.classList.add('open');
   document.getElementById('sidebarOverlay')?.classList.add('open');
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${__scrollLockY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
   document.body.style.overflow = 'hidden';
 }
 function closeSidebar(){
   document.getElementById('sidebar')?.classList.remove('open');
   document.getElementById('sidebarOverlay')?.classList.remove('open');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
   document.body.style.overflow = '';
+  window.scrollTo(0, __scrollLockY);
 }
 function showPage(id){
   const nextPage = document.getElementById('page-'+id);
@@ -3622,16 +3661,13 @@ function navigateFromStat(target, filter){
   if(target==='customers') loadCustomers();
 }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-function syncResponsiveTableLabels(root=document){
-  root.querySelectorAll('.table-wrap table, .admin-table').forEach((table)=>{
-    const headers = Array.from(table.querySelectorAll('thead th')).map((th)=>th.textContent.trim());
-    if(!headers.length) return;
-    table.querySelectorAll('tbody tr').forEach((tr)=>{
-      Array.from(tr.children).forEach((td, index)=>{
-        if(td.tagName !== 'TD') return;
-        if(!td.dataset.label && headers[index]){
-          td.setAttribute('data-label', headers[index] || 'Alan');
-        }
+function syncResponsiveTableLabels(){
+  document.querySelectorAll('.table-wrap table').forEach(table => {
+    const heads = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim());
+    if (!heads.length) return;
+    table.querySelectorAll('tbody tr').forEach(tr => {
+      [...tr.children].forEach((td, i) => {
+        if (heads[i] && !td.dataset.label) td.dataset.label = heads[i];
       });
     });
   });
@@ -6822,6 +6858,18 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(window.innerWidth <= 1024) closeSidebar();
     });
   });
+  const topbarSearchInput = document.getElementById('topbarSearchInput');
+  const sidebarSearchInput = document.getElementById('sidebarSearch');
+  if(topbarSearchInput && sidebarSearchInput){
+    sidebarSearchInput.addEventListener('input', (event)=>{
+      const value = event.target.value || '';
+      topbarSearchInput.value = value;
+      globalSearch(value);
+    });
+    topbarSearchInput.addEventListener('input', (event)=>{
+      sidebarSearchInput.value = event.target.value || '';
+    });
+  }
   document.querySelectorAll('input[type="file"]').forEach((input)=>{
     if(!input.hasAttribute('accept')) input.setAttribute('accept', 'image/*');
     // capture="environment" SADECE input'ta data-camera="1" varsa eklensin (varsayılan: dosya seç)
