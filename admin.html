@@ -2415,6 +2415,9 @@ Işık: Yarı Geçirgen"></textarea></div>
       </div>
       <div>
         <button id="stockAlertCheckBtn" class="admin-btn"><i class="fas fa-rotate"></i> Şimdi Kontrol Et</button>
+        <button id="stockAlertResetBtn" class="admin-btn admin-btn-ghost" style="background:#7d2c2c;color:#fff;border-color:#7d2c2c">
+          <i class="fas fa-rotate-left"></i> Snapshot'ı Sıfırla
+        </button>
         <button id="stockAlertRefreshBtn" class="admin-btn admin-btn-ghost"><i class="fas fa-arrows-rotate"></i> Listeyi Yenile</button>
       </div>
     </div>
@@ -4325,14 +4328,65 @@ async function adminFetchStockAlerts(){
 }
 
 async function adminCheckStockNow(){
+  const btn = document.getElementById('stockAlertCheckBtn');
+  const origLabel = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Kontrol ediliyor...'; }
+  try {
+    const token = getAdminToken();
+    const res = await fetch('/api/admin/stock-alerts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      body: JSON.stringify({ action: 'check-now' })
+    });
+    let json = {};
+    try { json = await res.json(); } catch(_) { json = {}; }
+    if (!res.ok || json.success === false) {
+      const msg = json?.error || `Kontrol başarısız (HTTP ${res.status}).`;
+      alert(`Hata: ${msg}`);
+      return;
+    }
+    const restocked = Number(json.restockedCount ?? 0);
+    const sent      = Number(json.sent ?? 0);
+    const failed    = Number(json.failed ?? 0);
+    if (restocked === 0) {
+      alert('Kontrol bitti. Stoğa yeni gelen ürün yok. (Snapshot zaten güncel olabilir; eklediğiniz stok zaten "stokta" sayılıyorsa uyarı tetiklenmez.)');
+    } else {
+      alert(`Kontrol bitti. Stoğa gelen: ${restocked} ürün · Gönderilen bildirim: ${sent} · Başarısız: ${failed}`);
+    }
+    adminFetchStockAlerts();
+  } catch(err) {
+    console.error('[admin] stock check error:', err);
+    alert('Bağlantı hatası: ' + (err?.message || err));
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = origLabel; }
+  }
+}
+
+async function adminForceStockRecheck(){
+  if(!confirm('Stok bildirim takibini sıfırlamak istediğinize emin misiniz? '
+            + 'Bu işlem önceki snapshot\'ı silip mevcut stoğu 0 sayacak; '
+            + 'sonraki kontrolde stoğu olan tüm ürünler "yeniden stokta" '
+            + 'olarak değerlendirilecek.')) return;
   const token = getAdminToken();
-  const res = await fetch('/api/admin/stock-alerts', { method:'POST', headers:{'Content-Type':'application/json','X-Admin-Token':token}, body: JSON.stringify({action:'check-now'}) });
-  const json = await res.json();
-  alert(`Kontrol bitti. Stoğa gelen: ${json.restockedCount}, Gönderilen: ${json.sent}, Başarısız: ${json.failed}`);
-  adminFetchStockAlerts();
+  try {
+    const res = await fetch('/api/admin/stock-alerts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      body: JSON.stringify({ action: 'reset-snapshot' })
+    });
+    const json = await res.json().catch(()=>({}));
+    if (!res.ok || json.success === false) {
+      alert('Sıfırlama başarısız: ' + (json?.error || res.status));
+      return;
+    }
+    alert('Snapshot sıfırlandı. Şimdi "Şimdi Kontrol Et"e basın.');
+  } catch(err) {
+    alert('Hata: ' + (err?.message || err));
+  }
 }
 
 document.getElementById('stockAlertCheckBtn')?.addEventListener('click', adminCheckStockNow);
+document.getElementById('stockAlertResetBtn')?.addEventListener('click', adminForceStockRecheck);
 document.getElementById('stockAlertRefreshBtn')?.addEventListener('click', adminFetchStockAlerts);
 document.getElementById('reviewsSeedAllBtn')?.addEventListener('click', async ()=>{
   if(!confirm('Tüm ürünlerde eksik sahte yorumlar tamamlansın mı?')) return;
