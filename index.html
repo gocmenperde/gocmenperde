@@ -1761,6 +1761,32 @@ body.modal-open .live-order-toast{display:none !important}
   to{opacity:1;transform:translateY(0)}
 }
 
+
+/* 2026 mobil/erişilebilirlik iyileştirmeleri */
+header.is-shrunk{padding:9px 0;background:rgba(251,249,245,0.92)}
+header.is-shrunk .header-inner{height:52px}
+header.is-shrunk .logo-main{font-size:1.08rem}
+header.is-shrunk .logo-sub{font-size:9px}
+.product-bottom{display:flex;flex-direction:column;height:100%;justify-content:space-between;gap:10px}
+.product-price{text-align:right;align-self:flex-end}
+.product-card{transition:transform .25s cubic-bezier(.4,0,.2,1),box-shadow .25s cubic-bezier(.4,0,.2,1),border-color .25s cubic-bezier(.4,0,.2,1)}
+.product-card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.10)}
+@media (max-width:768px){.product-card:active{transform:scale(.98)}}
+.btn-primary,.add-btn,.modal-add-btn{min-height:48px;border-radius:12px;transition:all .18s ease}
+.btn-secondary{min-height:48px;border-radius:12px;border:1px solid #c8a35a;background:#fff;color:#a3823f;transition:all .18s ease}
+.btn-secondary:hover{background:#f8f1e2}
+.btn-danger{min-height:48px;border-radius:12px;border:1px solid #dc2626;background:#fff;color:#dc2626;transition:all .18s ease}
+.btn-danger:hover{background:#dc2626;color:#fff}
+.mobile-action-bar{display:none}
+@media (max-width:768px){
+  body{padding-bottom:calc(80px + env(safe-area-inset-bottom));}
+  .mobile-action-bar{position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:12495;display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;padding:8px;background:rgba(255,255,255,.96);border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 10px 24px rgba(0,0,0,.16)}
+  .mobile-action-bar[hidden]{display:none!important}
+  .bar-btn{border:1px solid rgba(26,26,26,.12);background:#fff;border-radius:11px;min-height:46px;padding:0 10px;display:flex;align-items:center;justify-content:center;gap:6px;color:#1a1a1a;text-decoration:none;font-weight:600;font-size:.82rem}
+  .bar-btn.whatsapp{border-color:#25D366;color:#1f8b48}
+  .bar-btn.primary{border-color:#c8a35a;background:#c8a35a;color:#fff}
+}
+
 </style>
 </head>
 <body>
@@ -7533,7 +7559,9 @@ window.addEventListener('hashchange',()=>{
 function toggleHeaderCompact(){
   const header = document.querySelector('header');
   if(!header) return;
-  header.classList.toggle('header-compact', window.scrollY > 24);
+  const shrunk = (window.scrollY || 0) > 80;
+  header.classList.toggle('header-compact', shrunk);
+  header.classList.toggle('is-shrunk', shrunk);
 }
 window.addEventListener('scroll', ()=>{
   toggleHeaderCompact();
@@ -9712,6 +9740,46 @@ window.addEventListener('load', () => {
   });
 });
 
+
+
+function updateMobileActionBar(){
+  const bar=document.getElementById('mobileActionBar');
+  if(!bar) return;
+  const isMobile=window.innerWidth<=768;
+  const modalOpen=document.body.classList.contains('product-modal-open')||document.getElementById('productModal')?.classList.contains('open');
+  bar.hidden=!(isMobile && modalOpen);
+}
+window.addEventListener('resize',updateMobileActionBar);
+window.addEventListener('orientationchange',updateMobileActionBar);
+document.addEventListener('click',(e)=>{
+  const addBtn=e.target.closest('#mobileBarAddBtn');
+  if(!addBtn) return;
+  const realBtn=document.querySelector('#mAddWrap .modal-add-btn:not([disabled])')||document.querySelector('#mAddWrap .modal-add-btn-notify');
+  if(realBtn) realBtn.click();
+});
+const __origOpenProductModal=window.openProductModal;
+if(typeof __origOpenProductModal==='function'){
+  window.openProductModal=function(...args){
+    const r=__origOpenProductModal.apply(this,args);
+    setTimeout(updateMobileActionBar,50);
+    return r;
+  }
+}
+const __origCloseProductModal=window.closeProductModal;
+if(typeof __origCloseProductModal==='function'){
+  window.closeProductModal=function(...args){
+    const r=__origCloseProductModal.apply(this,args);
+    setTimeout(updateMobileActionBar,0);
+    return r;
+  }
+}
 </script>
+
+<div class="mobile-action-bar" id="mobileActionBar" hidden>
+  <a href="tel:+905012110958" class="bar-btn" aria-label="Ara">📞 Ara</a>
+  <a href="https://wa.me/905012110958" target="_blank" rel="noopener noreferrer" class="bar-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp" aria-hidden="true"></i> WhatsApp</a>
+  <button type="button" class="bar-btn primary" id="mobileBarAddBtn" aria-label="Sepete Ekle">🛒 Sepete Ekle</button>
+</div>
+
 </body>
 </html>
