@@ -3219,17 +3219,31 @@ async function renderPaymentLogos(){
   const container = document.getElementById('footerPaymentLogos');
   if (!container) return;
   let logos = DEFAULT_PAYMENT_LOGOS;
+  let source = 'default';
   try {
-    const res = await fetch('/api/payment-logos', { cache:'no-store' });
+    // Cache-buster: sayfa her açıldığında 5 dakikalık dilim halinde URL değişir.
+    // Bu sayede admin yeni logo eklediğinde edge cache atlatılır.
+    const bust = Math.floor(Date.now() / (5 * 60 * 1000));
+    const res = await fetch(`/api/payment-logos?v=${bust}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    });
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.logos) && data.logos.length) logos = data.logos;
+      if (Array.isArray(data.logos) && data.logos.length) {
+        logos = data.logos;
+        source = 'api';
+      }
+    } else {
+      console.warn('[payment-logo] API yanıtı OK değil:', res.status);
     }
-  } catch(_) {}
+  } catch(err) {
+    console.warn('[payment-logo] fetch hatası:', err?.message);
+  }
   container.innerHTML = logos.map((l) =>
     `<img class="payment-logo-img" src="${escapeHtml(l.imageUrl)}" alt="${escapeHtml(l.altText || l.name || 'Ödeme logosu')}" loading="lazy" decoding="async" height="28" data-logo-name="${escapeHtml(l.name || '')}" onerror="console.warn('[payment-logo] yüklenemedi:', this.dataset.logoName, this.src); this.style.display='none'">`
   ).join('');
-  console.info('[payment-logo] render edilen logo sayısı:', logos.length, 'ilk 3 URL:', logos.slice(0,3).map(l=>l.imageUrl));
+  console.info(`[payment-logo] kaynak=${source} adet=${logos.length} ilk3=`, logos.slice(0,3).map(l=>({n:l.name,u:l.imageUrl})));
   container.removeAttribute('data-loading');
   optimizeImageLoading?.(container);
 }
