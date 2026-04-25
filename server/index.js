@@ -133,8 +133,10 @@ const { checkRestocks } = require('./lib/_stock-alert-runner');
 const { sendReviewInvites } = require('./lib/_review-invite-runner');
 const { ensureReviewSchema } = require('./lib/_reviews_schema');
 const { ensureSeedsForAllProducts } = require('./lib/_seed-reviews');
+const { ensureSiteSettingsSchema } = require('./lib/_site_settings');
 // Başlangıçta schema garanti et + tüm ürünler için eksik sahte yorumları doldur.
 setTimeout(() => {
+  ensureSiteSettingsSchema().catch((e) => console.warn('[site-settings startup]', e?.message));
   ensureReviewSchema()
     .then(() => ensureSeedsForAllProducts())
     .then((r) => {
@@ -145,6 +147,14 @@ setTimeout(() => {
     .catch((e) => console.warn('[review-seed startup]', e?.message));
 }, 5000);
 // Vercel olmayan ortamda (Replit, self-host) her 30 dakikada bir yeni eklenen ürünler için seed çalıştır.
+const wrap = (handler) => async (req, res, next) => {
+  try {
+    await handler(req, res);
+  } catch (err) {
+    next(err);
+  }
+};
+
 if (!process.env.VERCEL) {
   setInterval(() => {
     ensureSeedsForAllProducts()
@@ -156,6 +166,8 @@ if (!process.env.VERCEL) {
       .catch((e) => console.warn('[review-seed cron]', e?.message));
   }, 30 * 60 * 1000);
 }
+app.use('/api/site-settings', wrap(require('./handlers/site-settings')));
+app.use('/api/admin/site-settings', wrap(require('./handlers/admin/site-settings')));
 app.all('/api/*', routerHandler);
 const server = app.listen(PORT, HOST, () => {
   console.log(`Sunucu hazır: http://${HOST}:${PORT}`);
