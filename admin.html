@@ -1095,8 +1095,9 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
     box-shadow:0 -4px 14px rgba(0,0,0,.06);
     padding:0 0 env(safe-area-inset-bottom);
     margin:0;
-    z-index:9000;
     box-sizing:border-box;
+    pointer-events:auto;
+    z-index:9000;
   }
   .gp-mnav-inner{
     display:flex;
@@ -1125,15 +1126,40 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
     cursor:pointer;
     min-height:54px;
     -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+    user-select:none;
+    -webkit-user-select:none;
+    pointer-events:auto;
+    position:relative;
+    z-index:1;
   }
-  .gp-mnav-btn i{
-    font-size:17px;
-    color:#1a1a1a;
-    line-height:1;
-  }
+  .gp-mnav-btn *{pointer-events:none}
+  .gp-mnav-btn i{font-size:17px;color:#1a1a1a;line-height:1}
   .gp-mnav-btn.is-active{color:#a3823f}
   .gp-mnav-btn.is-active i{color:#c8a35a}
   .gp-mnav-btn:active{background:rgba(0,0,0,.04)}
+  /* === BİLDİRİM BADGE === */
+  .gp-mnav-badge{
+    position:absolute;
+    top:4px;
+    right:calc(50% - 22px);
+    min-width:18px;
+    height:18px;
+    padding:0 5px;
+    background:#c8a35a;
+    color:#fff;
+    font-size:10px;
+    font-weight:800;
+    line-height:18px;
+    text-align:center;
+    border-radius:10px;
+    border:2px solid #fff;
+    box-shadow:0 1px 4px rgba(0,0,0,.15);
+    letter-spacing:0;
+    text-transform:none;
+    pointer-events:none;
+    white-space:nowrap;
+  }
   /* Sayfa altı boşluğu — alt nav'ın altına içerik düşmesin */
   body.has-gp-mnav .admin-wrapper,
   body.has-gp-mnav .main-content{
@@ -1147,6 +1173,122 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
 }
 /* Login ekranındayken gizle */
 .gp-mnav.is-hidden{display:none!important}
+
+
+@media (max-width:768px){
+  #page-favorites .toolbar,
+  #page-favorites .filters-row,
+  #page-favorites .actions-row,
+  #page-favorites .page-header + .toolbar{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  #page-favorites input[type="search"],
+  #page-favorites input[type="text"]{
+    width:100%!important;
+    flex:1 1 100%!important;
+    min-width:0!important;
+    padding:12px 14px;
+    font-size:16px;
+    border-radius:10px;
+  }
+  #page-favorites .btn-danger,
+  #page-favorites button[onclick*="clearAllFavorites"]{
+    align-self:flex-end;
+    width:auto!important;
+    min-width:0!important;
+    flex:0 0 auto!important;
+    padding:10px 14px;
+    font-size:.78rem;
+    min-height:44px;
+  }
+  #page-favorites .stats-grid,
+  #page-favorites .fav-stats,
+  #page-favorites .stat-cards,
+  #page-favorites .grid-2{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  #page-favorites .stat-card,
+  #page-favorites .info-card,
+  #page-favorites .summary-card{
+    padding:18px 16px;
+    min-height:auto;
+  }
+  #page-favorites .stat-card h3,
+  #page-favorites .stat-card .stat-label,
+  #page-favorites .summary-card h3{
+    font-size:.78rem;
+    line-height:1.3;
+    word-break:normal;
+    white-space:normal;
+  }
+  #page-favorites .fav-list,
+  #page-favorites .fav-grid{
+    grid-template-columns:1fr!important;
+    gap:10px;
+  }
+  #page-favorites .fav-item,
+  #page-favorites .fav-card{padding:14px}
+}
+
+@media (max-width:768px){
+  .toolbar,
+  .filters-row,
+  .actions-row,
+  .admin-toolbar{
+    flex-direction:column;
+    align-items:stretch;
+    gap:8px;
+  }
+  .toolbar input[type="search"],
+  .toolbar input[type="text"],
+  .filters-row input[type="search"],
+  .filters-row input[type="text"]{
+    order:-1;
+    width:100%;
+    flex:1 1 100%;
+    min-width:0;
+    padding:12px 14px;
+    font-size:16px;
+  }
+  .toolbar .btn-danger,
+  .filters-row .btn-danger{
+    align-self:flex-end;
+    width:auto;
+    flex:0 0 auto;
+    padding:10px 14px;
+    min-height:44px;
+  }
+}
+@media (max-width:480px){
+  .stats-grid,
+  .stat-cards,
+  .summary-grid,
+  .info-grid{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  .stat-card,
+  .summary-card,
+  .info-card{padding:18px 16px}
+  .stat-card h3,
+  .stat-card .stat-label{
+    font-size:.78rem;
+    word-break:normal;
+    white-space:normal;
+    line-height:1.3;
+  }
+  .stat-number{font-size:1.7rem}
+}
+@media (max-width:768px) and (min-width:481px){
+  .stats-grid,
+  .stat-cards{grid-template-columns:repeat(2,1fr)}
+}
 
 </style>
 
@@ -7103,49 +7245,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 });
 
-/* ============ GP MOBILE NAV — DAVRANIŞ ============ */
-(function(){
-  const nav = document.getElementById('gpMnav');
-  if (!nav) return;
-  document.body.classList.add('has-gp-mnav');
-  function go(target){
-    if (target === '__more'){
-      if (typeof toggleSidebar === 'function') toggleSidebar();
-      return;
-    }
-    if (typeof showPage === 'function') showPage(target);
-    syncActive(target);
-    if (typeof closeSidebar === 'function') closeSidebar();
-  }
-  function syncActive(id){
-    nav.querySelectorAll('.gp-mnav-btn').forEach(btn => {
-      btn.classList.toggle('is-active', btn.dataset.target === id);
-    });
-  }
-  nav.querySelectorAll('.gp-mnav-btn').forEach(btn => {
-    btn.addEventListener('click', () => go(btn.dataset.target));
-  });
-  // showPage çağrıldığında aktif sekmeyi senkronize et
-  if (typeof window.showPage === 'function'){
-    const _orig = window.showPage;
-    window.showPage = function(id){
-      const r = _orig.apply(this, arguments);
-      try { syncActive(id); } catch(_){}
-      return r;
-    };
-  }
-  // Login ekranı görünürken nav'ı gizle
-  function refreshVisibility(){
-    const login = document.getElementById('loginScreen');
-    const visible = login && !login.classList.contains('hide') && !login.hasAttribute('hidden')
-      && getComputedStyle(login).display !== 'none';
-    nav.classList.toggle('is-hidden', !!visible);
-  }
-  refreshVisibility();
-  new MutationObserver(refreshVisibility).observe(document.body, {
-    attributes:true, subtree:true, attributeFilter:['class','hidden','style']
-  });
-})();
 
 </script>
 
@@ -7259,6 +7358,130 @@ document.addEventListener('DOMContentLoaded',()=>{
     </button>
   </div>
 </nav>
+
+
+<script>
+(function(){
+  function init(){
+    const nav = document.getElementById('gpMnav');
+    if (!nav) return;
+    if (nav.dataset.bound === '1') return;
+    nav.dataset.bound = '1';
+    document.body.classList.add('has-gp-mnav');
+    function go(target){
+      if (target === '__more'){
+        if (typeof toggleSidebar === 'function') toggleSidebar();
+        else if (typeof openSidebar === 'function') openSidebar();
+        return;
+      }
+      if (typeof showPage === 'function'){
+        try { showPage(target); } catch(e){ console.warn('showPage hata:', e); }
+      } else {
+        console.warn('showPage tanımlı değil:', target);
+      }
+      syncActive(target);
+      if (typeof closeSidebar === 'function'){
+        try { closeSidebar(); } catch(_){}
+      }
+    }
+    function syncActive(id){
+      nav.querySelectorAll('.gp-mnav-btn').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.target === id);
+      });
+    }
+    nav.querySelectorAll('.gp-mnav-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        go(btn.dataset.target);
+      }, {passive:false});
+    });
+    if (typeof window.showPage === 'function' && !window.__gpMnavWrapped){
+      window.__gpMnavWrapped = true;
+      const _orig = window.showPage;
+      window.showPage = function(id){
+        const r = _orig.apply(this, arguments);
+        try { syncActive(id); } catch(_){}
+        try { updateGpMnavBadges(); } catch(_){}
+        return r;
+      };
+    }
+    // ====== BİLDİRİM BADGE'LERİ ======
+    function updateGpMnavBadges(){
+      // Siparişler — DOM'dan okunmamış / yeni sipariş sayısı
+      let ordersCount = 0;
+      const ordersStat = document.querySelector('#statNewOrders, #pendingOrdersCount, [data-stat="new-orders"]');
+      if (ordersStat){
+        const n = parseInt(String(ordersStat.textContent).replace(/\D/g,''), 10);
+        if (!isNaN(n)) ordersCount = n;
+      }
+      // Yedek: sidebar nav-item içindeki nav-badge
+      if (!ordersCount){
+        const sidebarOrdersBadge = document.querySelector('.nav-item[onclick*="orders"] .nav-badge, .nav-item[onclick*="orders"] .badge');
+        if (sidebarOrdersBadge){
+          const n = parseInt(String(sidebarOrdersBadge.textContent).replace(/\D/g,''), 10);
+          if (!isNaN(n)) ordersCount = n;
+        }
+      }
+      // Daha (canlı destek) — bell ikonu / live-support badge
+      let moreCount = 0;
+      const liveSupportBadge = document.querySelector('.nav-item[onclick*="live-support"] .nav-badge, .nav-item[onclick*="live-support"] .badge, #liveSupportBadge, #notifBellCount, .topbar .bell-badge');
+      if (liveSupportBadge){
+        const n = parseInt(String(liveSupportBadge.textContent).replace(/\D/g,''), 10);
+        if (!isNaN(n)) moreCount = n;
+      }
+      setBadge('orders', ordersCount);
+      setBadge('__more', moreCount);
+    }
+    function setBadge(target, count){
+      const btn = nav.querySelector(`.gp-mnav-btn[data-target="${target}"]`);
+      if (!btn) return;
+      let badge = btn.querySelector('.gp-mnav-badge');
+      const visible = count > 0;
+      if (visible){
+        if (!badge){
+          badge = document.createElement('span');
+          badge.className = 'gp-mnav-badge';
+          btn.appendChild(badge);
+        }
+        badge.textContent = count > 99 ? '99+' : String(count);
+      } else if (badge){
+        badge.remove();
+      }
+    }
+    // Tek seferlik global erişim
+    window.updateGpMnavBadges = updateGpMnavBadges;
+    // İlk çalıştırma + periyodik tazeleme
+    updateGpMnavBadges();
+    setInterval(updateGpMnavBadges, 8000);
+    // DOM değiştiğinde de tazele (yeni bildirim/sipariş geldiğinde)
+    const badgeObs = new MutationObserver(() => {
+      clearTimeout(window.__mnavBadgeT);
+      window.__mnavBadgeT = setTimeout(updateGpMnavBadges, 250);
+    });
+    badgeObs.observe(document.body, {
+      childList:true, subtree:true, characterData:true
+    });
+    // Login ekranı görünürken nav'ı gizle
+    function refreshVisibility(){
+      const login = document.getElementById('loginScreen');
+      const visible = login && !login.classList.contains('hide')
+        && !login.hasAttribute('hidden')
+        && getComputedStyle(login).display !== 'none';
+      nav.classList.toggle('is-hidden', !!visible);
+    }
+    refreshVisibility();
+    new MutationObserver(refreshVisibility).observe(document.body, {
+      attributes:true, subtree:true, attributeFilter:['class','hidden','style']
+    });
+  }
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
 
 </body>
 </html>
