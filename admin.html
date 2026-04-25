@@ -4,6 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
     <meta name="robots" content="noindex,nofollow">
 <title>Göçmen Perde — Admin Paneli</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -718,11 +721,9 @@ tbody tr:hover td{background:#fdfcf8}
 .form-modal-footer,.modal-actions,.modal-footer{flex-wrap:wrap;gap:8px;position:sticky;bottom:0;background:#fff;padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
 .form-modal-footer .btn,.modal-actions .btn,.modal-footer .btn{min-width:0;flex:1 1 calc(50% - 8px);padding:11px 12px;font-size:.85rem}
 .form-modal-footer .btn.btn-block,.modal-actions .btn.btn-block{flex-basis:100%}
-.sidebar{height:100dvh;height:100svh;overflow:hidden;display:flex;flex-direction:column}
-body.sidebar-open .sidebar{height:100dvh;height:100svh}
+.sidebar{overflow:hidden;display:flex;flex-direction:column}
 .sidebar-nav{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:16px}
 .sidebar-footer{padding:12px 18px calc(14px + env(safe-area-inset-bottom))}
-body.sidebar-open .sidebar-footer{padding-bottom:calc(14px + env(safe-area-inset-bottom))}
 .sidebar-user{margin-bottom:10px;gap:9px}
 .sidebar-avatar{width:32px;height:32px;font-size:.9rem}
 .sidebar-user-info h4{font-size:.78rem}
@@ -732,11 +733,27 @@ button, .btn, .nav-item, a.btn, .pagination a{min-height:44px}
 input, select, textarea{min-height:44px;font-size:16px}
 .nav-item{padding:12px 22px;font-size:.92rem}
 .icon-btn{min-width:44px;min-height:44px}
-body.sidebar-open .gp-mnav,
-.sidebar.open ~ .gp-mnav,
-.sidebar-overlay.open ~ .gp-mnav,
-body:has(.sidebar.open) .gp-mnav,
-body:has(.sidebar-overlay.open) .gp-mnav{display:none!important}
+/* Mobil sidebar/mnav tekil çözüm */
+.sidebar{
+  height: 100dvh !important;
+  height: 100svh !important;
+  max-height: 100dvh !important;
+  z-index: 9999 !important;
+}
+.sidebar-footer{
+  padding-bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+}
+.sidebar-overlay{ z-index: 9998 !important; }
+body.sidebar-open .gp-mnav{
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(100%) !important;
+}
+html.sidebar-open .gp-mnav{
+  display: none !important;
+}
 body.has-gp-mnav .form-modal,
 body.has-gp-mnav .modal,
 body.has-gp-mnav .modal-overlay > .modal-content{
@@ -4332,39 +4349,29 @@ document.getElementById('reviewsSeedSelectedBtn')?.addEventListener('click', asy
 });
 document.getElementById('reviewsRefresh')?.addEventListener('click', adminFetchReviews);
 document.getElementById('reviewStatusFilter')?.addEventListener('change', adminFetchReviews);
+function openSidebar(){
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  if (sb) sb.classList.add('open');
+  if (ov) ov.classList.add('open');
+  document.body.classList.add('sidebar-open');
+  document.documentElement.classList.add('sidebar-open');
+  document.body.style.overflow = 'hidden';   /* arka plan scroll kilidi */
+}
+function closeSidebar(){
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  if (sb) sb.classList.remove('open');
+  if (ov) ov.classList.remove('open');
+  document.body.classList.remove('sidebar-open');
+  document.documentElement.classList.remove('sidebar-open');
+  document.body.style.overflow = '';
+}
 function toggleSidebar(){
   const sb = document.getElementById('sidebar');
   if (!sb) return;
-  const isOpen = sb.classList.contains('open');
-  if (isOpen) closeSidebar();
+  if (sb.classList.contains('open')) closeSidebar();
   else openSidebar();
-}
-let __scrollLockY = 0;
-function openSidebar(){
-  __scrollLockY = window.scrollY || 0;
-  document.getElementById('sidebar')?.classList.add('open');
-  document.getElementById('sidebarOverlay')?.classList.add('open');
-  document.body.classList.add('sidebar-open');
-  const mnav = document.getElementById('gpMnav');
-  if (mnav) mnav.style.display = 'none';
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${__scrollLockY}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.overflow = 'hidden';
-}
-function closeSidebar(){
-  document.getElementById('sidebar')?.classList.remove('open');
-  document.getElementById('sidebarOverlay')?.classList.remove('open');
-  document.body.classList.remove('sidebar-open');
-  const mnav = document.getElementById('gpMnav');
-  if (mnav) mnav.style.removeProperty('display');
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.overflow = '';
-  window.scrollTo(0, __scrollLockY);
 }
 function showPage(id){
   const nextPage = document.getElementById('page-'+id);
