@@ -2625,30 +2625,44 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-function getSocialLinks(){
+async function migrateLegacySocialLinks(){
   try{
-    const parsed = JSON.parse(localStorage.getItem(SOCIAL_LINKS_KEY) || '{}');
-    return {...DEFAULT_SOCIAL_LINKS, ...(parsed || {})};
-  }catch(_){
-    return {...DEFAULT_SOCIAL_LINKS};
-  }
+    const raw = localStorage.getItem(SOCIAL_LINKS_KEY);
+    if(!raw) return;
+    const parsed = JSON.parse(raw || '{}');
+    if(!parsed || typeof parsed !== 'object'){
+      localStorage.removeItem(SOCIAL_LINKS_KEY);
+      return;
+    }
+    await apiFetch('/api/admin/site-settings', {
+      method:'PUT',
+      headers:{ 'Content-Type':'application/json', 'x-admin-token': getAdminApiKey() },
+      body: JSON.stringify({ social: parsed })
+    });
+    localStorage.removeItem(SOCIAL_LINKS_KEY);
+  }catch(_){ }
 }
-function saveSocialLinks(payload){
-  localStorage.setItem(SOCIAL_LINKS_KEY, JSON.stringify(payload || {}));
-}
-function adminLoadSocialLinks(){
-  const links = getSocialLinks();
+async function adminLoadSocialLinks(){
   const setValue = (id, value)=>{
     const el = document.getElementById(id);
     if(el) el.value = value || '';
   };
+  let links = {...DEFAULT_SOCIAL_LINKS};
+  try{
+    await migrateLegacySocialLinks();
+    const r = await fetch('/api/admin/site-settings', {
+      headers:{ 'x-admin-token': getAdminApiKey() }, cache:'no-store'
+    });
+    const data = await r.json();
+    links = { ...DEFAULT_SOCIAL_LINKS, ...(data?.social || {}) };
+  }catch(e){ }
   setValue('adminSocialInstagram', links.instagram);
   setValue('adminSocialFacebook', links.facebook);
   setValue('adminSocialTiktok', links.tiktok);
   setValue('adminSocialYoutube', links.youtube);
   setValue('adminSocialX', links.x);
 }
-function adminSaveSocialLinks(){
+async function adminSaveSocialLinks(){
   const getValue = (id)=>String(document.getElementById(id)?.value || '').trim();
   const data = {
     instagram: getValue('adminSocialInstagram'),
@@ -2667,7 +2681,18 @@ function adminSaveSocialLinks(){
       return;
     }
   }
-  saveSocialLinks(data);
+  const r = await fetch('/api/admin/site-settings', {
+    method:'PUT',
+    headers:{ 'Content-Type':'application/json', 'x-admin-token': getAdminApiKey() },
+    body: JSON.stringify({ social: data })
+  });
+  if(!r.ok){
+    if(status){
+      status.textContent = 'Kaydedilemedi';
+      status.style.color = '#c0392b';
+    }
+    return;
+  }
   if(status){
     status.textContent = 'Kaydedildi ✓';
     status.style.color = 'var(--gold-deep)';
