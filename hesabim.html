@@ -1201,6 +1201,62 @@
     .section-shell,.orders-shell{border:1px solid rgba(255,255,255,0.92);box-shadow:0 30px 62px rgba(55,46,34,0.12)}
     @media (max-width:760px){.account-premium-strip{grid-template-columns:1fr;gap:8px;padding-top:8px}}
 
+
+@media (max-width:768px){
+  .gp-logout{
+    position:sticky;
+    bottom:calc(8px + env(safe-area-inset-bottom));
+    width:100%;
+    margin-top:18px;
+    padding:14px;
+    font-size:.95rem;
+    box-shadow:0 8px 18px rgba(0,0,0,.12);
+    z-index:5;
+  }
+  button, .btn, .nav-item, a.btn, .pagination a{
+    min-height:44px;
+  }
+  input, select, textarea{
+    min-height:44px;
+    font-size:16px;
+  }
+}
+
+@media (max-width: 640px){
+  .content{padding:16px 12px}
+  .info-grid{grid-template-columns:1fr;gap:12px}
+  .info-box{padding:14px}
+  .info-box.full{grid-column:span 1}
+  .form-row,.form-row-2{grid-template-columns:1fr;gap:10px}
+  .tabs-wrap,.tabs,.section-tabs,.account-tabs{
+    display:flex;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    gap:6px;
+    padding-bottom:6px;
+    margin:0 -12px;
+    padding-left:12px;
+    padding-right:12px;
+  }
+  .tabs-wrap::-webkit-scrollbar,
+  .tabs::-webkit-scrollbar,
+  .section-tabs::-webkit-scrollbar,
+  .account-tabs::-webkit-scrollbar{display:none}
+  .tabs-inner{display:flex;min-width:max-content;padding:0}
+  .gp-tab,.tab,.section-tab,.account-tab{
+    flex:0 0 auto;
+    white-space:nowrap;
+    font-size:.85rem;
+    padding:10px 14px;
+  }
+  .order-card,.address-card{padding:14px}
+  .fav-grid{grid-template-columns:1fr!important}
+}
+@media (max-width: 380px){
+  .content{padding:14px 10px}
+  h1,h2{font-size:1.3rem}
+}
 </style>
 
 </head>
