@@ -6,6 +6,12 @@ module.exports = async function handler(req, res) {
   if (applyCors(req, res)) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method Not Allowed' });
   await ensureReviewSchema();
+  const productId = String(req.query?.productId || '').trim();
+  if (productId) {
+    const { ensureSeedsForProduct } = require('../lib/_seed-reviews');
+    ensureSeedsForProduct(productId)
+      .catch((e) => console.warn('[lazy-seed-summary]', productId, e?.message));
+  }
   const r = await pool.query(
     `SELECT product_id, COUNT(*)::int AS total, COALESCE(AVG(rating),0)::float AS avg
      FROM product_reviews WHERE status='approved'

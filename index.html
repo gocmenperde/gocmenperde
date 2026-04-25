@@ -3227,8 +3227,9 @@ async function renderPaymentLogos(){
     }
   } catch(_) {}
   container.innerHTML = logos.map((l) =>
-    `<img class="payment-logo-img" src="${escapeHtml(l.imageUrl)}" alt="${escapeHtml(l.altText || l.name || 'Ödeme logosu')}" loading="lazy" decoding="async" height="28" onerror="this.style.display='none'">`
+    `<img class="payment-logo-img" src="${escapeHtml(l.imageUrl)}" alt="${escapeHtml(l.altText || l.name || 'Ödeme logosu')}" loading="lazy" decoding="async" height="28" data-logo-name="${escapeHtml(l.name || '')}" onerror="console.warn('[payment-logo] yüklenemedi:', this.dataset.logoName, this.src); this.style.display='none'">`
   ).join('');
+  console.info('[payment-logo] render edilen logo sayısı:', logos.length, 'ilk 3 URL:', logos.slice(0,3).map(l=>l.imageUrl));
   container.removeAttribute('data-loading');
   optimizeImageLoading?.(container);
 }

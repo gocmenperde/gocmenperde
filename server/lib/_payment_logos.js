@@ -32,6 +32,12 @@ async function ensurePaymentLogosSchema() {
     )
   `);
 
+  await pool.query(`
+    ALTER TABLE payment_logos
+      ALTER COLUMN enabled SET DEFAULT TRUE,
+      ALTER COLUMN enabled SET NOT NULL
+  `);
+
   const count = await pool.query('SELECT COUNT(*)::int AS count FROM payment_logos');
   if (Number(count.rows[0]?.count || 0) === 0) {
     for (const row of DEFAULT_PAYMENT_LOGOS) {

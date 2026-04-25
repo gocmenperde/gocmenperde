@@ -12,7 +12,8 @@ async function safeDeletePhotoByUrl(url) {
   await fs.unlink(filePath).catch(() => {});
 }
 
-const ALLOW_REVIEW_SEEDING = process.env.ALLOW_REVIEW_SEEDING === '1';
+// Sahte yorum üretimi her zaman aktif (env bağımlılığı kaldırıldı).
+const ALLOW_REVIEW_SEEDING = true;
 
 module.exports = async function handler(req, res) {
   if (applyCors(req, res, { allowAdminHeaders: true })) return;

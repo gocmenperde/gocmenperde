@@ -5,19 +5,6 @@ const { pool } = require('../lib/_db');
 const { ensureReviewSchema } = require('../lib/_reviews_schema');
 const { applyCors } = require('../lib/_cors');
 const { uploadDataUrl, isConfigured: cloudinaryReady } = require('../lib/_cloudinary');
-const { ensureSeedsForProduct } = require('../lib/_seed-reviews');
-
-const __seedingInFlight = new Set();
-function ensureSeedsForProductSafe(pid){
-  if (!pid || __seedingInFlight.has(pid)) return;
-  __seedingInFlight.add(pid);
-  setImmediate(async ()=>{
-    try { await ensureSeedsForProduct(pid); }
-    catch(_){}
-    finally { __seedingInFlight.delete(pid); }
-  });
-}
-
 const UPLOAD_DIR = process.env.VERCEL
   ? path.join('/tmp', 'uploads', 'reviews')
   : path.join(__dirname, '..', '..', 'public', 'uploads', 'reviews');
@@ -84,7 +71,13 @@ module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     const productId = String(req.query?.productId || '').trim();
     if (!productId) return res.status(400).json({ error: 'productId zorunlu' });
-    ensureSeedsForProductSafe(productId);
+    // Lazy seed: ürün için sahte yorum eksikse arka planda doldur.
+    // Yanıtı bloklamaz, sonraki istekte yorumlar görünür olur.
+    if (productId) {
+      const { ensureSeedsForProduct } = require('../lib/_seed-reviews');
+      ensureSeedsForProduct(productId)
+        .catch((e) => console.warn('[lazy-seed]', productId, e?.message));
+    }
     const limit = Math.min(50, Math.max(1, Number(req.query?.limit || 20)));
     const offset = Math.max(0, Number(req.query?.offset || 0));
     const r = await pool.query(
