@@ -209,17 +209,17 @@
             const validPassword = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(sifre);
 
             if (!allowedEmail) {
-                alert('Kayıt için e-posta adresiniz @gmail.com veya @hotmail.com ile bitmelidir.');
+                showInlineToast('Kayıt için e-posta adresiniz @gmail.com veya @hotmail.com ile bitmelidir.', true);
                 return;
             }
 
             if (!validPassword) {
-                alert('Şifre en az 6 karakter olmalı ve en az 1 harf ile 1 sayı içermelidir.');
+                showInlineToast('Şifre en az 6 karakter olmalı ve en az 1 harf ile 1 sayı içermelidir.', true);
                 return;
             }
             const phoneDigits = String(document.getElementById('rPhone').value || '').replace(/\D/g, '');
             if (phoneDigits.length !== 10) {
-                alert('Telefon numarasının 0’dan sonraki 10 hanesini girin.');
+                showInlineToast('Telefon numarasının 0’dan sonraki 10 hanesini girin.', true);
                 return;
             }
         }
@@ -228,29 +228,84 @@
         btn.innerText = 'Bekleyiniz...';
 
         try {
+            const ctrl = new AbortController();
+            const timeoutId = setTimeout(() => ctrl.abort(), 12000);
             const response = await fetch('/api/auth?action=' + type, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
+                signal: ctrl.signal
             });
+            clearTimeout(timeoutId);
             const res = await response.json();
 
             if(res.success) {
                 localStorage.setItem('token', res.token);
                 localStorage.setItem('gp_token', res.token);
                 localStorage.setItem('user', JSON.stringify(res.user));
-                alert(type === 'login' ? 'Hoş geldiniz!' : 'Kaydınız başarıyla oluşturuldu!');
-                window.location.href = safeNextPath;
+                // Engelleyici alert YOK; küçük toast göster ve
+                // hemen yönlendir (yönlendirme arka planda çoktan başlamış olur).
+                try {
+                    showInlineToast(type === 'login'
+                        ? 'Hoş geldiniz, yönlendiriliyorsunuz...'
+                        : 'Kayıt tamamlandı, yönlendiriliyorsunuz...');
+                } catch(_) {}
+                // Hedef sayfayı önceden başlatmak için link prefetch
+                try {
+                    const l = document.createElement('link');
+                    l.rel = 'prefetch';
+                    l.href = safeNextPath;
+                    document.head.appendChild(l);
+                } catch(_) {}
+                // 120ms'lik mikro-gecikme — toast bir frame görünsün
+                setTimeout(() => { window.location.href = safeNextPath; }, 120);
+                return;
             } else {
-                alert('Hata: ' + (res.error || 'Bilgiler yanlış.'));
+                showInlineToast('Hata: ' + (res.error || 'Bilgiler yanlış.'), true);
             }
         } catch (err) {
-            alert('Bağlantı Hatası! Vercel Logs kısmını kontrol edin.');
+            console.error('[auth] login hatası:', err);
+            showInlineToast('Bağlantı hatası, lütfen tekrar deneyin.', true);
         } finally {
             btn.disabled = false;
             btn.innerText = type === 'login' ? 'GİRİŞ YAP' : 'HESAP OLUŞTUR';
         }
     }
 </script>
+<style>
+    .auth-toast{
+      position:fixed;
+      left:50%;
+      bottom:calc(24px + env(safe-area-inset-bottom));
+      transform:translate(-50%, 24px);
+      background:#1a1409;
+      color:#fff;
+      padding:12px 18px;
+      border-radius:14px;
+      font-size:.92rem;
+      box-shadow:0 14px 36px rgba(0,0,0,.32);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s ease, transform .2s ease;
+      z-index:99999;
+      max-width:88vw;
+      text-align:center;
+    }
+    .auth-toast.show{ opacity:1; transform:translate(-50%, 0); }
+    .auth-toast.error{ background:#7d2c2c; }
+  </style>
+  <div class="auth-toast" id="authToast" role="status" aria-live="polite"></div>
+  <script>
+    let __authToastTimer = null;
+    function showInlineToast(message, isError = false){
+      const el = document.getElementById('authToast');
+      if(!el) return;
+      el.textContent = String(message || '');
+      el.classList.toggle('error', !!isError);
+      el.classList.add('show');
+      if(__authToastTimer) clearTimeout(__authToastTimer);
+      __authToastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+  </script>
 </body>
 </html>
