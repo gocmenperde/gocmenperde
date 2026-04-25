@@ -1600,7 +1600,7 @@
 <div class="modal-overlay" id="orderDetailModal" onclick="if(event.target===this)closeOrderModal()">
     <div class="order-modal">
         <div class="order-modal-header">
-            <h3>Sipariş <span id="modalOrderId">Detayı</span></h3>
+            <h3>Sipariş <span id="modalOrderId">—</span></h3>
             <button class="modal-close" onclick="closeOrderModal()"><i class="fas fa-xmark"></i></button>
         </div>
         <div class="order-modal-body" id="orderModalContent">
@@ -1611,6 +1611,12 @@
 <div class="gp-toast" id="gpToast"></div>
 
 <script>
+window.addEventListener('error', (e)=>{
+    console.error('[hesabim] global hata:', e.message, e.filename, e.lineno);
+});
+window.addEventListener('unhandledrejection', (e)=>{
+    console.error('[hesabim] reddedilen promise:', e.reason);
+});
 function bindSmartBackLink(selector, fallback='/'){
     const backLink=document.querySelector(selector);
     if(!backLink) return;
@@ -2005,85 +2011,119 @@ function renderOrders(orders, totalCount = orders.length) {
     ` + renderOrderSuggestions();
 }
 
-function openOrderDetail(orderId) {
-    const o = allOrders.find(x => x.id === orderId);
-    if (!o) return;
-    document.getElementById('modalOrderId').textContent = '';
-
-    const items = safeJsonParse(o.urunler, o.urunler || []);
-    const orderDate = new Date(o.created_at);
-    const dateStr = orderDate.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
-
-    // Ödeme yöntemi
-    const payLabels = { kapida: 'Kapıda Ödeme', havale: 'Havale / EFT', kredikarti: 'Kredi Kartı' };
-    const payMethod = payLabels[o.odeme_yontemi] || o.odeme_yontemi || '—';
-
-    // Timeline: tarihlere göre oluştur
-    const timeline = buildTimeline(o, orderDate);
-    const estimatedDeliveryDate = getEstimatedDeliveryDate(o, orderDate);
-
-    // Ürün satırları
-    const productRows = items.map(i => {
-        const qty = i.quantity || i.adet || 1;
-        const price = Number(i.price || i.fiyat || 0);
-        const sub = price * qty;
-        const productInfo = getProductByItem(i);
-        const imgSrc = getProductImage(i);
-        const details = [
-            productInfo?.desc ? `<div class="modal-product-extra"><b>Açıklama:</b> ${productInfo.desc}</div>` : '',
-            productInfo?.care ? `<div class="modal-product-extra"><b>Bakım:</b> ${Object.values(productInfo.care).slice(0,2).join(' · ')}</div>` : '',
-            productInfo?.specs ? `<div class="modal-product-extra"><b>Teknik Özellik:</b> ${Object.entries(productInfo.specs).slice(0,2).map(([k,v])=>`${k}: ${v}`).join(' · ')}</div>` : ''
-        ].filter(Boolean).join('');
-        return `
-            <div class="modal-product-row order-item-link" onclick='goToProductDetail(${JSON.stringify(i)})'>
-                ${imgSrc
-                    ? `<img class="modal-product-img" src="${imgSrc}" alt="${i.name || i.ad}" loading="lazy" decoding="async" fetchpriority="low" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" width="420" height="280">`
-                    : ''}
-                <div class="modal-product-img-placeholder" style="display:${imgSrc ? 'none' : 'flex'}">🛍️</div>
-                <div class="modal-product-info">
-                    <div class="modal-product-name">${i.name || i.ad || 'Ürün'}</div>
-                    <div class="modal-product-sub">${qty} ${i.unitLabel || 'adet'} × ${price.toLocaleString('tr-TR')} TL${i.width && i.height ? ` • ${i.width}m × ${i.height}m` : ''}</div>
-                    ${details}
-                </div>
-                <div class="modal-product-price">${sub.toLocaleString('tr-TR')} TL</div>
-            </div>`;
-    }).join('');
-
-    document.getElementById('orderModalContent').innerHTML = `
-        ${productRows}
-        <div class="info-grid">
-            <div class="info-box">
-                <label>Ödeme Şekli</label>
-                <span>${payMethod}</span>
-            </div>
-            <div class="info-box">
-                <label>Sipariş Tarihi</label>
-                <span>${dateStr}</span>
-            </div>
-            <div class="info-box">
-                <label>Tahmini Teslimat</label>
-                <span>${estimatedDeliveryDate}</span>
-            </div>
-            <div class="info-box full">
-                <label>Teslimat Adresi</label>
-                <span>${o.adres || '—'}</span>
-            </div>
-            ${o.siparis_notu ? `<div class="info-box full"><label>Sipariş Notu</label><span>${o.siparis_notu}</span></div>` : ''}
-        </div>
-        <div class="timeline-section">
-            <div class="timeline-title"><i class="fas fa-route" style="color:var(--gold);margin-right:6px"></i> Sipariş Süreci</div>
-            <div class="timeline">${timeline}</div>
-        </div>
-        <div class="modal-total-row">
-            <div>
-                <div class="modal-total-label">Toplam Ödeme</div>
-            </div>
-            <div class="modal-total-amount">${Number(o.toplam).toLocaleString('tr-TR')} TL</div>
-        </div>`;
-
-    document.getElementById('orderDetailModal').classList.add('open');
+function openOrderDetail(orderId){
+  try{
+    const modal = document.getElementById('orderDetailModal');
+    const titleEl = document.getElementById('modalOrderId');
+    const bodyEl = document.getElementById('orderModalContent');
+    if (!modal || !bodyEl){
+      console.error('[orderDetail] Modal elementleri bulunamadı');
+      return;
+    }
+    // Önce modalı her halükarda aç (boş bile olsa kullanıcı görsün)
+    modal.classList.add('open');
     document.body.classList.add('modal-open');
     document.body.style.overflow = 'hidden';
+    // Yükleme göster
+    bodyEl.innerHTML = `
+      <div style="padding:40px 20px;text-align:center;color:#6b7280">
+        <i class="fas fa-spinner fa-spin" style="font-size:24px;color:#c8a35a"></i>
+        <div style="margin-top:12px;font-size:.9rem">Sipariş yükleniyor...</div>
+      </div>`;
+    const o = (typeof allOrders !== 'undefined' ? allOrders : []).find(x => x.id === orderId);
+    if (!o){
+      bodyEl.innerHTML = `
+        <div style="padding:40px 20px;text-align:center;color:#dc2626">
+          <i class="fas fa-circle-exclamation" style="font-size:28px"></i>
+          <h4 style="margin-top:12px">Sipariş bulunamadı</h4>
+          <p style="color:#6b7280;font-size:.85rem">Lütfen sayfayı yenileyip tekrar deneyin.</p>
+          <button onclick="closeOrderModal()" style="margin-top:14px;padding:10px 18px;background:#c8a35a;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600">Kapat</button>
+        </div>`;
+      if (titleEl) titleEl.textContent = '—';
+      return;
+    }
+    // Başlığı doldur (önce boşaltma; doğrudan ID yaz)
+    if (titleEl) titleEl.textContent = `#${o.id}`;
+    // === Güvenli yardımcılar (asıl fonksiyonlar yoksa fallback) ===
+    const _safeJsonParse = (typeof safeJsonParse === 'function')
+      ? safeJsonParse
+      : (raw, fallback)=>{ try{ return typeof raw==='string'?JSON.parse(raw):(raw||fallback); }catch(_){ return fallback; } };
+    const items = _safeJsonParse(o.urunler, Array.isArray(o.urunler) ? o.urunler : []);
+    const orderDate = o.created_at ? new Date(o.created_at) : new Date();
+    const dateStr = isNaN(orderDate.getTime())
+      ? '—'
+      : orderDate.toLocaleDateString('tr-TR', { day:'2-digit', month:'long', year:'numeric' });
+    const payLabels = { kapida:'Kapıda Ödeme', havale:'Havale / EFT', kredikarti:'Kredi Kartı' };
+    const payMethod = payLabels[o.odeme_yontemi] || o.odeme_yontemi || '—';
+    let timeline = '';
+    try { timeline = (typeof buildTimeline === 'function') ? buildTimeline(o, orderDate) : ''; }
+    catch(e){ console.warn('[orderDetail] buildTimeline hata:', e); timeline = ''; }
+    let estimatedDeliveryDate = '—';
+    try { estimatedDeliveryDate = (typeof getEstimatedDeliveryDate === 'function') ? getEstimatedDeliveryDate(o, orderDate) : '—'; }
+    catch(e){ console.warn('[orderDetail] getEstimatedDeliveryDate hata:', e); }
+    // Ürün satırları — her satır kendi try/catch'inde, biri patlasa diğerleri görünsün
+    const productRows = (Array.isArray(items) ? items : []).map((i, idx) => {
+      try{
+        const qty   = i.quantity || i.adet || 1;
+        const price = Number(i.price || i.fiyat || 0);
+        const sub   = price * qty;
+        const productInfo = (typeof getProductByItem === 'function') ? getProductByItem(i) : null;
+        const imgSrc      = (typeof getProductImage === 'function') ? getProductImage(i) : (i.image || '');
+        const safeName    = (i.name || i.ad || 'Ürün').toString().replace(/"/g,'&quot;');
+        const itemJson    = JSON.stringify(i).replace(/'/g,"\\'");
+        const details = [
+          productInfo?.desc  ? `<div class="modal-product-extra"><b>Açıklama:</b> ${productInfo.desc}</div>` : '',
+          productInfo?.care  ? `<div class="modal-product-extra"><b>Bakım:</b> ${Object.values(productInfo.care).slice(0,2).join(' · ')}</div>` : '',
+          productInfo?.specs ? `<div class="modal-product-extra"><b>Teknik Özellik:</b> ${Object.entries(productInfo.specs).slice(0,2).map(([k,v])=>`${k}: ${v}`).join(' · ')}</div>` : ''
+        ].filter(Boolean).join('');
+        return `
+          <div class="modal-product-row order-item-link" onclick='try{goToProductDetail(${itemJson})}catch(_){}'>
+            ${imgSrc ? `<img class="modal-product-img" src="${imgSrc}" alt="${safeName}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" width="420" height="280">` : ''}
+            <div class="modal-product-img-placeholder" style="display:${imgSrc ? 'none' : 'flex'}">🛍️</div>
+            <div class="modal-product-info">
+              <div class="modal-product-name">${safeName}</div>
+              <div class="modal-product-sub">${qty} ${i.unitLabel || 'adet'} × ${price.toLocaleString('tr-TR')} TL${i.width && i.height ? ` • ${i.width}m × ${i.height}m` : ''}</div>
+              ${details}
+            </div>
+            <div class="modal-product-price">${sub.toLocaleString('tr-TR')} TL</div>
+          </div>`;
+      }catch(e){
+        console.warn('[orderDetail] Ürün satırı hata, atlanıyor (idx='+idx+'):', e);
+        return '';
+      }
+    }).join('');
+    bodyEl.innerHTML = `
+      ${productRows || '<div style="padding:14px;color:#6b7280;text-align:center">Ürün bilgisi yüklenemedi.</div>'}
+      <div class="info-grid">
+        <div class="info-box"><label>Ödeme Şekli</label><span>${payMethod}</span></div>
+        <div class="info-box"><label>Sipariş Tarihi</label><span>${dateStr}</span></div>
+        <div class="info-box"><label>Tahmini Teslimat</label><span>${estimatedDeliveryDate}</span></div>
+        <div class="info-box full"><label>Teslimat Adresi</label><span>${o.adres || '—'}</span></div>
+        ${o.siparis_notu ? `<div class="info-box full"><label>Sipariş Notu</label><span>${o.siparis_notu}</span></div>` : ''}
+      </div>
+      ${timeline ? `
+        <div class="timeline-section">
+          <div class="timeline-title"><i class="fas fa-route" style="color:var(--gold);margin-right:6px"></i> Sipariş Süreci</div>
+          <div class="timeline">${timeline}</div>
+        </div>` : ''}
+      <div class="modal-total-row">
+        <div><div class="modal-total-label">Toplam Ödeme</div></div>
+        <div class="modal-total-amount">${Number(o.toplam || 0).toLocaleString('tr-TR')} TL</div>
+      </div>`;
+  }catch(err){
+    console.error('[openOrderDetail] kritik hata:', err);
+    const bodyEl = document.getElementById('orderModalContent');
+    if (bodyEl){
+      bodyEl.innerHTML = `
+        <div style="padding:30px 20px;text-align:center;color:#dc2626">
+          <i class="fas fa-triangle-exclamation" style="font-size:28px"></i>
+          <h4 style="margin-top:10px">Sipariş detayı yüklenemedi</h4>
+          <p style="color:#6b7280;font-size:.85rem">Lütfen sayfayı yenileyin. Sorun devam ederse WhatsApp üzerinden ulaşın.</p>
+          <pre style="margin-top:12px;padding:10px;background:#fef2f2;border-radius:8px;font-size:.7rem;color:#991b1b;text-align:left;overflow:auto;max-height:120px">${(err && err.message) || err}</pre>
+          <button onclick="closeOrderModal()" style="margin-top:14px;padding:10px 18px;background:#c8a35a;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600">Kapat</button>
+        </div>`;
+    }
+  }
 }
 
 function buildTimeline(order, orderDate) {
