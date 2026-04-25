@@ -6,8 +6,6 @@ const MAX_ATTEMPTS = 7;
 const WINDOW_MS = 1000 * 60 * 10;
 
 const { applyCors } = require('../lib/_cors');
-const FALLBACK_ADMIN_EMAIL = 'muhammedeminturk.16@gmail.com';
-const FALLBACK_ADMIN_SECRET = 'Emin.016';
 
 async function listUserAddresses(userId) {
   const hasAddressTable = await pool.query(
@@ -70,17 +68,21 @@ module.exports = async function handler(req, res) {
       const { email, key, password } = req.body || {};
       const providedSecret = String(password || key || '').trim();
       const providedEmail = String(email || '').trim().toLowerCase();
-      // ÖNEMLİ: Admin girişi her zaman bu sabit credentials ile çalışmalı.
-      // Env değişkenlerine bakma, fallback'i mutlak kabul et.
-      const VALID_EMAIL = 'muhammedeminturk.16@gmail.com';
-      const VALID_SECRET = 'Emin.016';
-      if (providedEmail !== VALID_EMAIL || providedSecret !== VALID_SECRET) {
+      const adminEmails = String(process.env.ADMIN_EMAILS || '')
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+      const adminSecret = String(process.env.ADMIN_API_KEY || '').trim();
+      if (!adminEmails.length || !adminSecret) {
+        console.error('[admin-login] ADMIN_EMAILS veya ADMIN_API_KEY env tanımlı değil');
+        return res.status(500).json({ error: 'Sunucu yapılandırma hatası.' });
+      }
+      if (!adminEmails.includes(providedEmail) || providedSecret !== adminSecret) {
         return res.status(401).json({ error: 'Yetkisiz.' });
       }
-
       const adminUser = {
         id: 1,
-        email: VALID_EMAIL,
+        email: providedEmail,
         isAdmin: true,
       };
       const token = createAuthToken(adminUser);

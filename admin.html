@@ -2128,12 +2128,14 @@ Işık Geçirgenliği: %0" style="min-height:90px;font-family:monospace;font-siz
 <!-- ══ ŞİFRE MODAL ══ -->
 
 <div class="modal-bg" id="passModal" onclick="if(event.target===this)closeModal('passModal')">
-  <div class="form-modal" style="max-width:400px">
+  <div class="form-modal" style="max-width:420px">
     <div class="form-modal-header"><h3>Şifre Değiştir</h3><button class="close-btn" onclick="closeModal('passModal')"><i class="fas fa-xmark"></i></button></div>
     <div class="form-modal-body">
-      <div class="fg"><label>Mevcut Şifre</label><input type="password" id="oldPass"></div>
-      <div class="fg"><label>Yeni Şifre</label><input type="password" id="newPass"></div>
-      <div class="fg"><label>Yeni Şifre (Tekrar)</label><input type="password" id="newPass2"></div>
+      <div style="background:#fff7e6;border:1px solid #f6c45a;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:.82rem;color:#7a5800;line-height:1.4">
+        <i class="fas fa-circle-info"></i>
+        <b>Dikkat:</b> Bu özellik sadece bu tarayıcıda saklanır. Gerçek admin giriş şifresini değiştirmek için Vercel panelinde <code>ADMIN_API_KEY</code> env değişkenini güncelleyin.
+      </div>
+      <input type="password" id="oldPass" placeholder="Mevcut şifre"><input type="password" id="newPass" placeholder="Yeni şifre"><input type="password" id="newPass2" placeholder="Yeni şifre (tekrar)">
     </div>
     <div class="form-modal-footer">
       <button class="btn btn-outline" onclick="closeModal('passModal')">İptal</button>
