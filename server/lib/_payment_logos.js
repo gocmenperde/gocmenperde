@@ -32,6 +32,9 @@ async function ensurePaymentLogosSchema() {
     )
   `);
 
+  // NOT NULL migration'dan önce eski NULL değerleri TRUE yap.
+  await pool.query(`UPDATE payment_logos SET enabled = TRUE WHERE enabled IS NULL`);
+
   await pool.query(`
     ALTER TABLE payment_logos
       ALTER COLUMN enabled SET DEFAULT TRUE,

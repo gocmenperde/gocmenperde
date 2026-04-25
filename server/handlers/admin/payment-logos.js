@@ -12,6 +12,10 @@ module.exports = async function handler(req, res) {
   if (applyCors(req, res, { allowAdminHeaders: true })) return;
 
   if (!requireAdmin(req, res)) return;
+  // Admin response'ları HİÇBİR yerde cache'lenmesin.
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.setHeader('CDN-Cache-Control', 'no-store');
+  res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
 
   try {
     await ensurePaymentLogosSchema();
