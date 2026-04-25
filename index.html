@@ -9394,23 +9394,93 @@ async function finalizePendingOnlinePaymentOrder(){
 }
 
 async function handlePaymentReturnState(){
-  const params = new URLSearchParams(window.location.search);
+  let params;
+  try { params = new URLSearchParams(window.location.search); }
+  catch(_) { return; }
   const paymentStatus = params.get('payment');
   if(!paymentStatus) return;
+  // URL'i hemen temizle (refresh'te tekrar tetiklenmesin)
+  const cleanUrl = () => {
+    try {
+      params.delete('payment');
+      const qs = params.toString();
+      const newUrl = window.location.pathname
+        + (qs ? '?' + qs : '')
+        + (window.location.hash || '');
+      window.history.replaceState(null, '', newUrl);
+    } catch(_) {}
+  };
+  // Sepeti gp_pending_order'dan kurtar (gerekirse)
+  const restoreBasketFromPending = () => {
+    try {
+      const raw = sessionStorage.getItem('gp_pending_order');
+      if(!raw) return false;
+      const pending = JSON.parse(raw);
+      if(!pending || !Array.isArray(pending.items) || !pending.items.length) return false;
+      // Eğer mevcut sepet boşsa veya bozuksa pending'den geri yükle
+      const cartIsEmpty = !Array.isArray(basket) || basket.length === 0;
+      if(cartIsEmpty){
+        basket = pending.items.slice();
+        total = basket.reduce((a,b)=>a+(Number(b?.sub) || 0), 0);
+        try { saveCartToStorage(); } catch(_) {}
+      }
+      return true;
+    } catch(e){
+      console.warn('[payment-return] basket restore failed:', e);
+      return false;
+    }
+  };
+  // UI'yi yeniden çiz
+  const refreshCartUI = () => {
+    try { if(typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+    try { if(typeof renderCart === 'function') renderCart(); } catch(_) {}
+    try { if(typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
+  };
   if(paymentStatus === 'cancel'){
-    showToast('Kart ödeme işlemi iptal edildi. Dilerseniz tekrar deneyin.');
+    try {
+      restoreBasketFromPending();
+      // Pending'i sil (yeni denemede temiz başlasın)
+      sessionStorage.removeItem('gp_pending_order');
+      sessionStorage.removeItem('gp_payment_processed_session');
+      refreshCartUI();
+      cleanUrl();
+      if(typeof showToast === 'function'){
+        showToast('Kart ödeme işlemi iptal edildi. Sepetiniz korundu, dilerseniz tekrar deneyebilirsiniz.');
+      }
+    } catch(err){
+      console.error('[payment-return:cancel] hata:', err);
+      cleanUrl();
+    }
     return;
   }
-  if(paymentStatus !== 'success') return;
-
-  const processedSession = sessionStorage.getItem('gp_payment_processed_session');
-  const pendingRaw = sessionStorage.getItem('gp_pending_order') || '';
-  const sessionFingerprint = `${paymentStatus}:${pendingRaw.length}:${pendingRaw.slice(0,120)}`;
-  if(processedSession === sessionFingerprint) return;
-  const completed = await finalizePendingOnlinePaymentOrder();
-  if(completed){
-    sessionStorage.setItem('gp_payment_processed_session', sessionFingerprint);
-    showToast('Ödemeniz alındı, siparişiniz oluşturuldu.');
+  if(paymentStatus !== 'success'){
+    // Bilinmeyen değer geldiyse temizle, çık
+    cleanUrl();
+    return;
+  }
+  // SUCCESS dalı
+  try {
+    const processedSession = sessionStorage.getItem('gp_payment_processed_session');
+    const pendingRaw = sessionStorage.getItem('gp_pending_order') || '';
+    const sessionFingerprint = `${paymentStatus}:${pendingRaw.length}:${pendingRaw.slice(0,120)}`;
+    if(processedSession === sessionFingerprint){
+      cleanUrl();
+      return;
+    }
+    const completed = await finalizePendingOnlinePaymentOrder();
+    if(completed){
+      sessionStorage.setItem('gp_payment_processed_session', sessionFingerprint);
+      if(typeof showToast === 'function'){
+        showToast('Ödemeniz alındı, siparişiniz oluşturuldu.');
+      }
+    }
+    // Başarı sonrası pending temizle ve cart UI'yi tazele
+    sessionStorage.removeItem('gp_pending_order');
+    refreshCartUI();
+    cleanUrl();
+  } catch(err){
+    console.error('[payment-return:success] hata:', err);
+    cleanUrl();
   }
 }
 
