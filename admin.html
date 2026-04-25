@@ -628,61 +628,6 @@ input, select, textarea{min-height:44px;font-size:16px}
 }
 
 
-.admin-bottombar{display:none}
-@media(max-width:768px){
-  .admin-bottombar{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:0;
-    background:#ffffff;
-    border-top:1px solid var(--line, #e5e7eb);
-    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
-    z-index:480;
-    box-shadow:0 -6px 18px rgba(0,0,0,0.05);
-  }
-  .admin-bottombar::after{
-    content:"";
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:0;
-    height:env(safe-area-inset-bottom, 0px);
-    background:#ffffff;
-    pointer-events:none;
-    z-index:-1;
-  }
-  .abb-item{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:3px;
-    background:none;
-    border:none;
-    padding:6px 4px;
-    color:var(--slate-light, #6b7280);
-    font-size:.6rem;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    font-weight:600;
-    cursor:pointer;
-    border-radius:10px;
-    min-height:54px;
-  }
-  .abb-item i{font-size:1.05rem;color:var(--ink)}
-  .abb-item.active{color:var(--gold-deep, #a3823f)}
-  .abb-item.active i{color:var(--gold, #c8a35a)}
-  .abb-item:active{background:rgba(0,0,0,0.04)}
-  .admin-wrapper, .main-content{padding-bottom:calc(80px + env(safe-area-inset-bottom))!important;}
-  .a-toast{bottom:calc(86px + env(safe-area-inset-bottom))!important}
-  .form-modal, .modal{z-index:600}
-  .modal-backdrop{z-index:599}
-}
-#loginScreen:not(.hide) ~ .admin-bottombar,
-.admin-bottombar.hidden{display:none!important}
 
 .login-right{padding:56px 48px}
 .login-right h2{font:400 2rem var(--ff-display);color:var(--ink)}
@@ -1133,6 +1078,75 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
 @media (pointer:coarse){
   button,.btn,a.btn,[role="button"]{min-height:44px;min-width:44px}
 }
+
+
+/* ============ GP MOBILE NAV — TEMIZ SIFIRDAN ============ */
+.gp-mnav{display:none}
+@media (max-width:768px){
+  .gp-mnav{
+    display:flex;
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    width:100%;
+    background:#ffffff;
+    border-top:1px solid #e5e7eb;
+    box-shadow:0 -4px 14px rgba(0,0,0,.06);
+    padding:0 0 env(safe-area-inset-bottom);
+    margin:0;
+    z-index:9000;
+    box-sizing:border-box;
+  }
+  .gp-mnav-inner{
+    display:flex;
+    width:100%;
+    background:#ffffff;
+    padding:6px 0;
+    margin:0;
+  }
+  .gp-mnav-btn{
+    flex:1 1 0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    background:transparent;
+    border:0;
+    margin:0;
+    padding:6px 2px;
+    color:#6b7280;
+    font-family:inherit;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    cursor:pointer;
+    min-height:54px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gp-mnav-btn i{
+    font-size:17px;
+    color:#1a1a1a;
+    line-height:1;
+  }
+  .gp-mnav-btn.is-active{color:#a3823f}
+  .gp-mnav-btn.is-active i{color:#c8a35a}
+  .gp-mnav-btn:active{background:rgba(0,0,0,.04)}
+  /* Sayfa altı boşluğu — alt nav'ın altına içerik düşmesin */
+  body.has-gp-mnav .admin-wrapper,
+  body.has-gp-mnav .main-content{
+    padding-bottom:calc(70px + env(safe-area-inset-bottom));
+  }
+  body.has-gp-mnav .a-toast{
+    bottom:calc(76px + env(safe-area-inset-bottom))!important;
+  }
+  /* Modal alt nav'ın üstünde kalsın */
+  .form-modal,.modal,.modal-overlay{z-index:9500}
+}
+/* Login ekranındayken gizle */
+.gp-mnav.is-hidden{display:none!important}
 
 </style>
 
@@ -3834,32 +3848,6 @@ function showPage(id){
   if(id==='payment-logos'){ loadPaymentLogos(); }
 }
 
-function bottombarGo(id){
-  if (typeof showPage === 'function') showPage(id);
-  bottombarSyncActive(id);
-  if (typeof closeSidebar === 'function') closeSidebar();
-}
-function bottombarSyncActive(id){
-  document.querySelectorAll('.admin-bottombar .abb-item').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.target === id);
-  });
-}
-(function(){
-  const _orig = window.showPage;
-  if (typeof _orig !== 'function') return;
-  window.showPage = function(id){
-    const r = _orig.apply(this, arguments);
-    try { bottombarSyncActive(id); } catch(_){}
-    return r;
-  };
-})();
-function syncBottombarVisibility(){
-  const loginEl = document.getElementById('loginScreen');
-  const bar = document.getElementById('adminBottomBar');
-  if (!bar) return;
-  const loginVisible = loginEl && !loginEl.classList.contains('hide') && !loginEl.hasAttribute('hidden');
-  bar.classList.toggle('hidden', !!loginVisible);
-}
 
 function handleStatCardKey(event, target, filter){
   if(event.key!=='Enter' && event.key!==' ') return;
@@ -7016,8 +7004,6 @@ async function initAdmin(){
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
-  syncBottombarVisibility();
-  new MutationObserver(syncBottombarVisibility).observe(document.body, {attributes:true, subtree:true, attributeFilter:['class','hidden']});
   renderFromYouImagePreview([]);
   const zone=document.getElementById('uploadZone');
   if(zone){
@@ -7116,6 +7102,51 @@ document.addEventListener('DOMContentLoaded',()=>{
     setKeyboardOffset();
   }
 });
+
+/* ============ GP MOBILE NAV — DAVRANIŞ ============ */
+(function(){
+  const nav = document.getElementById('gpMnav');
+  if (!nav) return;
+  document.body.classList.add('has-gp-mnav');
+  function go(target){
+    if (target === '__more'){
+      if (typeof toggleSidebar === 'function') toggleSidebar();
+      return;
+    }
+    if (typeof showPage === 'function') showPage(target);
+    syncActive(target);
+    if (typeof closeSidebar === 'function') closeSidebar();
+  }
+  function syncActive(id){
+    nav.querySelectorAll('.gp-mnav-btn').forEach(btn => {
+      btn.classList.toggle('is-active', btn.dataset.target === id);
+    });
+  }
+  nav.querySelectorAll('.gp-mnav-btn').forEach(btn => {
+    btn.addEventListener('click', () => go(btn.dataset.target));
+  });
+  // showPage çağrıldığında aktif sekmeyi senkronize et
+  if (typeof window.showPage === 'function'){
+    const _orig = window.showPage;
+    window.showPage = function(id){
+      const r = _orig.apply(this, arguments);
+      try { syncActive(id); } catch(_){}
+      return r;
+    };
+  }
+  // Login ekranı görünürken nav'ı gizle
+  function refreshVisibility(){
+    const login = document.getElementById('loginScreen');
+    const visible = login && !login.classList.contains('hide') && !login.hasAttribute('hidden')
+      && getComputedStyle(login).display !== 'none';
+    nav.classList.toggle('is-hidden', !!visible);
+  }
+  refreshVisibility();
+  new MutationObserver(refreshVisibility).observe(document.body, {
+    attributes:true, subtree:true, attributeFilter:['class','hidden','style']
+  });
+})();
+
 </script>
 
 <div class="pl-modal" id="paymentLogoModal" hidden role="dialog" aria-modal="true" aria-labelledby="plModalTitle">
@@ -7207,23 +7238,26 @@ document.addEventListener('DOMContentLoaded',()=>{
 </div>
 
 
-<!-- Mobil Alt Navigasyon (sadece mobilde görünür) -->
-<nav class="admin-bottombar" id="adminBottomBar" aria-label="Hızlı sayfa geçişi">
-  <button type="button" class="abb-item" data-target="dashboard" onclick="bottombarGo('dashboard')">
-    <i class="fas fa-chart-line"></i><span>Panel</span>
-  </button>
-  <button type="button" class="abb-item" data-target="products" onclick="bottombarGo('products')">
-    <i class="fas fa-box"></i><span>Ürünler</span>
-  </button>
-  <button type="button" class="abb-item" data-target="orders" onclick="bottombarGo('orders')">
-    <i class="fas fa-receipt"></i><span>Siparişler</span>
-  </button>
-  <button type="button" class="abb-item" data-target="customers" onclick="bottombarGo('customers')">
-    <i class="fas fa-users"></i><span>Müşteriler</span>
-  </button>
-  <button type="button" class="abb-item" onclick="toggleSidebar()" aria-label="Daha fazla">
-    <i class="fas fa-ellipsis-h"></i><span>Daha</span>
-  </button>
+
+
+<nav class="gp-mnav" id="gpMnav" aria-label="Mobil hızlı geçiş">
+  <div class="gp-mnav-inner">
+    <button type="button" class="gp-mnav-btn" data-target="dashboard">
+      <i class="fas fa-chart-line"></i><span>Panel</span>
+    </button>
+    <button type="button" class="gp-mnav-btn" data-target="products">
+      <i class="fas fa-box"></i><span>Ürünler</span>
+    </button>
+    <button type="button" class="gp-mnav-btn" data-target="orders">
+      <i class="fas fa-receipt"></i><span>Siparişler</span>
+    </button>
+    <button type="button" class="gp-mnav-btn" data-target="customers">
+      <i class="fas fa-users"></i><span>Müşteriler</span>
+    </button>
+    <button type="button" class="gp-mnav-btn" data-target="__more">
+      <i class="fas fa-ellipsis-h"></i><span>Daha</span>
+    </button>
+  </div>
 </nav>
 
 </body>
