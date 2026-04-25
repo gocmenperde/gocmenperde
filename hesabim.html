@@ -1212,6 +1212,7 @@
     font-size:.95rem;
     box-shadow:0 8px 18px rgba(0,0,0,.12);
     z-index:5;
+    min-height:44px;
   }
   button, .btn, .nav-item, a.btn, .pagination a{
     min-height:44px;
@@ -1228,17 +1229,16 @@
   .info-box{padding:14px}
   .info-box.full{grid-column:span 1}
   .form-row,.form-row-2{grid-template-columns:1fr;gap:10px}
-  .tabs-wrap,.tabs,.section-tabs,.account-tabs{
+  .tabs,.section-tabs,.account-tabs{
     display:flex;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
     gap:6px;
-    padding-bottom:6px;
+    padding:0 12px 6px;
     margin:0 -12px;
-    padding-left:12px;
-    padding-right:12px;
   }
+  .tabs-wrap{margin:0 -12px}
   .tabs-wrap::-webkit-scrollbar,
   .tabs::-webkit-scrollbar,
   .section-tabs::-webkit-scrollbar,
@@ -1249,6 +1249,7 @@
     white-space:nowrap;
     font-size:.85rem;
     padding:10px 14px;
+    min-height:44px;
   }
   .order-card,.address-card{padding:14px}
   .fav-grid{grid-template-columns:1fr!important}
