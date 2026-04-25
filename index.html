@@ -1650,6 +1650,96 @@ body.modal-open #floatHelpHub,
 body.modal-open .live-order-toast{display:none !important}
 }
 
+
+.product-skeleton-grid{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:14px;
+  padding:14px;
+}
+@media(min-width:768px){
+  .product-skeleton-grid{grid-template-columns:repeat(4, 1fr);gap:20px;padding:20px}
+}
+.product-skeleton{
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+  border:1px solid rgba(200,163,90,.12);
+}
+.product-skeleton-img{
+  aspect-ratio:1/1.2;
+  background:linear-gradient(90deg, #f5efe2 0%, #faf5ea 50%, #f5efe2 100%);
+  background-size:200% 100%;
+  animation:gpShimmer 1.4s ease-in-out infinite;
+}
+.product-skeleton-body{padding:12px}
+.product-skeleton-line{
+  height:10px;
+  background:linear-gradient(90deg, #efeae0 0%, #f7f1e6 50%, #efeae0 100%);
+  background-size:200% 100%;
+  animation:gpShimmer 1.4s ease-in-out infinite;
+  border-radius:6px;
+  margin-bottom:8px;
+}
+.product-skeleton-line.short{width:60%}
+.product-skeleton-line.medium{width:80%}
+@keyframes gpShimmer{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+.products-loading-overlay{display:none;position:relative;min-height:300px}
+.products-loading-overlay.is-loading{display:block}
+.products-loading-overlay.is-loading ~ #productsGrid,
+.products-loading-overlay.is-loading ~ .products-grid{display:none}
+.muted-count.loading::after{
+  content:'•••';
+  letter-spacing:3px;
+  color:var(--gold, #c8a35a);
+  animation:gpDotPulse 1.4s ease-in-out infinite;
+  font-weight:400;
+  margin-left:6px;
+}
+@keyframes gpDotPulse{
+  0%,100%{opacity:.3}
+  50%{opacity:1}
+}
+.products-sentinel{
+  display:block;
+  width:100%;
+  min-height:60px;
+  padding:30px 0 60px;
+  text-align:center;
+}
+.products-loading-more{
+  display:inline-flex;
+  gap:6px;
+  align-items:center;
+  justify-content:center;
+}
+.products-loading-more[hidden]{display:none}
+.gp-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--gold, #c8a35a);
+  animation:gpDotBounce 1.2s ease-in-out infinite;
+}
+.gp-dot:nth-child(2){animation-delay:.15s}
+.gp-dot:nth-child(3){animation-delay:.3s}
+@keyframes gpDotBounce{
+  0%,80%,100%{transform:scale(.6);opacity:.4}
+  40%{transform:scale(1);opacity:1}
+}
+#productsGrid > .product-card,
+.products-grid > .product-card{
+  animation:gpCardIn .35s ease both;
+}
+@keyframes gpCardIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
 </style>
 </head>
 <body>
@@ -2069,7 +2159,15 @@ body.modal-open .live-order-toast{display:none !important}
           <option value="bestseller-desc">Çok Satanlar</option>
         </select>
       </div>
-      <div class="category-label" id="categoryLabel">Tüm Ürünler</div>
+      <h2 class="category-label"><span id="categoryLabel">Tüm Ürünler</span><span id="productCount" class="muted-count"></span></h2>
+      <div class="products-loading-overlay is-loading" id="productsLoadingOverlay">
+        <div class="product-skeleton-grid">
+          <div class="product-skeleton"><div class="product-skeleton-img"></div><div class="product-skeleton-body"><div class="product-skeleton-line medium"></div><div class="product-skeleton-line short"></div></div></div>
+          <div class="product-skeleton"><div class="product-skeleton-img"></div><div class="product-skeleton-body"><div class="product-skeleton-line medium"></div><div class="product-skeleton-line short"></div></div></div>
+          <div class="product-skeleton"><div class="product-skeleton-img"></div><div class="product-skeleton-body"><div class="product-skeleton-line medium"></div><div class="product-skeleton-line short"></div></div></div>
+          <div class="product-skeleton"><div class="product-skeleton-img"></div><div class="product-skeleton-body"><div class="product-skeleton-line medium"></div><div class="product-skeleton-line short"></div></div></div>
+        </div>
+      </div>
       <div class="products-grid" id="productsGrid"></div>
     </div>
   </div>
@@ -3527,7 +3625,7 @@ function renderHomeSlider(){
     const cropY = Number.isFinite(Number(item.cropY)) ? Math.max(0, Math.min(100, Number(item.cropY))) : 50;
     const cropZoom = Number.isFinite(Number(item.cropZoom)) ? Math.max(1, Math.min(1.8, Number(item.cropZoom))) : 1.08;
     const title = escapeHtml(item.title || 'Fon Perde Çeşitlerimiz');
-    const buttonLabel = escapeHtml(item.buttonLabel || 'Kampanyadan Faydalan');
+    const buttonLabel = escapeHtml(item.buttonLabel || 'Kampanyadan Yararlan');
     const targetPath = escapeHtml(String(item.targetPath || '#'));
     return `
     <a class="hero-ad-card" href="${targetPath}" target="_self" rel="noopener" onclick="return handleTargetPathNavigation('${escapeInline(item.targetPath || '#')}')">
@@ -4032,6 +4130,8 @@ async function loadProducts({forceRefresh=false} = {}){
       handleInitialProductDeepLink();
     }
   }
+  document.getElementById('productsLoadingOverlay')?.classList.add('is-loading');
+  setProductCount(null);
   if(productRequestInFlight) return productRequestInFlight;
   const _g = document.getElementById('productsGrid');
   if(_g && !_g.querySelector('.product-card') && !_g.innerHTML.trim()){
@@ -4075,9 +4175,11 @@ async function loadProducts({forceRefresh=false} = {}){
         const elapsed = Date.now() - startedAt;
         if(elapsed < 8000) await new Promise((resolve)=>setTimeout(resolve, 8000 - elapsed));
         renderProductsLoadFailure();
+        document.getElementById('productsLoadingOverlay')?.classList.remove('is-loading');
       }
     } finally {
       setTimeout(()=>{ productRequestInFlight = null; }, 1500);
+      document.getElementById('productsLoadingOverlay')?.classList.remove('is-loading');
     }
   })();
 
@@ -5287,7 +5389,10 @@ function buildCard(p, index=0){
     </button>
     <div class="product-img-wrap">
       <button class="product-media-open" type="button" data-action="open-modal" data-id="${p.id}" aria-label="${p.name} ürün detayını aç">
-        <img src="${primaryImage}" alt="${p.name}" loading="lazy" decoding="async" fetchpriority="low" width="600" height="800" onerror="this.style.opacity=0.3;this.src='resimler/placeholder.png'">
+        ${(() => {
+          const eager = Number(index) < (window.productsState?.batchSize || (window.innerWidth < 768 ? 12 : 16));
+          return `<img src="${primaryImage}" alt="${p.name}" loading="${eager ? 'eager' : 'lazy'}" decoding="async" fetchpriority="${eager ? 'high' : 'low'}" width="600" height="800" onerror="this.style.opacity=0.3;this.src=\'resimler/placeholder.png\'">`;
+      })()}
       </button>
       ${showCampaignSlot ? '<span class="product-campaign-tint"></span><span class="product-campaign-pill"><i class="fas fa-bullhorn"></i>Kampanya Alanı</span>' : ''}
       ${productImages.length>1?`<span class="product-gallery-meta"><i class="fas fa-images"></i> ${productImages.length} fotoğraf</span>`:''}
@@ -5311,46 +5416,139 @@ function buildCard(p, index=0){
   </div>`;
 }
 
-function renderProducts(list){
-  const grid = document.getElementById('productsGrid');
-  if(!grid) return;
-  const active = (Array.isArray(list)?list:[]).filter(p => p?.active !== false);
-  if(!active.length){
-    grid.innerHTML = '<div class="products-loading" style="grid-column:1/-1">Bu kriterlere uygun ürün bulunamadı.</div>';
+function setProductCount(n){
+  const el = document.getElementById('productCount');
+  if (!el) return;
+  if (typeof n === 'number' && n > 0){
+    el.textContent = `(${n})`;
+    el.classList.remove('loading');
+  } else {
+    el.textContent = '';
+    el.classList.add('loading');
+  }
+}
+
+const productsState = {
+  all: [],
+  batchSize: window.innerWidth < 768 ? 12 : 16,
+  rendered: 0,
+  loading: false,
+  done: false
+};
+window.productsState = productsState;
+let __productsIO = null;
+window.__productsIO = __productsIO;
+
+function renderProductCard(p, idx){
+  return buildCard(p, idx);
+}
+
+function setAllProducts(items){
+  productsState.all = items || [];
+  productsState.rendered = 0;
+  productsState.done = false;
+  const grid = document.getElementById('productsGrid') || document.querySelector('.products-grid');
+  if (grid) grid.innerHTML = '';
+  setProductCount(productsState.all.length);
+  loadMoreProducts();
+  ensureProductsSentinel();
+}
+
+function loadMoreProducts(){
+  if (productsState.loading || productsState.done) return;
+  productsState.loading = true;
+  toggleProductsLoadingMore(true);
+  const grid = document.getElementById('productsGrid') || document.querySelector('.products-grid');
+  if (!grid){ productsState.loading = false; return; }
+  const start = productsState.rendered;
+  const end = Math.min(start + productsState.batchSize, productsState.all.length);
+  const slice = productsState.all.slice(start, end);
+  if (!slice.length){
+    productsState.loading = false;
+    productsState.done = true;
+    toggleProductsLoadingMore(false);
+    hideProductsSentinel();
     return;
   }
-  if(renderProductsSkipIfSameHead){
-    const sameFirst = grid?.firstElementChild?.dataset?.id === active[0]?.id;
-    const sameCount = grid?.querySelectorAll('.product-card')?.length === active.length;
-    if(sameFirst && sameCount) return;
-  }
-  const FIRST_PAINT = 24;
-  const head = active.slice(0, FIRST_PAINT);
-  const tail = active.slice(FIRST_PAINT);
-  grid.innerHTML = head.map((p, idx)=>buildCard(p, idx)).join('');
-  bindProductCardCalculators(head, 0);
-  setTimeout(_observeSocialProofCards, 1500);
-  _patchLegacyReviewerNames();
-  if(!tail.length) return;
-  const renderChunk = (startIdx)=>{
-    const end = Math.min(startIdx + 24, tail.length);
-    const slice = tail.slice(startIdx, end);
-    const tmp = document.createElement('div');
-    tmp.innerHTML = slice.map((p, i)=>buildCard(p, FIRST_PAINT + startIdx + i)).join('');
+  requestAnimationFrame(() => {
     const frag = document.createDocumentFragment();
-    while(tmp.firstChild) frag.appendChild(tmp.firstChild);
+    const tmp = document.createElement('div');
+    slice.forEach((p, i) => {
+      const card = renderProductCard(p, start + i);
+      if (card instanceof Node) frag.appendChild(card);
+      else if (typeof card === 'string'){
+        tmp.innerHTML = card.trim();
+        if (tmp.firstChild) frag.appendChild(tmp.firstChild);
+      }
+    });
     grid.appendChild(frag);
-    bindProductCardCalculators(slice, FIRST_PAINT + startIdx);
+    bindProductCardCalculators(slice, start);
     _observeSocialProofCards();
     _patchLegacyReviewerNames();
-    if(end < tail.length){
-      if('requestIdleCallback' in window) requestIdleCallback(()=>renderChunk(end), {timeout:600});
-      else setTimeout(()=>renderChunk(end), 0);
-    }
-  };
-  if('requestIdleCallback' in window) requestIdleCallback(()=>renderChunk(0), {timeout:600});
-  else setTimeout(()=>renderChunk(0), 0);
+    document.getElementById('productsLoadingOverlay')?.classList.remove('is-loading');
+    productsState.rendered = end;
+    productsState.done = end >= productsState.all.length;
+    productsState.loading = false;
+    toggleProductsLoadingMore(false);
+    if (productsState.done) hideProductsSentinel();
+  });
 }
+
+function ensureProductsSentinel(){
+  let sentinel = document.getElementById('productsSentinel');
+  const grid = document.getElementById('productsGrid') || document.querySelector('.products-grid');
+  if (!grid || !grid.parentNode) return;
+  if (!sentinel){
+    sentinel = document.createElement('div');
+    sentinel.id = 'productsSentinel';
+    sentinel.className = 'products-sentinel';
+    sentinel.innerHTML = `
+      <div class="products-loading-more" id="productsLoadingMore" hidden>
+        <span class="gp-dot"></span><span class="gp-dot"></span><span class="gp-dot"></span>
+      </div>`;
+    grid.parentNode.insertBefore(sentinel, grid.nextSibling);
+  }
+  sentinel.style.display = 'block';
+  setupProductsObserver();
+}
+
+function hideProductsSentinel(){
+  const s = document.getElementById('productsSentinel');
+  if (s) s.style.display = 'none';
+}
+
+function toggleProductsLoadingMore(show){
+  const el = document.getElementById('productsLoadingMore');
+  if (el) el.hidden = !show;
+}
+
+function setupProductsObserver(){
+  const sentinel = document.getElementById('productsSentinel');
+  if (!sentinel) return;
+  if (__productsIO){ __productsIO.disconnect(); }
+  __productsIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) loadMoreProducts();
+    });
+  }, { rootMargin: '300px 0px 600px 0px', threshold: 0 });
+  window.__productsIO = __productsIO;
+  __productsIO.observe(sentinel);
+}
+
+function renderProducts(list){
+  const active = (Array.isArray(list)?list:[]).filter(p => p?.active !== false);
+  const grid = document.getElementById('productsGrid');
+  if(!grid) return;
+  if(!active.length){
+    grid.innerHTML = '<div class="products-loading" style="grid-column:1/-1">Bu kriterlere uygun ürün bulunamadı.</div>';
+    setProductCount(0);
+    hideProductsSentinel();
+    document.getElementById('productsLoadingOverlay')?.classList.remove('is-loading');
+    return;
+  }
+  setAllProducts(active);
+}
+
 
 const _bumpedThisSession = new Set();
 let _socialProofObserver = null;
@@ -5705,9 +5903,9 @@ function applyFilters(){
     ? (CATEGORIES.find(c=>c.key===activeCats[0])?.label || 'Ürünler')
     : 'Tüm Ürünler';
   if(categoryLabelEl){
-    categoryLabelEl.innerText = label + ' (' + filtered.length + ')';
+    categoryLabelEl.textContent = label;
   }
-  renderProducts(filtered);
+  setAllProducts(filtered);
   updateTopProductRail(filtered);
   initObserver();
   syncCategoryQueryParamWithFilters();
@@ -9431,7 +9629,19 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(optimizeTimer) clearTimeout(optimizeTimer);
     optimizeTimer = setTimeout(flushOptimizeQueue, 250);
   });
-  ['#products','#from-you','#reviews'].forEach((selector)=>{
+  
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash') || document.querySelector('.app-loader, .splash-screen');
+    if (splash){
+      splash.style.opacity = '0';
+      splash.style.transition = 'opacity .35s ease';
+      setTimeout(() => splash.remove(), 400);
+    }
+  }, 250);
+});
+
+['#products','#from-you','#reviews'].forEach((selector)=>{
     const target = document.querySelector(selector);
     if(target) mo.observe(target, {childList:true, subtree:true});
   });
