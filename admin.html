@@ -57,7 +57,8 @@ code{font-family:'Courier New',monospace}
 
 /* ──────────── LOGIN ──────────── */
 #loginScreen{position:fixed;inset:0;background:var(--ink);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.4s}
-#loginScreen.hide{opacity:0;pointer-events:none}
+#loginScreen.hide{opacity:0;pointer-events:none;visibility:hidden}
+#loginScreen[hidden]{display:none!important}
 .login-wrap{display:flex;width:100%;max-width:900px;min-height:560px;border-radius:24px;overflow:hidden;box-shadow:0 60px 120px rgba(0,0,0,0.5)}
 .login-left{flex:1;background:var(--ink-2);display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative;overflow:hidden}
 .login-left::before{content:'';position:absolute;top:-80px;right:-80px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.15) 0%,transparent 70%)}
@@ -931,9 +932,9 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
     <div class="login-right">
       <h2>Giriş Yap</h2>
       <p>Admin hesabınızla devam edin</p>
-      <form id="adminLoginForm">
-        <input type="email" class="login-input" id="loginEmail" placeholder="E-posta adresinizi girin" autocomplete="username">
-        <input type="password" class="login-input" id="loginPass" placeholder="Şifrenizi girin" autocomplete="current-password">
+      <form id="adminLoginForm" autocomplete="off">
+        <input type="email" class="login-input" id="loginEmail" placeholder="E-posta adresinizi girin" autocomplete="off" data-autocomplete="username">
+        <input type="password" class="login-input" id="loginPass" placeholder="Şifrenizi girin" autocomplete="new-password" data-autocomplete="current-password">
         <button type="submit" id="adminLoginBtn" class="login-btn"><i class="fas fa-lock"></i>&nbsp;&nbsp;Giriş Yap</button>
       </form>
       <p class="login-error" id="loginError"><i class="fas fa-exclamation-triangle"></i> &nbsp;E-posta veya şifre hatalı!</p>
@@ -2193,7 +2194,12 @@ async function doLogin(){
     sessionStorage.setItem('admin_api_key', String(data.token));
     sessionStorage.setItem('gp_admin_token', String(data.token));
     sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
-    document.getElementById('loginScreen').classList.add('hide');
+    const loginEl = document.getElementById('loginScreen');
+    if (loginEl) {
+      loginEl.classList.add('hide');
+      loginEl.setAttribute('hidden', '');
+      setTimeout(() => { loginEl.remove(); }, 500);
+    }
     document.getElementById('adminApp').classList.add('show');
     err.style.display = 'none';
     initAdmin();
@@ -2215,11 +2221,8 @@ function logout(){
   localStorage.removeItem('admin_api_key');
   localStorage.removeItem('gp_admin_token');
   adminInitialized = false;
-  document.getElementById('loginScreen').classList.remove('hide');
-  document.getElementById('adminApp').classList.remove('show');
-  document.getElementById('loginEmail').value = '';
-  document.getElementById('loginPass').value = '';
   closeSidebar();
+  window.location.reload();
 }
 window.doLogin = doLogin;
 function bindLoginEvents(){
@@ -6780,7 +6783,12 @@ document.addEventListener('DOMContentLoaded',()=>{
           throw new Error('unauthorized');
         }
         sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
-        document.getElementById('loginScreen').classList.add('hide');
+        const loginEl = document.getElementById('loginScreen');
+        if (loginEl) {
+          loginEl.classList.add('hide');
+          loginEl.setAttribute('hidden', '');
+          setTimeout(() => { loginEl.remove(); }, 500);
+        }
         document.getElementById('adminApp').classList.add('show');
         initAdmin();
       })
