@@ -550,16 +550,30 @@
     }
     .order-modal-header h3 span { color: var(--gold); font-style: italic; }
     .modal-close {
-        width: 36px; height: 36px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
         border-radius: 50%;
-        background: rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.15);
         border: none;
         color: white;
         cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1rem;
-        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        transition: background .2s;
+        position: relative;
+        z-index: 10;
+        pointer-events: auto;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(255,255,255,.2);
+        -webkit-appearance: none;
+        appearance: none;
+        flex-shrink: 0;
     }
+    .modal-close:active { background: var(--red); transform: scale(.94); }
     .modal-close:hover { background: var(--red); }
     .order-modal-body { padding: 24px; }
 
@@ -1609,7 +1623,12 @@
     <div class="order-modal">
         <div class="order-modal-header">
             <h3>Sipariş <span id="modalOrderId">—</span></h3>
-            <button class="modal-close" onclick="closeOrderModal()"><i class="fas fa-xmark"></i></button>
+            <button type="button" class="modal-close"
+                    onclick="closeOrderModal()"
+                    ontouchend="event.preventDefault(); closeOrderModal();"
+                    aria-label="Kapat">
+                <i class="fas fa-xmark" aria-hidden="true"></i>
+            </button>
         </div>
         <div class="order-modal-body" id="orderModalContent">
         </div>
@@ -1773,7 +1792,13 @@ function showTab(tab, el) {
     if (!sectionEl) return;
     sectionEl.classList.add('active');
     if (tab === 'orders') loadOrders();
-    if (tab === 'addresses') loadAddresses();
+    if (tab === 'addresses') {
+        if (!window.__addressDataLoaded) {
+            window.__addressDataLoaded = true;
+            initAddressLocationData();
+        }
+        loadAddresses();
+    }
     if (tab === 'favorites') loadFavorites();
     if (tab === 'profile') loadProfile();
 }
@@ -1849,23 +1874,56 @@ function goToProductDetail(item = {}) {
 
 async function loadProductCatalog() {
     if (productCatalog.length) return productCatalog;
+    // localStorage cache (1 saat)
     try {
-        const remote = await fetch(GITHUB_RAW_PRODUCTS_URL + '?v=' + Date.now(), { cache: 'no-store' });
-        if (remote.ok) {
-            const remoteProducts = await remote.json();
-            if (Array.isArray(remoteProducts) && remoteProducts.length) {
-                productCatalog = remoteProducts;
+        const cached = JSON.parse(localStorage.getItem('gp_product_catalog') || 'null');
+        if (cached && cached.ts && Date.now() - cached.ts < 3600000 && Array.isArray(cached.data) && cached.data.length) {
+            productCatalog = cached.data;
+            // Arka planda yenile (ama bekleme)
+            refreshProductCatalogInBackground();
+            return productCatalog;
+        }
+    } catch (_) {}
+    // Önce yerel /products.json (hızlı), sonra GitHub raw (yedek)
+    try {
+        const local = await fetch('/products.json?v=' + Date.now(), { cache: 'no-store' });
+        if (local.ok) {
+            const data = await local.json();
+            if (Array.isArray(data) && data.length) {
+                productCatalog = data;
+                try { localStorage.setItem('gp_product_catalog', JSON.stringify({ ts: Date.now(), data })); } catch (_) {}
                 return productCatalog;
             }
         }
-    } catch (e) {}
+    } catch (_) {}
     try {
-        const local = await fetch('/products.json?v=' + Date.now(), { cache: 'no-store' });
-        productCatalog = await local.json();
-    } catch (e) {
+        const remote = await Promise.race([
+            fetch(GITHUB_RAW_PRODUCTS_URL + '?v=' + Date.now(), { cache: 'no-store' }),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+        ]);
+        if (remote.ok) {
+            const data = await remote.json();
+            if (Array.isArray(data) && data.length) {
+                productCatalog = data;
+                try { localStorage.setItem('gp_product_catalog', JSON.stringify({ ts: Date.now(), data })); } catch (_) {}
+            }
+        }
+    } catch (_) {
         productCatalog = [];
     }
     return productCatalog;
+}
+
+async function refreshProductCatalogInBackground() {
+    try {
+        const local = await fetch('/products.json?v=' + Date.now(), { cache: 'no-store' });
+        if (!local.ok) return;
+        const data = await local.json();
+        if (Array.isArray(data) && data.length) {
+            productCatalog = data;
+            try { localStorage.setItem('gp_product_catalog', JSON.stringify({ ts: Date.now(), data })); } catch (_) {}
+        }
+    } catch (_) {}
 }
 
 function renderOrderSuggestions() {
@@ -2219,8 +2277,19 @@ function closeOrderModal() {
     const modal = document.getElementById('orderDetailModal');
     if (modal) modal.classList.remove('open');
     document.body.classList.remove('modal-open');
+    document.body.classList.remove('has-modal');
     document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    document.documentElement.style.overflow = '';
 }
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('orderDetailModal');
+        if (modal && modal.classList.contains('open')) closeOrderModal();
+    }
+});
 
 /* ═══════════════════════════════
    ADRESLER
@@ -2750,10 +2819,11 @@ function trackAccountVisit(){
 
 /* ── INIT ── */
 trackAccountVisit();
-initAddressLocationData();
 loadOrders();
 loadProfile();
 activateTabFromQuery();
+// initAddressLocationData() artık burada çağrılmıyor;
+// sadece kullanıcı "Adresler" sekmesine geçince çalışacak.
 
 </script>
 
