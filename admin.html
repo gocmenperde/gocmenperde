@@ -5961,7 +5961,7 @@ function saveBulkProducts(){
   renderHomepageMerchEditor();
   renderDashboard();
   aToast(`✓ ${incoming.length} ürün toplu olarak eklendi`,'success');
-  if(getGithubToken()) saveProductsJSON({silent:true});
+  scheduleAutoSaveProducts();
 }
 
 async function saveProduct(){
@@ -6042,7 +6042,7 @@ async function saveProduct(){
   closeModal('productModal');
   renderTable();
   renderDashboard();
-  if(getGithubToken()) saveProductsJSON({silent:true});
+  scheduleAutoSaveProducts();
 }
 
 function toggleProduct(idx){
@@ -6714,7 +6714,7 @@ async function togglePremiumFlag(productId, key, checked){
 
 function savePremiumFlags(){
   aToast('✓ Premium vitrin bayrakları güncellendi', 'success');
-  if(getGithubToken()) saveProductsJSON({silent:true});
+  scheduleAutoSaveProducts();
 }
 
 function saveHomepageMerchSettings(){ savePremiumFlags(); }
@@ -7280,6 +7280,13 @@ function githubHeaders(token){
     'Content-Type':'application/json'
   };
 }
+let __githubSaveQueue = Promise.resolve();
+function enqueueGithubSave(fn){
+  const next = __githubSaveQueue.then(fn, fn);
+  // Hata bir sonraki save akışını kilitlemesin.
+  __githubSaveQueue = next.catch(()=>{});
+  return next;
+}
 async function saveFileToGithub({token,filePath,data,commitMessage}){
   const url=`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filePath}`;
   const getFile=await fetch(url,{headers:githubHeaders(token)});
@@ -7298,10 +7305,30 @@ async function saveFileToGithub({token,filePath,data,commitMessage}){
     throw new Error(err.message||'GitHub yazma hatası');
   }
 }
+async function saveFileToGithubWithRetry(args, attempts=3){
+  for(let i=0; i<attempts; i++){
+    try { return await saveFileToGithub(args); }
+    catch(e){
+      const msg = String(e?.message||'');
+      // SHA çakışması veya benzer yarış durumlarında otomatik tekrar dene.
+      if(/is at .* but expected|409|422|sha/i.test(msg) && i < attempts-1){
+        await new Promise(r=>setTimeout(r, 400 + i*600));
+        continue;
+      }
+      throw e;
+    }
+  }
+}
 
 function updateTokenStatus(){
   const el=document.getElementById('tokenStatus');
   if(el) el.textContent=getGithubToken()?'Token tanımlı ✓':'Token girilmedi';
+}
+let __autoSaveTimer = 0;
+function scheduleAutoSaveProducts(){
+  if(!getGithubToken()) return;
+  clearTimeout(__autoSaveTimer);
+  __autoSaveTimer = setTimeout(()=>saveProductsJSON({silent:true}), 1500);
 }
 
 async function handleImageSelect(input){
@@ -7486,34 +7513,38 @@ function clearImageFields(){
 //  GITHUB SAVE
 // ════════════════════════════════════
 async function saveProductsJSON(opts={}){
-  const {silent=false}=opts;
-  const token=getGithubToken();
-  if(!token){aToast('⚠️ Ayarlar > GitHub Token girin','error');return;}
-  if(!silent) aToast('⏳ Ürünler GitHub\'a kaydediliyor...');
-  try{
-    await saveFileToGithub({
-      token,
-      filePath:FILE_PATH,
-      data:PRODUCTS,
-      commitMessage:'Admin: Ürün listesi güncellendi — '+new Date().toLocaleString('tr-TR')
-    });
-    if(!silent) aToast('✅ Ürünler GitHub\'a kaydedildi!','success');
-  }catch(err){aToast('❌ Ürünler kaydedilemedi: '+err.message,'error');}
+  return enqueueGithubSave(async ()=>{
+    const {silent=false}=opts;
+    const token=getGithubToken();
+    if(!token){aToast('⚠️ Ayarlar > GitHub Token girin','error');return;}
+    if(!silent) aToast('⏳ Ürünler GitHub\'a kaydediliyor...');
+    try{
+      await saveFileToGithubWithRetry({
+        token,
+        filePath:FILE_PATH,
+        data:PRODUCTS,
+        commitMessage:'Admin: Ürün listesi güncellendi — '+new Date().toLocaleString('tr-TR')
+      });
+      if(!silent) aToast('✅ Ürünler GitHub\'a kaydedildi!','success');
+    }catch(err){aToast('❌ Ürünler kaydedilemedi: '+err.message,'error');}
+  });
 }
 async function saveCategoriesJSON(opts={}){
-  const {silent=false}=opts;
-  const token=getGithubToken();
-  if(!token){aToast('⚠️ Ayarlar > GitHub Token girin','error');return;}
-  if(!silent) aToast('⏳ Kategoriler GitHub\'a kaydediliyor...');
-  try{
-    await saveFileToGithub({
-      token,
-      filePath:CATEGORY_FILE_PATH,
-      data:CATEGORIES,
-      commitMessage:'Admin: Kategori listesi güncellendi — '+new Date().toLocaleString('tr-TR')
-    });
-    if(!silent) aToast('✅ Kategoriler GitHub\'a kaydedildi!','success');
-  }catch(err){aToast('❌ '+err.message,'error');}
+  return enqueueGithubSave(async ()=>{
+    const {silent=false}=opts;
+    const token=getGithubToken();
+    if(!token){aToast('⚠️ Ayarlar > GitHub Token girin','error');return;}
+    if(!silent) aToast('⏳ Kategoriler GitHub\'a kaydediliyor...');
+    try{
+      await saveFileToGithubWithRetry({
+        token,
+        filePath:CATEGORY_FILE_PATH,
+        data:CATEGORIES,
+        commitMessage:'Admin: Kategori listesi güncellendi — '+new Date().toLocaleString('tr-TR')
+      });
+      if(!silent) aToast('✅ Kategoriler GitHub\'a kaydedildi!','success');
+    }catch(err){aToast('❌ '+err.message,'error');}
+  });
 }
 function downloadJSON(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(PRODUCTS,null,2)],{type:'application/json'}));a.download='products.json';a.click();aToast('✓ İndirildi!','success');}
 

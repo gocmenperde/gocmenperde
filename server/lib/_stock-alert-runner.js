@@ -4,9 +4,9 @@ const { sendResendEmail } = require('./_resend-mail');
 const { sendStockBackTemplate } = require('./_whatsapp');
 const { pool } = require('./_db');
 const { ensureStockAlertSchema } = require('./_stock_alerts_schema');
+const { ensureStockSnapshotSchema } = require('./_stock_snapshot_schema');
 
 const PRODUCTS_PATH = path.join(__dirname, '..', '..', 'products.json');
-const SNAPSHOT_PATH = path.join(__dirname, '..', 'data', 'stock-snapshot.json');
 
 async function readJsonSafe(p, fallback) {
   try {
@@ -18,15 +18,33 @@ async function readJsonSafe(p, fallback) {
   }
 }
 
-async function writeJsonSafe(p, v) {
-  await fs.mkdir(path.dirname(p), { recursive: true });
-  await fs.writeFile(p, JSON.stringify(v, null, 2), 'utf8');
+async function readSnapshot() {
+  const { rows } = await pool.query('SELECT product_id, stock FROM stock_snapshot');
+  const map = {};
+  for (const r of rows) map[r.product_id] = Number(r.stock) || 0;
+  return map;
+}
+
+async function writeSnapshot(snap) {
+  const ids = Object.keys(snap || {});
+  if (!ids.length) return;
+  const values = ids.map((id, i) => `($${i * 2 + 1}, $${i * 2 + 2}, NOW())`).join(',');
+  const params = ids.flatMap((id) => [id, Math.max(0, Math.floor(Number(snap[id]) || 0))]);
+  await pool.query(
+    `INSERT INTO stock_snapshot(product_id, stock, updated_at)
+     VALUES ${values}
+     ON CONFLICT (product_id) DO UPDATE
+       SET stock=EXCLUDED.stock, updated_at=EXCLUDED.updated_at`,
+    params
+  );
 }
 
 async function checkRestocks({ dryRun = false } = {}) {
   await ensureStockAlertSchema();
+  await ensureStockSnapshotSchema();
+
   const products = await readJsonSafe(PRODUCTS_PATH, []);
-  const snapshot = await readJsonSafe(SNAPSHOT_PATH, {});
+  const snapshot = await readSnapshot();
   const restocked = [];
   const nextSnap = {};
 
@@ -34,16 +52,16 @@ async function checkRestocks({ dryRun = false } = {}) {
     const pid = String(p?.id || '').trim();
     if (!pid) continue;
     const stock = Math.max(0, Math.floor(Number(p?.stock) || 0));
-    const prev = Number(snapshot[pid] ?? stock);
+    const prev = snapshot[pid] !== undefined ? snapshot[pid] : stock;
     nextSnap[pid] = stock;
     if (prev <= 0 && stock > 0) {
       restocked.push({ productId: pid, productName: String(p?.name || 'Ürün'), stock });
     }
   }
 
-  if (dryRun) return { restockedCount: restocked.length, restocked };
+  if (dryRun) return { restockedCount: restocked.length, sent: 0, failed: 0, restocked };
 
-  await writeJsonSafe(SNAPSHOT_PATH, nextSnap);
+  await writeSnapshot(nextSnap);
 
   let sent = 0;
   let failed = 0;

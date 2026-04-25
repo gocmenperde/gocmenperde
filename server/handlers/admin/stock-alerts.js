@@ -2,6 +2,7 @@ const { checkRestocks } = require('../../lib/_stock-alert-runner');
 const { requireAdmin } = require('../../lib/_admin-auth');
 const { pool } = require('../../lib/_db');
 const { ensureStockAlertSchema } = require('../../lib/_stock_alerts_schema');
+const { ensureStockSnapshotSchema } = require('../../lib/_stock_snapshot_schema');
 
 function mapRow(row) {
   return {
@@ -61,20 +62,25 @@ module.exports = async function handler(req, res) {
 
     if (action === 'reset-snapshot') {
       try {
+        await ensureStockSnapshotSchema();
         const fs = require('fs/promises');
         const path = require('path');
-        const SNAPSHOT_PATH = path.join(__dirname, '..', '..', 'data', 'stock-snapshot.json');
         const PRODUCTS_PATH = path.join(__dirname, '..', '..', '..', 'products.json');
         const raw = await fs.readFile(PRODUCTS_PATH, 'utf8').catch(()=>'[]');
         const products = JSON.parse(raw || '[]');
-        const zeroSnap = {};
-        for (const p of products) {
-          const pid = String(p?.id || '').trim();
-          if (pid) zeroSnap[pid] = 0;
+
+        await pool.query('TRUNCATE stock_snapshot');
+
+        const ids = products.map((p) => String(p?.id || '').trim()).filter(Boolean);
+        if (ids.length) {
+          const values = ids.map((_, i) => `($${i + 1}, 0, NOW())`).join(',');
+          await pool.query(
+            `INSERT INTO stock_snapshot(product_id, stock, updated_at) VALUES ${values}`,
+            ids
+          );
         }
-        await fs.mkdir(path.dirname(SNAPSHOT_PATH), { recursive: true });
-        await fs.writeFile(SNAPSHOT_PATH, JSON.stringify(zeroSnap, null, 2), 'utf8');
-        return res.status(200).json({ success: true, reset: true, count: Object.keys(zeroSnap).length });
+
+        return res.status(200).json({ success: true, reset: true, count: ids.length });
       } catch (err) {
         console.error('[stock-alerts] reset-snapshot error:', err);
         return res.status(500).json({ success: false, error: 'Snapshot sıfırlanamadı: ' + (err?.message || err) });
