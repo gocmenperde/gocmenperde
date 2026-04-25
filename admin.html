@@ -7454,13 +7454,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     // İlk çalıştırma + periyodik tazeleme
     updateGpMnavBadges();
     setInterval(updateGpMnavBadges, 8000);
-    // DOM değiştiğinde de tazele (yeni bildirim/sipariş geldiğinde)
-    const badgeObs = new MutationObserver(() => {
-      clearTimeout(window.__mnavBadgeT);
-      window.__mnavBadgeT = setTimeout(updateGpMnavBadges, 250);
-    });
-    badgeObs.observe(document.body, {
-      childList:true, subtree:true, characterData:true
+    // Sekme odağa geldiğinde badge'leri güncelle
+    window.addEventListener('focus', () => { try { updateGpMnavBadges(); } catch(_){} });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        try { updateGpMnavBadges(); } catch(_){}
+      }
     });
     // Login ekranı görünürken nav'ı gizle
     function refreshVisibility(){
@@ -7471,9 +7470,12 @@ document.addEventListener('DOMContentLoaded',()=>{
       nav.classList.toggle('is-hidden', !!visible);
     }
     refreshVisibility();
-    new MutationObserver(refreshVisibility).observe(document.body, {
-      attributes:true, subtree:true, attributeFilter:['class','hidden','style']
-    });
+    const loginEl = document.getElementById('loginScreen');
+    if (loginEl){
+      new MutationObserver(refreshVisibility).observe(loginEl, {
+        attributes:true, attributeFilter:['class','hidden','style']
+      });
+    }
   }
   if (document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', init);
