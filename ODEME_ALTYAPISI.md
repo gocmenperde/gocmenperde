@@ -75,3 +75,12 @@ Ortam değişkeni değiştirdikten sonra çalışan deployment eski env ile kala
    - `vercel logs <proje-url> --since 1h`
 
 Not: Cloudinary için `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` değerleri **Production** ortamına atanmış olmalı ve değişiklikten sonra mutlaka yeni deploy alınmalıdır.
+
+## 7) Stok Uyarı Sistemi için gerekli env
+- `DATABASE_URL` — Postgres bağlantı string'i (Neon, Supabase vb.)
+  - Tablolar (`stock_alerts`, `stock_snapshot`) ilk istekte otomatik oluşturulur.
+- `RESEND_API_KEY` — Stok geri-geldi e-posta bildirimleri için.
+- (Opsiyonel) WhatsApp bildirimleri için `WHATSAPP_*` env'leri.
+
+> Önemli: Vercel serverless'ında dosya sistemine yazma yapılamaz. Stok snapshot artık
+> `stock_snapshot` tablosunda tutulur.

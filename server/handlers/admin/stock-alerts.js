@@ -19,6 +19,14 @@ function mapRow(row) {
 
 module.exports = async function handler(req, res) {
   if (!requireAdmin(req, res)) return;
+
+  if (!process.env.DATABASE_URL) {
+    return res.status(503).json({
+      success: false,
+      error: 'Stok uyarı sistemi şu an kullanılamıyor (veritabanı bağlantısı yok). Yöneticinin DATABASE_URL ortam değişkenini ayarlaması gerekiyor.'
+    });
+  }
+
   await ensureStockAlertSchema();
 
   if (req.method === 'GET') {

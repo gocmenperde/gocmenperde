@@ -9281,7 +9281,7 @@ async function submitOrder(){
     const savedBasket=[...basket], savedTotal=finalTotal;
 
     if(method==='kredikarti'){
-      const successUrl = `${window.location.origin}${window.location.pathname}?payment=success&go=cart`;
+      const successUrl = `${window.location.origin}${window.location.pathname}?payment=success&go=orders`;
       const cancelUrl = `${window.location.origin}${window.location.pathname}?payment=cancel&go=checkout`;
       sessionStorage.setItem('gp_pending_order', JSON.stringify({
         name, phone, email, addr, note, method, items: savedBasket, total: savedTotal
@@ -9481,7 +9481,8 @@ async function handlePaymentReturnState(){
     setTimeout(refreshCartUI, 1200);
   };
   const applyReturnSectionTarget = () => {
-    const target = goTargetParam === 'cart' ? 'cart' : (goTargetParam === 'checkout' ? 'checkout' : '');
+    const valid = ['cart','checkout','orders','home'];
+    const target = valid.includes(goTargetParam) ? goTargetParam : '';
     if(!target) return;
     try { applySectionState(target, {scroll:true}); } catch(_) {}
   };
