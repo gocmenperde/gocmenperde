@@ -2263,7 +2263,7 @@ header.is-shrunk .logo-sub{font-size:9px}
           <div class="address-helper" id="savedAddressWrap" style="display:none;margin-top:0">
             <div class="address-helper-row">
               <strong style="font-size:0.78rem;color:var(--gold-dark)">Kayıtlı Adreslerim</strong>
-              <button type="button" onclick="window.location.href='hesabim.html?tab=addresses'">Adresleri Yönet</button>
+              <button type="button" onclick="window.open('hesabim.html?tab=addresses','_blank','noopener')">Adresleri Yönet</button>
             </div>
             <select id="savedAddressSelect" onchange="applySavedAddress(this.value)">
               <option value="">Adres seçin...</option>
@@ -7097,8 +7097,9 @@ window.addEventListener('pageshow', async (ev)=>{
     }
   } catch(err) { console.warn('[pageshow paytr]', err); }
   try {
-    const cartSectionActive = document.querySelector('.section.active')?.id === 'cart';
-    if(cartSectionActive && typeof renderCart === 'function') renderCart();
+    const activeId = document.querySelector('.section.active')?.id;
+    if(activeId === 'cart' && typeof renderCart === 'function') renderCart();
+    if(activeId === 'checkout' && typeof renderCheckout === 'function') renderCheckout();
     if(typeof renderMiniCart === 'function') renderMiniCart();
   } catch(_) {}
   if(ev.persisted){
@@ -8138,7 +8139,7 @@ function renderCart(){
   const content=document.getElementById('cartContent'),footer=document.getElementById('cartFooter'),form=document.getElementById('orderForm');
   const cartHint = document.getElementById('cartEntryHint');
   if(!basket.length){
-    content.innerHTML='<div class="cart-empty"><i class="fas fa-bag-shopping"></i>Sepetiniz şu an boş.</div>';
+    content.innerHTML='<div class="cart-empty"><i class="fas fa-bag-shopping"></i>Sepetiniz şu an boş.<div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button type="button" onclick="go(\'products\')" style="background:var(--gold);color:#1a1a1a;border:0;padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ürünleri İncele</button><button type="button" onclick="go(\'home\')" style="background:transparent;color:var(--gold);border:1px solid var(--gold);padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ana Sayfaya Dön</button></div></div>';
     footer.style.display='none';
     if(form) form.style.display='none';
     if(cartHint) cartHint.style.display='none';
@@ -8202,7 +8203,7 @@ function renderCheckout(){
       const empty = document.createElement('div');
       empty.id = 'checkoutEmptyState';
       empty.className = 'cart-empty';
-      empty.innerHTML = '<i class="fas fa-bag-shopping"></i>Ödeme adımına geçmeden önce sepetinize ürün ekleyin.';
+      empty.innerHTML = '<i class="fas fa-bag-shopping"></i>Ödeme adımına geçmeden önce sepetinize ürün ekleyin.<div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button type="button" onclick="go(\'products\')" style="background:var(--gold);color:#1a1a1a;border:0;padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ürünleri İncele</button><button type="button" onclick="go(\'home\')" style="background:transparent;color:var(--gold);border:1px solid var(--gold);padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ana Sayfaya Dön</button></div>';
       container.appendChild(empty);
     }
     updateCartActionPanel();
