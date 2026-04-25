@@ -1,5 +1,39 @@
 [
   {
+    "id": "tul-perde-1777105754831-57",
+    "name": "Tül Perde",
+    "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
+    "image": "https://res.cloudinary.com/ddb9lvapm/image/upload/v1777105690/gocmenperde/product-0/1777105687919-77cc4a04-2a951d97-019a-4893-b8c1-e868cda2a4d0.jpg",
+    "images": [
+      "https://res.cloudinary.com/ddb9lvapm/image/upload/v1777105690/gocmenperde/product-0/1777105687919-77cc4a04-2a951d97-019a-4893-b8c1-e868cda2a4d0.jpg"
+    ],
+    "price": 299,
+    "oldPrice": 399,
+    "cat": "tul-perde",
+    "unit": "mt",
+    "isMeter": true,
+    "isSquareMeter": false,
+    "features": "",
+    "badge": "%25 İNDİRİM",
+    "discountType": "percent",
+    "discountValue": null,
+    "stock": 56,
+    "serialNumber": null,
+    "barcode": "9786759361426",
+    "seoKeywords": [],
+    "isLiveShowcase": false,
+    "isFeatured": false,
+    "active": true,
+    "specs": {},
+    "care": {
+      "Yıkama": "30°C",
+      "Sıkma": "Düşük devir",
+      "Kurutma": "Gölgede kurutun",
+      "Ütü": "Düşük ısı",
+      "Kuru Temizleme": "Önerilmez"
+    }
+  },
+  {
     "id": "fon-perde-1776962265352-639",
     "name": "Fon Perde",
     "desc": "Şık tasarımı ve kaliteli kumaşıyla yaşam alanınıza uyum sağlar. Ölçü ve kullanım ihtiyacınıza göre güvenle tercih edebilirsiniz.",
