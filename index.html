@@ -9289,7 +9289,7 @@ async function submitOrder(){
     const savedBasket=[...basket], savedTotal=finalTotal;
 
     if(method==='kredikarti'){
-      const successUrl = `${window.location.origin}${window.location.pathname}?payment=success&go=orders`;
+      const successUrl = `${window.location.origin}${window.location.pathname}?payment=success&go=cart`;
       const cancelUrl = `${window.location.origin}${window.location.pathname}?payment=cancel&go=checkout`;
       sessionStorage.setItem('gp_pending_order', JSON.stringify({
         name, phone, email, addr, note, method, items: savedBasket, total: savedTotal
@@ -9489,8 +9489,8 @@ async function handlePaymentReturnState(){
     setTimeout(refreshCartUI, 1200);
   };
   const applyReturnSectionTarget = () => {
-    const valid = ['cart','checkout','orders','home'];
-    const target = valid.includes(goTargetParam) ? goTargetParam : '';
+    const valid = ['cart','checkout'];
+    const target = valid.includes(goTargetParam) ? goTargetParam : (paymentStatus === 'success' ? 'cart' : '');
     if(!target) return;
     try { applySectionState(target, {scroll:true}); } catch(_) {}
   };
@@ -9542,8 +9542,10 @@ async function handlePaymentReturnState(){
         showToast('Ödeme işlemi tamamlanamadı, lütfen tekrar deneyin.');
       }
     }
-    // Başarı sonrası pending temizle ve cart UI'yi tazele
-    sessionStorage.removeItem('gp_pending_order');
+    // Başarı sonrası pending temizle; finalize edilemediyse pending kalsın ki kullanıcı tekrar deneyebilsin
+    if(completed){
+      sessionStorage.removeItem('gp_pending_order');
+    }
     refreshCartUITwice();
     applyReturnSectionTarget();
     cleanUrl();
