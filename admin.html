@@ -721,7 +721,7 @@ tbody tr:hover td{background:#fdfcf8}
 .sidebar{height:100dvh;height:100svh;overflow:hidden;display:flex;flex-direction:column}
 body.sidebar-open .sidebar{height:100dvh;height:100svh}
 .sidebar-nav{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:16px}
-.sidebar-footer{padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
+.sidebar-footer{padding:12px 18px calc(14px + env(safe-area-inset-bottom))}
 body.sidebar-open .sidebar-footer{padding-bottom:calc(14px + env(safe-area-inset-bottom))}
 .sidebar-user{margin-bottom:10px;gap:9px}
 .sidebar-avatar{width:32px;height:32px;font-size:.9rem}
@@ -732,7 +732,11 @@ button, .btn, .nav-item, a.btn, .pagination a{min-height:44px}
 input, select, textarea{min-height:44px;font-size:16px}
 .nav-item{padding:12px 22px;font-size:.92rem}
 .icon-btn{min-width:44px;min-height:44px}
-body.sidebar-open .gp-mnav{display:none!important}
+body.sidebar-open .gp-mnav,
+.sidebar.open ~ .gp-mnav,
+.sidebar-overlay.open ~ .gp-mnav,
+body:has(.sidebar.open) .gp-mnav,
+body:has(.sidebar-overlay.open) .gp-mnav{display:none!important}
 body.has-gp-mnav .form-modal,
 body.has-gp-mnav .modal,
 body.has-gp-mnav .modal-overlay > .modal-content{
@@ -4330,7 +4334,10 @@ document.getElementById('reviewsRefresh')?.addEventListener('click', adminFetchR
 document.getElementById('reviewStatusFilter')?.addEventListener('change', adminFetchReviews);
 function toggleSidebar(){
   const sb = document.getElementById('sidebar');
-  sb?.classList.contains('open') ? closeSidebar() : openSidebar();
+  if (!sb) return;
+  const isOpen = sb.classList.contains('open');
+  if (isOpen) closeSidebar();
+  else openSidebar();
 }
 let __scrollLockY = 0;
 function openSidebar(){
@@ -4338,6 +4345,8 @@ function openSidebar(){
   document.getElementById('sidebar')?.classList.add('open');
   document.getElementById('sidebarOverlay')?.classList.add('open');
   document.body.classList.add('sidebar-open');
+  const mnav = document.getElementById('gpMnav');
+  if (mnav) mnav.style.display = 'none';
   document.body.style.position = 'fixed';
   document.body.style.top = `-${__scrollLockY}px`;
   document.body.style.left = '0';
@@ -4348,6 +4357,8 @@ function closeSidebar(){
   document.getElementById('sidebar')?.classList.remove('open');
   document.getElementById('sidebarOverlay')?.classList.remove('open');
   document.body.classList.remove('sidebar-open');
+  const mnav = document.getElementById('gpMnav');
+  if (mnav) mnav.style.removeProperty('display');
   document.body.style.position = '';
   document.body.style.top = '';
   document.body.style.left = '';
