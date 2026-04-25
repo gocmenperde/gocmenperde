@@ -132,11 +132,29 @@ const routerHandler = require('../api/router');
 const { checkRestocks } = require('./lib/_stock-alert-runner');
 const { sendReviewInvites } = require('./lib/_review-invite-runner');
 const { ensureReviewSchema } = require('./lib/_reviews_schema');
-if (process.env.ALLOW_REVIEW_SEEDING === '1' && process.env.DISABLE_REVIEW_SEED !== '1') {
-  setTimeout(() => {
-    ensureReviewSchema()
-      .catch((e) => console.warn('[review-seed startup]', e?.message));
-  }, 3000);
+const { ensureSeedsForAllProducts } = require('./lib/_seed-reviews');
+// Başlangıçta schema garanti et + tüm ürünler için eksik sahte yorumları doldur.
+setTimeout(() => {
+  ensureReviewSchema()
+    .then(() => ensureSeedsForAllProducts())
+    .then((r) => {
+      if (r?.totalAdded > 0) {
+        console.log(`[review-seed startup] ${r.totalAdded} sahte yorum eklendi (${r.productsTouched} ürün)`);
+      }
+    })
+    .catch((e) => console.warn('[review-seed startup]', e?.message));
+}, 5000);
+// Vercel olmayan ortamda (Replit, self-host) her 30 dakikada bir yeni eklenen ürünler için seed çalıştır.
+if (!process.env.VERCEL) {
+  setInterval(() => {
+    ensureSeedsForAllProducts()
+      .then((r) => {
+        if (r?.totalAdded > 0) {
+          console.log(`[review-seed cron] ${r.totalAdded} sahte yorum eklendi (${r.productsTouched} ürün)`);
+        }
+      })
+      .catch((e) => console.warn('[review-seed cron]', e?.message));
+  }, 30 * 60 * 1000);
 }
 app.all('/api/*', routerHandler);
 const server = app.listen(PORT, HOST, () => {

@@ -3334,7 +3334,8 @@ document.addEventListener('keydown', (e)=>{
 
 fillProductPickers();
 
-const ALLOW_REVIEW_SEEDING = window.__ADMIN_FLAGS?.allowReviewSeeding === true || String(window.__ADMIN_FLAGS?.allowReviewSeeding || '') === '1';
+// Sahte yorum üretimi admin için her zaman açık.
+const ALLOW_REVIEW_SEEDING = true;
 function syncReviewSeedUi(){
   const seedButtons = ['reviewsSeedAllBtn','reviewsSeedSelectedBtn'];
   seedButtons.forEach((id)=>{
@@ -6823,7 +6824,7 @@ document.addEventListener('DOMContentLoaded',()=>{
               <span>Önizleme</span>
             </div>
           </div>
-          <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="pl-file-input-hidden">
+          <input type="file" id="plFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
           <label class="pl-dropzone" id="plDropzone" for="plFileInput">
             <div class="pl-dropzone-inner">
               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">

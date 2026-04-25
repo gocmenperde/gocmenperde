@@ -4,7 +4,7 @@ const { parseUrlWithFallback } = require('../../lib/_safe-url');
 
 const { requireAdmin } = require('../../lib/_admin-auth');
 const MAX_DATA_URL_SIZE_BYTES = 12 * 1024 * 1024; // ~12MB
-const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg','image/jpg','image/png','image/webp','image/avif','image/gif']);
+const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg','image/jpg','image/png','image/webp','image/avif','image/gif','image/svg+xml']);
 
 const { applyCors } = require('../../lib/_cors');
 function parseCloudinaryUrl(value) {
