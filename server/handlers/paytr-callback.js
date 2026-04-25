@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { getPaytrCredentials } = require('../lib/_paytr-config');
+const { notifyAdminError } = require('../lib/_admin-error-notify');
 
 function normalizeCallbackBody(body) {
   if (!body) return {};
@@ -51,6 +52,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).send('OK');
   } catch (err) {
     console.error('PAYTR callback error:', err.message);
+    await notifyAdminError('paytr-callback', err);
     return res.status(500).send('ERROR');
   }
 };

@@ -7064,8 +7064,15 @@ window.addEventListener('load',()=>{
         if(!newWorker) return;
         newWorker.addEventListener('statechange', ()=>{
           if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
-            // Yeni SW hazır ama eski sayfa açık. Kullanıcı sıradaki ziyarette geçiş yapacak.
-            console.info('[sw] new version installed, will activate on next visit');
+            console.info('[sw] new version ready');
+            // Kullanıcıya yenileme önerisi göster
+            try {
+              const bar = document.createElement('div');
+              bar.id = 'swUpdateBar';
+              bar.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--gold,#c8a35a);color:#1a1a1a;padding:12px 20px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.3);z-index:99999;font-weight:600;display:flex;gap:12px;align-items:center;max-width:90vw';
+              bar.innerHTML = '<span>✨ Yeni sürüm hazır</span><button onclick="location.reload()" style="background:#1a1a1a;color:var(--gold,#c8a35a);border:0;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer">Yenile</button><button onclick="this.parentNode.remove()" style="background:transparent;border:0;color:#1a1a1a;font-size:1.2rem;cursor:pointer;padding:0 4px">×</button>';
+              document.body.appendChild(bar);
+            } catch(_) {}
           }
         });
       });
