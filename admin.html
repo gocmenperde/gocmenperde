@@ -319,41 +319,61 @@ tbody tr:hover td{background:#fdfcf8}
 .close-btn:hover{background:var(--red);color:white}
 
 
-/* Sipariş modali form bölümü (dropdown + inputlar) — body içinde scroll olur */
+/* ═══════════════════════════════════════
+   SİPARİŞ MODAL — Tek scroll, temiz layout
+   ═══════════════════════════════════════ */
+/* Form bölümü (desktop) */
 .order-form-section{
-  padding:14px 20px 20px;
-  border-top:1px solid var(--line, #e5e7eb);
-  background:#fafbfc;
+  margin-top:18px;
+  padding:18px 20px;
+  background:linear-gradient(180deg, #faf8f3 0%, #fdfcf8 100%);
+  border:1px solid rgba(200,163,90,.22);
+  border-radius:14px;
+}
+.order-form-title{
+  font-family:var(--ff-display, serif);
+  font-size:1.05rem;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:14px;
   display:flex;
-  flex-direction:column;
+  align-items:center;
   gap:8px;
 }
+.order-form-title i{color:var(--gold, #c8a35a);font-size:.95rem}
+.order-form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.order-form-field{display:flex;flex-direction:column;gap:6px}
+.order-form-field-full{grid-column:1 / -1}
 .order-form-label{
   font-size:.72rem;
   font-weight:700;
   letter-spacing:.4px;
   text-transform:uppercase;
   color:var(--slate, #5a6478);
-  margin-top:6px;
 }
 .order-form-input{
   width:100%;
   padding:11px 14px;
   border:1.5px solid var(--border-2, #d8dce5);
   border-radius:10px;
-  font-size:.9rem;
+  font-size:.92rem;
   background:#fff;
   outline:none;
   font-family:inherit;
+  color:var(--ink);
 }
 .order-form-input:focus{
   border-color:var(--gold, #c8a35a);
   box-shadow:0 0 0 3px rgba(200,163,90,.18);
 }
-/* Sipariş modal footer — sadece Güncelle + WA butonları, alt navın ÜSTÜNDE */
+/* Mobil — sipariş modali tam ekran, tek scroll */
 @media (max-width:768px){
   #orderModal .form-modal,
-  #orderModal .modal-content{
+  #orderModal .order-modal{
     width:100vw!important;
     max-width:100vw!important;
     height:100dvh!important;
@@ -368,24 +388,27 @@ tbody tr:hover td{background:#fdfcf8}
     position:sticky;
     top:0;
     background:#fff;
-    z-index:5;
+    z-index:6;
+    padding:14px 18px;
+    border-bottom:1px solid var(--line, #e5e7eb);
   }
-  #orderModal #orderModalBody{
+  #orderModal .form-modal-body,
+  #orderModal .order-modal-body{
     flex:1 1 auto;
     min-height:0;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
     overscroll-behavior:contain;
     padding:14px 18px;
+    padding-bottom:calc(180px + env(safe-area-inset-bottom));
   }
   #orderModal .order-form-section{
-    flex:0 0 auto;
-    background:#fff;
-    border-top:1px solid var(--line, #e5e7eb);
-    max-height:38vh;
-    overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
-    padding:12px 18px;
+    margin-top:14px;
+    padding:14px 16px;
+  }
+  #orderModal .order-form-grid{
+    grid-template-columns:1fr;
+    gap:10px;
   }
   #orderModal .order-modal-footer{
     flex:0 0 auto;
@@ -393,23 +416,24 @@ tbody tr:hover td{background:#fdfcf8}
     bottom:calc(70px + env(safe-area-inset-bottom));
     background:#fff;
     border-top:1px solid var(--line, #e5e7eb);
-    box-shadow:0 -6px 14px rgba(0,0,0,.08);
+    box-shadow:0 -8px 18px rgba(0,0,0,.10);
     padding:12px 16px;
     display:flex;
     gap:10px;
-    z-index:6;
+    z-index:7;
   }
   #orderModal .order-modal-footer .btn{
     flex:1;
-    min-height:48px;
-    padding:12px;
-    font-size:.9rem;
-    font-weight:600;
+    min-height:50px;
+    padding:13px;
+    font-size:.95rem;
+    font-weight:700;
+    letter-spacing:.3px;
   }
 }
 /* Modal arka plan z-index */
 #orderModal{z-index:9500!important}
-.modal-bg.open{z-index:9500!important}
+.modal-bg.open#orderModal{z-index:9500!important}
 
 /* ──────────── FORM ──────────── */
 .fg{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
@@ -1395,6 +1419,227 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
   .stat-cards{grid-template-columns:repeat(2,1fr)}
 }
 
+/* ═══════════════════════════════════════
+   ADMİN TOOLBAR — Tutarlı responsive yapı
+   ═══════════════════════════════════════ */
+.toolbar{
+  display:grid;
+  grid-template-columns:minmax(220px, 1fr) auto auto auto;
+  gap:10px;
+  align-items:center;
+  margin-bottom:18px;
+}
+.toolbar .search-box{
+  width:100%;
+  max-width:none;
+  min-width:0;
+  flex:none;
+}
+.toolbar .filter-sel,
+.toolbar .btn{
+  white-space:nowrap;
+}
+@media (max-width:1024px){
+  .toolbar{
+    grid-template-columns:1fr 1fr;
+  }
+  .toolbar .search-box{grid-column:1 / -1}
+}
+@media (max-width:560px){
+  .toolbar{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .toolbar .search-box{
+    grid-column:1 / -1;
+    padding:12px 14px;
+    font-size:.95rem;
+    min-height:46px;
+  }
+  .toolbar .filter-sel,
+  .toolbar .btn{
+    width:100%;
+    min-height:44px;
+    font-size:.85rem;
+    padding:10px 12px;
+  }
+  .toolbar .btn.btn-block,
+  .toolbar .btn-export{grid-column:1 / -1}
+}
+/* page-header — mobilde başlık + refresh düzgün hizalı */
+.page-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.page-header > div{flex:1 1 auto;min-width:0}
+.page-header h1{
+  font-family:var(--ff-display, serif);
+  font-size:1.55rem;
+  font-weight:600;
+  color:var(--ink);
+  margin:0 0 4px;
+  line-height:1.2;
+}
+.page-header h1 em{
+  color:var(--gold, #c8a35a);
+  font-style:italic;
+  font-weight:500;
+}
+.page-header p{
+  font-size:.82rem;
+  color:var(--slate, #5a6478);
+  margin:0;
+}
+.page-header .btn{flex:0 0 auto;white-space:nowrap}
+@media (max-width:560px){
+  .page-header h1{font-size:1.25rem}
+  .page-header p{font-size:.75rem}
+  .page-header .btn{
+    padding:8px 14px;
+    font-size:.8rem;
+    min-height:38px;
+  }
+}
+
+/* ═══════════════════════════════════════
+   ADMİN MOBİL KART GÖRÜNÜMÜ
+   (siparişler, müşteriler, ürünler tabloları)
+   ═══════════════════════════════════════ */
+@media (max-width:768px){
+  #page-orders .table-wrap,
+  #page-customers .table-wrap,
+  #page-products .table-wrap{
+    background:transparent;
+    border:none;
+    box-shadow:none;
+    overflow:visible;
+    padding:0;
+  }
+  #page-orders table thead,
+  #page-customers table thead,
+  #page-products table thead{display:none}
+  #page-orders table,
+  #page-customers table,
+  #page-products table,
+  #page-orders tbody,
+  #page-customers tbody,
+  #page-products tbody{
+    display:block;
+    width:100%;
+  }
+  #page-orders tbody tr,
+  #page-customers tbody tr,
+  #page-products tbody tr{
+    display:block;
+    width:100%;
+    background:#fff;
+    border:1px solid rgba(200,163,90,.18);
+    border-radius:14px;
+    padding:14px 16px;
+    margin-bottom:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+    position:relative;
+  }
+  #page-orders tbody tr td,
+  #page-customers tbody tr td,
+  #page-products tbody tr td{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding:8px 0;
+    border:none;
+    font-size:.88rem;
+    color:var(--ink);
+    text-align:right;
+    min-height:auto;
+    width:100%;
+  }
+  #page-orders tbody tr td::before,
+  #page-customers tbody tr td::before,
+  #page-products tbody tr td::before{
+    content:attr(data-label);
+    font-size:.7rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    color:var(--slate, #5a6478);
+    flex:0 0 38%;
+    text-align:left;
+  }
+  #page-orders tbody tr td.actions-cell,
+  #page-customers tbody tr td.actions-cell,
+  #page-products tbody tr td.actions-cell{
+    flex-direction:column;
+    align-items:stretch;
+    gap:6px;
+    padding-top:12px;
+    margin-top:8px;
+    border-top:1px dashed rgba(200,163,90,.25);
+  }
+  #page-orders tbody tr td.actions-cell::before,
+  #page-customers tbody tr td.actions-cell::before,
+  #page-products tbody tr td.actions-cell::before{display:none}
+  #page-orders tbody tr td.actions-cell .btn,
+  #page-customers tbody tr td.actions-cell .btn,
+  #page-products tbody tr td.actions-cell .btn,
+  #page-orders tbody tr td.actions-cell .icon-btn,
+  #page-customers tbody tr td.actions-cell .icon-btn,
+  #page-products tbody tr td.actions-cell .icon-btn{
+    width:100%;
+    min-height:42px;
+    font-size:.85rem;
+  }
+  #page-orders tbody tr td .order-status-badge,
+  #page-orders tbody tr td span[style*="border-radius:20px"]{
+    font-size:.78rem;
+    padding:5px 12px;
+  }
+}
+@media (min-width:769px){
+  #page-orders table,
+  #page-customers table,
+  #page-products table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+  }
+  #page-orders table thead th,
+  #page-customers table thead th,
+  #page-products table thead th{
+    background:linear-gradient(180deg, #faf8f3, #f5efe2);
+    color:var(--ink);
+    font-weight:700;
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    padding:14px 16px;
+    text-align:left;
+    border-bottom:2px solid rgba(200,163,90,.22);
+  }
+  #page-orders table tbody td,
+  #page-customers table tbody td,
+  #page-products table tbody td{
+    padding:14px 16px;
+    border-bottom:1px solid rgba(0,0,0,.05);
+    font-size:.88rem;
+    vertical-align:middle;
+  }
+  #page-orders table tbody tr:hover,
+  #page-customers table tbody tr:hover,
+  #page-products table tbody tr:hover{
+    background:rgba(200,163,90,.04);
+  }
+}
+
 </style>
 
 </head>
@@ -2255,27 +2500,38 @@ Işık: Yarı Geçirgen"></textarea></div>
 <!-- ══ SİPARİŞ MODAL ══ -->
 
 <div class="modal-bg" id="orderModal" onclick="if(event.target===this)closeModal('orderModal')">
-  <div class="form-modal" style="max-width:540px">
+  <div class="form-modal order-modal" style="max-width:560px">
     <div class="form-modal-header">
       <h3 id="orderModalTitle">Sipariş Detayı</h3>
-      <button class="close-btn" onclick="closeModal('orderModal')"><i class="fas fa-xmark"></i></button>
+      <button class="close-btn" onclick="closeModal('orderModal')" aria-label="Kapat"><i class="fas fa-xmark"></i></button>
     </div>
-    <div class="form-modal-body" id="orderModalBody"></div>
-    <div class="order-form-section" id="orderFormSection">
-      <label class="order-form-label">Durum</label>
-      <select id="orderStatusSelect" class="order-form-input">
-        <option>Beklemede</option>
-        <option>Hazırlanıyor</option>
-        <option>Kargoya Verildi</option>
-        <option>Yolda</option>
-        <option>Dağıtımda</option>
-        <option>Teslim Edildi</option>
-        <option>İptal</option>
-      </select>
-      <label class="order-form-label">Kargo Takip Kodu</label>
-      <input id="orderTrackingCode" type="text" class="order-form-input" placeholder="Kargo takip kodu girin">
-      <label class="order-form-label">Durum Notu (opsiyonel)</label>
-      <input id="orderTrackingNote" type="text" class="order-form-input" placeholder="Müşteriye gösterilecek not">
+    <div class="form-modal-body order-modal-body">
+      <div id="orderModalBody"></div>
+      <div class="order-form-section">
+        <div class="order-form-title"><i class="fas fa-pen-to-square"></i> Durum Güncelle</div>
+        <div class="order-form-grid">
+          <div class="order-form-field">
+            <label class="order-form-label">Durum</label>
+            <select id="orderStatusSelect" class="order-form-input">
+              <option>Beklemede</option>
+              <option>Hazırlanıyor</option>
+              <option>Kargoya Verildi</option>
+              <option>Yolda</option>
+              <option>Dağıtımda</option>
+              <option>Teslim Edildi</option>
+              <option>İptal</option>
+            </select>
+          </div>
+          <div class="order-form-field">
+            <label class="order-form-label">Kargo Takip Kodu</label>
+            <input id="orderTrackingCode" type="text" class="order-form-input" placeholder="Örn: 1234567890">
+          </div>
+          <div class="order-form-field order-form-field-full">
+            <label class="order-form-label">Durum Notu (opsiyonel)</label>
+            <input id="orderTrackingNote" type="text" class="order-form-input" placeholder="Müşteriye gösterilecek not">
+          </div>
+        </div>
+      </div>
     </div>
     <div class="form-modal-footer order-modal-footer">
       <button class="btn btn-success" onclick="updateOrderStatus()"><i class="fas fa-save"></i> Güncelle</button>
@@ -4140,7 +4396,11 @@ function syncResponsiveTableLabels(){
     if (!heads.length) return;
     table.querySelectorAll('tbody tr').forEach(tr => {
       [...tr.children].forEach((td, i) => {
-        if (heads[i] && !td.dataset.label) td.dataset.label = heads[i];
+        if (heads[i]) td.dataset.label = heads[i];
+        if (i === heads.length - 1){
+          td.classList.add('actions-cell');
+          if(!td.dataset.label) td.dataset.label = 'İşlem';
+        }
       });
     });
   });
@@ -4846,9 +5106,9 @@ function renderOrdersTable(orders){
       <td style="font-size:0.8rem;color:var(--slate-light)">${o.odeme_yontemi||'—'}</td>
       <td><span style="display:inline-block;padding:4px 10px;border-radius:20px;font-size:0.68rem;font-weight:700;background:${ss.bg};color:${ss.color}">${durum}</span></td>
       <td style="font-size:0.8rem;color:var(--slate-light)">${date}</td>
-      <td><div class="action-btns">
-        <button class="icon-btn view" onclick="openOrderModal(${o.id})" title="Detay"><i class="fas fa-eye"></i></button>
-        <button class="icon-btn wa" onclick="waOrder(${o.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
+      <td class="actions-cell" data-label="İşlem"><div class="action-btns">
+        <button class="btn btn-outline btn-sm" onclick="openOrderModal(${o.id})"><i class="fas fa-eye"></i> Detay</button>
+        <button class="btn btn-wa btn-sm" onclick="waOrder(${o.id})"><i class="fab fa-whatsapp"></i> WhatsApp</button>
       </div></td>
     </tr>`;
   }).join('');
