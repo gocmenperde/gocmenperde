@@ -637,13 +637,22 @@ input, select, textarea{min-height:44px;font-size:16px}
     left:0;
     right:0;
     bottom:0;
-    background:rgba(255,255,255,0.96);
-    backdrop-filter:blur(14px) saturate(180%);
-    -webkit-backdrop-filter:blur(14px) saturate(180%);
-    border-top:1px solid var(--line);
+    background:#ffffff;
+    border-top:1px solid var(--line, #e5e7eb);
     padding:6px 4px calc(6px + env(safe-area-inset-bottom));
     z-index:480;
-    box-shadow:0 -8px 24px rgba(0,0,0,0.06);
+    box-shadow:0 -6px 18px rgba(0,0,0,0.05);
+  }
+  .admin-bottombar::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:env(safe-area-inset-bottom, 0px);
+    background:#ffffff;
+    pointer-events:none;
+    z-index:-1;
   }
   .abb-item{
     display:flex;
@@ -667,8 +676,10 @@ input, select, textarea{min-height:44px;font-size:16px}
   .abb-item.active{color:var(--gold-deep, #a3823f)}
   .abb-item.active i{color:var(--gold, #c8a35a)}
   .abb-item:active{background:rgba(0,0,0,0.04)}
-  .admin-wrapper, .main-content{padding-bottom:calc(74px + env(safe-area-inset-bottom));}
-  .a-toast{bottom:calc(78px + env(safe-area-inset-bottom))!important}
+  .admin-wrapper, .main-content{padding-bottom:calc(80px + env(safe-area-inset-bottom))!important;}
+  .a-toast{bottom:calc(86px + env(safe-area-inset-bottom))!important}
+  .form-modal, .modal{z-index:600}
+  .modal-backdrop{z-index:599}
 }
 #loginScreen:not(.hide) ~ .admin-bottombar,
 .admin-bottombar.hidden{display:none!important}
@@ -981,6 +992,142 @@ body[data-admin="1"] .live-order-toast{display:none !important;}
   .modal-body,.modal-bg .form-modal-body{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
   .modal-footer,.form-modal-footer,.modal-actions{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 14px;padding-bottom:calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px}
   .modal-footer button,.form-modal-footer button,.modal-actions button{flex:1;min-height:44px}
+}
+
+@media(max-width:768px){
+  html, body{
+    background-color:var(--cream, #fdfcf8);
+    background-image:none;
+    overflow-x:hidden;
+    max-width:100vw;
+  }
+  .main-content, .admin-wrapper{
+    overflow-x:hidden;
+    max-width:100vw;
+  }
+  .admin-tab-header{
+    flex-direction:column;
+    align-items:stretch!important;
+    gap:8px;
+  }
+  .admin-tab-header h3{font-size:1rem;margin:0}
+  .admin-tab-header > div{width:100%;display:flex;flex-wrap:wrap;gap:8px}
+  .admin-picker{width:100%!important;max-width:100%!important;margin-right:0!important}
+  .admin-picker-trigger{width:100%}
+  .admin-picker-panel{width:100%;max-width:100%}
+  .admin-tab-header .admin-btn,
+  .admin-tab-header .btn{flex:1 1 calc(50% - 6px);min-height:44px;font-size:.78rem}
+  .review-filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    width:100%;
+  }
+  .review-filters > *{flex:1 1 calc(50% - 4px);min-width:0;min-height:44px}
+  .review-filters select{width:100%}
+
+  .admin-table{
+    width:100%;
+    min-width:0!important;
+    border-collapse:separate;
+    border-spacing:0 10px;
+    display:block;
+  }
+  .admin-table thead{display:none}
+  .admin-table tbody,
+  .admin-table tr,
+  .admin-table td{display:block;width:100%;box-sizing:border-box}
+  .admin-table tr{
+    background:#fff;
+    border:1px solid var(--border, #e5e7eb);
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+  }
+  .admin-table td{
+    padding:6px 0;
+    border:none;
+    display:grid;
+    grid-template-columns:90px 1fr;
+    gap:8px;
+    align-items:start;
+    word-break:break-word;
+    overflow-wrap:anywhere;
+  }
+  .admin-table td:not(:last-child){border-bottom:1px solid #f3f4f6}
+  .admin-table td::before{
+    content:attr(data-label);
+    font-size:11px;
+    color:#6b7681;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    font-weight:700;
+  }
+  .admin-table td:empty{display:none}
+  .admin-table td[data-label="İşlem"],
+  .admin-table td[data-label=""]{
+    grid-template-columns:1fr;
+    margin-top:6px;
+  }
+
+  #page-stock-alerts, #page-reviews, #page-orders, #page-customers, #page-notifications, #page-products{
+    overflow-x:hidden;
+  }
+  #page-stock-alerts *, #page-reviews *, #page-orders *, #page-customers *{
+    max-width:100%;
+  }
+  .admin-table td, .review-mod-item, .order-card, .customer-card{
+    word-break:break-word;
+    overflow-wrap:anywhere;
+  }
+  .admin-picker-label, .admin-picker-item-name, .admin-picker-item-meta{
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  #orderStatusSelect,
+  #orderTrackingCode,
+  #orderTrackingNote,
+  [style*="min-width:150px"],
+  [style*="min-width:170px"],
+  [style*="min-width:130px"]{
+    min-width:0!important;
+    width:100%!important;
+    flex-basis:100%!important;
+  }
+
+  img, iframe, video, table, pre, code{
+    max-width:100%!important;
+    height:auto;
+  }
+  [class*="toolbar"] > *,
+  [class*="header"] > *,
+  .admin-summary > *{
+    min-width:0;
+  }
+  .badge, .campaign-badge{
+    white-space:normal;
+    word-break:break-word;
+    font-size:.62rem;
+    padding:3px 8px;
+  }
+  input, select, textarea{font-size:16px}
+  *{scrollbar-width:thin}
+}
+
+@media(max-width:480px){
+  #page-stock-alerts, #page-reviews, #page-notifications,
+  #page-orders, #page-customers, #page-products,
+  #page-campaigns, #page-slider, #page-showcase{
+    padding:12px 10px;
+  }
+  .page-header{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:14px}
+  .page-header h1{font-size:1.25rem;line-height:1.25;word-break:break-word}
+  .page-header p{font-size:.75rem;margin-top:2px}
+  .breadcrumb{font-size:.7rem;flex-wrap:wrap;margin-bottom:4px}
+  .admin-tab-header h3{font-size:.95rem}
 }
 
 @media (pointer:coarse){
@@ -3742,7 +3889,7 @@ function navigateFromStat(target, filter){
 }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function syncResponsiveTableLabels(){
-  document.querySelectorAll('.table-wrap table').forEach(table => {
+  document.querySelectorAll('.table-wrap table, .admin-table').forEach(table => {
     const heads = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim());
     if (!heads.length) return;
     table.querySelectorAll('tbody tr').forEach(tr => {
