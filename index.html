@@ -6683,7 +6683,14 @@ function handleProductModalBack(){
   restoreViewAfterModal(modalReturnState || {});
 }
 
-window.addEventListener('popstate', (event)=>{
+window.addEventListener('popstate', async (event)=>{
+  try {
+    const params = new URLSearchParams(window.location.search || '');
+    if(params.get('payment')){
+      await handlePaymentReturnState();
+      return;
+    }
+  } catch(_) {}
   const hasProductParam = new URLSearchParams(window.location.search).has('product');
   const modalOpen = document.getElementById('productModal')?.classList.contains('open');
   if(modalOpen && !hasProductParam){
@@ -7080,9 +7087,15 @@ try{
     window.history.scrollRestoration = 'manual';
   }
 }catch(err){ console.warn('[gp:warn]', err); }
-window.addEventListener('pageshow',(ev)=>{
+window.addEventListener('pageshow', async (ev)=>{
   try { if(typeof loadCartFromStorage === 'function') loadCartFromStorage(); } catch(_) {}
   try { if(typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+  try {
+    const params = new URLSearchParams(window.location.search || '');
+    if(params.get('payment')){
+      await handlePaymentReturnState();
+    }
+  } catch(err) { console.warn('[pageshow paytr]', err); }
   try {
     const cartSectionActive = document.querySelector('.section.active')?.id === 'cart';
     if(cartSectionActive && typeof renderCart === 'function') renderCart();
@@ -7290,10 +7303,22 @@ function restoreProductsViewState({respectCategoryQuery=true} = {}){
 }
 
 let __sectionTransitionLock = false;
+let __sectionTransitionLockSetAt = 0;
 let __pendingSectionTarget = null;
 let __sectionTransitionFailSafeTimer = 0;
+const SECTION_LOCK_MAX_MS = 1500;
+function acquireSectionLock(){
+  if(__sectionTransitionLock && (Date.now() - __sectionTransitionLockSetAt) > SECTION_LOCK_MAX_MS){
+    __sectionTransitionLock = false;
+  }
+  if(__sectionTransitionLock) return false;
+  __sectionTransitionLock = true;
+  __sectionTransitionLockSetAt = Date.now();
+  return true;
+}
 function releaseSectionTransitionLock(){
   __sectionTransitionLock = false;
+  __sectionTransitionLockSetAt = 0;
   if(__sectionTransitionFailSafeTimer){
     clearTimeout(__sectionTransitionFailSafeTimer);
     __sectionTransitionFailSafeTimer = 0;
@@ -7340,11 +7365,10 @@ function applySectionState(id, {scroll=true} = {}){
     syncHomePromoVisibility(targetId);
     return;
   }
-  if(__sectionTransitionLock){
+  if(!acquireSectionLock()){
     __pendingSectionTarget = {id:targetId, scroll};
     return;
   }
-  __sectionTransitionLock = true;
   scheduleSectionTransitionFailSafeUnlock();
   try{
     try{
@@ -9257,8 +9281,8 @@ async function submitOrder(){
     const savedBasket=[...basket], savedTotal=finalTotal;
 
     if(method==='kredikarti'){
-      const successUrl = `${window.location.origin}${window.location.pathname}?payment=success#checkout`;
-      const cancelUrl = `${window.location.origin}${window.location.pathname}?payment=cancel#checkout`;
+      const successUrl = `${window.location.origin}${window.location.pathname}?payment=success&go=cart`;
+      const cancelUrl = `${window.location.origin}${window.location.pathname}?payment=cancel&go=checkout`;
       sessionStorage.setItem('gp_pending_order', JSON.stringify({
         name, phone, email, addr, note, method, items: savedBasket, total: savedTotal
       }));
@@ -9411,11 +9435,13 @@ async function handlePaymentReturnState(){
   try { params = new URLSearchParams(window.location.search); }
   catch(_) { return; }
   const paymentStatus = params.get('payment');
+  const goTargetParam = String(params.get('go') || '').trim();
   if(!paymentStatus) return;
   // URL'i hemen temizle (refresh'te tekrar tetiklenmesin)
   const cleanUrl = () => {
     try {
       params.delete('payment');
+      params.delete('go');
       const qs = params.toString();
       const newUrl = window.location.pathname
         + (qs ? '?' + qs : '')
@@ -9454,6 +9480,11 @@ async function handlePaymentReturnState(){
     setTimeout(refreshCartUI, 250);
     setTimeout(refreshCartUI, 1200);
   };
+  const applyReturnSectionTarget = () => {
+    const target = goTargetParam === 'cart' ? 'cart' : (goTargetParam === 'checkout' ? 'checkout' : '');
+    if(!target) return;
+    try { applySectionState(target, {scroll:true}); } catch(_) {}
+  };
   if(paymentStatus === 'cancel'){
     try {
       restoreBasketFromPending();
@@ -9461,6 +9492,7 @@ async function handlePaymentReturnState(){
       sessionStorage.removeItem('gp_pending_order');
       sessionStorage.removeItem('gp_payment_processed_session');
       refreshCartUITwice();
+      applyReturnSectionTarget();
       cleanUrl();
       if(typeof showToast === 'function'){
         showToast('Kart ödeme işlemi iptal edildi. Sepetiniz korundu, dilerseniz tekrar deneyebilirsiniz.');
@@ -9482,6 +9514,9 @@ async function handlePaymentReturnState(){
     const pendingRaw = sessionStorage.getItem('gp_pending_order') || '';
     const sessionFingerprint = `${paymentStatus}:${pendingRaw.length}:${pendingRaw.slice(0,120)}`;
     if(processedSession === sessionFingerprint){
+      restoreBasketFromPending();
+      refreshCartUITwice();
+      applyReturnSectionTarget();
       cleanUrl();
       return;
     }
@@ -9491,10 +9526,17 @@ async function handlePaymentReturnState(){
       if(typeof showToast === 'function'){
         showToast('Ödemeniz alındı, siparişiniz oluşturuldu.');
       }
+    } else {
+      restoreBasketFromPending();
+      refreshCartUITwice();
+      if(typeof showToast === 'function'){
+        showToast('Ödeme işlemi tamamlanamadı, lütfen tekrar deneyin.');
+      }
     }
     // Başarı sonrası pending temizle ve cart UI'yi tazele
     sessionStorage.removeItem('gp_pending_order');
     refreshCartUITwice();
+    applyReturnSectionTarget();
     cleanUrl();
   } catch(err){
     console.error('[payment-return:success] hata:', err);
