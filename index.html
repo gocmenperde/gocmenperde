@@ -7081,6 +7081,13 @@ try{
   }
 }catch(err){ console.warn('[gp:warn]', err); }
 window.addEventListener('pageshow',(ev)=>{
+  try { if(typeof loadCartFromStorage === 'function') loadCartFromStorage(); } catch(_) {}
+  try { if(typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+  try {
+    const cartSectionActive = document.querySelector('.section.active')?.id === 'cart';
+    if(cartSectionActive && typeof renderCart === 'function') renderCart();
+    if(typeof renderMiniCart === 'function') renderMiniCart();
+  } catch(_) {}
   if(ev.persisted){
     hideLoader(true);
     recoverUIAfterResume();
@@ -7092,6 +7099,9 @@ window.addEventListener('pageshow',(ev)=>{
   }
 });
 window.addEventListener('focus', ()=>{
+  try { if(typeof loadCartFromStorage === 'function') loadCartFromStorage(); } catch(_) {}
+  try { if(typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+  try { if(typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
   recoverUIAfterResume();
   scheduleForegroundRefresh();
 });
@@ -7109,6 +7119,9 @@ document.addEventListener('visibilitychange',()=>{
     _liveOrderTimer = null;
     return;
   }
+  try { if(typeof loadCartFromStorage === 'function') loadCartFromStorage(); } catch(_) {}
+  try { if(typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+  try { if(typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
   if(Date.now() >= _liveOrderResumeBlockUntil && !_liveOrderTimer){
     _scheduleNextLiveOrder();
   }
@@ -9436,13 +9449,18 @@ async function handlePaymentReturnState(){
     try { if(typeof renderCart === 'function') renderCart(); } catch(_) {}
     try { if(typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
   };
+  const refreshCartUITwice = () => {
+    refreshCartUI();
+    setTimeout(refreshCartUI, 250);
+    setTimeout(refreshCartUI, 1200);
+  };
   if(paymentStatus === 'cancel'){
     try {
       restoreBasketFromPending();
       // Pending'i sil (yeni denemede temiz başlasın)
       sessionStorage.removeItem('gp_pending_order');
       sessionStorage.removeItem('gp_payment_processed_session');
-      refreshCartUI();
+      refreshCartUITwice();
       cleanUrl();
       if(typeof showToast === 'function'){
         showToast('Kart ödeme işlemi iptal edildi. Sepetiniz korundu, dilerseniz tekrar deneyebilirsiniz.');
@@ -9476,7 +9494,7 @@ async function handlePaymentReturnState(){
     }
     // Başarı sonrası pending temizle ve cart UI'yi tazele
     sessionStorage.removeItem('gp_pending_order');
-    refreshCartUI();
+    refreshCartUITwice();
     cleanUrl();
   } catch(err){
     console.error('[payment-return:success] hata:', err);

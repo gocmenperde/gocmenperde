@@ -59,6 +59,28 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, ...result });
     }
 
+    if (action === 'reset-snapshot') {
+      try {
+        const fs = require('fs/promises');
+        const path = require('path');
+        const SNAPSHOT_PATH = path.join(__dirname, '..', '..', 'data', 'stock-snapshot.json');
+        const PRODUCTS_PATH = path.join(__dirname, '..', '..', '..', 'products.json');
+        const raw = await fs.readFile(PRODUCTS_PATH, 'utf8').catch(()=>'[]');
+        const products = JSON.parse(raw || '[]');
+        const zeroSnap = {};
+        for (const p of products) {
+          const pid = String(p?.id || '').trim();
+          if (pid) zeroSnap[pid] = 0;
+        }
+        await fs.mkdir(path.dirname(SNAPSHOT_PATH), { recursive: true });
+        await fs.writeFile(SNAPSHOT_PATH, JSON.stringify(zeroSnap, null, 2), 'utf8');
+        return res.status(200).json({ success: true, reset: true, count: Object.keys(zeroSnap).length });
+      } catch (err) {
+        console.error('[stock-alerts] reset-snapshot error:', err);
+        return res.status(500).json({ success: false, error: 'Snapshot sıfırlanamadı: ' + (err?.message || err) });
+      }
+    }
+
     if (action === 'delete') {
       const productId = String(req.body?.productId || '').trim();
       const email = String(req.body?.email || '').trim().toLowerCase();
