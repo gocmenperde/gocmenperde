@@ -1658,11 +1658,11 @@ input,select,textarea{border:1px solid var(--line);border-radius:var(--radius-sm
   #stockAlertModal .modal-box, .stock-alert-modal .modal-box{padding:18px 16px;border-radius:18px;max-width:100%;margin:auto 8px}
   #stockAlertModal input, .stock-alert-modal input{font-size:16px;padding:13px 14px}
   #stockAlertModal label, .stock-alert-modal label{font-size:.74rem}
-  #stockAlertModal button[type=submit], .stock-alert-modal .btn-primary{padding:14px 18px;font-size:.85rem}
+  #stockAlertModal button[type=submit], .stock-alert-modal .btn-primary, .stock-alert-modal .stock-alert-submit{padding:12px 16px;font-size:.9rem;width:100%}
 }
 @media (max-width:520px){
-  .stock-alert-modal{padding:12px 12px calc(env(safe-area-inset-bottom, 0px) + 16px);align-items:flex-start}
-  .stock-alert-modal .stock-alert-card{margin-top:max(env(safe-area-inset-top, 0px), 12px);margin-bottom:0;padding:18px 16px 22px;border-radius:18px;max-height:none}
+  .stock-alert-modal{padding:8px;align-items:center}
+  .stock-alert-modal .stock-alert-card{margin:0;max-width:96vw;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 14px 18px;border-radius:14px}
   body.stock-alert-open .mobile-bottom-nav,
   body.stock-alert-open #mobileBottomNav,
   body.stock-alert-open .mbn-bar{display:none !important}
