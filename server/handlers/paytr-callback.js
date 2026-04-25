@@ -43,7 +43,7 @@ module.exports = async function handler(req, res) {
     const token = crypto.createHmac('sha256', merchantKey).update(raw).digest('base64');
 
     if (token !== callback.hash) {
-      return res.status(400).send('Invalid hash');
+      return res.status(400).send('BAD_HASH');
     }
 
     // TODO: Burada merchant_oid ile siparişi bulup status=success ise ödenmiş olarak işaretleyin.
