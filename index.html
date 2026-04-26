@@ -2375,8 +2375,6 @@ header.is-shrunk .logo-sub{font-size:9px}
         <div class="contract-box"><h4>Cayma Koşulları</h4><iframe data-lazy-src="/iade-politikasi.html" title="Cayma Koşulları"></iframe></div>
       </div>
       <label class="contract-accept"><input type="checkbox" id="f-contract-accept"> Mesafeli satış sözleşmesi ve cayma koşullarını kabul ediyorum. *</label>
-      <button id="paymentSentBtn" class="payment-sent-btn hidden" onclick="submitOrder()"><i class="fas fa-check"></i> Ödemeyi Yaptım</button>
-      <button class="wa-btn hidden" id="submitOrderBtn" onclick="submitOrder()"><i class="fab fa-whatsapp" style="font-size:1.3rem"></i> Siparişi WhatsApp ile Onayla</button>
     </div>
   </div>
   <div class="footer-trust-row">
@@ -7007,7 +7005,7 @@ function shouldRefreshProductsOnForeground({force=false} = {}){
 function refreshCatalogOnForeground({force=false} = {}){
   if(document.visibilityState !== 'visible') return;
   const activeSection = document.querySelector('.section.active')?.id || '';
-  if(activeSection === 'checkout' || activeSection === 'cart' || orderSubmissionInFlight) return;
+  if(activeSection === 'checkout' || activeSection === 'cart' || (typeof orderSubmissionInFlight !== 'undefined' && orderSubmissionInFlight)) return;
   if(document.getElementById('productModal')?.classList.contains('open') || imageViewerOpen) return;
   if(!force && (Date.now() - lastForegroundRefreshAt) < FOREGROUND_REFRESH_MIN_INTERVAL_MS) return;
   if(!shouldRefreshProductsOnForeground({force})) return;
@@ -9211,6 +9209,7 @@ let __successModalEscHandler = null;
 let __paytrStatusPollTimer = 0;
 let __paytrStatusPollStartedAt = 0;
 let __paytrLastOrderNo = '';
+let orderSubmissionInFlight = false;
 const PAYTR_POLL_INTERVAL_MS = 5000;
 const PAYTR_POLL_TIMEOUT_MS = 10 * 60 * 1000;
 
@@ -9320,6 +9319,7 @@ function showPaytrInlineError(message=''){
   box.id = 'paytrInlineError';
   box.className = 'paytr-inline-error';
   box.setAttribute('role', 'alert');
+  box.style.cssText = 'position:fixed;left:50%;top:80px;transform:translateX(-50%);z-index:99999;background:#c0392b;color:#fff;padding:14px 18px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:92vw;display:flex;gap:12px;align-items:center;font-weight:600;line-height:1.35';
   box.innerHTML = `<span>${escapeHtml(String(message || 'Ödeme başlatılamadı. Lütfen tekrar deneyin.'))}</span><button type="button" aria-label="Kapat" onclick="clearPaytrInlineError()">×</button>`;
   form.prepend(box);
   box.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -9405,25 +9405,16 @@ function cancelActivePaytrSession(){
 // ── Ödeme ──
 function togglePaymentFields(){
   const m = document.getElementById('f-payment').value;
-  const submitBtn = document.getElementById('submitOrderBtn');
   const waiting = document.getElementById('paytrWaitingCard');
   document.getElementById('creditCardFields').classList.add('hidden');
   document.getElementById('bankTransferFields').classList.add('hidden');
   if(waiting) waiting.classList.add('hidden');
-  document.getElementById('submitOrderBtn').classList.remove('hidden');
-  document.getElementById('paymentSentBtn').classList.add('hidden');
-  if(submitBtn) submitBtn.innerHTML = '<i class="fab fa-whatsapp" style="font-size:1.3rem"></i> Siparişi WhatsApp ile Onayla';
   if(m==='kredikarti'){
     document.getElementById('creditCardFields').classList.remove('hidden');
     if(getActivePaytrSession() && waiting) waiting.classList.remove('hidden');
   }
   else if(m==='havale'){
     document.getElementById('bankTransferFields').classList.remove('hidden');
-    document.getElementById('submitOrderBtn').classList.add('hidden');
-    document.getElementById('paymentSentBtn').classList.remove('hidden');
-  }
-  if(m==='kredikarti' && submitBtn){
-    submitBtn.innerHTML = '<i class="fas fa-credit-card" style="font-size:1.1rem"></i> Ödeme Ekranına Geç';
   }
   updateCartActionPanel();
 }
@@ -9457,12 +9448,12 @@ async function submitOrder(){
     showToast(`Siparişten önce ${missingSize.name} için ${label} girilmelidir`);
     return;
   }
-  const btnId = method==='havale'?'paymentSentBtn':'submitOrderBtn';
-  const btn = document.getElementById(btnId);
-  const orig = btn?.innerHTML || '';
+  const btn = document.getElementById('cartActionBtn');
+  const orig = btn?.textContent || '';
   if(btn){
-    btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
-    btn.disabled=true;
+    btn.dataset.origLabel = orig;
+    btn.textContent = 'Gönderiliyor...';
+    btn.disabled = true;
   }
 
   orderSubmissionInFlight = true;
@@ -9559,9 +9550,11 @@ async function submitOrder(){
   } finally {
     orderSubmissionInFlight = false;
     if(btn){
-      btn.innerHTML = orig;
+      btn.textContent = btn.dataset.origLabel || orig;
       btn.disabled = false;
+      delete btn.dataset.origLabel;
     }
+    updateCartActionPanel();
   }
 }
 
