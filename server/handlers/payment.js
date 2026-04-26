@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 const net = require('net');
+const fs = require('fs');
+const path = require('path');
 const { getPaytrCredentials } = require('../lib/_paytr-config');
 const { insertPending, getStatus } = require('../lib/_paytr-orders');
 
@@ -46,6 +48,35 @@ function buildPaytrBasket(items = []) {
     Math.max(1, Number(item?.qty || 1)),
   ]);
   return Buffer.from(JSON.stringify(basket), 'utf8').toString('base64');
+}
+
+function readProductsCatalog() {
+  try {
+    const raw = fs.readFileSync(path.resolve(process.cwd(), 'products.json'), 'utf8');
+    const parsed = JSON.parse(raw || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function computeShippingFeeFromItems(items = [], subtotal = 0) {
+  if (!Array.isArray(items) || !items.length) return { fee: 0, originalFee: 0, isFree: true };
+  const products = readProductsCatalog();
+  let maxFee = 0;
+  for (const item of items) {
+    const id = String(item?.id ?? item?.productId ?? item?.pid ?? '').trim();
+    const p = id ? products.find((x) => String(x?.id ?? '').trim() === id) : null;
+    const fee = Number(p?.shippingFee ?? item?.shippingFee ?? 0);
+    if (Number.isFinite(fee) && fee > maxFee) maxFee = fee;
+  }
+  const threshold = Number(process.env.FREE_SHIPPING_THRESHOLD || 0);
+  const isFree = maxFee === 0 || (threshold > 0 && subtotal >= threshold);
+  return {
+    fee: isFree ? 0 : maxFee,
+    originalFee: maxFee,
+    isFree,
+  };
 }
 
 function pickClientIp(req) {
@@ -153,7 +184,11 @@ module.exports = async function handler(req, res) {
       .filter((item) => item.price > 0);
     if (!normalizedItems.length) return res.status(400).json({ error: 'Sepette geçerli ürün bulunamadı.' });
 
-    const paymentAmount = normalizedItems.reduce((sum, item) => sum + Math.round(item.price * 100) * item.qty, 0);
+    const subtotal = normalizedItems.reduce((sum, item) => sum + Math.round(item.price * 100) * item.qty, 0);
+    const couponDiscount = Math.max(0, Math.round(Number(req.body?.couponDiscountAmount || req.body?.couponDiscount || 0) * 100) || 0);
+    const shipping = computeShippingFeeFromItems(items, subtotal / 100);
+    const shippingAmount = Math.max(0, Math.round(Number(shipping.fee || 0) * 100));
+    const paymentAmount = Math.max(0, subtotal + shippingAmount - couponDiscount);
     if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) {
       return res.status(400).json({ error: 'Ödeme tutarı hesaplanamadı.' });
     }
