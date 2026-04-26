@@ -1,6 +1,12 @@
 const { requireAdmin } = require('../../lib/_admin-auth');
 const { applyCors } = require('../../lib/_cors');
-const { ensureSiteSettingsSchema, getSocialLinks, setSocialLinks } = require('../../lib/_site_settings');
+const {
+  ensureSiteSettingsSchema,
+  getSocialLinks,
+  setSocialLinks,
+  getCheckoutSettings,
+  setCheckoutSettings,
+} = require('../../lib/_site_settings');
 
 module.exports = async function handler(req, res) {
   if (applyCors(req, res, { allowAdminHeaders: true })) return;
@@ -15,12 +21,14 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'GET') {
       const links = await getSocialLinks();
-      return res.status(200).json({ social: links });
+      const checkout = await getCheckoutSettings();
+      return res.status(200).json({ social: links, ...checkout });
     }
 
     if (req.method === 'PUT' || req.method === 'POST') {
       const links = await setSocialLinks(req.body?.social || {});
-      return res.status(200).json({ social: links });
+      const checkout = await setCheckoutSettings(req.body || {});
+      return res.status(200).json({ social: links, ...checkout });
     }
 
     return res.status(405).json({ error: 'method' });

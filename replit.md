@@ -79,3 +79,12 @@
   tek paket mantığı), opsiyonel window.__FREE_SHIPPING_THRESHOLD.
 - Admin ürün formuna "Kargo Ücreti (TL)" + "Kargo Notu" alanları.
 - Sipariş toplamı ve PayTR payment_amount artık kargo dahil.
+
+## Tur 7.7 — Premium drawer paketi (2026-04-26)
+- Hediye paketi (admin ayarlı), tahmini teslimat, kupon mini-input,
+  ücretsiz kargo ilerleme barı, üye indirimi badge ve satırı,
+  hızlı miktar -/+, ödeme chip seçimi, güven satırı, backdrop blur.
+- admin.html: giftWrapFee, freeShipThreshold, memberDiscount,
+  deliveryRange site-settings alanları.
+- PayTR amount server-side olarak ship+gift-kupon-üye dahil
+  yeniden hesaplanıyor.
