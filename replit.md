@@ -62,3 +62,11 @@
 - Layout effect ResizeObserver, MutationObserver, fonts.ready, visualViewport scroll ve pageshow ile yeniden tetikleniyor.
 - Klavye açıkken CTA panel translateY(120%) ile geçici saklanıyor.
 
+
+## Tur 7.4 — Alt yığın hiyerarşisi (2026-04-26)
+- Mobil sıralama: nav (en alt) → CTA panel → live order toast (en üst).
+- CTA paneli koyu/altın yerine beyaz kart (rgba 251,249,245,
+  radius 18, menü ile aynı dil).
+- Toast cart/checkout section'larında gizleme kaldırıldı, bottom
+  hesabı --mobile-nav-offset + --checkout-cta-height ile dinamik.
+- Toast z-index 11000 → 12130 (CTA üstü, nav altı).
