@@ -776,7 +776,7 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 @media(max-width:640px){
   .cart-action-panel{
     left:0;right:0;
-    bottom:var(--mobile-nav-offset, 76px);
+    bottom:calc(var(--mobile-nav-offset, 0px) + 6px);
     border-radius:0;
     background:rgba(20,14,10,.96);
     backdrop-filter:blur(14px);
@@ -10070,11 +10070,43 @@ function initObserver(){
 function setMobileNavPadding(){
   const nav = document.querySelector('.mobile-bottom-nav');
   const checkoutCta = document.querySelector('#cartActionPanel, .cart-action-panel');
+  // Klavye açıksa CTA paneli geçici sakla (focus blur'a kadar)
+  try {
+    if(window.visualViewport){
+      const vh = window.visualViewport.height;
+      const wh = window.innerHeight;
+      const keyboardOpen = (wh - vh) > 120;
+      const ctaEl = document.getElementById('cartActionPanel');
+      if(ctaEl){
+        if(keyboardOpen){
+          ctaEl.dataset.kbHidden = '1';
+          ctaEl.style.transform = 'translateY(120%)';
+          ctaEl.style.transition = 'transform .25s ease';
+        } else if(ctaEl.dataset.kbHidden){
+          delete ctaEl.dataset.kbHidden;
+          ctaEl.style.transform = '';
+        }
+      }
+    }
+  } catch(_){ }
   const checkoutCtaHeight = (checkoutCta && getComputedStyle(checkoutCta).display !== 'none') ? checkoutCta.offsetHeight : 0;
   document.documentElement.style.setProperty('--checkout-cta-height', `${checkoutCtaHeight}px`);
   if(nav && window.innerWidth<=1023 && getComputedStyle(nav).display!=='none'){
-    const pad = nav.offsetHeight + checkoutCtaHeight + 18;
-    document.documentElement.style.setProperty('--mobile-nav-offset', `${nav.offsetHeight}px`);
+    // Nav'ın viewport DİBİNDEN GERÇEK uzaklığı:
+    // margin (CSS bottom: 10px+safe) + kendi yüksekliği.
+    let navTopFromViewportBottom;
+    try{
+      const r = nav.getBoundingClientRect();
+      const viewportH = (window.visualViewport?.height) || window.innerHeight;
+      // Nav'ın ÜST kenarının dipten uzaklığı
+      navTopFromViewportBottom = Math.max(0, Math.round(viewportH - r.top));
+    } catch(_){
+      navTopFromViewportBottom = nav.offsetHeight + 10;
+    }
+    const navOffset = navTopFromViewportBottom;
+    document.documentElement.style.setProperty('--mobile-nav-offset', `${navOffset}px`);
+    // İçerik padding'i: nav + CTA + boşluk
+    const pad = navOffset + checkoutCtaHeight + 18;
     document.querySelectorAll('.section').forEach(s=>{
       s.style.paddingBottom = pad + 'px';
     });
@@ -10097,6 +10129,52 @@ window.addEventListener('resize', setMobileNavPadding);
 window.addEventListener('orientationchange', setMobileNavPadding);
 window.visualViewport?.addEventListener('resize', setMobileNavPadding);
 document.addEventListener('DOMContentLoaded', setMobileNavPadding);
+// Throttled rerun (rAF debouncing ile)
+let __setNavPadRaf = 0;
+function scheduleNavPad(){
+  if(__setNavPadRaf) return;
+  __setNavPadRaf = requestAnimationFrame(()=>{
+    __setNavPadRaf = 0;
+    try { setMobileNavPadding(); } catch(_){ }
+  });
+}
+try { window.visualViewport?.addEventListener('scroll', scheduleNavPad); } catch(_){ }
+window.addEventListener('load', scheduleNavPad);
+try {
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(scheduleNavPad).catch(()=>{});
+  }
+} catch(_){ }
+window.addEventListener('pageshow', scheduleNavPad);
+try {
+  const navObsTarget = document.querySelector('.mobile-bottom-nav');
+  if(navObsTarget && typeof ResizeObserver !== 'undefined'){
+    const ro = new ResizeObserver(scheduleNavPad);
+    ro.observe(navObsTarget);
+  }
+} catch(_){ }
+try {
+  const ctaTarget = document.getElementById('cartActionPanel');
+  if(ctaTarget && typeof ResizeObserver !== 'undefined'){
+    const ro2 = new ResizeObserver(scheduleNavPad);
+    ro2.observe(ctaTarget);
+  }
+} catch(_){ }
+try {
+  const mo = new MutationObserver((muts)=>{
+    for(const m of muts){
+      if(m.type === 'attributes' && m.attributeName === 'class'){
+        if(/\bsection\b/.test((m.target.className || '').toString())){
+          scheduleNavPad();
+          break;
+        }
+      }
+    }
+  });
+  document.querySelectorAll('.section').forEach(s=>{
+    mo.observe(s, { attributes:true, attributeFilter:['class'] });
+  });
+} catch(_){ }
 
 function updateFloatingCta(activeSection='home'){
   const cta = document.getElementById('floatingCta');
