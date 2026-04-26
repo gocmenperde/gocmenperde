@@ -80,9 +80,9 @@ async function parsePaytrResponse(response) {
 }
 
 function createMerchantOid() {
-  const ts = Date.now();
-  const rand = crypto.randomBytes(3).toString('hex');
-  return `gp_${ts}_${rand}`;
+  const ts = Date.now().toString(36);
+  const rand = crypto.randomBytes(6).toString('hex');
+  return `gp${ts}${rand}`.replace(/[^A-Za-z0-9]/g, '').slice(0, 64);
 }
 
 module.exports = async function handler(req, res) {
