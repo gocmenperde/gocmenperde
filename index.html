@@ -6435,33 +6435,26 @@ function getThumbFetchPriority(idx){
 }
 
 function lockPageScrollForModal(){
-  modalLockedScrollY = window.scrollY || window.pageYOffset || 0;
-  document.documentElement.style.overflow = 'hidden';
-  document.body.style.overflow = 'hidden';
-  if(window.matchMedia('(max-width: 700px)').matches){
+  try{
+    modalLockedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${modalLockedScrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.classList.add('modal-open','no-scroll');
+  }catch(_){}
+}
+function unlockPageScrollForModal(){
+  try{
     document.body.style.position = '';
     document.body.style.top = '';
     document.body.style.left = '';
     document.body.style.right = '';
     document.body.style.width = '';
-    return;
-  }
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${modalLockedScrollY}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.width = '100%';
-}
-function unlockPageScrollForModal(){
-  document.documentElement.style.overflow = '';
-  document.body.style.overflow = '';
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.width = '';
-  if(window.matchMedia('(max-width: 700px)').matches) return;
-  window.scrollTo(0, modalLockedScrollY || 0);
+    document.body.classList.remove('modal-open','no-scroll');
+    window.scrollTo(0, modalLockedScrollY || 0);
+  }catch(_){}
 }
 
 function preloadImage(src, priority='auto'){
@@ -7492,47 +7485,37 @@ window.addEventListener('load',()=>{
   try{
     const params = new URLSearchParams(window.location.search);
     if(params.get('from') === 'address-return'){
-      console.log('[checkout-debug] from=address-return detected');
-      const forceCheckoutRender = (label)=>{
-        try{
-          console.log('[checkout-debug] address-return retry:', label);
-          closeAllOverlaysAggressive();
-          loadCartFromStorage();
-          try{
-            const raw = localStorage.getItem('gpCart');
-            console.log('[checkout-debug] gpCart raw length:', raw ? raw.length : 0, 'basket.length:', (typeof basket !== 'undefined' ? basket.length : 'N/A'));
-          }catch(_){}
-          const checkoutSec = document.getElementById('checkout');
-          if(checkoutSec){
-            document.querySelectorAll('.section').forEach(s=>{
-              if(s.id !== 'checkout'){ s.classList.remove('active','fade-in'); s.style.display='none'; }
-            });
-            checkoutSec.style.display='block';
-            checkoutSec.classList.add('active');
-            checkoutSec.style.visibility='visible';
-            checkoutSec.style.opacity='1';
-          }
-          renderCheckout();
-          const form = document.getElementById('orderForm');
-          if(form && (typeof basket !== 'undefined') && basket.length > 0){
-            form.style.display='block';
-            form.style.visibility='visible';
-            form.style.opacity='1';
-            form.removeAttribute('hidden');
-          }
-        }catch(e){ console.log('[checkout-debug] address-return retry failed:', label, e); }
-      };
-      setTimeout(()=>forceCheckoutRender('50ms'), 50);
-      setTimeout(()=>forceCheckoutRender('300ms'), 300);
-      setTimeout(()=>forceCheckoutRender('900ms'), 900);
-      setTimeout(()=>{
-        try{
-          const cleanUrl = window.location.pathname + window.location.hash;
-          window.history.replaceState({}, '', cleanUrl);
-          console.log('[checkout-debug] address-return URL marker cleaned');
-        }catch(e){ console.log('[checkout-debug] URL cleanup failed', e); }
-      }, 1100);
-    }
+  console.log('[checkout-debug] from=address-return → CART section yönlendirme');
+  // Kullanıcı hesabim'den dönüyor → checkout boş kalma sorununu bypass etmek için
+  // direkt CART (sepet) section'ına götür. Kullanıcı sepetten "Sepeti Onayla" ile
+  // checkout'a yine geçebilir, bu sefer normal flow ile.
+  const goToCart = ()=>{
+    try{
+      closeAllOverlaysAggressive();
+      loadCartFromStorage();
+      const cartSec = document.getElementById('cart');
+      if(cartSec){
+        document.querySelectorAll('.section').forEach(s=>{
+          if(s.id !== 'cart'){ s.classList.remove('active','fade-in'); s.style.display='none'; }
+        });
+        cartSec.style.display='block';
+        cartSec.classList.add('active');
+        cartSec.style.visibility='visible';
+        cartSec.style.opacity='1';
+      }
+      if(typeof renderCart === 'function') renderCart();
+      // URL'den marker'ı temizle ve hash'i #cart yap
+      const cleanUrl = window.location.pathname + '#cart';
+      window.history.replaceState({}, '', cleanUrl);
+      // Sayfayı en üste kaydır
+      window.scrollTo({top:0, behavior:'auto'});
+    }catch(e){ console.log('[checkout-debug] address-return goToCart failed:', e); }
+  };
+  // Üç farklı zamanda dene (DOM ready guarantee)
+  setTimeout(goToCart, 50);
+  setTimeout(goToCart, 300);
+  setTimeout(goToCart, 800);
+}
   }catch(e){ console.log('[checkout-debug] address-return query parse failed', e); }
   runSafely('bindProductsGridDelegation', ()=>bindProductsGridDelegation());
   runSafely('loadProducts', ()=>loadProducts());
@@ -8675,6 +8658,9 @@ function renderMiniCart(){
 }
 
 function renderCart(){
+  console.log('[cart] renderCart called, basket.length=', basket.length);
+  try{ loadCartFromStorage(); }catch(_){}
+  try{ closeAllOverlaysAggressive(); }catch(_){}
   const content=document.getElementById('cartContent'),footer=document.getElementById('cartFooter'),form=document.getElementById('orderForm');
   const cartHint = document.getElementById('cartEntryHint');
   if(!basket.length){
@@ -8725,6 +8711,25 @@ function renderCart(){
   if(cartHint) cartHint.style.display='block';
   updateCartActionPanel();
   applyPendingCouponFromStorage();
+
+  // Son güvenlik: 600ms sonra cart-container hâlâ boş görünüyorsa ve basket doluysa zorla göster
+  setTimeout(()=>{
+    try{
+      if(basket.length > 0){
+        const cartSec = document.getElementById('cart');
+        if(cartSec){
+          cartSec.style.display='block';
+          cartSec.style.visibility='visible';
+          cartSec.style.opacity='1';
+        }
+        const items = document.querySelector('#cart .cart-items, #cartItems, #cart-items');
+        if(items && !items.children.length){
+          console.warn('[cart] cart container boş, renderCart yeniden çağrılıyor');
+          renderCart();
+        }
+      }
+    }catch(_){ }
+  }, 600);
 }
 
 function focusOrderFormFromPanel(){
@@ -10044,6 +10049,7 @@ const PAYTR_POLL_TIMEOUT_MS = 10 * 60 * 1000;
 function hardCloseSuccessModal({navigate=true} = {}){
   const modal = document.getElementById('successModal');
   if(modal) modal.classList.remove('open');
+  unlockPageScrollForModal();
   if(__successModalTimer){ clearTimeout(__successModalTimer); __successModalTimer = 0; }
   if(__successModalTick){ clearInterval(__successModalTick); __successModalTick = 0; }
   if(__successModalEscHandler){
@@ -10088,6 +10094,7 @@ function showOrderSuccessModal(orderNo=''){
   }
   const modal = document.getElementById('successModal');
   if(modal) modal.classList.add('open');
+  lockPageScrollForModal();
   let remaining = 15;
   if(countdownEl) countdownEl.textContent = String(remaining);
   __successModalTick = setInterval(()=>{
