@@ -106,3 +106,11 @@
 - Drag-to-close (handle 80px aşağı), ESC ile kapat.
 - body.cap-drawer-open ile sayfa scroll kilitli + nav gizli.
 - Drawer kapanınca scroll pozisyonu sıfırlanır.
+
+
+## Tur 7.10 — Drawer state ve panel anchor düzeltmesi (2026-04-26)
+- Drawer açıkken alt nav görünür kalıyor (sadece pointer-events kapalı) — CTA paneli artık "boşlukta asılı" görünmüyor.
+- cart-action-panel.has-open-drawer bottom override !important.
+- toggleCapDrawer kapanışta transform/transition/scrollTop temizler.
+- hashchange / popstate / visibilitychange'de drawer auto-close.
+- Body overflow:hidden korundu ama touch-action:none kaldırıldı (iOS sıkışma hissi gitti).
