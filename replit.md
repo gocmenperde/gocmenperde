@@ -56,3 +56,9 @@
   ayrımı.
 - Mobil CTA panel alt nav'a tam bitişik (border-radius:0,
   bottom = --mobile-nav-offset).
+
+## Tur 7.3 — CTA panel sabitleme (2026-04-26)
+- --mobile-nav-offset artık nav'ın getBoundingClientRect ile gerçek viewport-dipten uzaklığını taşıyor (yüzer nav 10+safe gap'i dahil).
+- Layout effect ResizeObserver, MutationObserver, fonts.ready, visualViewport scroll ve pageshow ile yeniden tetikleniyor.
+- Klavye açıkken CTA panel translateY(120%) ile geçici saklanıyor.
+
