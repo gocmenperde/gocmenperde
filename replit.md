@@ -88,3 +88,12 @@
   deliveryRange site-settings alanları.
 - PayTR amount server-side olarak ship+gift-kupon-üye dahil
   yeniden hesaplanıyor.
+
+## Tur 7.8 — Drawer overflow ve sıralama düzeltmesi (2026-04-26)
+- max-height 320px → 65vh, .cap-drawer-inner içinde scroll
+  (overscroll-behavior:contain, alt fade ipucu).
+- İçerik sırası yeniden düzenlendi: motivatör → kalemler →
+  hesap → seçimler → bilgi → güven.
+- "Detaylar" → "Özeti gizle" toggle etiketi.
+- Hediye paketi etiketi uppercase'den çıktı (text-transform:none).
+- body.cap-drawer-open ile sayfa scroll kilidi.
