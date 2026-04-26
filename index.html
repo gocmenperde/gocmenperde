@@ -782,7 +782,7 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 @media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(var(--mobile-nav-offset, 0px) + env(safe-area-inset-bottom) + 10px)}.cart-action-btn{font-size:0.9rem;padding:13px 10px}}
 .cart-action-panel{flex-direction:column;padding:0}
 /* Drawer açıkken paneli backdrop'ın üstüne çıkar */
-.cart-action-panel.has-open-drawer{z-index:12400}
+.cart-action-panel.has-open-drawer{z-index:12400;bottom:var(--mobile-nav-offset, 76px) !important}
 .cap-meta{display:none}
 .cap-row{display:flex;width:100%}
 .cap-chev{display:inline-block;margin-left:8px;transition:transform .2s ease}
@@ -963,9 +963,13 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   .cap-eta strong{color:#1b1b1b}
   .cap-trust{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:10px 0 0;padding-top:10px;border-top:1px solid rgba(20,20,20,.05);font:500 10.5px 'DM Sans',sans-serif;color:#7a7a7a;letter-spacing:.02em}
   .cap-trust i{color:#c8a35a;margin-right:3px}
-  body.cap-drawer-open{overflow:hidden !important;touch-action:none}
-  body.cap-drawer-open .cap-drawer-inner{touch-action:pan-y}
-  body.cap-drawer-open .mobile-bottom-nav{opacity:0;pointer-events:none;transition:opacity .15s ease-out}
+  body.cap-drawer-open{overflow:hidden}
+  body.cap-drawer-open #cart,
+  body.cap-drawer-open #checkout,
+  body.cap-drawer-open .live-order-toast{pointer-events:none}
+  body.cap-drawer-open #cartActionPanel{pointer-events:auto}
+  body.cap-drawer-open .cap-drawer-inner{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  body.cap-drawer-open .mobile-bottom-nav{pointer-events:none}
   .cap-toggle{
     width:100%; display:flex; justify-content:center; align-items:center; gap:8px;
     background:transparent; border:0; padding:7px 0 5px;
@@ -8764,8 +8768,8 @@ function toggleCapDrawer(){
   d.classList.toggle('is-open', open);
   b.classList.toggle('is-open', open);
   if(back) back.classList.toggle('is-open', open);
-  document.body.classList.toggle('cap-drawer-open', open);
   if(panelEl) panelEl.classList.toggle('has-open-drawer', open);
+  document.body.classList.toggle('cap-drawer-open', open);
   b.setAttribute('aria-expanded', open ? 'true' : 'false');
   d.setAttribute('aria-hidden', open ? 'false' : 'true');
   const lbl = document.querySelector('#capToggle .cap-toggle-label');
@@ -8776,9 +8780,10 @@ function toggleCapDrawer(){
       const inner = d.querySelector('.cap-drawer-inner');
       if(inner) inner.scrollTop = 0;
     } catch(_){}
-  }
-  if(!open){
+  } else {
     try {
+      d.style.transform = '';
+      d.style.transition = '';
       const inner = d.querySelector('.cap-drawer-inner');
       if(inner) inner.scrollTop = 0;
     } catch(_){}
@@ -8786,6 +8791,17 @@ function toggleCapDrawer(){
   try { setMobileNavPadding(); } catch(_){}
 }
 window.toggleCapDrawer = toggleCapDrawer;
+
+function __forceCloseCapDrawer(){
+  const d = document.getElementById('capDrawer');
+  if(!d || !d.classList.contains('is-open')) return;
+  try { toggleCapDrawer(); } catch(_){}
+}
+window.addEventListener('hashchange', __forceCloseCapDrawer);
+window.addEventListener('popstate', __forceCloseCapDrawer);
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'hidden') __forceCloseCapDrawer();
+});
 
 (function attachDrawerDragClose(){
   const d = document.getElementById('capDrawer');
