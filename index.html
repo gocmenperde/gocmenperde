@@ -1801,6 +1801,25 @@ header.is-shrunk .logo-sub{font-size:9px}
   .bar-btn.primary{border-color:#c8a35a;background:#c8a35a;color:#fff}
 }
 
+
+.paytr-iframe-modal{position:fixed;inset:0;z-index:14000;background:#fff;display:none;flex-direction:column;overflow:hidden}
+.paytr-iframe-modal[aria-hidden="false"],.paytr-iframe-modal.paytr-open{display:flex}
+.paytr-iframe-topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(env(safe-area-inset-top) + 10px) max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left));background:linear-gradient(180deg,#1a1a1a 0%,#2a241a 100%);color:#f5e8c5;border-bottom:1px solid rgba(201,168,76,.35);flex:0 0 auto}
+.paytr-iframe-close{background:transparent;border:1px solid rgba(245,232,197,.4);color:#f5e8c5;padding:8px 12px;border-radius:10px;display:inline-flex;align-items:center;gap:6px;font-size:.92rem;cursor:pointer;font-family:inherit}
+.paytr-iframe-close:active{background:rgba(245,232,197,.12)}
+.paytr-iframe-title{display:inline-flex;align-items:center;gap:8px;font-weight:600;letter-spacing:.02em;font-size:.95rem}
+.paytr-iframe-spacer{width:64px}
+.paytr-iframe-loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;color:#6b6354;font-size:.95rem;z-index:1;pointer-events:none;transition:opacity .25s ease}
+.paytr-iframe-loader.paytr-loaded{opacity:0;visibility:hidden}
+.paytr-spinner-lg{width:22px;height:22px;border:3px solid #d8c089;border-top-color:transparent;border-radius:50%;display:inline-block;animation:paytrSpin 0.9s linear infinite}
+#paytrIframeEl{flex:1 1 auto;width:100%;height:100%;border:0;background:#fff;display:block}
+@media(max-width:640px){
+  .paytr-iframe-topbar{padding:calc(env(safe-area-inset-top) + 8px) 10px 8px 10px}
+  .paytr-iframe-title span{font-size:.9rem}
+}
+@keyframes paytrSpin { to { transform: rotate(360deg); } }
+body.paytr-iframe-open{overflow:hidden;touch-action:none}
+
 </style>
 </head>
 <body>
@@ -9370,6 +9389,7 @@ async function resolvePaytrStatus(merchantOid=''){
   const statusPayload = await fetchPaytrStatus(merchantOid);
   const status = String(statusPayload?.status || '').toLowerCase();
   if(status === 'paid'){
+    try { closePaytrIframeModal('paid'); } catch(_){ }
     basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount(); saveCartToStorage();
     clearActivePaytrSession();
     showOrderSuccessModal(statusPayload?.order_no || '');
@@ -9377,6 +9397,7 @@ async function resolvePaytrStatus(merchantOid=''){
     return true;
   }
   if(['failed','cancelled','expired'].includes(status)){
+    try { closePaytrIframeModal('cancel'); } catch(_){ }
     clearActivePaytrSession();
     showToast('Ödeme tamamlanamadı. Checkout ekranında tekrar deneyebilirsiniz.');
     go('checkout');
@@ -9412,6 +9433,39 @@ function showPaytrWaitingScreen(merchantOid=''){
   pollPaytrStatus(false);
 }
 
+function openPaytrIframeModal(url, merchantOid){
+  const modal = document.getElementById('paytrIframeModal');
+  const frame = document.getElementById('paytrIframeEl');
+  const loader = document.getElementById('paytrIframeLoader');
+  if(!modal || !frame) {
+    window.location.href = url;
+    return;
+  }
+  if(loader) loader.classList.remove('paytr-loaded');
+  frame.onload = () => { if(loader) loader.classList.add('paytr-loaded'); };
+  frame.src = url;
+  modal.hidden = false;
+  modal.classList.add('paytr-open');
+  modal.setAttribute('aria-hidden','false');
+  document.body.classList.add('paytr-iframe-open');
+  try { pollPaytrStatus(true); } catch(_){ }
+}
+
+function closePaytrIframeModal(reason){
+  const modal = document.getElementById('paytrIframeModal');
+  const frame = document.getElementById('paytrIframeEl');
+  if(modal){
+    modal.hidden = true;
+    modal.classList.remove('paytr-open');
+    modal.setAttribute('aria-hidden','true');
+  }
+  if(frame){ frame.src = 'about:blank'; }
+  document.body.classList.remove('paytr-iframe-open');
+  if(reason === 'user'){
+    try { cancelActivePaytrSession(); } catch(_){ }
+  }
+}
+
 async function confirmPaytrCompletion(){
   const active = getActivePaytrSession();
   if(!active?.merchant_oid){
@@ -9422,6 +9476,7 @@ async function confirmPaytrCompletion(){
 }
 
 function cancelActivePaytrSession(){
+  try { const m=document.getElementById('paytrIframeModal'); if(m && !m.hidden){ m.hidden=true; m.classList.remove('paytr-open'); document.body.classList.remove('paytr-iframe-open'); const f=document.getElementById('paytrIframeEl'); if(f) f.src='about:blank'; } } catch(_){}
   clearActivePaytrSession();
   showToast('Ödeme oturumu iptal edildi.');
 }
@@ -9435,7 +9490,10 @@ function togglePaymentFields(){
   if(waiting) waiting.classList.add('hidden');
   if(m==='kredikarti'){
     document.getElementById('creditCardFields').classList.remove('hidden');
-    if(getActivePaytrSession() && waiting) waiting.classList.remove('hidden');
+    const sess = getActivePaytrSession();
+    if(sess && sess.merchant_oid){
+      pollPaytrStatus(true);
+    }
   }
   else if(m==='havale'){
     document.getElementById('bankTransferFields').classList.remove('hidden');
@@ -9493,13 +9551,14 @@ async function submitOrder(){
           const statusPayload = await fetchPaytrStatus(active.merchant_oid);
           const status = String(statusPayload?.status || '').toLowerCase();
           if(status === 'paid'){
+            try { closePaytrIframeModal('paid'); } catch(_){ }
             clearActivePaytrSession();
             showOrderSuccessModal(statusPayload?.order_no || '');
             return;
           }
           if(status === 'pending' && (Date.now() - Number(active.startedAt || 0)) < 2 * 60 * 1000){
             showToast('Önceki ödeme oturumu hâlâ aktif, lütfen tamamlayın veya iptal edin.');
-            showPaytrWaitingScreen(active.merchant_oid);
+            pollPaytrStatus(true);
             return;
           }
           clearActivePaytrSession();
@@ -9533,10 +9592,7 @@ async function submitOrder(){
         throw new Error(data?.error || `PayTR ödeme oturumu oluşturulamadı (HTTP ${response.status}).`);
       }
       sessionStorage.setItem('gp_active_paytr', JSON.stringify({ merchant_oid: data.merchant_oid, startedAt: Date.now() }));
-      try {
-        window.history.replaceState({ ...(window.history.state || {}), paytrPending:true }, '', window.location.href);
-      } catch(_){}
-      window.location.href = data.checkout_url;
+      openPaytrIframeModal(data.checkout_url, data.merchant_oid);
       return;
     }
 
@@ -9995,5 +10051,24 @@ if(typeof __origCloseProductModal==='function'){
   <button type="button" class="bar-btn primary" id="mobileBarAddBtn" aria-label="Sepete Ekle">🛒 Sepete Ekle</button>
 </div>
 
+
+<div id="paytrIframeModal" class="paytr-iframe-modal" role="dialog" aria-modal="true" aria-label="Güvenli Ödeme" hidden>
+  <div class="paytr-iframe-topbar">
+    <button type="button" class="paytr-iframe-close" onclick="closePaytrIframeModal('user')" aria-label="Ödemeyi iptal et">
+      <i class="fas fa-arrow-left"></i>
+      <span>Geri</span>
+    </button>
+    <div class="paytr-iframe-title">
+      <i class="fas fa-lock" aria-hidden="true"></i>
+      <span>Güvenli Ödeme</span>
+    </div>
+    <div class="paytr-iframe-spacer"></div>
+  </div>
+  <div class="paytr-iframe-loader" id="paytrIframeLoader">
+    <span class="paytr-spinner-lg" aria-hidden="true"></span>
+    <span>Güvenli ödeme ekranı yükleniyor…</span>
+  </div>
+  <iframe id="paytrIframeEl" title="PayTR Güvenli Ödeme" allow="payment *" allowfullscreen></iframe>
+</div>
 </body>
 </html>
