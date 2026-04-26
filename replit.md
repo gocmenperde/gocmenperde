@@ -114,3 +114,11 @@
 - toggleCapDrawer kapanışta transform/transition/scrollTop temizler.
 - hashchange / popstate / visibilitychange'de drawer auto-close.
 - Body overflow:hidden korundu ama touch-action:none kaldırıldı (iOS sıkışma hissi gitti).
+
+## Tur 7.11 — Gerçek bottom-sheet mimarisi (2026-04-26)
+- cart-action-panel.is-sheet: top:8vh, bottom:0, rounded top.
+- Grid layout: handle / header / scroll-body / sticky footer.
+- SEPETİ ONAYLA sheet'in dibinde sticky, içerik üstünden serbestçe scroll'lanır.
+- cap-sheet-header (sticky title + × close button) eklendi.
+- Drag handle + header bölgesinden drag-to-close (>100px).
+- capDrawer-title gizlendi (sheet header devraldı).

@@ -788,207 +788,189 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .cap-chev{display:inline-block;margin-left:8px;transition:transform .2s ease}
 .cart-action-btn:hover .cap-chev,
 .cart-action-btn:active .cap-chev{transform:translateX(4px)}
-@media(max-width:640px){
-  .cart-action-panel{
-    left:10px;right:10px;
-    /* Mobil menünün TAM ÜSTÜNDE, 8px boşlukla yüzer kart */
-    bottom:calc(var(--mobile-nav-offset, 0px) + 8px);
-    border-radius:18px;
-    background:rgba(251,249,245,0.96);
-    backdrop-filter:blur(18px) saturate(180%);
-    -webkit-backdrop-filter:blur(18px) saturate(180%);
-    border:1px solid rgba(20,20,20,.06);
-    box-shadow:0 12px 28px rgba(20,20,20,.14);
-    padding:0;
-    margin:0 auto;
-    overflow:hidden;
-    max-width:980px;
-  }
-  .cap-meta{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:7px 14px;
-    font-family:'DM Sans',sans-serif;font-size:10.5px;
-    color:#6a6a6a;letter-spacing:.03em;
-    border-bottom:1px solid rgba(20,20,20,.06);
-    background:rgba(255,255,255,.5);
-  }
-  .cap-meta-method{
-    flex:1;overflow:hidden;text-overflow:ellipsis;
-    white-space:nowrap;padding-right:10px;color:#444;
-  }
-  .cap-meta-sec{flex-shrink:0;color:#7a6228;font-weight:600}
-  .cap-meta-sec i{margin-right:4px;color:#a3823f}
-  .cap-row{padding:8px 10px 10px;gap:8px;align-items:center}
-  .cart-action-total{
-    min-width:0;padding:2px 6px 2px 8px;background:transparent;
-    border:0;flex-shrink:0;text-align:left;
-  }
-  .cart-action-total b{
-    font-size:1.05rem;color:#1b1b1b;
-    font-family:'Cormorant Garamond',serif;line-height:1.05;
-  }
-  .cart-action-total span{
-    font-size:.62rem;color:#7d2c2c;
-    font-weight:600;margin-top:1px;letter-spacing:.5px;
-  }
-  .cart-action-btn{
-    flex:1;
-    background:#1b1b1b;color:#fff;
-    font-family:'DM Sans',sans-serif;font-weight:600;
-    font-size:.82rem;letter-spacing:.08em;
-    padding:13px 14px;border-radius:12px;
-    box-shadow:0 4px 14px rgba(20,20,20,.18);
-    -webkit-tap-highlight-color:transparent;
-    border:0;
-  }
-  .cart-action-btn:active{
-    transform:scale(.98);
-    background:#2a2a2a;
-    box-shadow:0 2px 8px rgba(20,20,20,.14);
-  }
-  .cart-action-btn[disabled]{opacity:.5;filter:grayscale(.3)}
-  .cart-action-btn.cap-warn{background:#7d2c2c;color:#fff}
-  .cap-drawer{
-    overflow:hidden;
-    max-height:0;
-    opacity:0;
-    transform:translateY(12px);
-    transition:max-height .22s cubic-bezier(.2,.8,.2,1),
-               opacity .18s ease-out,
-               transform .22s cubic-bezier(.2,.8,.2,1);
-    background:linear-gradient(180deg,#fff 0%,#fbf9f5 100%);
-    border-radius:20px 20px 0 0;
-    box-shadow:0 -16px 40px rgba(15,14,13,.18);
-    will-change:max-height, opacity, transform;
-    position:relative;
-  }
-  .cap-drawer.is-open{
-    max-height:min(560px, 60vh);
-    opacity:1;
-    transform:translateY(0);
-  }
-  .cap-drawer::before{
-    content:'';
-    position:sticky; top:0; z-index:5;
-    display:block; width:36px; height:4px;
-    margin:8px auto 0;
-    background:rgba(20,20,20,.18);
-    border-radius:4px;
-  }
-  .cap-drawer.is-open::after{
-    content:''; position:absolute; left:0; right:0; bottom:0;
-    height:24px; pointer-events:none;
-    background:linear-gradient(180deg,transparent,#fbf9f5);
-    border-radius:0 0 0 0;
-  }
-  .cap-drawer-inner{
-    padding:6px 14px 14px;
-    font-family:'DM Sans',sans-serif;
-    max-height:calc(min(560px, 60vh) - 14px);
-    overflow-y:auto;
-    overscroll-behavior:contain;
-    -webkit-overflow-scrolling:touch;
-  }
-  .cap-drawer-inner::-webkit-scrollbar{ width:4px; }
-  .cap-drawer-inner::-webkit-scrollbar-thumb{
-    background:rgba(200,163,90,.4); border-radius:4px;
-  }
-  .cap-drawer-title{
-    position:sticky; top:14px; z-index:4;
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.12rem; color:#1b1b1b;
-    margin:0 -14px 12px;
-    padding:6px 14px 10px;
-    letter-spacing:.3px;
-    background:linear-gradient(180deg,#fff 70%,rgba(255,255,255,.0));
-    text-align:center;
-  }
-  .cap-drawer-title::after{
-    content:''; display:block;
-    height:1px; margin-top:8px;
-    background:linear-gradient(90deg,transparent,rgba(200,163,90,.4),transparent);
-  }
-  .cap-drawer-row{
-    display:flex; justify-content:space-between; align-items:center;
-    font-size:.82rem; color:#3a3a3a; padding:5px 0;
-  }
-  .cap-drawer-row strong{ color:#1b1b1b; font-weight:600; font-size:.86rem; }
-  .cap-shipping-val{ display:inline-flex; align-items:center; gap:6px; }
-  .cap-shipping-val s{ color:#9a9a9a; font-weight:400; font-size:.78rem; }
-  .cap-shipping-val strong.is-free{ color:#1e8e3e; font-weight:700; }
-  .cap-drawer-discount strong{ color:#7d2c2c; }
-  .cap-drawer-divider{
-    height:1px; margin:8px 0 6px;
-    background:linear-gradient(90deg,transparent,rgba(200,163,90,.45),transparent);
-  }
-  .cap-drawer-total span{ color:#1b1b1b; font-weight:600; }
-  .cap-drawer-total strong{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.15rem; color:#7d2c2c; letter-spacing:.3px;
-  }
-  .cap-freeship-bar{margin:0 0 12px;padding:8px 10px;background:rgba(200,163,90,.10);border:1px solid rgba(200,163,90,.25);border-radius:10px}
-  .cap-freeship-text{font:500 11.5px 'DM Sans',sans-serif;color:#5a4a1f;margin-bottom:6px;letter-spacing:.02em}
-  .cap-freeship-text strong{color:#7d2c2c;font-weight:700}
-  .cap-freeship-track{height:5px;border-radius:6px;background:rgba(20,20,20,.06);overflow:hidden}
-  .cap-freeship-fill{height:100%;background:linear-gradient(90deg,#c8a35a,#a3823f);border-radius:6px;transition:width .25s ease-out}
-  .cap-freeship-bar.is-free .cap-freeship-fill{width:100% !important}
-  .cap-freeship-bar.is-free .cap-freeship-text strong{color:#1e8e3e}
-  .cap-items{display:flex;flex-direction:column;gap:8px;margin:0 0 12px;padding:8px 10px;background:rgba(255,255,255,.55);border-radius:10px;border:1px solid rgba(20,20,20,.04)}
-  .cap-items:empty{display:none}
-  .cap-totals{margin:0 0 12px;padding:8px 10px;background:rgba(255,255,255,.55);border-radius:10px;border:1px solid rgba(20,20,20,.04)}
-  .cap-item-row{display:flex;align-items:center;gap:8px;font:500 12px 'DM Sans',sans-serif;color:#3a3a3a}
-  .cap-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .cap-qty-btns{display:inline-flex;align-items:center;gap:4px}
-  .cap-qty-btns button{width:22px;height:22px;border-radius:50%;border:1px solid rgba(20,20,20,.12);background:#fff;color:#1b1b1b;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
-  .cap-qty-btns button:active{background:rgba(200,163,90,.15)}
-  .cap-qty-btns span{min-width:18px;text-align:center;font-weight:600}
-  .cap-coupon{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
-  .cap-coupon input{flex:1;min-width:120px;padding:8px 10px;border:1px solid rgba(20,20,20,.12);border-radius:8px;background:#fff;font:500 12px 'DM Sans',sans-serif;color:#1b1b1b}
-  .cap-coupon input:focus{outline:none;border-color:#c8a35a;box-shadow:0 0 0 2px rgba(200,163,90,.18)}
-  .cap-coupon button{padding:8px 14px;border:0;border-radius:8px;background:#1b1b1b;color:#fff;cursor:pointer;font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase}
-  .cap-coupon-msg{flex-basis:100%;font:500 11px 'DM Sans',sans-serif;color:#1e8e3e;min-height:14px}
-  .cap-coupon-msg:empty{display:none}
-  .cap-coupon-msg.is-error{color:#7d2c2c}
-  .cap-extra{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:9px 12px;background:rgba(255,250,240,.6);border:1px solid rgba(200,163,90,.20);border-radius:10px;font:500 12.5px 'DM Sans',sans-serif;color:#3a3a3a;cursor:pointer;text-transform:none !important;letter-spacing:0 !important}
-  .cap-extra .cap-extra-label{text-transform:none;letter-spacing:0;font-weight:500;color:#1b1b1b}
-  .cap-extra::before{content:'🎁';font-size:14px}
-  .cap-extra small{margin-left:auto;color:#7a6228;font-weight:600;font-size:11.5px;letter-spacing:.02em}
-  .cap-extra input[type=checkbox]{width:18px;height:18px;accent-color:#a3823f;flex-shrink:0}
-  .cap-member-row{margin:0 0 10px;padding:6px 10px;background:linear-gradient(90deg,rgba(200,163,90,.10),transparent);border-left:2px solid #c8a35a;font:500 11.5px 'DM Sans',sans-serif;color:#5a4a1f}
-  .cap-member-row a{color:#7d2c2c;text-decoration:underline;font-weight:600}
-  .cap-pay-chips{display:flex;gap:6px;margin:0 0 12px;flex-wrap:wrap}
-  .cap-chip{flex:1;min-width:80px;padding:7px 10px;border-radius:18px;border:1px solid rgba(20,20,20,.14);background:#fff;font:600 11px 'DM Sans',sans-serif;color:#3a3a3a;letter-spacing:.04em;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,color .15s}
-  .cap-chip.is-active{background:#1b1b1b;color:#fff;border-color:#1b1b1b}
-  .cap-eta{margin:8px 0 0;padding:8px 10px;background:rgba(245,250,245,.8);border-radius:8px;font:500 12px 'DM Sans',sans-serif;color:#1e6e2e;text-align:center}
-  .cap-eta strong{color:#1b1b1b}
-  .cap-trust{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:10px 0 0;padding-top:10px;border-top:1px solid rgba(20,20,20,.05);font:500 10.5px 'DM Sans',sans-serif;color:#7a7a7a;letter-spacing:.02em}
-  .cap-trust i{color:#c8a35a;margin-right:3px}
-  body.cap-drawer-open{overflow:hidden}
-  body.cap-drawer-open #cart,
-  body.cap-drawer-open #checkout,
-  body.cap-drawer-open .live-order-toast{pointer-events:none}
-  body.cap-drawer-open #cartActionPanel{pointer-events:auto}
-  body.cap-drawer-open .cap-drawer-inner{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-  body.cap-drawer-open .mobile-bottom-nav{pointer-events:none}
-  .cap-toggle{
-    width:100%; display:flex; justify-content:center; align-items:center; gap:8px;
-    background:transparent; border:0; padding:7px 0 5px;
-    font-family:'DM Sans',sans-serif; font-size:10.5px;
-    color:#7a6228; letter-spacing:.08em; text-transform:uppercase;
-    cursor:pointer; -webkit-tap-highlight-color:transparent;
-    border-bottom:1px solid rgba(20,20,20,.04);
-  }
-  .cap-toggle:active{ background:rgba(200,163,90,.08); }
-  .cap-toggle-chev{
-    width:22px; height:22px; border-radius:50%;
-    background:rgba(200,163,90,.14);
-    display:inline-flex; align-items:center; justify-content:center;
-    color:#a3823f; font-size:10px;
-    transition:transform .25s ease;
-  }
-  .cap-toggle.is-open .cap-toggle-chev{ transform:rotate(180deg); }
-  .cap-toggle-label{ opacity:.85; }
+@media (max-width:899.98px){
+/* === KOMPAKT MOD (sheet kapalı) === */
+.cart-action-panel{
+  position:fixed; left:8px; right:8px;
+  bottom:calc(var(--mobile-nav-offset, 76px) + 8px);
+  z-index:12120;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 18px 40px rgba(15,14,13,.14), 0 2px 8px rgba(0,0,0,.06);
+  display:flex; flex-direction:column;
+  max-height:none;
+  transition:left .24s cubic-bezier(.2,.8,.2,1),
+             right .24s cubic-bezier(.2,.8,.2,1),
+             bottom .24s cubic-bezier(.2,.8,.2,1),
+             top .24s cubic-bezier(.2,.8,.2,1),
+             border-radius .24s ease;
 }
+/* Kompakt modda gizli olanlar */
+.cap-sheet-handle,
+.cap-sheet-header{ display:none; }
+/* === SHEET MODU (drawer açık) === */
+.cart-action-panel.is-sheet{
+  left:0; right:0;
+  top:8vh;
+  bottom:0;
+  border-radius:20px 20px 0 0;
+  z-index:12400;
+  box-shadow:0 -16px 40px rgba(15,14,13,.22);
+  display:grid;
+  grid-template-rows:
+    auto
+    auto
+    1fr
+    auto;
+}
+/* Sheet modunda görünenler */
+.cart-action-panel.is-sheet .cap-sheet-handle{
+  display:block;
+  width:42px; height:5px;
+  margin:10px auto 4px;
+  background:rgba(20,20,20,.18);
+  border-radius:5px;
+  flex-shrink:0;
+}
+.cart-action-panel.is-sheet .cap-sheet-header{
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+  padding:8px 14px 12px;
+  border-bottom:1px solid rgba(20,20,20,.06);
+  background:#fff;
+}
+.cap-sheet-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.18rem; color:#1b1b1b; letter-spacing:.3px;
+}
+.cap-sheet-close{
+  position:absolute; right:10px; top:50%;
+  transform:translateY(-50%);
+  width:34px; height:34px; border-radius:50%;
+  border:1px solid rgba(20,20,20,.08);
+  background:#fff; font-size:22px; line-height:1;
+  color:#555; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.cap-sheet-close:active{ background:#f5f5f5; }
+/* Sheet modunda gizlenecekler */
+.cart-action-panel.is-sheet .cap-toggle,
+.cart-action-panel.is-sheet .cap-meta{
+  display:none;
+}
+/* === DRAWER === */
+.cap-drawer{
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transition:max-height .22s ease-out, opacity .18s ease-out;
+}
+.cart-action-panel.is-sheet .cap-drawer{
+  max-height:none;
+  opacity:1;
+  overflow:hidden;
+  display:flex;
+  min-height:0;
+}
+.cap-drawer-inner{
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  padding:14px 16px 18px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  font-family:'DM Sans',sans-serif;
+}
+.cap-drawer-inner::-webkit-scrollbar{ width:4px; }
+.cap-drawer-inner::-webkit-scrollbar-thumb{
+  background:rgba(200,163,90,.4); border-radius:4px;
+}
+.cart-action-panel.is-sheet .cap-drawer::after{
+  content:''; position:sticky; bottom:0; left:0; right:0;
+  height:18px; pointer-events:none; flex-shrink:0;
+  background:linear-gradient(180deg,transparent,#fff);
+  margin-top:-18px;
+}
+/* === STICKY CTA FOOTER === */
+.cart-action-panel.is-sheet .cap-row{
+  position:relative;
+  border-top:1px solid rgba(20,20,20,.06);
+  background:#fff;
+  padding:12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+  box-shadow:0 -6px 20px rgba(15,14,13,.06);
+}
+/* === DRAWER İÇİNDE BAŞLIK STICKY DEĞİL ARTIK === */
+.cap-drawer-title{
+  display:none;
+}
+
+.cap-meta{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:10.5px;color:#6a6a6a;letter-spacing:.03em;border-bottom:1px solid rgba(20,20,20,.06);background:rgba(255,255,255,.5)}
+#capMetaLeft{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px;color:#444}
+.cap-meta-right{flex-shrink:0;color:#7a6228;font-weight:600}
+.cap-row{display:flex;width:100%;padding:8px 10px 10px;gap:8px;align-items:center}
+.cap-ship strong{display:block;font-size:1.05rem;color:#1b1b1b;font-family:'Cormorant Garamond',serif;line-height:1.05}
+.cap-ship small{display:block;font-size:.62rem;color:#7d2c2c;font-weight:600;margin-top:1px;letter-spacing:.5px}
+.cap-cta{flex:1;background:#1b1b1b;color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:.08em;padding:13px 14px;border-radius:12px;box-shadow:0 4px 14px rgba(20,20,20,.18);-webkit-tap-highlight-color:transparent;border:0;display:flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase}
+.cap-cta:active{transform:scale(.98);background:#2a2a2a;box-shadow:0 2px 8px rgba(20,20,20,.14)}
+.cap-cta[disabled]{opacity:.5;filter:grayscale(.3)}
+.cap-cta.cap-warn{background:#7d2c2c;color:#fff}
+
+.cap-drawer-row{display:flex; justify-content:space-between; align-items:center;font-size:.82rem; color:#3a3a3a; padding:5px 0;}
+.cap-drawer-row strong{ color:#1b1b1b; font-weight:600; font-size:.86rem; }
+.cap-shipping-val{ display:inline-flex; align-items:center; gap:6px; }
+.cap-shipping-val s{ color:#9a9a9a; font-weight:400; font-size:.78rem; }
+.cap-shipping-val strong.is-free{ color:#1e8e3e; font-weight:700; }
+.cap-drawer-discount strong{ color:#7d2c2c; }
+.cap-drawer-divider{height:1px; margin:8px 0 6px;background:linear-gradient(90deg,transparent,rgba(200,163,90,.45),transparent);}
+.cap-drawer-total span{ color:#1b1b1b; font-weight:600; }
+.cap-drawer-total strong{font-family:'Cormorant Garamond',serif;font-size:1.15rem; color:#7d2c2c; letter-spacing:.3px;}
+.cap-freeship-bar{margin:0 0 12px;padding:8px 10px;background:rgba(200,163,90,.10);border:1px solid rgba(200,163,90,.25);border-radius:10px}
+.cap-freeship-text{font:500 11.5px 'DM Sans',sans-serif;color:#5a4a1f;margin-bottom:6px;letter-spacing:.02em}
+.cap-freeship-text strong{color:#7d2c2c;font-weight:700}
+.cap-freeship-track{height:5px;border-radius:6px;background:rgba(20,20,20,.06);overflow:hidden}
+.cap-freeship-fill{height:100%;background:linear-gradient(90deg,#c8a35a,#a3823f);border-radius:6px;transition:width .25s ease-out}
+.cap-freeship-bar.is-free .cap-freeship-fill{width:100% !important}
+.cap-freeship-bar.is-free .cap-freeship-text strong{color:#1e8e3e}
+.cap-items{display:flex;flex-direction:column;gap:8px;margin:0 0 12px;padding:8px 10px;background:rgba(255,255,255,.55);border-radius:10px;border:1px solid rgba(20,20,20,.04)}
+.cap-items:empty{display:none}
+.cap-totals{margin:0 0 12px;padding:8px 10px;background:rgba(255,255,255,.55);border-radius:10px;border:1px solid rgba(20,20,20,.04)}
+.cap-item-row{display:flex;align-items:center;gap:8px;font:500 12px 'DM Sans',sans-serif;color:#3a3a3a}
+.cap-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cap-qty-btns{display:inline-flex;align-items:center;gap:4px}
+.cap-qty-btns button{width:22px;height:22px;border-radius:50%;border:1px solid rgba(20,20,20,.12);background:#fff;color:#1b1b1b;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.cap-qty-btns button:active{background:rgba(200,163,90,.15)}
+.cap-qty-btns span{min-width:18px;text-align:center;font-weight:600}
+.cap-coupon{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+.cap-coupon input{flex:1;min-width:120px;padding:8px 10px;border:1px solid rgba(20,20,20,.12);border-radius:8px;background:#fff;font:500 12px 'DM Sans',sans-serif;color:#1b1b1b}
+.cap-coupon input:focus{outline:none;border-color:#c8a35a;box-shadow:0 0 0 2px rgba(200,163,90,.18)}
+.cap-coupon button{padding:8px 14px;border:0;border-radius:8px;background:#1b1b1b;color:#fff;cursor:pointer;font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.cap-coupon-msg{flex-basis:100%;font:500 11px 'DM Sans',sans-serif;color:#1e8e3e;min-height:14px}
+.cap-coupon-msg:empty{display:none}
+.cap-coupon-msg.is-error{color:#7d2c2c}
+.cap-extra{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:9px 12px;background:rgba(255,250,240,.6);border:1px solid rgba(200,163,90,.20);border-radius:10px;font:500 12.5px 'DM Sans',sans-serif;color:#3a3a3a;cursor:pointer;text-transform:none !important;letter-spacing:0 !important}
+.cap-extra .cap-extra-label{text-transform:none;letter-spacing:0;font-weight:500;color:#1b1b1b}
+.cap-extra::before{content:'🎁';font-size:14px}
+.cap-extra small{margin-left:auto;color:#7a6228;font-weight:600;font-size:11.5px;letter-spacing:.02em}
+.cap-extra input[type=checkbox]{width:18px;height:18px;accent-color:#a3823f;flex-shrink:0}
+.cap-member-row{margin:0 0 10px;padding:6px 10px;background:linear-gradient(90deg,rgba(200,163,90,.10),transparent);border-left:2px solid #c8a35a;font:500 11.5px 'DM Sans',sans-serif;color:#5a4a1f}
+.cap-member-row a{color:#7d2c2c;text-decoration:underline;font-weight:600}
+.cap-pay-chips{display:flex;gap:6px;margin:0 0 12px;flex-wrap:wrap}
+.cap-chip{flex:1;min-width:80px;padding:7px 10px;border-radius:18px;border:1px solid rgba(20,20,20,.14);background:#fff;font:600 11px 'DM Sans',sans-serif;color:#3a3a3a;letter-spacing:.04em;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,color .15s}
+.cap-chip.is-active{background:#1b1b1b;color:#fff;border-color:#1b1b1b}
+.cap-eta{margin:8px 0 0;padding:8px 10px;background:rgba(245,250,245,.8);border-radius:8px;font:500 12px 'DM Sans',sans-serif;color:#1e6e2e;text-align:center}
+.cap-eta strong{color:#1b1b1b}
+.cap-trust{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:10px 0 0;padding-top:10px;border-top:1px solid rgba(20,20,20,.05);font:500 10.5px 'DM Sans',sans-serif;color:#7a7a7a;letter-spacing:.02em}
+.cap-trust i{color:#c8a35a;margin-right:3px}
+body.cap-drawer-open{overflow:hidden;}
+body.cap-drawer-open .mobile-bottom-nav{pointer-events:none;}
+.cap-toggle{width:100%; display:flex; justify-content:center; align-items:center; gap:8px;background:transparent; border:0; padding:7px 0 5px;font-family:'DM Sans',sans-serif; font-size:10.5px;color:#7a6228; letter-spacing:.08em; text-transform:uppercase;cursor:pointer; -webkit-tap-highlight-color:transparent;border-bottom:1px solid rgba(20,20,20,.04);}
+.cap-toggle:active{ background:rgba(200,163,90,.08); }
+.cap-toggle-chev{width:22px; height:22px; border-radius:50%;background:rgba(200,163,90,.14);display:inline-flex; align-items:center; justify-content:center;color:#a3823f; font-size:10px;transition:transform .25s ease;}
+.cap-toggle.is-open .cap-toggle-chev{ transform:rotate(180deg); }
+.cap-toggle-label{ opacity:.85; }
+}
+
 .cap-backdrop{position:fixed;inset:0;z-index:12300;background:radial-gradient(ellipse at bottom,rgba(15,12,8,.18) 0%, rgba(15,12,8,.32) 100%);backdrop-filter:blur(6px) saturate(120%);-webkit-backdrop-filter:blur(6px) saturate(120%);opacity:0;pointer-events:none;transition:opacity .18s ease-out, backdrop-filter .18s ease-out}
 .cap-backdrop.is-open{opacity:1;pointer-events:auto}
 .contracts-scroll-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
@@ -3038,6 +3020,15 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 </div>
 
 <div class="cart-action-panel" id="cartActionPanel" style="display:none">
+  <div class="cap-sheet-handle" id="capSheetHandle" aria-hidden="true"></div>
+  <div class="cap-sheet-header" id="capSheetHeader">
+    <div class="cap-sheet-title">Sipariş Özeti</div>
+    <button type="button" class="cap-sheet-close" onclick="toggleCapDrawer()" aria-label="Kapat">×</button>
+  </div>
+  <button type="button" class="cap-toggle" id="capToggle" onclick="toggleCapDrawer()" aria-expanded="false" aria-controls="capDrawer">
+    <i class="fas fa-chevron-up cap-toggle-chev" aria-hidden="true"></i>
+    <span class="cap-toggle-label">Detaylar</span>
+  </button>
   <div class="cap-drawer" id="capDrawer" aria-hidden="true">
     <div class="cap-drawer-inner">
       <div class="cap-drawer-title">Sipariş Özeti</div>
@@ -3080,27 +3071,19 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
       </div>
     </div>
   </div>
-  <button class="cap-toggle" id="capToggle" type="button"
-          onclick="toggleCapDrawer()"
-          aria-expanded="false" aria-controls="capDrawer"
-          aria-label="Sipariş özetini aç/kapat">
-    <span class="cap-toggle-chev" id="capToggleChev">
-      <i class="fas fa-chevron-up" aria-hidden="true" style="display:inline-block;transition:transform .18s ease"></i>
-    </span>
-    <span class="cap-toggle-label">Detaylar</span>
-  </button>
   <div class="cap-meta" id="capMeta">
-    <span class="cap-meta-method" id="capMetaMethod">Kredi kartı · Havale · Kapıda ödeme</span>
-    <span class="cap-meta-sec"><i class="fas fa-lock" aria-hidden="true"></i> 256-bit SSL · PayTR güvencesi</span>
+    <span id="capMetaLeft">Seçilen: Kredi kartı</span>
+    <span class="cap-meta-right"><i class="fas fa-lock"></i> 256-bit SSL · PayTR güvencesi</span>
   </div>
-  <div class="cap-row">
-    <div class="cart-action-total">
-      <b id="cartActionAmount">0 TL</b>
-      <span id="cartActionShipping">Kargo Bedava</span>
+  <div class="cap-row" id="capRow">
+    <div class="cap-ship">
+      <strong id="capShipText">300 TL</strong>
+      <small id="capShipSub">Kargo Bedava</small>
     </div>
-    <button class="cart-action-btn" id="cartActionBtn" type="button"
-            onclick="handleCartActionClick()"
-            aria-label="Ödeme ekranına geç">Sepeti Onayla <span class="cap-chev">›</span></button>
+    <button type="button" class="cap-cta" id="cartActionBtn" onclick="goCheckoutFromPanel()">
+      <span id="capCtaLabel">SEPETİ ONAYLA — ₺300</span>
+      <i class="fas fa-chevron-right" aria-hidden="true"></i>
+    </button>
   </div>
 </div>
 <div class="cap-backdrop" id="capBackdrop" onclick="toggleCapDrawer()"></div>
@@ -8640,6 +8623,11 @@ function handleCartActionClick(){
   return focusOrderFormFromPanel();
 }
 
+function goCheckoutFromPanel(){
+  return handleCartActionClick();
+}
+window.goCheckoutFromPanel = goCheckoutFromPanel;
+
 function renderCheckout(){
   const form = document.getElementById('orderForm');
   if(!form) return;
@@ -8667,12 +8655,13 @@ function renderCheckout(){
 function updateCartActionPanel(){
   const panel = document.getElementById('cartActionPanel');
   const btn = document.getElementById('cartActionBtn');
-  const amount = document.getElementById('cartActionAmount');
-  const shipping = document.getElementById('cartActionShipping');
-  const metaMethod = document.getElementById('capMetaMethod');
+  const amount = document.getElementById('capShipText');
+  const shipping = document.getElementById('capShipSub');
+  const metaMethod = document.getElementById('capMetaLeft');
+  const ctaLabel = document.getElementById('capCtaLabel');
   const cartSection = document.getElementById('cart');
   const checkoutSection = document.getElementById('checkout');
-  if(!panel || !btn || !amount || !shipping || !cartSection || !checkoutSection) return;
+  if(!panel || !btn || !amount || !shipping || !ctaLabel || !cartSection || !checkoutSection) return;
   const inCart = cartSection.classList.contains('active');
   const inCheckout = checkoutSection.classList.contains('active');
   if((!inCart && !inCheckout) || !basket.length){ panel.style.display = 'none'; return; }
@@ -8702,7 +8691,7 @@ function updateCartActionPanel(){
   else if(hasStockWarn){ label = 'Stoğu Kontrol Et'; btn.classList.add('cap-warn'); }
   else if(inCheckout){ const base = (selectedPayment === 'kredikarti') ? 'Ödeme Ekranına Geç' : 'Onayla ve Bitir'; label = `${base} — ${tutarStr}`; }
   else { label = (itemCount > 1) ? `Sepeti Onayla (${itemCount} ürün) — ${tutarStr}` : `Sepeti Onayla — ${tutarStr}`; }
-  btn.innerHTML = `${label} <span class="cap-chev">›</span>`;
+  ctaLabel.textContent = String(label).toUpperCase();
   btn.setAttribute('aria-label', `${label.replace(/<[^>]*>/g,'')}, toplam ${tutarStr}`);
   if(document.getElementById('capDrawer')?.classList.contains('is-open')){ try { renderCapDrawer(); } catch(_){} }
 }
@@ -8758,37 +8747,38 @@ function changeQtyFromDrawer(itemId, delta){
 }
 window.changeQtyFromDrawer = changeQtyFromDrawer;
 function toggleCapDrawer(){
-  try { if(navigator.vibrate) navigator.vibrate(8); } catch(_){}
-  const d = document.getElementById('capDrawer');
-  const b = document.getElementById('capToggle');
-  const back = document.getElementById('capBackdrop');
-  const panelEl = document.getElementById('cartActionPanel');
-  if(!d || !b) return;
-  const open = !d.classList.contains('is-open');
+  try { if(navigator.vibrate) navigator.vibrate(8); } catch(_){ }
+  const panel = document.getElementById('cartActionPanel');
+  const d     = document.getElementById('capDrawer');
+  const back  = document.getElementById('capBackdrop');
+  const tog   = document.getElementById('capToggle');
+  if(!panel || !d) return;
+  const open = !panel.classList.contains('is-sheet');
+  panel.classList.toggle('is-sheet', open);
   d.classList.toggle('is-open', open);
-  b.classList.toggle('is-open', open);
   if(back) back.classList.toggle('is-open', open);
-  if(panelEl) panelEl.classList.toggle('has-open-drawer', open);
-  document.body.classList.toggle('cap-drawer-open', open);
-  b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if(tog){
+    tog.classList.toggle('is-open', open);
+    tog.setAttribute('aria-expanded', open ? 'true' : 'false');
+    const lbl = tog.querySelector('.cap-toggle-label');
+    if(lbl) lbl.textContent = open ? 'Özeti gizle' : 'Detaylar';
+  }
   d.setAttribute('aria-hidden', open ? 'false' : 'true');
-  const lbl = document.querySelector('#capToggle .cap-toggle-label');
-  if(lbl) lbl.textContent = open ? 'Özeti gizle' : 'Detaylar';
+  document.body.classList.toggle('cap-drawer-open', open);
   if(open){
-    try { renderCapDrawer(); } catch(_){}
-    try {
+    try { renderCapDrawer(); } catch(_){ }
+    requestAnimationFrame(()=>{
       const inner = d.querySelector('.cap-drawer-inner');
       if(inner) inner.scrollTop = 0;
-    } catch(_){}
+    });
   } else {
     try {
-      d.style.transform = '';
-      d.style.transition = '';
+      panel.style.transform = ''; panel.style.transition = '';
       const inner = d.querySelector('.cap-drawer-inner');
       if(inner) inner.scrollTop = 0;
-    } catch(_){}
+    } catch(_){ }
   }
-  try { setMobileNavPadding(); } catch(_){}
+  try { setMobileNavPadding(); } catch(_){ }
 }
 window.toggleCapDrawer = toggleCapDrawer;
 
@@ -8803,40 +8793,43 @@ document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'hidden') __forceCloseCapDrawer();
 });
 
-(function attachDrawerDragClose(){
-  const d = document.getElementById('capDrawer');
-  if(!d) return;
+(function attachSheetDragClose(){
+  const panel = document.getElementById('cartActionPanel');
+  const handle = document.getElementById('capSheetHandle');
+  const header = document.getElementById('capSheetHeader');
+  if(!panel) return;
   let startY = 0, currentY = 0, dragging = false;
+  function isInDragZone(target){
+    if(!target) return false;
+    return target === handle || target === header
+        || handle?.contains(target) || header?.contains(target);
+  }
   function onStart(e){
-    const rect = d.getBoundingClientRect();
-    const y = (e.touches?.[0]?.clientY ?? e.clientY);
-    if(y - rect.top > 48) return;
-    startY = y; currentY = y; dragging = true;
-    d.style.transition = 'none';
+    if(!panel.classList.contains('is-sheet')) return;
+    if(!isInDragZone(e.target)) return;
+    startY = currentY = (e.touches?.[0]?.clientY ?? e.clientY);
+    dragging = true;
+    panel.style.transition = 'none';
   }
   function onMove(e){
     if(!dragging) return;
     currentY = (e.touches?.[0]?.clientY ?? e.clientY);
     const dy = Math.max(0, currentY - startY);
-    d.style.transform = `translateY(${dy}px)`;
-    if(dy > 10) e.preventDefault?.();
+    panel.style.transform = `translateY(${dy}px)`;
+    if(dy > 8) e.preventDefault?.();
   }
   function onEnd(){
     if(!dragging) return;
     dragging = false;
-    d.style.transition = '';
+    panel.style.transition = '';
     const dy = Math.max(0, currentY - startY);
-    if(dy > 80){
-      d.style.transform = '';
-      try { toggleCapDrawer(); } catch(_){}
-    } else {
-      d.style.transform = '';
-    }
+    panel.style.transform = '';
+    if(dy > 100){ try { toggleCapDrawer(); } catch(_){} }
   }
-  d.addEventListener('touchstart', onStart, { passive:true });
-  d.addEventListener('touchmove',  onMove,  { passive:false });
-  d.addEventListener('touchend',   onEnd);
-  d.addEventListener('mousedown',  onStart);
+  panel.addEventListener('touchstart', onStart, { passive:true });
+  panel.addEventListener('touchmove',  onMove,  { passive:false });
+  panel.addEventListener('touchend',   onEnd);
+  panel.addEventListener('mousedown',  onStart);
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup',   onEnd);
 })();
