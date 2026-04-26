@@ -196,24 +196,29 @@ module.exports = async function handler(req, res) {
     }
 
     if (result?.status === 'success' && result?.token) {
-      await insertPending({
-        merchant_oid: merchantOid,
-        total_amount: paymentAmount,
-        paytr_response: result,
-        payload: {
-          customer: {
-            name: userName,
-            email: userEmail,
-            phone: userPhone,
+      try {
+        await insertPending({
+          merchant_oid: merchantOid,
+          total_amount: paymentAmount,
+          paytr_response: result,
+          payload: {
+            customer: {
+              name: userName,
+              email: userEmail,
+              phone: userPhone,
+            },
+            shippingAddress: userAddress,
+            note: safeString(orderNote),
+            payment: 'kredikarti',
+            items,
+            total: paymentAmount / 100,
+            currency: paytrCurrency,
           },
-          shippingAddress: userAddress,
-          note: safeString(orderNote),
-          payment: 'kredikarti',
-          items,
-          total: paymentAmount / 100,
-          currency: paytrCurrency,
-        },
-      });
+        });
+      } catch (dbErr) {
+        console.error('insertPending error:', dbErr);
+        return res.status(500).json({ error: 'Veritabanı yazılamadı, ödeme başlatılmadı.' });
+      }
       return res.status(200).json({
         success: true,
         token: result.token,

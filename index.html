@@ -740,6 +740,9 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .form-group label{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--slate);font-weight:500}
 .form-input{padding:14px 18px;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;color:var(--ink);font-family:var(--ff-body);background:var(--cream);transition:border-color 0.3s}
 .form-input:focus{outline:none;border-color:var(--gold)}
+.form-input.input-error,.address-part-input.input-error{border-color:#b42318 !important;box-shadow:0 0 0 2px rgba(180,35,24,.12)}
+.paytr-inline-error{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:#fee4e2;border:1px solid #fda29b;color:#7a271a;padding:12px 14px;border-radius:10px;margin:0 0 16px}
+.paytr-inline-error button{appearance:none;border:0;background:transparent;color:#7a271a;font-size:1.2rem;line-height:1;cursor:pointer;padding:0 2px}
 .form-textarea{resize:vertical;min-height:100px}
 .cart-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:40px;padding-top:30px;border-top:1px solid var(--border)}
 .total-label{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--slate);font-weight:500}
@@ -2372,10 +2375,8 @@ header.is-shrunk .logo-sub{font-size:9px}
         <div class="contract-box"><h4>Cayma Koşulları</h4><iframe data-lazy-src="/iade-politikasi.html" title="Cayma Koşulları"></iframe></div>
       </div>
       <label class="contract-accept"><input type="checkbox" id="f-contract-accept"> Mesafeli satış sözleşmesi ve cayma koşullarını kabul ediyorum. *</label>
-      <div style="display:none">
-        <button id="paymentSentBtn" class="payment-sent-btn hidden" onclick="submitOrder()"><i class="fas fa-check"></i> Ödemeyi Yaptım</button>
-        <button class="wa-btn" id="submitOrderBtn" onclick="submitOrder()"><i class="fab fa-whatsapp" style="font-size:1.3rem"></i> Siparişi WhatsApp ile Onayla</button>
-      </div>
+      <button id="paymentSentBtn" class="payment-sent-btn hidden" onclick="submitOrder()"><i class="fas fa-check"></i> Ödemeyi Yaptım</button>
+      <button class="wa-btn hidden" id="submitOrderBtn" onclick="submitOrder()"><i class="fab fa-whatsapp" style="font-size:1.3rem"></i> Siparişi WhatsApp ile Onayla</button>
     </div>
   </div>
   <div class="footer-trust-row">
@@ -2742,7 +2743,7 @@ header.is-shrunk .logo-sub{font-size:9px}
     <b id="cartActionAmount">0 TL</b>
     <span id="cartActionShipping">Kargo Bedava</span>
   </div>
-  <button class="cart-action-btn" id="cartActionBtn" type="button">Sepeti Onayla</button>
+  <button class="cart-action-btn" id="cartActionBtn" type="button" onclick="handleCartActionClick()">Sepeti Onayla</button>
 </div>
 
 <script>
@@ -7084,9 +7085,24 @@ window.addEventListener('load',()=>{
   runSafely('initUserSession', ()=>initUserSession());
   runSafely('startVisitTracking', ()=>startVisitTracking());
   runSafely('handlePaymentReturnState', ()=>handlePaymentReturnState());
-  runSafely('resumePaytrPolling', ()=>{
-    if(getActivePaytrSession()){
-      showPaytrWaitingScreen(getActivePaytrSession().merchant_oid);
+  runSafely('resumePaytrPolling', async ()=>{
+    const active = getActivePaytrSession();
+    if(!active?.merchant_oid) return;
+    try{
+      const statusPayload = await fetchPaytrStatus(active.merchant_oid);
+      const status = String(statusPayload?.status || '').toLowerCase();
+      if(status === 'pending'){
+        showPaytrWaitingScreen(active.merchant_oid);
+        return;
+      }
+      if(status === 'paid'){
+        clearActivePaytrSession();
+        showOrderSuccessModal(statusPayload?.order_no || '');
+        return;
+      }
+      clearActivePaytrSession();
+    } catch(_){
+      clearActivePaytrSession();
     }
   });
   if('serviceWorker' in navigator && location.protocol === 'https:'){
@@ -7580,6 +7596,7 @@ function go(id){
       window.location.hash = nextId;
     }
     applySectionState(nextId, {scroll:true});
+    if(nextId === 'checkout') updateCartActionPanel();
     if(nextId === 'products'){
       restoreProductsViewState({respectCategoryQuery:true});
       requestAnimationFrame(()=> safeApplyFilters());
@@ -8234,6 +8251,12 @@ function focusOrderFormFromPanel(){
   go('checkout');
 }
 
+function handleCartActionClick(){
+  const inCheckout = document.getElementById('checkout')?.classList.contains('active');
+  if(inCheckout) return submitOrder();
+  return focusOrderFormFromPanel();
+}
+
 function renderCheckout(){
   const form = document.getElementById('orderForm');
   if(!form) return;
@@ -8280,7 +8303,6 @@ function updateCartActionPanel(){
   btn.textContent = inCheckout
     ? (selectedPayment === 'kredikarti' ? 'Ödeme Ekranına Geç' : 'Onayla ve Bitir')
     : 'Sepeti Onayla';
-  btn.onclick = inCheckout ? submitOrder : focusOrderFormFromPanel;
 }
 
 function prefillOrderForm(){
@@ -9285,6 +9307,24 @@ function clearActivePaytrSession(){
   if(waiting) waiting.classList.add('hidden');
 }
 
+function clearPaytrInlineError(){
+  const existing = document.getElementById('paytrInlineError');
+  if(existing) existing.remove();
+}
+
+function showPaytrInlineError(message=''){
+  const form = document.getElementById('orderForm');
+  if(!form) return;
+  clearPaytrInlineError();
+  const box = document.createElement('div');
+  box.id = 'paytrInlineError';
+  box.className = 'paytr-inline-error';
+  box.setAttribute('role', 'alert');
+  box.innerHTML = `<span>${escapeHtml(String(message || 'Ödeme başlatılamadı. Lütfen tekrar deneyin.'))}</span><button type="button" aria-label="Kapat" onclick="clearPaytrInlineError()">×</button>`;
+  form.prepend(box);
+  box.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
 function getActivePaytrSession(){
   try {
     const raw = sessionStorage.getItem('gp_active_paytr');
@@ -9400,6 +9440,7 @@ async function submitOrder(){
   const addr=document.getElementById('f-addr').value.trim();
   const note=document.getElementById('f-note').value.trim();
   const method=document.getElementById('f-payment').value;
+  clearPaytrInlineError();
   if(!basket.length){ showToast('Sepetiniz boş'); return; }
   const missingSize = basket.find((i)=>{
     if(!i?.requiresDimensions) return false;
@@ -9431,6 +9472,26 @@ async function submitOrder(){
     const savedBasket=[...basket], savedTotal=finalTotal;
 
     if(method==='kredikarti'){
+      const active = getActivePaytrSession();
+      if(active?.merchant_oid){
+        try{
+          const statusPayload = await fetchPaytrStatus(active.merchant_oid);
+          const status = String(statusPayload?.status || '').toLowerCase();
+          if(status === 'paid'){
+            clearActivePaytrSession();
+            showOrderSuccessModal(statusPayload?.order_no || '');
+            return;
+          }
+          if(status === 'pending' && (Date.now() - Number(active.startedAt || 0)) < 2 * 60 * 1000){
+            showToast('Önceki ödeme oturumu hâlâ aktif, lütfen tamamlayın veya iptal edin.');
+            showPaytrWaitingScreen(active.merchant_oid);
+            return;
+          }
+          clearActivePaytrSession();
+        } catch(_){
+          clearActivePaytrSession();
+        }
+      }
       const successUrl = `${window.location.origin}${window.location.pathname}?payment=success`;
       const cancelUrl = `${window.location.origin}${window.location.pathname}?payment=cancel`;
       const response = await fetchWithTimeout('/api/payment?action=create-paytr-token',{
@@ -9489,7 +9550,12 @@ async function submitOrder(){
     showOrderSuccessModal(createdOrderNo);
     setTimeout(()=>sendWhatsApp(name,phone,method,addr,note,savedBasket,savedTotal),1200);
   } catch(err){
-    showToast(`Sipariş gönderilemedi: ${err.message}`);
+    if(method === 'kredikarti'){
+      console.error('[paytr] submitOrder failed', err);
+      showPaytrInlineError(`Sipariş gönderilemedi: ${err.message}`);
+    } else {
+      showToast(`Sipariş gönderilemedi: ${err.message}`);
+    }
   } finally {
     orderSubmissionInFlight = false;
     if(btn){
@@ -9539,7 +9605,21 @@ function showRequiredFieldWarning(label){
   showToast(`⚠️ ${label} bölümünü doldurmak zorunludur`);
 }
 
+function clearCheckoutFieldErrors(){
+  document.querySelectorAll('#orderForm .input-error').forEach((el)=>el.classList.remove('input-error'));
+}
+
+function markCheckoutFieldError(el, label){
+  if(!el) return false;
+  el.classList.add('input-error');
+  showRequiredFieldWarning(label);
+  try{ el.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(_){}
+  try{ el.focus({ preventScroll:true }); } catch(_){}
+  return true;
+}
+
 function validateCheckoutForm(){
+  clearCheckoutFieldErrors();
   const requiredFields = [
     { id:'f-name', label:'Ad Soyad' },
     { id:'f-phone', label:'Telefon' },
@@ -9552,7 +9632,7 @@ function validateCheckoutForm(){
   for(const field of requiredFields){
     const el = document.getElementById(field.id);
     if(el && !String(el.value || '').trim()){
-      showRequiredFieldWarning(field.label);
+      markCheckoutFieldError(el, field.label);
       return false;
     }
   }
@@ -9565,7 +9645,7 @@ function validateCheckoutForm(){
   const district = document.getElementById('f-district')?.value || '';
   const districtOther = document.getElementById('f-district-other')?.value.trim() || '';
   if(district === 'diger' && !districtOther){
-    showRequiredFieldWarning('İlçe (Diğeri)');
+    markCheckoutFieldError(document.getElementById('f-district-other'), 'İlçe (Diğeri)');
     return false;
   }
   const avenue = (() => {
@@ -9574,7 +9654,7 @@ function validateCheckoutForm(){
     return selected === 'diger' ? manual : (selected || manual);
   })();
   if(!avenue){
-    showRequiredFieldWarning('Cadde');
+    markCheckoutFieldError(document.getElementById('f-avenue-other')?.classList.contains('hidden') ? document.getElementById('f-avenue') : document.getElementById('f-avenue-other'), 'Cadde');
     return false;
   }
   const street = (() => {
@@ -9583,7 +9663,7 @@ function validateCheckoutForm(){
     return selected === 'diger' ? manual : (selected || manual);
   })();
   if(!street){
-    showRequiredFieldWarning('Sokak');
+    markCheckoutFieldError(document.getElementById('f-street-other')?.classList.contains('hidden') ? document.getElementById('f-street') : document.getElementById('f-street-other'), 'Sokak');
     return false;
   }
   const address = document.getElementById('f-addr')?.value.trim() || '';
