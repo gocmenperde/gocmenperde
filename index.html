@@ -7220,6 +7220,62 @@ function closeAllPopups(){
   closeMobileMenuWrapper();
   hideToast();
 }
+function closeAllOverlaysAggressive(){
+  console.log('[checkout-debug] closeAllOverlaysAggressive start');
+  try{ closeAllPopups(); console.log('[checkout-debug] closeAllPopups done'); }catch(e){ console.log('[checkout-debug] closeAllPopups failed', e); }
+  try{
+    if(typeof __forceCloseCapDrawer === 'function'){
+      __forceCloseCapDrawer();
+      console.log('[checkout-debug] __forceCloseCapDrawer done');
+    }
+  }catch(e){ console.log('[checkout-debug] __forceCloseCapDrawer failed', e); }
+  try{
+    const capBack = document.getElementById('capBackdrop');
+    if(capBack){
+      capBack.classList.remove('is-open');
+      console.log('[checkout-debug] capBackdrop closed');
+    }
+  }catch(e){ console.log('[checkout-debug] capBackdrop cleanup failed', e); }
+  ['homePromoModal','surpriseCampaignModal'].forEach((id)=>{
+    try{
+      const el = document.getElementById(id);
+      if(el){
+        el.classList.remove('open');
+        el.style.display='none';
+        el.setAttribute('aria-hidden','true');
+        console.log('[checkout-debug] promo modal closed', id);
+      }
+    }catch(e){ console.log('[checkout-debug] promo modal close failed', id, e); }
+  });
+  try{
+    const sm = document.getElementById('successModal');
+    if(sm){
+      sm.classList.remove('open');
+      sm.style.display='none';
+      console.log('[checkout-debug] successModal closed');
+    }
+  }catch(e){ console.log('[checkout-debug] successModal close failed', e); }
+  try{
+    const pm = document.getElementById('productModal');
+    if(pm){
+      pm.classList.remove('open');
+      pm.style.display='none';
+      console.log('[checkout-debug] productModal closed');
+    }
+  }catch(e){ console.log('[checkout-debug] productModal close failed', e); }
+  try{
+    document.body.classList.remove('cap-drawer-open','popup-open','modal-open','no-scroll');
+    document.body.style.overflow='';
+    console.log('[checkout-debug] body lock classes removed');
+  }catch(e){ console.log('[checkout-debug] body unlock failed', e); }
+  try{
+    const ov = document.getElementById('globalOverlay');
+    if(ov){
+      ov.classList.remove('open');
+      console.log('[checkout-debug] globalOverlay closed');
+    }
+  }catch(e){ console.log('[checkout-debug] globalOverlay close failed', e); }
+}
 function togglePopup(id){
   const p = document.getElementById(id);
   const o = document.getElementById('globalOverlay');
@@ -7430,6 +7486,25 @@ window.addEventListener('load',()=>{
   runSafely('loadFavoritesFromStorage', ()=>loadFavoritesFromStorage());
   runSafely('loadFavoritesFromServer', ()=>loadFavoritesFromServer());
   runSafely('loadCartFromStorage', ()=>loadCartFromStorage());
+  if(window.location.hash === '#checkout' || window.location.hash === '#cart'){
+    try{ console.log('[checkout-debug] load init hash detected, aggressive close start'); closeAllOverlaysAggressive(); }catch(e){ console.log('[checkout-debug] init hash aggressive close failed', e); }
+  }
+  try{
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('from') === 'address-return'){
+      console.log('[checkout-debug] from=address-return detected');
+      setTimeout(()=>{
+        try{ console.log('[checkout-debug] address-return close overlays'); closeAllOverlaysAggressive(); }catch(e){ console.log('[checkout-debug] address-return close overlays failed', e); }
+        try{ console.log('[checkout-debug] address-return loadCartFromStorage'); loadCartFromStorage(); }catch(e){ console.log('[checkout-debug] address-return loadCartFromStorage failed', e); }
+        try{ console.log('[checkout-debug] address-return renderCheckout'); renderCheckout(); }catch(e){ console.log('[checkout-debug] address-return renderCheckout failed', e); }
+        try{
+          const cleanUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, '', cleanUrl);
+          console.log('[checkout-debug] address-return URL marker cleaned');
+        }catch(e){ console.log('[checkout-debug] address-return URL cleanup failed', e); }
+      }, 50);
+    }
+  }catch(e){ console.log('[checkout-debug] address-return query parse failed', e); }
   runSafely('bindProductsGridDelegation', ()=>bindProductsGridDelegation());
   runSafely('loadProducts', ()=>loadProducts());
   runSafely('initUserSession', ()=>initUserSession());
@@ -7763,10 +7838,7 @@ function applySectionState(id, {scroll=true} = {}){
       const savedY = getSavedSectionScroll(targetId);
       window.scrollTo({top:savedY,behavior:'auto'});
     }
-    try{ closeAllPopups(); }catch(_){ }
-    try{
-      if(typeof __forceCloseCapDrawer === 'function') __forceCloseCapDrawer();
-    }catch(_){ }
+    try{ closeAllOverlaysAggressive(); }catch(_){ }
     updateCartActionPanel();
     updateFloatingCta(targetId);
     syncHomePromoVisibility(targetId);
@@ -7814,10 +7886,7 @@ function applySectionState(id, {scroll=true} = {}){
     document.querySelectorAll('.mbn-item').forEach(b=>b.classList.remove('active-nav'));
     const mbnEl = document.getElementById('mbn-'+targetId);
     if(mbnEl) mbnEl.classList.add('active-nav');
-    try{ closeAllPopups(); }catch(_){ }
-    try{
-      if(typeof __forceCloseCapDrawer === 'function') __forceCloseCapDrawer();
-    }catch(_){ }
+    try{ closeAllOverlaysAggressive(); }catch(_){ }
     updateCartActionPanel();
     updateFloatingCta(targetId);
     syncHomePromoVisibility(targetId);
@@ -8638,34 +8707,53 @@ function goCheckoutFromPanel(){
 window.goCheckoutFromPanel = goCheckoutFromPanel;
 
 function renderCheckout(){
+  console.log('[checkout] renderCheckout called, basket.length=', basket.length);
   const form = document.getElementById('orderForm');
-  if(!form) return;
-  try{ loadCartFromStorage(); }catch(_){ }
+  if(!form){ console.warn('[checkout] orderForm element bulunamadı'); return; }
+  try{ loadCartFromStorage(); console.log('[checkout-debug] renderCheckout loadCartFromStorage done'); }catch(e){ console.warn('[checkout] loadCartFromStorage err', e); console.log('[checkout-debug] renderCheckout loadCartFromStorage failed', e); }
+  try{ closeAllOverlaysAggressive(); console.log('[checkout-debug] renderCheckout aggressive close done'); }catch(e){ console.log('[checkout-debug] renderCheckout aggressive close failed', e); }
+  try{ if(typeof initAddressSelectors === 'function') initAddressSelectors(); console.log('[checkout-debug] renderCheckout initAddressSelectors attempted'); }catch(e){ console.log('[checkout-debug] renderCheckout initAddressSelectors failed', e); }
   const existing = document.getElementById('checkoutEmptyState');
   if(!basket.length){
     form.style.display='none';
+    form.style.visibility='hidden';
     const container = document.querySelector('#checkout .cart-container');
     const emptyHtml = '<i class="fas fa-bag-shopping"></i>Ödeme adımına geçmeden önce sepetinize ürün ekleyin.<div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button type="button" onclick="go(\'products\')" style="background:var(--gold);color:#1a1a1a;border:0;padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ürünleri İncele</button><button type="button" onclick="go(\'home\')" style="background:transparent;color:var(--gold);border:1px solid var(--gold);padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ana Sayfaya Dön</button></div>';
     if(existing){
       existing.style.display='block';
+      existing.style.visibility='visible';
       existing.innerHTML = emptyHtml;
+      console.log('[checkout-debug] renderCheckout empty state reused');
     } else if(container){
       const empty = document.createElement('div');
       empty.id = 'checkoutEmptyState';
       empty.className = 'cart-empty';
       empty.innerHTML = emptyHtml;
       container.appendChild(empty);
+      console.log('[checkout-debug] renderCheckout empty state created');
     }
     updateCartActionPanel();
     return;
   }
   if(existing) existing.remove();
   form.style.display='block';
+  form.style.visibility='visible';
+  form.style.opacity='1';
+  form.removeAttribute('hidden');
   try{
     prefillOrderForm();
+    console.log('[checkout-debug] renderCheckout prefillOrderForm done');
   }catch(e){
     console.error('[checkout] prefillOrderForm failed:', e);
+    console.log('[checkout-debug] renderCheckout prefillOrderForm failed', e);
+    form.style.display='block';
+    form.style.visibility='visible';
   }
+  requestAnimationFrame(()=>{
+    form.style.display='block';
+    form.style.visibility='visible';
+    console.log('[checkout] form display after RAF:', getComputedStyle(form).display, 'visibility:', getComputedStyle(form).visibility);
+  });
   updateCartActionPanel();
 }
 

@@ -56,6 +56,8 @@ const ROUTES = {
   'review-invite-token': () => require('../server/handlers/review-invite-token'),
   'admin/reviews': () => require('../server/handlers/admin/reviews'),
   'admin/measure-guide': () => require('../server/handlers/admin/measure-guide'),
+  'site-settings': () => require('../server/handlers/site-settings'),
+  'admin/site-settings': () => require('../server/handlers/admin/site-settings'),
 };
 
 module.exports = async function handler(req, res) {
