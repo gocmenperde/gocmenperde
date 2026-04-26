@@ -880,6 +880,38 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
     font-family:'Cormorant Garamond',serif;
     font-size:1.15rem; color:#7d2c2c; letter-spacing:.3px;
   }
+  .cap-freeship-bar{margin:0 0 12px;padding:8px 10px;background:rgba(200,163,90,.10);border:1px solid rgba(200,163,90,.25);border-radius:10px}
+  .cap-freeship-text{font:500 11.5px 'DM Sans',sans-serif;color:#5a4a1f;margin-bottom:6px;letter-spacing:.02em}
+  .cap-freeship-text strong{color:#7d2c2c;font-weight:700}
+  .cap-freeship-track{height:5px;border-radius:6px;background:rgba(20,20,20,.06);overflow:hidden}
+  .cap-freeship-fill{height:100%;background:linear-gradient(90deg,#c8a35a,#a3823f);border-radius:6px;transition:width .25s ease-out}
+  .cap-freeship-bar.is-free .cap-freeship-fill{width:100% !important}
+  .cap-freeship-bar.is-free .cap-freeship-text strong{color:#1e8e3e}
+  .cap-items{display:flex;flex-direction:column;gap:6px;margin:0 0 10px;max-height:120px;overflow-y:auto;padding-right:2px}
+  .cap-item-row{display:flex;align-items:center;gap:8px;font:500 12px 'DM Sans',sans-serif;color:#3a3a3a}
+  .cap-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cap-qty-btns{display:inline-flex;align-items:center;gap:4px}
+  .cap-qty-btns button{width:22px;height:22px;border-radius:50%;border:1px solid rgba(20,20,20,.12);background:#fff;color:#1b1b1b;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+  .cap-qty-btns button:active{background:rgba(200,163,90,.15)}
+  .cap-qty-btns span{min-width:18px;text-align:center;font-weight:600}
+  .cap-coupon{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+  .cap-coupon input{flex:1;min-width:120px;padding:8px 10px;border:1px solid rgba(20,20,20,.12);border-radius:8px;background:#fff;font:500 12px 'DM Sans',sans-serif;color:#1b1b1b}
+  .cap-coupon input:focus{outline:none;border-color:#c8a35a;box-shadow:0 0 0 2px rgba(200,163,90,.18)}
+  .cap-coupon button{padding:8px 14px;border:0;border-radius:8px;background:#1b1b1b;color:#fff;cursor:pointer;font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase}
+  .cap-coupon-msg{flex-basis:100%;font:500 11px 'DM Sans',sans-serif;color:#1e8e3e;min-height:14px}
+  .cap-coupon-msg.is-error{color:#7d2c2c}
+  .cap-extra{display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:8px 10px;background:rgba(255,250,240,.7);border:1px solid rgba(200,163,90,.22);border-radius:10px;font:500 12px 'DM Sans',sans-serif;color:#3a3a3a;cursor:pointer}
+  .cap-extra input{accent-color:#c8a35a}
+  .cap-extra small{margin-left:auto;color:#7a6228;font-weight:600}
+  .cap-member-row{margin:0 0 10px;padding:6px 10px;background:linear-gradient(90deg,rgba(200,163,90,.10),transparent);border-left:2px solid #c8a35a;font:500 11.5px 'DM Sans',sans-serif;color:#5a4a1f}
+  .cap-member-row a{color:#7d2c2c;text-decoration:underline;font-weight:600}
+  .cap-pay-chips{display:flex;gap:6px;margin:0 0 12px;flex-wrap:wrap}
+  .cap-chip{flex:1;min-width:80px;padding:7px 10px;border-radius:18px;border:1px solid rgba(20,20,20,.14);background:#fff;font:600 11px 'DM Sans',sans-serif;color:#3a3a3a;letter-spacing:.04em;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,color .15s}
+  .cap-chip.is-active{background:#1b1b1b;color:#fff;border-color:#1b1b1b}
+  .cap-eta{margin:8px 0 0;padding:8px 10px;background:rgba(245,250,245,.8);border-radius:8px;font:500 12px 'DM Sans',sans-serif;color:#1e6e2e;text-align:center}
+  .cap-eta strong{color:#1b1b1b}
+  .cap-trust{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:10px 0 0;padding-top:10px;border-top:1px solid rgba(20,20,20,.05);font:500 10.5px 'DM Sans',sans-serif;color:#7a7a7a;letter-spacing:.02em}
+  .cap-trust i{color:#c8a35a;margin-right:3px}
   .cap-toggle{
     width:100%; display:flex; justify-content:center; align-items:center; gap:8px;
     background:transparent; border:0; padding:7px 0 5px;
@@ -899,6 +931,8 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   .cap-toggle.is-open .cap-toggle-chev{ transform:rotate(180deg); }
   .cap-toggle-label{ opacity:.85; }
 }
+.cap-backdrop{position:fixed;inset:0;z-index:12100;background:rgba(15,12,8,.18);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .16s ease-out}
+.cap-backdrop.is-open{opacity:1;pointer-events:auto}
 .contracts-scroll-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .contract-box{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px;max-width:100%;overflow:hidden}
 .contract-box h4{font-size:0.8rem;letter-spacing:1px;margin-bottom:8px}
@@ -2949,25 +2983,40 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
   <div class="cap-drawer" id="capDrawer" aria-hidden="true">
     <div class="cap-drawer-inner">
       <div class="cap-drawer-title">Sipariş Özeti</div>
-      <div class="cap-drawer-row">
-        <span>Ara Toplam</span>
-        <strong id="capSubtotal">₺0</strong>
+      <div class="cap-freeship-bar" id="capFreeshipBar" hidden>
+        <div class="cap-freeship-text" id="capFreeshipText">Ücretsiz kargoya <strong>₺0</strong> kaldı 🚚</div>
+        <div class="cap-freeship-track"><div class="cap-freeship-fill" id="capFreeshipFill" style="width:0%"></div></div>
       </div>
+      <div class="cap-items" id="capItems"></div>
+      <div class="cap-coupon" id="capCoupon">
+        <input type="text" id="capCouponInput" placeholder="Kupon kodu" autocomplete="off" />
+        <button type="button" onclick="applyCouponFromDrawer()">Uygula</button>
+        <span class="cap-coupon-msg" id="capCouponMsg"></span>
+      </div>
+      <label class="cap-extra" id="capGiftWrapWrap" hidden>
+        <input type="checkbox" id="capGiftWrap" onchange="toggleGiftWrap(this.checked)" />
+        <span>🎁 Hediye paketi</span>
+        <small id="capGiftWrapPrice"></small>
+      </label>
+      <div class="cap-member-row" id="capMemberRow" hidden><span id="capMemberText"></span></div>
+      <div class="cap-pay-chips" id="capPayChips">
+        <button type="button" class="cap-chip" data-pay="kredikarti" onclick="selectPayMethod('kredikarti')">Kredi kartı</button>
+        <button type="button" class="cap-chip" data-pay="havale" onclick="selectPayMethod('havale')">Havale</button>
+        <button type="button" class="cap-chip" data-pay="kapida" onclick="selectPayMethod('kapida')">Kapıda</button>
+      </div>
+      <div class="cap-drawer-row"><span>Ara Toplam</span><strong id="capSubtotal">₺0</strong></div>
       <div class="cap-drawer-row" id="capShippingRow">
         <span>Kargo</span>
-        <span class="cap-shipping-val">
-          <s id="capShippingOld" hidden></s>
-          <strong id="capShippingNew">Bedava</strong>
-        </span>
+        <span class="cap-shipping-val"><s id="capShippingOld" hidden></s><strong id="capShippingNew">Bedava</strong></span>
       </div>
-      <div class="cap-drawer-row cap-drawer-discount" id="capDiscountRow" hidden>
-        <span>İndirim</span>
-        <strong id="capDiscount">-₺0</strong>
-      </div>
+      <div class="cap-drawer-row cap-drawer-discount" id="capMemberDiscRow" hidden><span>Üye İndirimi</span><strong id="capMemberDisc">-₺0</strong></div>
+      <div class="cap-drawer-row cap-drawer-discount" id="capGiftRow" hidden><span>🎁 Hediye paketi</span><strong id="capGiftAmount">+₺0</strong></div>
+      <div class="cap-drawer-row cap-drawer-discount" id="capDiscountRow" hidden><span>Kupon İndirimi</span><strong id="capDiscount">-₺0</strong></div>
       <div class="cap-drawer-divider"></div>
-      <div class="cap-drawer-row cap-drawer-total">
-        <span>Toplam</span>
-        <strong id="capTotal">₺0</strong>
+      <div class="cap-drawer-row cap-drawer-total"><span>Toplam</span><strong id="capTotal">₺0</strong></div>
+      <div class="cap-eta" id="capEta" hidden>📦 Tahmini teslim: <strong id="capEtaText"></strong></div>
+      <div class="cap-trust">
+        <span><i class="fas fa-lock"></i> 256-bit SSL</span><span>·</span><span><i class="fas fa-shield-halved"></i> PayTR güvencesi</span><span>·</span><span><i class="fas fa-rotate-left"></i> 14 gün iade</span>
       </div>
     </div>
   </div>
@@ -2994,6 +3043,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
             aria-label="Ödeme ekranına geç">Sepeti Onayla <span class="cap-chev">›</span></button>
   </div>
 </div>
+<div class="cap-backdrop" id="capBackdrop" onclick="toggleCapDrawer()"></div>
 
 <script>
 const WA_NUMBER = window.__APP_CONFIG?.waNumber || '905012110958';
@@ -3017,6 +3067,14 @@ const DEFAULT_SOCIAL_LINKS = {
   youtube: '',
   x: ''
 };
+
+(function loadSiteSettings(){
+  fetch('/api/site-settings').then(r=>r.ok?r.json():{}).then(s=>{
+    window.__SITE_SETTINGS = s || {};
+    window.__FREE_SHIPPING_THRESHOLD = Number(s?.freeShipThreshold||0);
+    try { updateCartActionPanel?.(); renderCapDrawer?.(); } catch(_){}
+  }).catch(()=>{ window.__SITE_SETTINGS = {}; });
+})();
 const DEFAULT_UX_COPY = {
   shippingNote: '3-5 İş Gününde Kargoda',
   bursaBadge: 'Kaliteli Bursa İşçiliği'
@@ -8557,77 +8615,102 @@ function updateCartActionPanel(){
   if(!panel || !btn || !amount || !shipping || !cartSection || !checkoutSection) return;
   const inCart = cartSection.classList.contains('active');
   const inCheckout = checkoutSection.classList.contains('active');
-  if((!inCart && !inCheckout) || !basket.length){
-    panel.style.display = 'none';
-    return;
-  }
+  if((!inCart && !inCheckout) || !basket.length){ panel.style.display = 'none'; return; }
   const subtotalRaw = basket.reduce((a,b)=>a+b.sub,0);
-  const shipInfo = (typeof computeShippingFee === 'function')
-    ? computeShippingFee(basket, subtotalRaw)
-    : { fee:0, originalFee:0, isFree:true };
-  const grandTotal = subtotalRaw + shipInfo.fee - couponDiscountAmount;
+  const shipInfo = (typeof computeShippingFee === 'function') ? computeShippingFee(basket, subtotalRaw) : { fee:0, originalFee:0, isFree:true };
+  const memberPct = (typeof getMemberDiscountPct === 'function') ? getMemberDiscountPct() : 0;
+  const memberDisc = memberPct > 0 ? Math.round(subtotalRaw * memberPct / 100) : 0;
+  const giftFee = (typeof getGiftWrapFee === 'function') ? getGiftWrapFee() : null;
+  const giftAdd = (giftFee != null && window.__giftWrapSelected) ? giftFee : 0;
+  const grandTotal = Math.max(0, subtotalRaw + shipInfo.fee + giftAdd - couponDiscountAmount - memberDisc);
   const itemCount = basket.reduce((a,b)=>a+(b.qty||1),0);
   const tutarStr = `₺${Math.max(0, grandTotal).toLocaleString('tr-TR')}`;
   amount.textContent = `${Math.max(0, grandTotal).toLocaleString('tr-TR')} TL`;
-  shipping.textContent = shipInfo.isFree
-    ? (shipInfo.originalFee > 0 ? `Kargo Bedava (${shipInfo.originalFee} TL)` : 'Kargo Bedava')
-    : `Kargo: ₺${shipInfo.fee.toLocaleString('tr-TR')}`;
+  shipping.textContent = shipInfo.isFree ? (shipInfo.originalFee > 0 ? `Kargo Bedava (${shipInfo.originalFee} TL)` : 'Kargo Bedava') : `Kargo: ₺${shipInfo.fee.toLocaleString('tr-TR')}`;
   panel.style.display = 'flex';
-  // Stok uyarısı kontrolü (varsa)
   const hasStockWarn = (typeof window.__gpStockWarn === 'boolean' ? window.__gpStockWarn : false);
   const selectedPaymentEl = document.getElementById('f-payment');
   const selectedPayment = selectedPaymentEl ? (selectedPaymentEl.value || '') : '';
-  const paymentLabels = {
-    'kredikarti': 'Kredi kartı',
-    'havale': 'Havale / EFT',
-    'kapida': 'Kapıda ödeme'
-  };
-  // Meta etiketi
+  const paymentLabels = { kredikarti:'Kredi kartı', havale:'Havale / EFT', kapida:'Kapıda ödeme' };
   if(metaMethod){
-    metaMethod.textContent = selectedPayment && paymentLabels[selectedPayment]
-      ? `Seçilen: ${paymentLabels[selectedPayment]}`
-      : 'Kredi kartı · Havale · Kapıda ödeme';
+    metaMethod.textContent = selectedPayment && paymentLabels[selectedPayment] ? `Seçilen: ${paymentLabels[selectedPayment]}` : 'Kredi kartı · Havale · Kapıda ödeme';
   }
-  // Buton dinamik metin
   btn.classList.remove('cap-warn');
   btn.disabled = false;
   let label;
-  if(!basket.length){
-    label = 'Sepete Ürün Ekle';
-    btn.disabled = true;
-  } else if(hasStockWarn){
-    label = 'Stoğu Kontrol Et';
-    btn.classList.add('cap-warn');
-  } else if(inCheckout){
-    const base = (selectedPayment === 'kredikarti') ? 'Ödeme Ekranına Geç' : 'Onayla ve Bitir';
-    label = `${base} — ${tutarStr}`;
-  } else {
-    label = (itemCount > 1)
-      ? `Sepeti Onayla (${itemCount} ürün) — ${tutarStr}`
-      : `Sepeti Onayla — ${tutarStr}`;
-  }
+  if(!basket.length){ label = 'Sepete Ürün Ekle'; btn.disabled = true; }
+  else if(hasStockWarn){ label = 'Stoğu Kontrol Et'; btn.classList.add('cap-warn'); }
+  else if(inCheckout){ const base = (selectedPayment === 'kredikarti') ? 'Ödeme Ekranına Geç' : 'Onayla ve Bitir'; label = `${base} — ${tutarStr}`; }
+  else { label = (itemCount > 1) ? `Sepeti Onayla (${itemCount} ürün) — ${tutarStr}` : `Sepeti Onayla — ${tutarStr}`; }
   btn.innerHTML = `${label} <span class="cap-chev">›</span>`;
   btn.setAttribute('aria-label', `${label.replace(/<[^>]*>/g,'')}, toplam ${tutarStr}`);
-  if(document.getElementById('capDrawer')?.classList.contains('is-open')){
-    try { renderCapDrawer(); } catch(_){}
-  }
+  if(document.getElementById('capDrawer')?.classList.contains('is-open')){ try { renderCapDrawer(); } catch(_){} }
 }
 
+window.__giftWrapSelected = false;
+function getMemberDiscountPct(){ const u = (typeof getCurrentUser === 'function') ? getCurrentUser() : null; if(!u || !u.id) return 0; return Number(window.__SITE_SETTINGS?.memberDiscount || 0); }
+function getGiftWrapFee(){ const v = window.__SITE_SETTINGS?.giftWrapFee; if(v == null || v === '') return null; return Math.max(0, Number(v) || 0); }
+function toggleGiftWrap(checked){ window.__giftWrapSelected = !!checked; try { navigator.vibrate?.(6); } catch(_){} renderCapDrawer(); updateCartActionPanel(); }
+window.toggleGiftWrap = toggleGiftWrap;
+function selectPayMethod(method){
+  const sel = document.getElementById('f-payment');
+  if(sel){ sel.value = method; sel.dispatchEvent(new Event('change', { bubbles:true })); }
+  document.querySelectorAll('.cap-chip').forEach(c=>c.classList.toggle('is-active', c.dataset.pay === method));
+  try { navigator.vibrate?.(6); } catch(_){}
+  updateCartActionPanel();
+}
+window.selectPayMethod = selectPayMethod;
+function applyCouponFromDrawer(){
+  const inp = document.getElementById('capCouponInput');
+  const msg = document.getElementById('capCouponMsg');
+  if(!inp || !msg) return;
+  const code = String(inp.value || '').trim().toUpperCase();
+  msg.classList.remove('is-error');
+  if(!code){ msg.textContent='Kod giriniz'; msg.classList.add('is-error'); return; }
+  if(typeof applyCoupon === 'function'){
+    try {
+      inp.value = code;
+      const result = applyCoupon(code);
+      if(result === false || (result && result.ok === false)){ msg.textContent = (result?.error || 'Geçersiz kupon'); msg.classList.add('is-error'); }
+      else { msg.textContent = '✓ Kupon uygulandı'; inp.value = ''; }
+    } catch(e){ msg.textContent='Kupon uygulanamadı'; msg.classList.add('is-error'); }
+  } else {
+    const main = document.getElementById('couponInput') || document.querySelector('[data-coupon-input]');
+    if(main){ main.value = code; main.dispatchEvent(new Event('input', {bubbles:true})); }
+    msg.textContent = '✓ Kontrol ediliyor...';
+  }
+  renderCapDrawer();
+  updateCartActionPanel();
+}
+window.applyCouponFromDrawer = applyCouponFromDrawer;
+function changeQtyFromDrawer(itemId, delta){
+  if(typeof basket === 'undefined') return;
+  const idx = basket.findIndex(b => String(b.id||b.productId||b.pid) === String(itemId));
+  if(idx < 0) return;
+  const newQty = (Number(basket[idx].qty)||1) + delta;
+  if(newQty <= 0){ if(typeof removeFromCart === 'function') removeFromCart(itemId); else basket.splice(idx,1); }
+  else { basket[idx].qty = newQty; basket[idx].sub = (Number(basket[idx].price)||0) * newQty; }
+  try { localStorage.setItem('basket', JSON.stringify(basket)); } catch(_){}
+  try { navigator.vibrate?.(6); } catch(_){}
+  if(typeof renderBasket === 'function') renderBasket();
+  if(typeof updateCartCounters === 'function') updateCartCounters();
+  renderCapDrawer(); updateCartActionPanel();
+}
+window.changeQtyFromDrawer = changeQtyFromDrawer;
 function toggleCapDrawer(){
+  try { if(navigator.vibrate) navigator.vibrate(8); } catch(_){}
   const d = document.getElementById('capDrawer');
   const b = document.getElementById('capToggle');
+  const back = document.getElementById('capBackdrop');
   if(!d || !b) return;
   const open = !d.classList.contains('is-open');
   d.classList.toggle('is-open', open);
   b.classList.toggle('is-open', open);
+  if(back) back.classList.toggle('is-open', open);
   b.setAttribute('aria-expanded', open ? 'true' : 'false');
   d.setAttribute('aria-hidden', open ? 'false' : 'true');
-  if(open){
-    try { renderCapDrawer(); } catch(_){}
-    try { setMobileNavPadding(); } catch(_){}
-  } else {
-    try { setMobileNavPadding(); } catch(_){}
-  }
+  if(open){ try { renderCapDrawer(); } catch(_){} }
+  try { setMobileNavPadding(); } catch(_){}
 }
 window.toggleCapDrawer = toggleCapDrawer;
 
@@ -8635,64 +8718,95 @@ function computeShippingFee(items, subtotal){
   if(!items || !items.length) return { fee:0, originalFee:0, isFree:true };
   let maxFee = 0;
   for(const it of items){
-    const p = (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS))
-      ? PRODUCTS.find(x => String(x.id) === String(it.id || it.productId || it.pid))
-      : null;
+    const p = (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS)) ? PRODUCTS.find(x => String(x.id) === String(it.id || it.productId || it.pid)) : null;
     const fee = Number(p?.shippingFee || it?.shippingFee || 0);
     if(Number.isFinite(fee) && fee > maxFee) maxFee = fee;
   }
-  const threshold = Number(window.__FREE_SHIPPING_THRESHOLD || 0);
+  const threshold = Number(window.__SITE_SETTINGS?.freeShipThreshold || window.__FREE_SHIPPING_THRESHOLD || 0);
   const isFree = maxFee === 0 || (threshold > 0 && subtotal >= threshold);
-  return {
-    fee: isFree ? 0 : maxFee,
-    originalFee: maxFee,
-    isFree
-  };
+  return { fee: isFree ? 0 : maxFee, originalFee: maxFee, isFree };
 }
 window.computeShippingFee = computeShippingFee;
 
 function renderCapDrawer(){
   if(typeof basket === 'undefined' || !Array.isArray(basket)) return;
   const subtotal = basket.reduce((a,b)=>a + (Number(b.sub)||0), 0);
-  const discount = Number(typeof couponDiscountAmount !== 'undefined' ? couponDiscountAmount : (window.couponDiscountAmount || 0));
+  const couponDisc = Number(window.couponDiscountAmount || 0);
+  const memberPct = getMemberDiscountPct();
+  const memberDisc = memberPct > 0 ? Math.round(subtotal * memberPct / 100) : 0;
+  const giftFee = getGiftWrapFee();
+  const giftAdd = (giftFee != null && window.__giftWrapSelected) ? giftFee : 0;
   const ship = computeShippingFee(basket, subtotal);
-  const total = Math.max(0, subtotal + ship.fee - discount);
+  const total = Math.max(0, subtotal + ship.fee + giftAdd - couponDisc - memberDisc);
   const fmt = (n) => `₺${Math.max(0, Math.round(n)).toLocaleString('tr-TR')}`;
-  const elSub = document.getElementById('capSubtotal');
+  document.getElementById('capSubtotal') && (document.getElementById('capSubtotal').textContent = fmt(subtotal));
   const elShipNew = document.getElementById('capShippingNew');
   const elShipOld = document.getElementById('capShippingOld');
-  const elDiscRow = document.getElementById('capDiscountRow');
-  const elDisc = document.getElementById('capDiscount');
-  const elTotal = document.getElementById('capTotal');
-  if(elSub) elSub.textContent = fmt(subtotal);
   if(elShipNew){
     if(ship.isFree){
-      elShipNew.textContent = 'Bedava';
-      elShipNew.classList.add('is-free');
-      if(elShipOld){
-        if(ship.originalFee > 0){
-          elShipOld.textContent = fmt(ship.originalFee);
-          elShipOld.hidden = false;
-        } else {
-          elShipOld.hidden = true;
-          elShipOld.textContent = '';
-        }
-      }
-    } else {
-      elShipNew.textContent = fmt(ship.fee);
-      elShipNew.classList.remove('is-free');
-      if(elShipOld){ elShipOld.hidden = true; elShipOld.textContent=''; }
-    }
+      elShipNew.textContent='Bedava'; elShipNew.classList.add('is-free');
+      if(elShipOld){ if(ship.originalFee>0){ elShipOld.textContent=fmt(ship.originalFee); elShipOld.hidden=false; } else { elShipOld.hidden=true; elShipOld.textContent=''; } }
+    } else { elShipNew.textContent=fmt(ship.fee); elShipNew.classList.remove('is-free'); if(elShipOld){ elShipOld.hidden=true; elShipOld.textContent=''; } }
   }
-  if(elDiscRow && elDisc){
-    if(discount > 0){
-      elDiscRow.hidden = false;
-      elDisc.textContent = `-${fmt(discount)}`;
-    } else {
-      elDiscRow.hidden = true;
-    }
+  const memRow = document.getElementById('capMemberDiscRow');
+  const memEl = document.getElementById('capMemberDisc');
+  if(memRow && memEl){ if(memberDisc > 0){ memRow.hidden=false; memEl.textContent=`-${fmt(memberDisc)}`; } else memRow.hidden=true; }
+  const giftRow = document.getElementById('capGiftRow');
+  const giftAmt = document.getElementById('capGiftAmount');
+  if(giftRow && giftAmt){ if(giftAdd > 0){ giftRow.hidden=false; giftAmt.textContent=`+${fmt(giftAdd)}`; } else giftRow.hidden=true; }
+  const dRow = document.getElementById('capDiscountRow');
+  const dEl = document.getElementById('capDiscount');
+  if(dRow && dEl){ if(couponDisc > 0){ dRow.hidden=false; dEl.textContent=`-${fmt(couponDisc)}`; } else dRow.hidden=true; }
+  const tEl = document.getElementById('capTotal'); if(tEl) tEl.textContent = fmt(total);
+  const threshold = Number(window.__SITE_SETTINGS?.freeShipThreshold || 0);
+  const bar = document.getElementById('capFreeshipBar'); const fill = document.getElementById('capFreeshipFill'); const txt = document.getElementById('capFreeshipText');
+  if(bar && fill && txt){
+    if(threshold > 0 && subtotal > 0){
+      bar.hidden = false;
+      const pct = Math.min(100, Math.round(subtotal * 100 / threshold));
+      fill.style.width = pct + '%';
+      if(subtotal >= threshold){ bar.classList.add('is-free'); txt.innerHTML = '🎉 <strong>Ücretsiz kargo kazandın!</strong>'; }
+      else { bar.classList.remove('is-free'); const kalan = Math.max(0, threshold - subtotal); txt.innerHTML = `Ücretsiz kargoya <strong>${fmt(kalan)}</strong> kaldı 🚚`; }
+    } else { bar.hidden = true; }
   }
-  if(elTotal) elTotal.textContent = fmt(total);
+  const itemsBox = document.getElementById('capItems');
+  if(itemsBox){
+    itemsBox.innerHTML = basket.map(it => {
+      const id = String(it.id||it.productId||it.pid||'');
+      const name = String(it.name||'Ürün').replace(/</g,'&lt;');
+      const qty = Number(it.qty)||1;
+      return `<div class="cap-item-row"><span class="cap-item-name">${name}</span><span class="cap-qty-btns"><button onclick="changeQtyFromDrawer('${id}',-1)" aria-label="Azalt">−</button><span>${qty}</span><button onclick="changeQtyFromDrawer('${id}',1)" aria-label="Arttır">+</button></span></div>`;
+    }).join('');
+  }
+  const giftWrap = document.getElementById('capGiftWrapWrap');
+  const giftPriceEl = document.getElementById('capGiftWrapPrice');
+  const giftCb = document.getElementById('capGiftWrap');
+  if(giftWrap && giftFee != null){ giftWrap.hidden = false; if(giftPriceEl) giftPriceEl.textContent = giftFee > 0 ? `+${fmt(giftFee)}` : 'Ücretsiz'; if(giftCb) giftCb.checked = !!window.__giftWrapSelected; }
+  else if(giftWrap){ giftWrap.hidden = true; }
+  const memberRow = document.getElementById('capMemberRow');
+  const memberText = document.getElementById('capMemberText');
+  if(memberRow && memberText){
+    const u = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+    if(u && u.id && memberPct > 0){ memberRow.hidden = false; memberText.innerHTML = `✨ Üye indirimi <strong>%${memberPct}</strong> uygulandı`; }
+    else if(memberPct > 0){ memberRow.hidden = false; memberText.innerHTML = `✨ <a href="/hesap.html">Üye ol</a>, %${memberPct} indirim kazan`; }
+    else { memberRow.hidden = true; }
+  }
+  const sel = document.getElementById('f-payment');
+  const active = sel ? sel.value : '';
+  document.querySelectorAll('.cap-chip').forEach(c=>{ c.classList.toggle('is-active', c.dataset.pay === active); });
+  const eta = document.getElementById('capEta'); const etaTxt = document.getElementById('capEtaText'); const range = String(window.__SITE_SETTINGS?.deliveryRange || '').trim();
+  if(eta && etaTxt && range){
+    try {
+      const m = range.match(/(\d+)\s*-\s*(\d+)/);
+      if(m){
+        const a = parseInt(m[1],10), b = parseInt(m[2],10);
+        const d1 = new Date(Date.now() + a*86400000); const d2 = new Date(Date.now() + b*86400000);
+        const opt = { day:'numeric', month:'long' };
+        etaTxt.textContent = `${d1.toLocaleDateString('tr-TR',opt)} – ${d2.toLocaleDateString('tr-TR',opt)}`;
+        eta.hidden = false;
+      } else { eta.hidden = true; }
+    } catch(_){ eta.hidden = true; }
+  } else if(eta){ eta.hidden = true; }
 }
 window.renderCapDrawer = renderCapDrawer;
 
@@ -9920,7 +10034,13 @@ async function submitOrder(){
   orderSubmissionInFlight = true;
 
   try{
-    const finalTotal = Math.max(0, roundTo2(total - couponDiscountAmount));
+    const subtotalRaw = basket.reduce((a,b)=>a + (Number(b.sub)||0), 0);
+    const shipInfo = (typeof computeShippingFee === 'function') ? computeShippingFee(basket, subtotalRaw) : { fee:0 };
+    const memberPct = (typeof getMemberDiscountPct === 'function') ? getMemberDiscountPct() : 0;
+    const memberDisc = memberPct > 0 ? Math.round(subtotalRaw * memberPct / 100) : 0;
+    const giftFee = (typeof getGiftWrapFee === 'function') ? getGiftWrapFee() : null;
+    const giftAdd = (giftFee != null && window.__giftWrapSelected) ? giftFee : 0;
+    const finalTotal = Math.max(0, roundTo2(subtotalRaw + Number(shipInfo.fee||0) + giftAdd - couponDiscountAmount - memberDisc));
     const savedBasket=[...basket], savedTotal=finalTotal;
 
     if(method==='kredikarti'){
@@ -9963,7 +10083,11 @@ async function submitOrder(){
           currency:'TL',
           orderNote: note,
           shippingAddress: addr,
-          userName: name
+          userName: name,
+          couponDiscountAmount,
+          giftWrap: !!window.__giftWrapSelected,
+          memberDiscountPct: getMemberDiscountPct(),
+          appliedShipping: Number(shipInfo.fee || 0),
         })
       }, 20000);
       const data = await safeReadJson(response);
@@ -9982,7 +10106,13 @@ async function submitOrder(){
       const response = await fetchWithTimeout('/api/orders?action=create',{
         method:'POST',
         headers:{'Content-Type':'application/json',...(getAuthToken()?{'Authorization':'Bearer '+getAuthToken()}:{})},
-        body:JSON.stringify({name,phone,email,address:addr,note,payment:method,items:savedBasket,total:savedTotal})
+        body:JSON.stringify({
+          name,phone,email,address:addr,note,payment:method,items:savedBasket,total:savedTotal,
+          couponDiscountAmount,
+          giftWrap: !!window.__giftWrapSelected,
+          memberDiscountPct: getMemberDiscountPct(),
+          appliedShipping: Number(shipInfo.fee || 0),
+        })
       }, 15000);
       if(response.ok){
         orderApiResult = await response.json();

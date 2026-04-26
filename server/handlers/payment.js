@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { getPaytrCredentials } = require('../lib/_paytr-config');
 const { insertPending, getStatus } = require('../lib/_paytr-orders');
+const { getCheckoutSettings } = require('../lib/_site_settings');
 
 const { applyCors } = require('../lib/_cors');
 function safeString(value, fallback = '') {
@@ -134,6 +135,12 @@ async function parsePaytrResponse(response) {
   };
 }
 
+function computeMemberDiscount(subtotalKurus, pct) {
+  const percent = Math.max(0, Number(pct || 0));
+  if (!percent) return 0;
+  return Math.max(0, Math.round((subtotalKurus * percent) / 100));
+}
+
 function createMerchantOid() {
   const ts = Date.now().toString(36);
   const rand = crypto.randomBytes(6).toString('hex');
@@ -186,9 +193,17 @@ module.exports = async function handler(req, res) {
 
     const subtotal = normalizedItems.reduce((sum, item) => sum + Math.round(item.price * 100) * item.qty, 0);
     const couponDiscount = Math.max(0, Math.round(Number(req.body?.couponDiscountAmount || req.body?.couponDiscount || 0) * 100) || 0);
+    const settings = await getCheckoutSettings().catch(() => ({}));
+    const freeShippingThreshold = Number(settings?.freeShipThreshold || process.env.FREE_SHIPPING_THRESHOLD || 0);
     const shipping = computeShippingFeeFromItems(items, subtotal / 100);
+    if (freeShippingThreshold > 0 && subtotal / 100 >= freeShippingThreshold) {
+      shipping.fee = 0;
+      shipping.isFree = true;
+    }
     const shippingAmount = Math.max(0, Math.round(Number(shipping.fee || 0) * 100));
-    const paymentAmount = Math.max(0, subtotal + shippingAmount - couponDiscount);
+    const giftWrapFee = req.body?.giftWrap ? Math.max(0, Math.round(Number(settings?.giftWrapFee || 0) * 100)) : 0;
+    const memberDiscount = computeMemberDiscount(subtotal, Number(req.body?.memberDiscountPct || 0));
+    const paymentAmount = Math.max(0, subtotal + shippingAmount + giftWrapFee - couponDiscount - memberDiscount);
     if (!Number.isFinite(paymentAmount) || paymentAmount <= 0) {
       return res.status(400).json({ error: 'Ödeme tutarı hesaplanamadı.' });
     }

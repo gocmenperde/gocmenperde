@@ -2518,6 +2518,42 @@ Işık: Yarı Geçirgen"></textarea></div>
       </div>
     </div>
   </div>
+  <div class="settings-section">
+    <div class="settings-section-header"><i class="fas fa-sliders"></i> Site Ayarları</div>
+    <div class="settings-body admin-social-card">
+      <h3><i class="fas fa-cart-shopping"></i> Checkout / Drawer Ayarları</h3>
+      <div class="admin-social-form">
+        <div class="form-row">
+          <div class="fg">
+            <label>Hediye Paketi Ücreti (TL)</label>
+            <input type="number" id="s-giftWrapFee" min="0" step="0.01" placeholder="50" />
+            <p style="font-size:.7rem;color:var(--slate-light);margin-top:4px">Müşteri sepette "🎁 Hediye paketi" seçerse bu ücret eklenir. 0 girersen ücretsiz hediye paketi olarak görünür. Boş = özellik kapalı.</p>
+          </div>
+          <div class="fg">
+            <label>Ücretsiz Kargo Eşiği (TL)</label>
+            <input type="number" id="s-freeShipThreshold" min="0" step="1" placeholder="1000" />
+            <p style="font-size:.7rem;color:var(--slate-light);margin-top:4px">Sepet bu tutara ulaşınca kargo ücretsiz olur. Boş = devre dışı.</p>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label>Üye İndirimi (%)</label>
+            <input type="number" id="s-memberDiscount" min="0" max="50" step="0.5" placeholder="5" />
+            <p style="font-size:.7rem;color:var(--slate-light);margin-top:4px">Giriş yapmış üyelere otomatik uygulanan yüzde indirim. 0 = kapalı.</p>
+          </div>
+          <div class="fg">
+            <label>Tahmini Teslimat (gün)</label>
+            <input type="text" id="s-deliveryRange" placeholder="3-5" />
+            <p style="font-size:.7rem;color:var(--slate-light);margin-top:4px">Drawer'da "📦 Tahmini teslim: X-Y" olarak gösterilir.</p>
+          </div>
+        </div>
+        <div>
+          <button type="button" class="admin-save-btn" onclick="adminSaveCheckoutSettings()">Kaydet</button>
+          <span id="adminCheckoutStatus" class="admin-status"></span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="settings-section">
     <div class="settings-section-header"><i class="fas fa-shield-alt"></i> Güvenlik</div>
@@ -3519,6 +3555,46 @@ async function adminSaveSocialLinks(){
     setTimeout(()=>{ status.textContent = ''; }, 3000);
   }
   aToast('✓ Sosyal medya bağlantıları kaydedildi','success');
+}
+
+async function adminLoadCheckoutSettings(){
+  const setValue = (id, value)=>{
+    const el = document.getElementById(id);
+    if(el) el.value = value == null ? '' : value;
+  };
+  try{
+    const r = await fetch('/api/admin/site-settings', { headers:{ 'x-admin-token': getAdminApiKey() }, cache:'no-store' });
+    const data = await r.json();
+    window.__SITE_SETTINGS = data || {};
+    setValue('s-giftWrapFee', data?.giftWrapFee);
+    setValue('s-freeShipThreshold', data?.freeShipThreshold);
+    setValue('s-memberDiscount', data?.memberDiscount);
+    setValue('s-deliveryRange', data?.deliveryRange);
+  }catch(_){ }
+}
+async function adminSaveCheckoutSettings(){
+  const getValue = (id)=>String(document.getElementById(id)?.value || '').trim();
+  const payload = {
+    giftWrapFee: getValue('s-giftWrapFee'),
+    freeShipThreshold: getValue('s-freeShipThreshold'),
+    memberDiscount: getValue('s-memberDiscount'),
+    deliveryRange: getValue('s-deliveryRange'),
+  };
+  const status = document.getElementById('adminCheckoutStatus');
+  try{
+    const r = await fetch('/api/admin/site-settings', {
+      method:'PUT',
+      headers:{ 'Content-Type':'application/json', 'x-admin-token': getAdminApiKey() },
+      body: JSON.stringify(payload)
+    });
+    if(!r.ok) throw new Error('Kaydedilemedi');
+    const data = await r.json().catch(()=>payload);
+    window.__SITE_SETTINGS = data || payload;
+    if(status){ status.textContent = 'Kaydedildi ✓'; status.style.color = 'var(--gold-deep)'; setTimeout(()=>{ status.textContent=''; }, 3000); }
+    aToast('✓ Site ayarları kaydedildi','success');
+  }catch(e){
+    if(status){ status.textContent = e?.message || 'Kaydedilemedi'; status.style.color = '#c0392b'; }
+  }
 }
 
 function getHomePromoSettings(){
@@ -7667,6 +7743,7 @@ async function initAdmin(){
   renderShowcaseAdminPage();
   loadPaymentLogos();
   adminLoadSocialLinks();
+  adminLoadCheckoutSettings();
   renderHomePromoSettings();
   renderSurpriseCampaignSettings();
   renderCustomTemplateButtons();

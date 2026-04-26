@@ -7,6 +7,7 @@ const { pool } = require('../lib/_db');
 const { sendResendEmail } = require('../lib/_resend-mail');
 const { applyCors } = require('../lib/_cors');
 const { ensureReviewSchema } = require('../lib/_reviews_schema');
+const { getCheckoutSettings } = require('../lib/_site_settings');
 
 const ORDER_STATUSES = ['Beklemede', 'Hazırlanıyor', 'Kargoya Verildi', 'Yolda', 'Dağıtımda', 'Teslim Edildi', 'İptal'];
 const ORDER_STATUS_ALIASES = {
@@ -33,8 +34,10 @@ module.exports = async function handler(req, res) {
 
   try {
     if (action === 'create' && req.method === 'POST') {
-      const { name, phone, email, address, note, payment, items, total } = req.body || {};
-      const validation = validateCreateOrderPayload({ name, phone, email, address, note, payment, items, total });
+      const { name, phone, email, address, note, payment, items, total, giftWrap, memberDiscountPct, appliedShipping, couponDiscountAmount, couponDiscount } = req.body || {};
+      const validation = await validateCreateOrderPayload({
+        name, phone, email, address, note, payment, items, total, giftWrap, memberDiscountPct, appliedShipping, couponDiscountAmount, couponDiscount
+      });
       if (!validation.ok) {
         return res.status(400).json({ error: validation.error });
       }
@@ -487,7 +490,7 @@ function computeShippingFeeFromItems(items = [], subtotal = 0) {
   };
 }
 
-function validateCreateOrderPayload(payload) {
+async function validateCreateOrderPayload(payload) {
   const name = String(payload?.name || '').trim().slice(0, 120);
   const phone = normalizePhone(payload?.phone);
   const email = normalizeEmail(payload?.email);
@@ -497,6 +500,8 @@ function validateCreateOrderPayload(payload) {
   const items = sanitizeOrderItems(payload?.items);
   const total = Number(payload?.total);
   const couponDiscount = Math.max(0, Number(payload?.couponDiscountAmount ?? payload?.couponDiscount ?? 0) || 0);
+  const giftWrap = !!payload?.giftWrap;
+  const memberDiscountPct = Math.max(0, Number(payload?.memberDiscountPct || 0) || 0);
 
   if (!name || name.length < 2) return { ok: false, error: 'Geçerli bir ad soyad girin.' };
   if (!phone || phone.replace(/\D/g, '').length < 10) return { ok: false, error: 'Geçerli bir telefon numarası girin.' };
@@ -507,8 +512,13 @@ function validateCreateOrderPayload(payload) {
   if (!Number.isFinite(total) || total <= 0) return { ok: false, error: 'Toplam tutar geçersiz.' };
 
   const subtotal = items.reduce((sum, item) => sum + Number(item.sub || 0), 0);
+  const settings = await getCheckoutSettings().catch(() => ({}));
   const shipping = computeShippingFeeFromItems(items, subtotal);
-  const computedTotal = Math.max(0, subtotal + Number(shipping.fee || 0) - couponDiscount);
+  const threshold = Number(settings?.freeShipThreshold || process.env.FREE_SHIPPING_THRESHOLD || 0);
+  if (threshold > 0 && subtotal >= threshold) shipping.fee = 0;
+  const giftWrapFee = giftWrap ? Math.max(0, Number(settings?.giftWrapFee || 0) || 0) : 0;
+  const memberDiscount = memberDiscountPct > 0 ? Math.max(0, Math.round(subtotal * memberDiscountPct / 100)) : 0;
+  const computedTotal = Math.max(0, subtotal + Number(shipping.fee || 0) + giftWrapFee - couponDiscount - memberDiscount);
   if (Math.abs(computedTotal - total) > 1) {
     return { ok: false, error: 'Sepet toplamı uyuşmuyor. Lütfen sepeti güncelleyip tekrar deneyin.' };
   }
@@ -524,6 +534,9 @@ function validateCreateOrderPayload(payload) {
       payment,
       items,
       total: Number(total.toFixed(2)),
+      giftWrap,
+      memberDiscountPct,
+      appliedShipping: Number(shipping.fee || 0),
     },
   };
 }
