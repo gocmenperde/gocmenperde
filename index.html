@@ -7241,7 +7241,7 @@ function closeAllOverlaysAggressive(){
       const el = document.getElementById(id);
       if(el){
         el.classList.remove('open');
-        el.style.display='none';
+        el.style.removeProperty('display');
         el.setAttribute('aria-hidden','true');
         console.log('[checkout-debug] promo modal closed', id);
       }
@@ -7251,7 +7251,7 @@ function closeAllOverlaysAggressive(){
     const sm = document.getElementById('successModal');
     if(sm){
       sm.classList.remove('open');
-      sm.style.display='none';
+      sm.style.removeProperty('display');
       console.log('[checkout-debug] successModal closed');
     }
   }catch(e){ console.log('[checkout-debug] successModal close failed', e); }
@@ -7259,12 +7259,12 @@ function closeAllOverlaysAggressive(){
     const pm = document.getElementById('productModal');
     if(pm){
       pm.classList.remove('open');
-      pm.style.display='none';
+      pm.style.removeProperty('display');
       console.log('[checkout-debug] productModal closed');
     }
   }catch(e){ console.log('[checkout-debug] productModal close failed', e); }
   try{
-    document.body.classList.remove('cap-drawer-open','popup-open','modal-open','no-scroll');
+    document.body.classList.remove('cap-drawer-open','popup-open','modal-open','no-scroll','product-modal-open');
     document.body.style.overflow='';
     console.log('[checkout-debug] body lock classes removed');
   }catch(e){ console.log('[checkout-debug] body unlock failed', e); }
