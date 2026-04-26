@@ -166,14 +166,15 @@
     renderFooterPaymentLogos();
     const urlParams = new URLSearchParams(window.location.search);
     const nextParam = (urlParams.get('next') || '').trim();
+    const DEFAULT_AFTER_LOGIN = '/index.html?welcome=1';
     const safeNextPath = (() => {
-        if (!nextParam) return '/hesabim.html';
+        if (!nextParam) return DEFAULT_AFTER_LOGIN;
         try {
             const resolved = new URL(nextParam, window.location.origin);
-            if (resolved.origin !== window.location.origin) return '/hesabim.html';
+            if (resolved.origin !== window.location.origin) return DEFAULT_AFTER_LOGIN;
             return `${resolved.pathname}${resolved.search}${resolved.hash}`;
         } catch (_) {
-            return '/hesabim.html';
+            return DEFAULT_AFTER_LOGIN;
         }
     })();
     if(urlParams.get('mod') === 'register') showForm('register');
@@ -243,6 +244,7 @@
                 localStorage.setItem('token', res.token);
                 localStorage.setItem('gp_token', res.token);
                 localStorage.setItem('user', JSON.stringify(res.user));
+                try { sessionStorage.setItem('gp_just_logged_in','1'); } catch(_) {}
                 // Engelleyici alert YOK; küçük toast göster ve
                 // hemen yönlendir (yönlendirme arka planda çoktan başlamış olur).
                 try {

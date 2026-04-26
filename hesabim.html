@@ -1803,6 +1803,49 @@ async function apiFetch(url, options = {}, timeoutMs = 10000) {
     }
 }
 
+function hasCheckoutReturnIntent() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('return') === 'checkout') return true;
+        return sessionStorage.getItem('gp_return_to') === 'checkout';
+    } catch (_) {
+        return false;
+    }
+}
+
+function renderCheckoutReturnBars(isAddressesActive) {
+    const topBarId = 'gpReturnBarTop';
+    const sectionBarId = 'gpReturnBar';
+    const shouldShow = isAddressesActive && hasCheckoutReturnIntent();
+    const removeIfAny = () => {
+        const top = document.getElementById(topBarId);
+        const section = document.getElementById(sectionBarId);
+        if (top) top.remove();
+        if (section) section.remove();
+    };
+    if (!shouldShow) {
+        removeIfAny();
+        return;
+    }
+    const html = `<div id="${sectionBarId}" style="margin:8px 0 14px;padding:10px 14px;
+        background:linear-gradient(135deg,#1b1b1b,#2a1f15 60%,#7d2c2c);
+        color:#e6d3a8;border-radius:10px;display:flex;justify-content:space-between;
+        align-items:center;font-family:'DM Sans',sans-serif;font-size:13px">
+          <span>Ödeme adımına geri dönmek için hazır olduğunuzda tıklayın.</span>
+          <a href="index.html#checkout" onclick="try{sessionStorage.removeItem('gp_return_to')}catch(_){}"
+             style="background:#c8a35a;color:#1b1b1b;padding:6px 14px;border-radius:8px;
+             font-weight:600;text-decoration:none">Ödemeye Dön ›</a>
+        </div>`;
+    const addressesSection = document.getElementById('section-addresses');
+    if (addressesSection && !document.getElementById(sectionBarId)) {
+        addressesSection.insertAdjacentHTML('afterbegin', html);
+    }
+    const header = document.querySelector('.gp-header');
+    if (header && !document.getElementById(topBarId)) {
+        header.insertAdjacentHTML('afterend', html.replace(`id="${sectionBarId}"`, `id="${topBarId}"`));
+    }
+}
+
 function showTab(tab, el) {
     document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.gp-section').forEach(s => s.classList.remove('active'));
@@ -1820,6 +1863,7 @@ function showTab(tab, el) {
     }
     if (tab === 'favorites') loadFavorites();
     if (tab === 'profile') loadProfile();
+    renderCheckoutReturnBars(tab === 'addresses');
 }
 
 function activateTabFromQuery() {
@@ -2856,12 +2900,16 @@ function trackAccountVisit(){
 }
 
 /* ── INIT ── */
-trackAccountVisit();
-loadOrders();
-loadProfile();
-activateTabFromQuery();
-// initAddressLocationData() artık burada çağrılmıyor;
-// sadece kullanıcı "Adresler" sekmesine geçince çalışacak.
+document.addEventListener('DOMContentLoaded', () => {
+    trackAccountVisit();
+    loadOrders();
+    loadProfile();
+    activateTabFromQuery();
+    const activeAddresses = document.getElementById('section-addresses')?.classList.contains('active');
+    renderCheckoutReturnBars(Boolean(activeAddresses));
+    // initAddressLocationData() artık burada çağrılmıyor;
+    // sadece kullanıcı "Adresler" sekmesine geçince çalışacak.
+});
 
 </script>
 

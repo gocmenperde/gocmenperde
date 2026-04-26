@@ -767,6 +767,46 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .cart-action-btn{flex:1;border:none;background:var(--ink);color:#fff;font-size:1.02rem;font-weight:600;cursor:pointer;padding:14px 16px;letter-spacing:1.8px;text-transform:uppercase;font-family:var(--ff-body);transition:var(--transition)}
 .cart-action-btn:hover{background:var(--gold);color:var(--ink)}
 @media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(var(--mobile-nav-offset, 0px) + env(safe-area-inset-bottom) + 10px)}.cart-action-btn{font-size:0.9rem;padding:13px 10px}}
+.cart-action-panel{flex-direction:column;padding:0}
+.cap-meta{display:none}
+.cap-row{display:flex;width:100%}
+.cap-chev{display:inline-block;margin-left:8px;transition:transform .2s ease}
+.cart-action-btn:hover .cap-chev,
+.cart-action-btn:active .cap-chev{transform:translateX(4px)}
+@media(max-width:640px){
+  .cart-action-panel{
+    left:0;right:0;bottom:0;border-radius:16px 16px 0 0;
+    background:rgba(20,14,10,.94);backdrop-filter:blur(12px);
+    border:0;border-top:1px solid rgba(200,163,90,.25);
+    box-shadow:0 -8px 24px rgba(0,0,0,.4);
+    padding-bottom:max(8px, env(safe-area-inset-bottom));
+  }
+  .cap-meta{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:11px;
+    color:#c8a35a;letter-spacing:.04em;
+    border-bottom:1px solid rgba(200,163,90,.18);
+  }
+  .cap-meta-method{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px}
+  .cap-meta-sec{flex-shrink:0;color:#e6d3a8}
+  .cap-meta-sec i{margin-right:4px}
+  .cap-row{padding:10px 14px 12px;gap:10px;align-items:center}
+  .cart-action-total{
+    min-width:0;padding:0;background:transparent;border:0;flex-shrink:0;
+  }
+  .cart-action-total b{font-size:1.05rem;color:#e6d3a8;font-family:'Cormorant Garamond',serif}
+  .cart-action-total span{font-size:0.66rem;color:#c8a35a;margin-top:0}
+  .cart-action-btn{
+    flex:1;background:linear-gradient(135deg,#c8a35a 0%,#a3823f 100%);
+    color:#1b1b1b;font-family:'DM Sans',sans-serif;font-weight:600;
+    font-size:.82rem;letter-spacing:.08em;padding:14px 16px;border-radius:12px;
+    box-shadow:0 6px 20px rgba(200,163,90,.35), inset 0 1px 0 rgba(255,255,255,.2);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .cart-action-btn:active{transform:scale(.98);box-shadow:0 3px 12px rgba(200,163,90,.25)}
+  .cart-action-btn[disabled]{opacity:.5;filter:grayscale(.3)}
+  .cart-action-btn.cap-warn{background:linear-gradient(135deg,#9a3636 0%,#7d2c2c 100%);color:#fff}
+}
 .contracts-scroll-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .contract-box{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px;max-width:100%;overflow:hidden}
 .contract-box h4{font-size:0.8rem;letter-spacing:1px;margin-bottom:8px}
@@ -1853,6 +1893,27 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
   }
 }
 
+
+#gpWelcomeBanner{position:fixed;top:0;left:0;right:0;z-index:13000;
+  padding:16px 24px;display:flex;align-items:center;gap:14px;
+  background:linear-gradient(135deg,#1b1b1b 0%,#2a1f15 60%,#7d2c2c 100%);
+  color:#e6d3a8;font-family:'Cormorant Garamond',serif;
+  box-shadow:0 4px 24px rgba(0,0,0,.25);
+  transform:translateY(-100%);transition:transform .5s ease,opacity .8s ease;
+  opacity:0}
+#gpWelcomeBanner.gp-show{transform:translateY(0);opacity:1}
+#gpWelcomeBanner .gp-wb-icon{font-size:24px;color:#e6d3a8;flex-shrink:0}
+#gpWelcomeBanner .gp-wb-text{flex:1;line-height:1.3}
+#gpWelcomeBanner .gp-wb-title{font-size:24px;font-weight:600;color:#e6d3a8}
+#gpWelcomeBanner .gp-wb-sub{font-family:'DM Sans',sans-serif;font-size:13px;
+  color:#c8a35a;opacity:.85;margin-top:2px}
+#gpWelcomeBanner .gp-wb-close{background:transparent;border:0;color:#e6d3a8;
+  font-size:22px;cursor:pointer;padding:4px 10px;line-height:1}
+@media(max-width:640px){
+  #gpWelcomeBanner{padding:12px 16px;gap:10px}
+  #gpWelcomeBanner .gp-wb-title{font-size:18px}
+  #gpWelcomeBanner .gp-wb-sub{font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -1933,6 +1994,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 </div>
 
 <a class="skip-link" href="#home">Ana içeriğe geç</a>
+<div id="gpWelcomeBanner" style="display:none"></div>
 <div class="cursor-dot" id="cursorDot"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 <div id="loader"><div class="loader-text">GÖÇMEN PERDE</div><div class="loader-line"></div></div>
@@ -2335,7 +2397,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
           <div class="address-helper" id="savedAddressWrap" style="display:none;margin-top:0">
             <div class="address-helper-row">
               <strong style="font-size:0.78rem;color:var(--gold-dark)">Kayıtlı Adreslerim</strong>
-              <button type="button" onclick="window.open('hesabim.html?tab=addresses','_blank','noopener')">Adresleri Yönet</button>
+              <button type="button" onclick="(function(){try{sessionStorage.setItem('gp_return_to','checkout');}catch(_){}window.location.href='hesabim.html?tab=addresses&return=checkout';})()">Adresleri Yönet</button>
             </div>
             <select id="savedAddressSelect" onchange="applySavedAddress(this.value)">
               <option value="">Adres seçin...</option>
@@ -2396,7 +2458,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
         </div>
         <div class="form-group"><label>E-posta *</label><input type="email" id="f-email" class="form-input" placeholder="ornek@gmail.com"></div>
         <div class="form-group full"><label>Ödeme Yöntemi *</label>
-          <select id="f-payment" class="form-input" onchange="togglePaymentFields()">
+          <select id="f-payment" class="form-input" onchange="togglePaymentFields();updateCartActionPanel()">
             <option value="kapida">Kapıda Ödeme</option>
             <option value="havale">Havale / EFT</option>
             <option value="kredikarti">Kredi Kartı ile Ödeme</option>
@@ -2792,11 +2854,19 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 </div>
 
 <div class="cart-action-panel" id="cartActionPanel" style="display:none">
-  <div class="cart-action-total">
-    <b id="cartActionAmount">0 TL</b>
-    <span id="cartActionShipping">Kargo Bedava</span>
+  <div class="cap-meta" id="capMeta">
+    <span class="cap-meta-method" id="capMetaMethod">Kredi kartı · Havale · Kapıda ödeme</span>
+    <span class="cap-meta-sec"><i class="fas fa-lock" aria-hidden="true"></i> 256-bit SSL · PayTR güvencesi</span>
   </div>
-  <button class="cart-action-btn" id="cartActionBtn" type="button" onclick="handleCartActionClick()">Sepeti Onayla</button>
+  <div class="cap-row">
+    <div class="cart-action-total">
+      <b id="cartActionAmount">0 TL</b>
+      <span id="cartActionShipping">Kargo Bedava</span>
+    </div>
+    <button class="cart-action-btn" id="cartActionBtn" type="button"
+            onclick="handleCartActionClick()"
+            aria-label="Ödeme ekranına geç">Sepeti Onayla <span class="cap-chev">›</span></button>
+  </div>
 </div>
 
 <script>
@@ -8332,6 +8402,7 @@ function updateCartActionPanel(){
   const btn = document.getElementById('cartActionBtn');
   const amount = document.getElementById('cartActionAmount');
   const shipping = document.getElementById('cartActionShipping');
+  const metaMethod = document.getElementById('capMetaMethod');
   const cartSection = document.getElementById('cart');
   const checkoutSection = document.getElementById('checkout');
   if(!panel || !btn || !amount || !shipping || !cartSection || !checkoutSection) return;
@@ -8342,13 +8413,46 @@ function updateCartActionPanel(){
     return;
   }
   const grandTotal = basket.reduce((a,b)=>a+b.sub,0) - couponDiscountAmount;
+  const itemCount = basket.reduce((a,b)=>a+(b.qty||1),0);
+  const tutarStr = `₺${Math.max(0, grandTotal).toLocaleString('tr-TR')}`;
   amount.textContent = `${Math.max(0, grandTotal).toLocaleString('tr-TR')} TL`;
   shipping.textContent = 'Kargo Bedava';
   panel.style.display = 'flex';
-  const selectedPayment = document.getElementById('f-payment')?.value || '';
-  btn.textContent = inCheckout
-    ? (selectedPayment === 'kredikarti' ? 'Ödeme Ekranına Geç' : 'Onayla ve Bitir')
-    : 'Sepeti Onayla';
+  // Stok uyarısı kontrolü (varsa)
+  const hasStockWarn = (typeof window.__gpStockWarn === 'boolean' ? window.__gpStockWarn : false);
+  const selectedPaymentEl = document.getElementById('f-payment');
+  const selectedPayment = selectedPaymentEl ? (selectedPaymentEl.value || '') : '';
+  const paymentLabels = {
+    'kredikarti': 'Kredi kartı',
+    'havale': 'Havale / EFT',
+    'kapida': 'Kapıda ödeme'
+  };
+  // Meta etiketi
+  if(metaMethod){
+    metaMethod.textContent = selectedPayment && paymentLabels[selectedPayment]
+      ? `Seçilen: ${paymentLabels[selectedPayment]}`
+      : 'Kredi kartı · Havale · Kapıda ödeme';
+  }
+  // Buton dinamik metin
+  btn.classList.remove('cap-warn');
+  btn.disabled = false;
+  let label;
+  if(!basket.length){
+    label = 'Sepete Ürün Ekle';
+    btn.disabled = true;
+  } else if(hasStockWarn){
+    label = 'Stoğu Kontrol Et';
+    btn.classList.add('cap-warn');
+  } else if(inCheckout){
+    const base = (selectedPayment === 'kredikarti') ? 'Ödeme Ekranına Geç' : 'Onayla ve Bitir';
+    label = `${base} — ${tutarStr}`;
+  } else {
+    label = (itemCount > 1)
+      ? `Sepeti Onayla (${itemCount} ürün) — ${tutarStr}`
+      : `Sepeti Onayla — ${tutarStr}`;
+  }
+  btn.innerHTML = `${label} <span class="cap-chev">›</span>`;
+  btn.setAttribute('aria-label', `${label.replace(/<[^>]*>/g,'')}, toplam ${tutarStr}`);
 }
 
 function prefillOrderForm(){
@@ -10076,6 +10180,41 @@ if(typeof __origCloseProductModal==='function'){
     return r;
   }
 }
+(function gpWelcomeBanner(){
+  try{
+    const params = new URLSearchParams(location.search);
+    const fromUrl = params.get('welcome') === '1';
+    const fromSession = (function(){try{return sessionStorage.getItem('gp_just_logged_in')==='1'}catch(_){return false}})();
+    if(!fromUrl && !fromSession) return;
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem('user') || 'null'); } catch(_){ }
+    const adSoyad = (user && user.ad_soyad) ? String(user.ad_soyad).trim().split(' ')[0] : '';
+    const el = document.getElementById('gpWelcomeBanner');
+    if(!el) return;
+    el.style.display = 'flex';
+    el.innerHTML = `
+      <span class="gp-wb-icon">✦</span>
+      <div class="gp-wb-text">
+        <div class="gp-wb-title">Hoş geldiniz${adSoyad ? ', ' + adSoyad : ''}</div>
+        <div class="gp-wb-sub">Premium koleksiyonumuzda size özel seçimler hazırladık.</div>
+      </div>
+      <button type="button" class="gp-wb-close" aria-label="Kapat">×</button>
+    `;
+    requestAnimationFrame(()=> el.classList.add('gp-show'));
+    const close = ()=>{ el.classList.remove('gp-show'); setTimeout(()=>{ el.style.display='none'; }, 600); };
+    el.querySelector('.gp-wb-close').addEventListener('click', close);
+    const isMobile = matchMedia('(max-width:640px)').matches;
+    setTimeout(close, isMobile ? 5000 : 6000);
+    // Temizle
+    try{ sessionStorage.removeItem('gp_just_logged_in'); }catch(_){ }
+    if(fromUrl){
+      params.delete('welcome');
+      const qs = params.toString();
+      history.replaceState(null,'', location.pathname + (qs?('?'+qs):'') + location.hash);
+    }
+  }catch(e){ console.warn('[gp:welcome]', e); }
+})();
+
 </script>
 
 <div class="mobile-action-bar" id="mobileActionBar" hidden>
