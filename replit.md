@@ -34,3 +34,13 @@
 ## Yasal Uyarı
 
 - Sahte yorum üretimi sadece geliştirme amaçlıdır, üretimde kullanılması yasal ihlaldir.
+
+## Tur 7 — UX Mikro İyileştirmeleri (2026-04-26)
+- Ödeme: "Adresleri Yönet" aynı sekmede açılıyor, hesabım'dan
+  "Ödemeye Dön" şeridi eklendi.
+- hesap.html: giriş sonrası varsayılan yönlendirme anasayfaya
+  (?welcome=1) çekildi; premium şampanya altın + bordo gradient
+  hoşgeldiniz banner'ı eklendi.
+- Mobil CTA bar 2 satıra çıkarıldı: ödeme yöntemi etiketi + 256-bit
+  SSL rozeti; buton dinamik metinli (sepet adedi, tutar, stok
+  uyarısı) altın gradient ile yenilendi.
