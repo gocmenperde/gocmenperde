@@ -781,6 +781,8 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .cart-action-btn:hover{background:var(--gold);color:var(--ink)}
 @media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(var(--mobile-nav-offset, 0px) + env(safe-area-inset-bottom) + 10px)}.cart-action-btn{font-size:0.9rem;padding:13px 10px}}
 .cart-action-panel{flex-direction:column;padding:0}
+/* Drawer açıkken paneli backdrop'ın üstüne çıkar */
+.cart-action-panel.has-open-drawer{z-index:12400}
 .cap-meta{display:none}
 .cap-row{display:flex;width:100%}
 .cap-chev{display:inline-block;margin-left:8px;transition:transform .2s ease}
@@ -850,27 +852,39 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
     overflow:hidden;
     max-height:0;
     opacity:0;
-    transform:translateY(8px);
-    transition:max-height .18s ease-out, opacity .14s ease-out, transform .16s ease-out;
-    background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(251,249,245,.92));
-    border-bottom:1px solid rgba(20,20,20,.06);
+    transform:translateY(12px);
+    transition:max-height .22s cubic-bezier(.2,.8,.2,1),
+               opacity .18s ease-out,
+               transform .22s cubic-bezier(.2,.8,.2,1);
+    background:linear-gradient(180deg,#fff 0%,#fbf9f5 100%);
+    border-radius:20px 20px 0 0;
+    box-shadow:0 -16px 40px rgba(15,14,13,.18);
     will-change:max-height, opacity, transform;
     position:relative;
   }
   .cap-drawer.is-open{
-    max-height:65vh;
+    max-height:min(560px, 60vh);
     opacity:1;
     transform:translateY(0);
   }
+  .cap-drawer::before{
+    content:'';
+    position:sticky; top:0; z-index:5;
+    display:block; width:36px; height:4px;
+    margin:8px auto 0;
+    background:rgba(20,20,20,.18);
+    border-radius:4px;
+  }
   .cap-drawer.is-open::after{
     content:''; position:absolute; left:0; right:0; bottom:0;
-    height:18px; pointer-events:none;
-    background:linear-gradient(180deg,transparent,rgba(251,249,245,.96));
+    height:24px; pointer-events:none;
+    background:linear-gradient(180deg,transparent,#fbf9f5);
+    border-radius:0 0 0 0;
   }
   .cap-drawer-inner{
-    padding:12px 14px 14px;
+    padding:6px 14px 14px;
     font-family:'DM Sans',sans-serif;
-    max-height:65vh;
+    max-height:calc(min(560px, 60vh) - 14px);
     overflow-y:auto;
     overscroll-behavior:contain;
     -webkit-overflow-scrolling:touch;
@@ -880,9 +894,19 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
     background:rgba(200,163,90,.4); border-radius:4px;
   }
   .cap-drawer-title{
+    position:sticky; top:14px; z-index:4;
     font-family:'Cormorant Garamond',serif;
-    font-size:1.05rem; color:#1b1b1b;
-    margin:0 0 10px; letter-spacing:.3px;
+    font-size:1.12rem; color:#1b1b1b;
+    margin:0 -14px 12px;
+    padding:6px 14px 10px;
+    letter-spacing:.3px;
+    background:linear-gradient(180deg,#fff 70%,rgba(255,255,255,.0));
+    text-align:center;
+  }
+  .cap-drawer-title::after{
+    content:''; display:block;
+    height:1px; margin-top:8px;
+    background:linear-gradient(90deg,transparent,rgba(200,163,90,.4),transparent);
   }
   .cap-drawer-row{
     display:flex; justify-content:space-between; align-items:center;
@@ -939,8 +963,9 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   .cap-eta strong{color:#1b1b1b}
   .cap-trust{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:10px 0 0;padding-top:10px;border-top:1px solid rgba(20,20,20,.05);font:500 10.5px 'DM Sans',sans-serif;color:#7a7a7a;letter-spacing:.02em}
   .cap-trust i{color:#c8a35a;margin-right:3px}
-  body.cap-drawer-open{touch-action:none}
+  body.cap-drawer-open{overflow:hidden !important;touch-action:none}
   body.cap-drawer-open .cap-drawer-inner{touch-action:pan-y}
+  body.cap-drawer-open .mobile-bottom-nav{opacity:0;pointer-events:none;transition:opacity .15s ease-out}
   .cap-toggle{
     width:100%; display:flex; justify-content:center; align-items:center; gap:8px;
     background:transparent; border:0; padding:7px 0 5px;
@@ -960,7 +985,7 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   .cap-toggle.is-open .cap-toggle-chev{ transform:rotate(180deg); }
   .cap-toggle-label{ opacity:.85; }
 }
-.cap-backdrop{position:fixed;inset:0;z-index:12100;background:rgba(15,12,8,.18);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .16s ease-out}
+.cap-backdrop{position:fixed;inset:0;z-index:12300;background:radial-gradient(ellipse at bottom,rgba(15,12,8,.18) 0%, rgba(15,12,8,.32) 100%);backdrop-filter:blur(6px) saturate(120%);-webkit-backdrop-filter:blur(6px) saturate(120%);opacity:0;pointer-events:none;transition:opacity .18s ease-out, backdrop-filter .18s ease-out}
 .cap-backdrop.is-open{opacity:1;pointer-events:auto}
 .contracts-scroll-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .contract-box{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px;max-width:100%;overflow:hidden}
@@ -3056,7 +3081,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
           aria-expanded="false" aria-controls="capDrawer"
           aria-label="Sipariş özetini aç/kapat">
     <span class="cap-toggle-chev" id="capToggleChev">
-      <i class="fas fa-chevron-up" aria-hidden="true"></i>
+      <i class="fas fa-chevron-up" aria-hidden="true" style="display:inline-block;transition:transform .18s ease"></i>
     </span>
     <span class="cap-toggle-label">Detaylar</span>
   </button>
@@ -8733,12 +8758,14 @@ function toggleCapDrawer(){
   const d = document.getElementById('capDrawer');
   const b = document.getElementById('capToggle');
   const back = document.getElementById('capBackdrop');
+  const panelEl = document.getElementById('cartActionPanel');
   if(!d || !b) return;
   const open = !d.classList.contains('is-open');
   d.classList.toggle('is-open', open);
   b.classList.toggle('is-open', open);
   if(back) back.classList.toggle('is-open', open);
   document.body.classList.toggle('cap-drawer-open', open);
+  if(panelEl) panelEl.classList.toggle('has-open-drawer', open);
   b.setAttribute('aria-expanded', open ? 'true' : 'false');
   d.setAttribute('aria-hidden', open ? 'false' : 'true');
   const lbl = document.querySelector('#capToggle .cap-toggle-label');
@@ -8750,9 +8777,60 @@ function toggleCapDrawer(){
       if(inner) inner.scrollTop = 0;
     } catch(_){}
   }
+  if(!open){
+    try {
+      const inner = d.querySelector('.cap-drawer-inner');
+      if(inner) inner.scrollTop = 0;
+    } catch(_){}
+  }
   try { setMobileNavPadding(); } catch(_){}
 }
 window.toggleCapDrawer = toggleCapDrawer;
+
+(function attachDrawerDragClose(){
+  const d = document.getElementById('capDrawer');
+  if(!d) return;
+  let startY = 0, currentY = 0, dragging = false;
+  function onStart(e){
+    const rect = d.getBoundingClientRect();
+    const y = (e.touches?.[0]?.clientY ?? e.clientY);
+    if(y - rect.top > 48) return;
+    startY = y; currentY = y; dragging = true;
+    d.style.transition = 'none';
+  }
+  function onMove(e){
+    if(!dragging) return;
+    currentY = (e.touches?.[0]?.clientY ?? e.clientY);
+    const dy = Math.max(0, currentY - startY);
+    d.style.transform = `translateY(${dy}px)`;
+    if(dy > 10) e.preventDefault?.();
+  }
+  function onEnd(){
+    if(!dragging) return;
+    dragging = false;
+    d.style.transition = '';
+    const dy = Math.max(0, currentY - startY);
+    if(dy > 80){
+      d.style.transform = '';
+      try { toggleCapDrawer(); } catch(_){}
+    } else {
+      d.style.transform = '';
+    }
+  }
+  d.addEventListener('touchstart', onStart, { passive:true });
+  d.addEventListener('touchmove',  onMove,  { passive:false });
+  d.addEventListener('touchend',   onEnd);
+  d.addEventListener('mousedown',  onStart);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup',   onEnd);
+})();
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){
+    const d = document.getElementById('capDrawer');
+    if(d?.classList.contains('is-open')) toggleCapDrawer();
+  }
+});
 
 function computeShippingFee(items, subtotal){
   if(!items || !items.length) return { fee:0, originalFee:0, isFree:true };

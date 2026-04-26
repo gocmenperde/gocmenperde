@@ -97,3 +97,12 @@
 - "Detaylar" → "Özeti gizle" toggle etiketi.
 - Hediye paketi etiketi uppercase'den çıktı (text-transform:none).
 - body.cap-drawer-open ile sayfa scroll kilidi.
+
+
+## Tur 7.9 — Premium bottom-sheet drawer (2026-04-26)
+- Backdrop z-index 12100 → 12300 (header dahil tüm ekran).
+- Drawer üst köşeleri kıvrımlı, drag handle pill, sticky başlık.
+- max-height min(560px,60vh) — içerik kadar büyür.
+- Drag-to-close (handle 80px aşağı), ESC ile kapat.
+- body.cap-drawer-open ile sayfa scroll kilitli + nav gizli.
+- Drawer kapanınca scroll pozisyonu sıfırlanır.
