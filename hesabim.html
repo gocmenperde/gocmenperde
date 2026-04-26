@@ -1842,9 +1842,14 @@ function renderCheckoutReturnBars(isAddressesActive) {
         color:#e6d3a8;border-radius:10px;display:flex;justify-content:space-between;
         align-items:center;font-family:'DM Sans',sans-serif;font-size:13px">
           <span>Ödeme adımına geri dönmek için hazır olduğunuzda tıklayın.</span>
-          <a href="index.html#checkout" onclick="try{sessionStorage.removeItem('gp_return_to');document.body.classList.remove('cap-drawer-open');}catch(_){}"
-             style="background:#c8a35a;color:#1b1b1b;padding:6px 14px;border-radius:8px;
-             font-weight:600;text-decoration:none">Ödemeye Dön ›</a>
+          <a href="index.html?from=address-return#checkout" onclick="try{
+  sessionStorage.removeItem('gp_return_to');
+  document.body.classList.remove('cap-drawer-open','popup-open','modal-open','no-scroll');
+  document.body.style.overflow='';
+  ['homePromoModal','surpriseCampaignModal','productModal','successModal'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.classList.remove('open');el.style.display='none';}
+  });
+}catch(_){}" style="background:#c8a35a;color:#1b1b1b;padding:6px 14px;border-radius:8px;font-weight:600;text-decoration:none">Ödemeye Dön ›</a>
         </div>`;
     const addressesSection = document.getElementById('section-addresses');
     if (addressesSection && !document.getElementById(sectionBarId)) {
