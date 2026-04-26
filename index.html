@@ -847,15 +847,37 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   .cart-action-btn[disabled]{opacity:.5;filter:grayscale(.3)}
   .cart-action-btn.cap-warn{background:#7d2c2c;color:#fff}
   .cap-drawer{
-    max-height:0; overflow:hidden;
-    transition:max-height .28s cubic-bezier(.2,.8,.2,1);
+    overflow:hidden;
+    max-height:0;
+    opacity:0;
+    transform:translateY(8px);
+    transition:max-height .18s ease-out, opacity .14s ease-out, transform .16s ease-out;
     background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(251,249,245,.92));
     border-bottom:1px solid rgba(20,20,20,.06);
+    will-change:max-height, opacity, transform;
+    position:relative;
   }
-  .cap-drawer.is-open{ max-height:280px; }
+  .cap-drawer.is-open{
+    max-height:65vh;
+    opacity:1;
+    transform:translateY(0);
+  }
+  .cap-drawer.is-open::after{
+    content:''; position:absolute; left:0; right:0; bottom:0;
+    height:18px; pointer-events:none;
+    background:linear-gradient(180deg,transparent,rgba(251,249,245,.96));
+  }
   .cap-drawer-inner{
-    padding:14px 16px 12px;
+    padding:12px 14px 14px;
     font-family:'DM Sans',sans-serif;
+    max-height:65vh;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .cap-drawer-inner::-webkit-scrollbar{ width:4px; }
+  .cap-drawer-inner::-webkit-scrollbar-thumb{
+    background:rgba(200,163,90,.4); border-radius:4px;
   }
   .cap-drawer-title{
     font-family:'Cormorant Garamond',serif;
@@ -887,7 +909,9 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   .cap-freeship-fill{height:100%;background:linear-gradient(90deg,#c8a35a,#a3823f);border-radius:6px;transition:width .25s ease-out}
   .cap-freeship-bar.is-free .cap-freeship-fill{width:100% !important}
   .cap-freeship-bar.is-free .cap-freeship-text strong{color:#1e8e3e}
-  .cap-items{display:flex;flex-direction:column;gap:6px;margin:0 0 10px;max-height:120px;overflow-y:auto;padding-right:2px}
+  .cap-items{display:flex;flex-direction:column;gap:8px;margin:0 0 12px;padding:8px 10px;background:rgba(255,255,255,.55);border-radius:10px;border:1px solid rgba(20,20,20,.04)}
+  .cap-items:empty{display:none}
+  .cap-totals{margin:0 0 12px;padding:8px 10px;background:rgba(255,255,255,.55);border-radius:10px;border:1px solid rgba(20,20,20,.04)}
   .cap-item-row{display:flex;align-items:center;gap:8px;font:500 12px 'DM Sans',sans-serif;color:#3a3a3a}
   .cap-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cap-qty-btns{display:inline-flex;align-items:center;gap:4px}
@@ -899,10 +923,13 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   .cap-coupon input:focus{outline:none;border-color:#c8a35a;box-shadow:0 0 0 2px rgba(200,163,90,.18)}
   .cap-coupon button{padding:8px 14px;border:0;border-radius:8px;background:#1b1b1b;color:#fff;cursor:pointer;font:600 11px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase}
   .cap-coupon-msg{flex-basis:100%;font:500 11px 'DM Sans',sans-serif;color:#1e8e3e;min-height:14px}
+  .cap-coupon-msg:empty{display:none}
   .cap-coupon-msg.is-error{color:#7d2c2c}
-  .cap-extra{display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:8px 10px;background:rgba(255,250,240,.7);border:1px solid rgba(200,163,90,.22);border-radius:10px;font:500 12px 'DM Sans',sans-serif;color:#3a3a3a;cursor:pointer}
-  .cap-extra input{accent-color:#c8a35a}
-  .cap-extra small{margin-left:auto;color:#7a6228;font-weight:600}
+  .cap-extra{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:9px 12px;background:rgba(255,250,240,.6);border:1px solid rgba(200,163,90,.20);border-radius:10px;font:500 12.5px 'DM Sans',sans-serif;color:#3a3a3a;cursor:pointer;text-transform:none !important;letter-spacing:0 !important}
+  .cap-extra .cap-extra-label{text-transform:none;letter-spacing:0;font-weight:500;color:#1b1b1b}
+  .cap-extra::before{content:'🎁';font-size:14px}
+  .cap-extra small{margin-left:auto;color:#7a6228;font-weight:600;font-size:11.5px;letter-spacing:.02em}
+  .cap-extra input[type=checkbox]{width:18px;height:18px;accent-color:#a3823f;flex-shrink:0}
   .cap-member-row{margin:0 0 10px;padding:6px 10px;background:linear-gradient(90deg,rgba(200,163,90,.10),transparent);border-left:2px solid #c8a35a;font:500 11.5px 'DM Sans',sans-serif;color:#5a4a1f}
   .cap-member-row a{color:#7d2c2c;text-decoration:underline;font-weight:600}
   .cap-pay-chips{display:flex;gap:6px;margin:0 0 12px;flex-wrap:wrap}
@@ -912,6 +939,8 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   .cap-eta strong{color:#1b1b1b}
   .cap-trust{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:10px 0 0;padding-top:10px;border-top:1px solid rgba(20,20,20,.05);font:500 10.5px 'DM Sans',sans-serif;color:#7a7a7a;letter-spacing:.02em}
   .cap-trust i{color:#c8a35a;margin-right:3px}
+  body.cap-drawer-open{touch-action:none}
+  body.cap-drawer-open .cap-drawer-inner{touch-action:pan-y}
   .cap-toggle{
     width:100%; display:flex; justify-content:center; align-items:center; gap:8px;
     background:transparent; border:0; padding:7px 0 5px;
@@ -2988,32 +3017,34 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
         <div class="cap-freeship-track"><div class="cap-freeship-fill" id="capFreeshipFill" style="width:0%"></div></div>
       </div>
       <div class="cap-items" id="capItems"></div>
-      <div class="cap-coupon" id="capCoupon">
-        <input type="text" id="capCouponInput" placeholder="Kupon kodu" autocomplete="off" />
-        <button type="button" onclick="applyCouponFromDrawer()">Uygula</button>
-        <span class="cap-coupon-msg" id="capCouponMsg"></span>
+      <div class="cap-totals">
+        <div class="cap-drawer-row"><span>Ara Toplam</span><strong id="capSubtotal">₺0</strong></div>
+        <div class="cap-drawer-row" id="capShippingRow">
+          <span>Kargo</span>
+          <span class="cap-shipping-val"><s id="capShippingOld" hidden></s><strong id="capShippingNew">Bedava</strong></span>
+        </div>
+        <div class="cap-drawer-row cap-drawer-discount" id="capMemberDiscRow" hidden><span>Üye İndirimi</span><strong id="capMemberDisc">-₺0</strong></div>
+        <div class="cap-drawer-row cap-drawer-discount" id="capGiftRow" hidden><span>Hediye paketi</span><strong id="capGiftAmount">+₺0</strong></div>
+        <div class="cap-drawer-row cap-drawer-discount" id="capDiscountRow" hidden><span>Kupon İndirimi</span><strong id="capDiscount">-₺0</strong></div>
+        <div class="cap-drawer-divider"></div>
+        <div class="cap-drawer-row cap-drawer-total"><span>Toplam</span><strong id="capTotal">₺0</strong></div>
       </div>
-      <label class="cap-extra" id="capGiftWrapWrap" hidden>
-        <input type="checkbox" id="capGiftWrap" onchange="toggleGiftWrap(this.checked)" />
-        <span>🎁 Hediye paketi</span>
-        <small id="capGiftWrapPrice"></small>
-      </label>
-      <div class="cap-member-row" id="capMemberRow" hidden><span id="capMemberText"></span></div>
       <div class="cap-pay-chips" id="capPayChips">
         <button type="button" class="cap-chip" data-pay="kredikarti" onclick="selectPayMethod('kredikarti')">Kredi kartı</button>
         <button type="button" class="cap-chip" data-pay="havale" onclick="selectPayMethod('havale')">Havale</button>
         <button type="button" class="cap-chip" data-pay="kapida" onclick="selectPayMethod('kapida')">Kapıda</button>
       </div>
-      <div class="cap-drawer-row"><span>Ara Toplam</span><strong id="capSubtotal">₺0</strong></div>
-      <div class="cap-drawer-row" id="capShippingRow">
-        <span>Kargo</span>
-        <span class="cap-shipping-val"><s id="capShippingOld" hidden></s><strong id="capShippingNew">Bedava</strong></span>
+      <label class="cap-extra" id="capGiftWrapWrap" hidden>
+        <input type="checkbox" id="capGiftWrap" onchange="toggleGiftWrap(this.checked)" />
+        <span class="cap-extra-label">Hediye paketi</span>
+        <small id="capGiftWrapPrice"></small>
+      </label>
+      <div class="cap-coupon" id="capCoupon">
+        <input type="text" id="capCouponInput" placeholder="Kupon kodu" autocomplete="off" />
+        <button type="button" onclick="applyCouponFromDrawer()">Uygula</button>
+        <span class="cap-coupon-msg" id="capCouponMsg"></span>
       </div>
-      <div class="cap-drawer-row cap-drawer-discount" id="capMemberDiscRow" hidden><span>Üye İndirimi</span><strong id="capMemberDisc">-₺0</strong></div>
-      <div class="cap-drawer-row cap-drawer-discount" id="capGiftRow" hidden><span>🎁 Hediye paketi</span><strong id="capGiftAmount">+₺0</strong></div>
-      <div class="cap-drawer-row cap-drawer-discount" id="capDiscountRow" hidden><span>Kupon İndirimi</span><strong id="capDiscount">-₺0</strong></div>
-      <div class="cap-drawer-divider"></div>
-      <div class="cap-drawer-row cap-drawer-total"><span>Toplam</span><strong id="capTotal">₺0</strong></div>
+      <div class="cap-member-row" id="capMemberRow" hidden><span id="capMemberText"></span></div>
       <div class="cap-eta" id="capEta" hidden>📦 Tahmini teslim: <strong id="capEtaText"></strong></div>
       <div class="cap-trust">
         <span><i class="fas fa-lock"></i> 256-bit SSL</span><span>·</span><span><i class="fas fa-shield-halved"></i> PayTR güvencesi</span><span>·</span><span><i class="fas fa-rotate-left"></i> 14 gün iade</span>
@@ -8707,9 +8738,18 @@ function toggleCapDrawer(){
   d.classList.toggle('is-open', open);
   b.classList.toggle('is-open', open);
   if(back) back.classList.toggle('is-open', open);
+  document.body.classList.toggle('cap-drawer-open', open);
   b.setAttribute('aria-expanded', open ? 'true' : 'false');
   d.setAttribute('aria-hidden', open ? 'false' : 'true');
-  if(open){ try { renderCapDrawer(); } catch(_){} }
+  const lbl = document.querySelector('#capToggle .cap-toggle-label');
+  if(lbl) lbl.textContent = open ? 'Özeti gizle' : 'Detaylar';
+  if(open){
+    try { renderCapDrawer(); } catch(_){}
+    try {
+      const inner = d.querySelector('.cap-drawer-inner');
+      if(inner) inner.scrollTop = 0;
+    } catch(_){}
+  }
   try { setMobileNavPadding(); } catch(_){}
 }
 window.toggleCapDrawer = toggleCapDrawer;
