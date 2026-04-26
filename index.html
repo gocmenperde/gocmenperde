@@ -3089,6 +3089,23 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 <div class="cap-backdrop" id="capBackdrop" onclick="toggleCapDrawer()"></div>
 
 <script>
+// ── EARLY URL NORMALIZATION ── address-return guard
+// Hesabim'den dönüş query string'ini, herhangi bir section logic çalışmadan
+// HASH'e dönüştür. Böylece getSectionFromLocation() doğal olarak 'cart' döner
+// ve applySectionState normal yoluyla cart'ı render eder. setTimeout retry'larına
+// veya manuel DOM manipülasyonuna gerek kalmaz.
+(function normalizeAddressReturnEarly(){
+  try{
+    var p = new URLSearchParams(window.location.search || '');
+    if(p.get('from') === 'address-return'){
+      var clean = window.location.pathname + '#cart';
+      window.history.replaceState({}, '', clean);
+      try{ sessionStorage.setItem('gp_last_section', 'cart'); }catch(_){}
+      try{ localStorage.setItem('gp_last_section', 'cart'); }catch(_){}
+    }
+  }catch(_){}
+})();
+
 const WA_NUMBER = window.__APP_CONFIG?.waNumber || '905012110958';
 const __DEBUG = location.hostname === 'localhost' || location.hostname.includes('replit');
 if (!__DEBUG) console.warn = ()=>{};
@@ -7482,41 +7499,6 @@ window.addEventListener('load',()=>{
   if(window.location.hash === '#checkout' || window.location.hash === '#cart'){
     try{ console.log('[checkout-debug] load init hash detected, aggressive close start'); closeAllOverlaysAggressive(); }catch(e){ console.log('[checkout-debug] init hash aggressive close failed', e); }
   }
-  try{
-    const params = new URLSearchParams(window.location.search);
-    if(params.get('from') === 'address-return'){
-  console.log('[checkout-debug] from=address-return → CART section yönlendirme');
-  // Kullanıcı hesabim'den dönüyor → checkout boş kalma sorununu bypass etmek için
-  // direkt CART (sepet) section'ına götür. Kullanıcı sepetten "Sepeti Onayla" ile
-  // checkout'a yine geçebilir, bu sefer normal flow ile.
-  const goToCart = ()=>{
-    try{
-      closeAllOverlaysAggressive();
-      loadCartFromStorage();
-      const cartSec = document.getElementById('cart');
-      if(cartSec){
-        document.querySelectorAll('.section').forEach(s=>{
-          if(s.id !== 'cart'){ s.classList.remove('active','fade-in'); s.style.display='none'; }
-        });
-        cartSec.style.display='block';
-        cartSec.classList.add('active');
-        cartSec.style.visibility='visible';
-        cartSec.style.opacity='1';
-      }
-      if(typeof renderCart === 'function') renderCart();
-      // URL'den marker'ı temizle ve hash'i #cart yap
-      const cleanUrl = window.location.pathname + '#cart';
-      window.history.replaceState({}, '', cleanUrl);
-      // Sayfayı en üste kaydır
-      window.scrollTo({top:0, behavior:'auto'});
-    }catch(e){ console.log('[checkout-debug] address-return goToCart failed:', e); }
-  };
-  // Üç farklı zamanda dene (DOM ready guarantee)
-  setTimeout(goToCart, 50);
-  setTimeout(goToCart, 300);
-  setTimeout(goToCart, 800);
-}
-  }catch(e){ console.log('[checkout-debug] address-return query parse failed', e); }
   runSafely('bindProductsGridDelegation', ()=>bindProductsGridDelegation());
   runSafely('loadProducts', ()=>loadProducts());
   runSafely('initUserSession', ()=>initUserSession());
@@ -7896,8 +7878,14 @@ function applySectionState(id, {scroll=true} = {}){
     }
     if(targetId==='checkout'){
       try{ renderCheckout(); }catch(e){ console.error('[nav] sync renderCheckout failed:', e); }
-      requestAnimationFrame(()=>{ try{ renderCheckout(); }catch(_){} });
-      setTimeout(()=>{ try{ renderCheckout(); }catch(_){} }, 200);
+      requestAnimationFrame(()=>{
+        if(document.querySelector('.section.active')?.id !== 'checkout') return;
+        try{ renderCheckout(); }catch(_){}
+      });
+      setTimeout(()=>{
+        if(document.querySelector('.section.active')?.id !== 'checkout') return;
+        try{ renderCheckout(); }catch(_){}
+      }, 200);
     }
     scheduleSectionHeavyWork(targetId, ()=> hydrateLazyIframes(targetId));
     if(targetId==='products' && PRODUCTS.length===0) scheduleSectionHeavyWork(targetId, ()=> loadProducts());

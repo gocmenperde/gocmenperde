@@ -1300,6 +1300,7 @@
     max-width:100vw!important;
     max-height:100dvh!important;
     height:100dvh!important;
+    padding-top:env(safe-area-inset-top);
     padding-bottom:env(safe-area-inset-bottom);
     width:100vw!important;
     margin:0!important;
@@ -1325,8 +1326,27 @@
     top:0;
     background:#fff;
     z-index:5;
-    padding:14px 18px;
+    padding:calc(14px + env(safe-area-inset-top)) 18px 14px 18px;
     border-bottom:1px solid var(--line, #e5e7eb);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    min-height:calc(48px + env(safe-area-inset-top));
+  }
+  #orderDetailModal .order-modal-header .modal-close,
+  #orderDetailModal .modal-header .modal-close{
+    min-width:44px;
+    min-height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:transparent;
+    border:0;
+    cursor:pointer;
+    font-size:1.25rem;
+    color:var(--ink, #111);
+    flex-shrink:0;
   }
   .form-modal-body,
   .modal-body,
