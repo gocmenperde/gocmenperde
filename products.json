@@ -9,6 +9,8 @@
     ],
     "price": 299,
     "oldPrice": 399,
+    "shippingFee": 49,
+    "shippingNote": null,
     "cat": "tul-perde",
     "unit": "mt",
     "isMeter": true,
