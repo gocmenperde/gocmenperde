@@ -44,3 +44,8 @@
 - Mobil CTA bar 2 satıra çıkarıldı: ödeme yöntemi etiketi + 256-bit
   SSL rozeti; buton dinamik metinli (sepet adedi, tutar, stok
   uyarısı) altın gradient ile yenilendi.
+
+## Tur 7.1 — UX Bug Fix (2026-04-26)
+- Mobil CTA bar artık alt nav'ın üstüne yerleşiyor (--mobile-nav-offset).
+- Alt nav "Hesabım" butonu mevcut section'ı sessionStorage + back parametresine kaydediyor.
+- hesabim.html → hesap.html ve hesap.html → next yönlendirmeleri window.location.replace() ile yapıldı; Safari geri tuşu artık login ekranını atlayıp kullanıcının geldiği section'a dönüyor.

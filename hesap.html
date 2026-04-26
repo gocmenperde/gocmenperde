@@ -166,17 +166,20 @@
     renderFooterPaymentLogos();
     const urlParams = new URLSearchParams(window.location.search);
     const nextParam = (urlParams.get('next') || '').trim();
+    const backParam = (urlParams.get('back') || '').trim();
     const DEFAULT_AFTER_LOGIN = '/index.html?welcome=1';
-    const safeNextPath = (() => {
-        if (!nextParam) return DEFAULT_AFTER_LOGIN;
+    function safePath(raw, fallback){
+        if(!raw) return fallback;
         try {
-            const resolved = new URL(nextParam, window.location.origin);
-            if (resolved.origin !== window.location.origin) return DEFAULT_AFTER_LOGIN;
+            const resolved = new URL(raw, window.location.origin);
+            if (resolved.origin !== window.location.origin) return fallback;
             return `${resolved.pathname}${resolved.search}${resolved.hash}`;
-        } catch (_) {
-            return DEFAULT_AFTER_LOGIN;
-        }
-    })();
+        } catch (_) { return fallback; }
+    }
+    // Giriş sonrası gidilecek hedef
+    const safeNextPath = safePath(nextParam, DEFAULT_AFTER_LOGIN);
+    // Kullanıcı geri tuşuna basarsa gideceği (history) hedefi
+    const safeBackPath = backParam ? safePath(backParam, '') : '';
     if(urlParams.get('mod') === 'register') showForm('register');
 
     function showForm(type) {
@@ -260,7 +263,23 @@
                     document.head.appendChild(l);
                 } catch(_) {}
                 // 120ms'lik mikro-gecikme — toast bir frame görünsün
-                setTimeout(() => { window.location.href = safeNextPath; }, 120);
+                setTimeout(() => {
+                    try{
+                        // Eğer back hedefi varsa, önce onu history'e push et,
+                        // sonra next'e replace ile git. Böylece geri tuşu
+                        // login ekranını ATLAR ve back hedefine düşer.
+                        if(safeBackPath){
+                            history.replaceState(null, '', safeBackPath);
+                            history.pushState(null, '', safeNextPath);
+                            window.location.replace(safeNextPath);
+                        } else {
+                            // back yoksa login sayfası history'den çıksın
+                            window.location.replace(safeNextPath);
+                        }
+                    }catch(e){
+                        window.location.replace(safeNextPath);
+                    }
+                }, 120);
                 return;
             } else {
                 showInlineToast('Hata: ' + (res.error || 'Bilgiler yanlış.'), true);

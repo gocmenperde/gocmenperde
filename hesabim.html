@@ -1696,8 +1696,18 @@ const token = localStorage.getItem('token') || localStorage.getItem('gp_token');
 let user = (() => { try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; } })();
 
 if (!token) {
+    // Çağrı zincirinde geri tuşuyla bu sayfaya geri gelmeyi engelle
     const nextPath = encodeURIComponent('/hesabim.html');
-    window.location.href = `/hesap.html?next=${nextPath}`;
+    // back parametresi (varsa) login'e taşı — kullanıcı sonradan
+    // geldiği section'a dönebilsin
+    let backParam = '';
+    try{
+        const ret = sessionStorage.getItem('gp_account_return');
+        if(ret) backParam = `&back=${encodeURIComponent(ret)}`;
+    }catch(_){}
+    window.location.replace(`/hesap.html?next=${nextPath}${backParam}`);
+    // throw ile aşağıdaki user init kodunu durdur (sayfa zaten gidiyor)
+    throw new Error('redirect');
 }
 if (token && !user) {
     user = { ad_soyad: '', email: '', created_at: null };
