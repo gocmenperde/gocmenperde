@@ -846,6 +846,58 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   }
   .cart-action-btn[disabled]{opacity:.5;filter:grayscale(.3)}
   .cart-action-btn.cap-warn{background:#7d2c2c;color:#fff}
+  .cap-drawer{
+    max-height:0; overflow:hidden;
+    transition:max-height .28s cubic-bezier(.2,.8,.2,1);
+    background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(251,249,245,.92));
+    border-bottom:1px solid rgba(20,20,20,.06);
+  }
+  .cap-drawer.is-open{ max-height:280px; }
+  .cap-drawer-inner{
+    padding:14px 16px 12px;
+    font-family:'DM Sans',sans-serif;
+  }
+  .cap-drawer-title{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.05rem; color:#1b1b1b;
+    margin:0 0 10px; letter-spacing:.3px;
+  }
+  .cap-drawer-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:.82rem; color:#3a3a3a; padding:5px 0;
+  }
+  .cap-drawer-row strong{ color:#1b1b1b; font-weight:600; font-size:.86rem; }
+  .cap-shipping-val{ display:inline-flex; align-items:center; gap:6px; }
+  .cap-shipping-val s{ color:#9a9a9a; font-weight:400; font-size:.78rem; }
+  .cap-shipping-val strong.is-free{ color:#1e8e3e; font-weight:700; }
+  .cap-drawer-discount strong{ color:#7d2c2c; }
+  .cap-drawer-divider{
+    height:1px; margin:8px 0 6px;
+    background:linear-gradient(90deg,transparent,rgba(200,163,90,.45),transparent);
+  }
+  .cap-drawer-total span{ color:#1b1b1b; font-weight:600; }
+  .cap-drawer-total strong{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.15rem; color:#7d2c2c; letter-spacing:.3px;
+  }
+  .cap-toggle{
+    width:100%; display:flex; justify-content:center; align-items:center; gap:8px;
+    background:transparent; border:0; padding:7px 0 5px;
+    font-family:'DM Sans',sans-serif; font-size:10.5px;
+    color:#7a6228; letter-spacing:.08em; text-transform:uppercase;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+    border-bottom:1px solid rgba(20,20,20,.04);
+  }
+  .cap-toggle:active{ background:rgba(200,163,90,.08); }
+  .cap-toggle-chev{
+    width:22px; height:22px; border-radius:50%;
+    background:rgba(200,163,90,.14);
+    display:inline-flex; align-items:center; justify-content:center;
+    color:#a3823f; font-size:10px;
+    transition:transform .25s ease;
+  }
+  .cap-toggle.is-open .cap-toggle-chev{ transform:rotate(180deg); }
+  .cap-toggle-label{ opacity:.85; }
 }
 .contracts-scroll-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .contract-box{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px;max-width:100%;overflow:hidden}
@@ -2894,6 +2946,40 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 </div>
 
 <div class="cart-action-panel" id="cartActionPanel" style="display:none">
+  <div class="cap-drawer" id="capDrawer" aria-hidden="true">
+    <div class="cap-drawer-inner">
+      <div class="cap-drawer-title">Sipariş Özeti</div>
+      <div class="cap-drawer-row">
+        <span>Ara Toplam</span>
+        <strong id="capSubtotal">₺0</strong>
+      </div>
+      <div class="cap-drawer-row" id="capShippingRow">
+        <span>Kargo</span>
+        <span class="cap-shipping-val">
+          <s id="capShippingOld" hidden></s>
+          <strong id="capShippingNew">Bedava</strong>
+        </span>
+      </div>
+      <div class="cap-drawer-row cap-drawer-discount" id="capDiscountRow" hidden>
+        <span>İndirim</span>
+        <strong id="capDiscount">-₺0</strong>
+      </div>
+      <div class="cap-drawer-divider"></div>
+      <div class="cap-drawer-row cap-drawer-total">
+        <span>Toplam</span>
+        <strong id="capTotal">₺0</strong>
+      </div>
+    </div>
+  </div>
+  <button class="cap-toggle" id="capToggle" type="button"
+          onclick="toggleCapDrawer()"
+          aria-expanded="false" aria-controls="capDrawer"
+          aria-label="Sipariş özetini aç/kapat">
+    <span class="cap-toggle-chev" id="capToggleChev">
+      <i class="fas fa-chevron-up" aria-hidden="true"></i>
+    </span>
+    <span class="cap-toggle-label">Detaylar</span>
+  </button>
   <div class="cap-meta" id="capMeta">
     <span class="cap-meta-method" id="capMetaMethod">Kredi kartı · Havale · Kapıda ödeme</span>
     <span class="cap-meta-sec"><i class="fas fa-lock" aria-hidden="true"></i> 256-bit SSL · PayTR güvencesi</span>
@@ -8312,6 +8398,7 @@ function addToCart(itemPayload){
   openCartSheet(cartItem);
   showToast('✓ Sepete eklendi: '+name);
   saveCartToStorage();
+  try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){}
 }
 
 function updateCartCount(){
@@ -8330,12 +8417,14 @@ function updateItemQty(idx,change){
   basket[idx].sub = basket[idx].price * basket[idx].qty;
   total = basket.reduce((a,b)=>a+b.sub,0);
   saveCartToStorage(); renderCart(); renderMiniCart();
+  try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){}
 }
 function removeItem(idx){
   appliedCouponCode = ''; couponDiscountAmount = 0;
   basket.splice(idx,1); total = basket.reduce((a,b)=>a+b.sub,0);
   updateCartCount();
   saveCartToStorage(); renderCart(); renderMiniCart();
+  try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){}
 }
 function clearCart(){
   if(!confirm('Sepet temizlensin mi?')) return;
@@ -8472,11 +8561,17 @@ function updateCartActionPanel(){
     panel.style.display = 'none';
     return;
   }
-  const grandTotal = basket.reduce((a,b)=>a+b.sub,0) - couponDiscountAmount;
+  const subtotalRaw = basket.reduce((a,b)=>a+b.sub,0);
+  const shipInfo = (typeof computeShippingFee === 'function')
+    ? computeShippingFee(basket, subtotalRaw)
+    : { fee:0, originalFee:0, isFree:true };
+  const grandTotal = subtotalRaw + shipInfo.fee - couponDiscountAmount;
   const itemCount = basket.reduce((a,b)=>a+(b.qty||1),0);
   const tutarStr = `₺${Math.max(0, grandTotal).toLocaleString('tr-TR')}`;
   amount.textContent = `${Math.max(0, grandTotal).toLocaleString('tr-TR')} TL`;
-  shipping.textContent = 'Kargo Bedava';
+  shipping.textContent = shipInfo.isFree
+    ? (shipInfo.originalFee > 0 ? `Kargo Bedava (${shipInfo.originalFee} TL)` : 'Kargo Bedava')
+    : `Kargo: ₺${shipInfo.fee.toLocaleString('tr-TR')}`;
   panel.style.display = 'flex';
   // Stok uyarısı kontrolü (varsa)
   const hasStockWarn = (typeof window.__gpStockWarn === 'boolean' ? window.__gpStockWarn : false);
@@ -8513,7 +8608,93 @@ function updateCartActionPanel(){
   }
   btn.innerHTML = `${label} <span class="cap-chev">›</span>`;
   btn.setAttribute('aria-label', `${label.replace(/<[^>]*>/g,'')}, toplam ${tutarStr}`);
+  if(document.getElementById('capDrawer')?.classList.contains('is-open')){
+    try { renderCapDrawer(); } catch(_){}
+  }
 }
+
+function toggleCapDrawer(){
+  const d = document.getElementById('capDrawer');
+  const b = document.getElementById('capToggle');
+  if(!d || !b) return;
+  const open = !d.classList.contains('is-open');
+  d.classList.toggle('is-open', open);
+  b.classList.toggle('is-open', open);
+  b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  d.setAttribute('aria-hidden', open ? 'false' : 'true');
+  if(open){
+    try { renderCapDrawer(); } catch(_){}
+    try { setMobileNavPadding(); } catch(_){}
+  } else {
+    try { setMobileNavPadding(); } catch(_){}
+  }
+}
+window.toggleCapDrawer = toggleCapDrawer;
+
+function computeShippingFee(items, subtotal){
+  if(!items || !items.length) return { fee:0, originalFee:0, isFree:true };
+  let maxFee = 0;
+  for(const it of items){
+    const p = (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS))
+      ? PRODUCTS.find(x => String(x.id) === String(it.id || it.productId || it.pid))
+      : null;
+    const fee = Number(p?.shippingFee || it?.shippingFee || 0);
+    if(Number.isFinite(fee) && fee > maxFee) maxFee = fee;
+  }
+  const threshold = Number(window.__FREE_SHIPPING_THRESHOLD || 0);
+  const isFree = maxFee === 0 || (threshold > 0 && subtotal >= threshold);
+  return {
+    fee: isFree ? 0 : maxFee,
+    originalFee: maxFee,
+    isFree
+  };
+}
+window.computeShippingFee = computeShippingFee;
+
+function renderCapDrawer(){
+  if(typeof basket === 'undefined' || !Array.isArray(basket)) return;
+  const subtotal = basket.reduce((a,b)=>a + (Number(b.sub)||0), 0);
+  const discount = Number(typeof couponDiscountAmount !== 'undefined' ? couponDiscountAmount : (window.couponDiscountAmount || 0));
+  const ship = computeShippingFee(basket, subtotal);
+  const total = Math.max(0, subtotal + ship.fee - discount);
+  const fmt = (n) => `₺${Math.max(0, Math.round(n)).toLocaleString('tr-TR')}`;
+  const elSub = document.getElementById('capSubtotal');
+  const elShipNew = document.getElementById('capShippingNew');
+  const elShipOld = document.getElementById('capShippingOld');
+  const elDiscRow = document.getElementById('capDiscountRow');
+  const elDisc = document.getElementById('capDiscount');
+  const elTotal = document.getElementById('capTotal');
+  if(elSub) elSub.textContent = fmt(subtotal);
+  if(elShipNew){
+    if(ship.isFree){
+      elShipNew.textContent = 'Bedava';
+      elShipNew.classList.add('is-free');
+      if(elShipOld){
+        if(ship.originalFee > 0){
+          elShipOld.textContent = fmt(ship.originalFee);
+          elShipOld.hidden = false;
+        } else {
+          elShipOld.hidden = true;
+          elShipOld.textContent = '';
+        }
+      }
+    } else {
+      elShipNew.textContent = fmt(ship.fee);
+      elShipNew.classList.remove('is-free');
+      if(elShipOld){ elShipOld.hidden = true; elShipOld.textContent=''; }
+    }
+  }
+  if(elDiscRow && elDisc){
+    if(discount > 0){
+      elDiscRow.hidden = false;
+      elDisc.textContent = `-${fmt(discount)}`;
+    } else {
+      elDiscRow.hidden = true;
+    }
+  }
+  if(elTotal) elTotal.textContent = fmt(total);
+}
+window.renderCapDrawer = renderCapDrawer;
 
 function prefillOrderForm(){
   try{
@@ -9397,6 +9578,7 @@ async function applyCoupon(codeFromBanner=''){
   if(input) input.value = c;
   refreshTotalAmount();
   showToast(`🎉 ${campaign.name || c} indirimi uygulandı!`);
+  try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){}
 }
 
 function applyPendingCouponFromStorage(){

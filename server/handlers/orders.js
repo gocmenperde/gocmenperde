@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { verifyAuthToken } = require('../lib/_auth-utils');
 const { requireAdmin } = require('../lib/_admin-auth');
 const { pool } = require('../lib/_db');
@@ -456,6 +458,35 @@ function normalizePayment(value) {
   return allowed.has(candidate) ? candidate : '';
 }
 
+function readProductsCatalog() {
+  try {
+    const raw = fs.readFileSync(path.resolve(process.cwd(), 'products.json'), 'utf8');
+    const parsed = JSON.parse(raw || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function computeShippingFeeFromItems(items = [], subtotal = 0) {
+  if (!Array.isArray(items) || !items.length) return { fee: 0, originalFee: 0, isFree: true };
+  const products = readProductsCatalog();
+  let maxFee = 0;
+  for (const item of items) {
+    const id = String(item?.id ?? item?.productId ?? item?.pid ?? '').trim();
+    const p = id ? products.find((x) => String(x?.id ?? '').trim() === id) : null;
+    const fee = Number(p?.shippingFee ?? item?.shippingFee ?? 0);
+    if (Number.isFinite(fee) && fee > maxFee) maxFee = fee;
+  }
+  const threshold = Number(process.env.FREE_SHIPPING_THRESHOLD || 0);
+  const isFree = maxFee === 0 || (threshold > 0 && subtotal >= threshold);
+  return {
+    fee: isFree ? 0 : maxFee,
+    originalFee: maxFee,
+    isFree,
+  };
+}
+
 function validateCreateOrderPayload(payload) {
   const name = String(payload?.name || '').trim().slice(0, 120);
   const phone = normalizePhone(payload?.phone);
@@ -465,6 +496,7 @@ function validateCreateOrderPayload(payload) {
   const payment = normalizePayment(payload?.payment);
   const items = sanitizeOrderItems(payload?.items);
   const total = Number(payload?.total);
+  const couponDiscount = Math.max(0, Number(payload?.couponDiscountAmount ?? payload?.couponDiscount ?? 0) || 0);
 
   if (!name || name.length < 2) return { ok: false, error: 'Geçerli bir ad soyad girin.' };
   if (!phone || phone.replace(/\D/g, '').length < 10) return { ok: false, error: 'Geçerli bir telefon numarası girin.' };
@@ -474,7 +506,9 @@ function validateCreateOrderPayload(payload) {
   if (!items.length) return { ok: false, error: 'Sipariş için en az bir ürün gereklidir.' };
   if (!Number.isFinite(total) || total <= 0) return { ok: false, error: 'Toplam tutar geçersiz.' };
 
-  const computedTotal = items.reduce((sum, item) => sum + Number(item.sub || 0), 0);
+  const subtotal = items.reduce((sum, item) => sum + Number(item.sub || 0), 0);
+  const shipping = computeShippingFeeFromItems(items, subtotal);
+  const computedTotal = Math.max(0, subtotal + Number(shipping.fee || 0) - couponDiscount);
   if (Math.abs(computedTotal - total) > 1) {
     return { ok: false, error: 'Sepet toplamı uyuşmuyor. Lütfen sepeti güncelleyip tekrar deneyin.' };
   }

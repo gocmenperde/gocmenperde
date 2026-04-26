@@ -70,3 +70,12 @@
 - Toast cart/checkout section'larında gizleme kaldırıldı, bottom
   hesabı --mobile-nav-offset + --checkout-cta-height ile dinamik.
 - Toast z-index 11000 → 12130 (CTA üstü, nav altı).
+
+## Tur 7.5 — CTA detay drawer + ürün bazlı kargo (2026-04-26)
+- CTA panele "Detaylar" toggle (chevron) + premium Sipariş Özeti
+  drawer (Ara Toplam / Kargo (üzeri çizili-bedava) / İndirim /
+  Toplam).
+- computeShippingFee = sepetteki en yüksek shippingFee (curtain
+  tek paket mantığı), opsiyonel window.__FREE_SHIPPING_THRESHOLD.
+- Admin ürün formuna "Kargo Ücreti (TL)" + "Kargo Notu" alanları.
+- Sipariş toplamı ve PayTR payment_amount artık kargo dahil.
