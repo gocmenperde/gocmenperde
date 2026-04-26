@@ -7754,6 +7754,7 @@ function scheduleSectionHeavyWork(sectionId, fn){
   setTimeout(run, 0);
 }
 function applySectionState(id, {scroll=true} = {}){
+  try{ loadCartFromStorage(); }catch(_){ }
   const targetId = document.getElementById(id) ? id : 'home';
   const currentActive = document.querySelector('.section.active')?.id;
   const scrollMode = scroll === false ? 'none' : (scroll === 'restore' ? 'restore' : 'top');
@@ -7762,6 +7763,10 @@ function applySectionState(id, {scroll=true} = {}){
       const savedY = getSavedSectionScroll(targetId);
       window.scrollTo({top:savedY,behavior:'auto'});
     }
+    try{ closeAllPopups(); }catch(_){ }
+    try{
+      if(typeof __forceCloseCapDrawer === 'function') __forceCloseCapDrawer();
+    }catch(_){ }
     updateCartActionPanel();
     updateFloatingCta(targetId);
     syncHomePromoVisibility(targetId);
@@ -7809,6 +7814,10 @@ function applySectionState(id, {scroll=true} = {}){
     document.querySelectorAll('.mbn-item').forEach(b=>b.classList.remove('active-nav'));
     const mbnEl = document.getElementById('mbn-'+targetId);
     if(mbnEl) mbnEl.classList.add('active-nav');
+    try{ closeAllPopups(); }catch(_){ }
+    try{
+      if(typeof __forceCloseCapDrawer === 'function') __forceCloseCapDrawer();
+    }catch(_){ }
     updateCartActionPanel();
     updateFloatingCta(targetId);
     syncHomePromoVisibility(targetId);
@@ -8631,24 +8640,32 @@ window.goCheckoutFromPanel = goCheckoutFromPanel;
 function renderCheckout(){
   const form = document.getElementById('orderForm');
   if(!form) return;
+  try{ loadCartFromStorage(); }catch(_){ }
+  const existing = document.getElementById('checkoutEmptyState');
   if(!basket.length){
     form.style.display='none';
     const container = document.querySelector('#checkout .cart-container');
-    const existing = document.getElementById('checkoutEmptyState');
-    if(!existing && container){
+    const emptyHtml = '<i class="fas fa-bag-shopping"></i>Ödeme adımına geçmeden önce sepetinize ürün ekleyin.<div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button type="button" onclick="go(\'products\')" style="background:var(--gold);color:#1a1a1a;border:0;padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ürünleri İncele</button><button type="button" onclick="go(\'home\')" style="background:transparent;color:var(--gold);border:1px solid var(--gold);padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ana Sayfaya Dön</button></div>';
+    if(existing){
+      existing.style.display='block';
+      existing.innerHTML = emptyHtml;
+    } else if(container){
       const empty = document.createElement('div');
       empty.id = 'checkoutEmptyState';
       empty.className = 'cart-empty';
-      empty.innerHTML = '<i class="fas fa-bag-shopping"></i>Ödeme adımına geçmeden önce sepetinize ürün ekleyin.<div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button type="button" onclick="go(\'products\')" style="background:var(--gold);color:#1a1a1a;border:0;padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ürünleri İncele</button><button type="button" onclick="go(\'home\')" style="background:transparent;color:var(--gold);border:1px solid var(--gold);padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ana Sayfaya Dön</button></div>';
+      empty.innerHTML = emptyHtml;
       container.appendChild(empty);
     }
     updateCartActionPanel();
     return;
   }
-  const existing = document.getElementById('checkoutEmptyState');
   if(existing) existing.remove();
   form.style.display='block';
-  prefillOrderForm();
+  try{
+    prefillOrderForm();
+  }catch(e){
+    console.error('[checkout] prefillOrderForm failed:', e);
+  }
   updateCartActionPanel();
 }
 
@@ -9639,7 +9656,13 @@ function loadCartFromStorage(){
       total = basket.reduce((a,b)=>a+(Number(b?.sub) || 0),0);
       updateCartCount();
     }
-  } catch(e){ console.warn('[gp:warn]', e); }
+  } catch(e){
+    console.warn('[gp:warn]', e);
+    try{ localStorage.removeItem('gpCart'); }catch(_){ }
+    basket = [];
+    total = 0;
+    updateCartCount();
+  }
 }
 
 async function hasCompletedOrderForCoupon(){

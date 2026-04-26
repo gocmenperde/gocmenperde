@@ -1842,7 +1842,7 @@ function renderCheckoutReturnBars(isAddressesActive) {
         color:#e6d3a8;border-radius:10px;display:flex;justify-content:space-between;
         align-items:center;font-family:'DM Sans',sans-serif;font-size:13px">
           <span>Ödeme adımına geri dönmek için hazır olduğunuzda tıklayın.</span>
-          <a href="index.html#checkout" onclick="try{sessionStorage.removeItem('gp_return_to')}catch(_){}"
+          <a href="index.html#checkout" onclick="try{sessionStorage.removeItem('gp_return_to');document.body.classList.remove('cap-drawer-open');}catch(_){}"
              style="background:#c8a35a;color:#1b1b1b;padding:6px 14px;border-radius:8px;
              font-weight:600;text-decoration:none">Ödemeye Dön ›</a>
         </div>`;

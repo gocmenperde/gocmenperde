@@ -98,7 +98,8 @@ async function setCheckoutSettings(payload) {
     if (!(key in source)) return undefined;
     const raw = source[key];
     if (raw == null || raw === '') return '';
-    const num = Number(raw);
+    const normalizedRaw = String(raw).trim().replace(',', '.');
+    const num = Number(normalizedRaw);
     if (!Number.isFinite(num)) return '';
     return Math.min(max, Math.max(min, num));
   };
