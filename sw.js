@@ -1,5 +1,5 @@
-const CACHE = 'gp-v5';
-const RUNTIME = 'gp-runtime-v5';
+const CACHE = 'gp-v6';
+const RUNTIME = 'gp-runtime-v6';
 const PRECACHE = ['/products.json', '/categories.json'];
 self.addEventListener('install', (e) => {
   e.waitUntil(
