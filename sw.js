@@ -1,5 +1,5 @@
-const CACHE = 'gp-v4';
-const RUNTIME = 'gp-runtime-v4';
+const CACHE = 'gp-v5';
+const RUNTIME = 'gp-runtime-v5';
 const PRECACHE = ['/products.json', '/categories.json'];
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -34,9 +34,22 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== self.location.origin) return;
   // /api/* asla cache'lenmez (campaigns dahil).
   if (url.pathname.startsWith('/api/')) return;
-  // HTML / navigation: network-first, cache yedekleme YOK (eski HTML asla dönmesin).
+  // HTML / navigation: network-first.
   if (e.request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('.html')) {
-    e.respondWith(fetch(e.request));
+    e.respondWith((async () => {
+      try {
+        const fresh = await fetch(e.request);
+        if (fresh.ok) {
+          const cache = await caches.open(RUNTIME);
+          cache.put(e.request, fresh.clone());
+        }
+        return fresh;
+      } catch (error) {
+        const cached = await caches.match(e.request);
+        if (cached) return cached;
+        throw error;
+      }
+    })());
     return;
   }
   // payment-logos ve resimler: NETWORK-FIRST (eskiden stale-while-revalidate idi, flicker yapıyordu).
