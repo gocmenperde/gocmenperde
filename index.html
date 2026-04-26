@@ -9532,15 +9532,11 @@ async function submitOrder(){
       if(!response.ok || !data?.checkout_url || !data?.merchant_oid){
         throw new Error(data?.error || `PayTR ödeme oturumu oluşturulamadı (HTTP ${response.status}).`);
       }
-      const popup = window.open(data.checkout_url, 'paytr_checkout', 'noopener,noreferrer');
       sessionStorage.setItem('gp_active_paytr', JSON.stringify({ merchant_oid: data.merchant_oid, startedAt: Date.now() }));
-      if(!popup){
-        try { window.history.replaceState({ ...(window.history.state || {}), paytrPending:true }, '', window.location.href); } catch(_){}
-        window.location.href = data.checkout_url;
-      } else {
-        showPaytrWaitingScreen(data.merchant_oid);
-        showToast('PayTR ödeme penceresi açıldı. Ödemeyi tamamladıktan sonra bu sekmeye dönün.');
-      }
+      try {
+        window.history.replaceState({ ...(window.history.state || {}), paytrPending:true }, '', window.location.href);
+      } catch(_){}
+      window.location.href = data.checkout_url;
       return;
     }
 
