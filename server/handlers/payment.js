@@ -50,33 +50,57 @@ function buildPaytrBasket(items = []) {
 
 function pickClientIp(req) {
   const rawForwarded = safeString(req.headers['x-forwarded-for']);
-  const forwardedIps = rawForwarded ? rawForwarded.split(',').map((v) => safeString(v)).filter(Boolean) : [];
+  const forwardedIps = rawForwarded
+    ? rawForwarded.split(',').map((v) => safeString(v)).filter(Boolean)
+    : [];
+  for (const ip of forwardedIps) {
+    const n = ip.replace('::ffff:', '');
+    if (net.isIP(n) === 4 && !/^(10\.|127\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(n)) {
+      return n;
+    }
+  }
   const raw = forwardedIps[0] || safeString(req.socket?.remoteAddress);
   const normalized = raw.replace('::ffff:', '');
   if (net.isIP(normalized) === 4) return normalized;
-  if (normalized === '::1') return '127.0.0.1';
-  const configuredFallback = safeString(process.env.PAYTR_FALLBACK_CLIENT_IP, '127.0.0.1');
-  return net.isIP(configuredFallback) === 4 ? configuredFallback : '127.0.0.1';
+  const configuredFallback = safeString(process.env.PAYTR_FALLBACK_CLIENT_IP, '');
+  if (configuredFallback && net.isIP(configuredFallback) === 4) return configuredFallback;
+  console.warn('[paytr] pickClientIp falling back to 127.0.0.1; xff=', rawForwarded);
+  return '127.0.0.1';
 }
 
 async function parsePaytrResponse(response) {
-  const rawBody = await response.text();
+  let rawBody = '';
+  try {
+    rawBody = await response.text();
+  } catch (readErr) {
+    return { payload: null, parseError: `read_failed:${safeString(readErr.message, 'read_err')}`, rawBody: '' };
+  }
   if (!rawBody) {
     return { payload: null, parseError: 'empty_response', rawBody: '' };
   }
+  // 1) JSON dene
   try {
     return { payload: JSON.parse(rawBody), parseError: null, rawBody };
-  } catch (error) {
+  } catch (_) {}
+  // 2) Form-encoded dene
+  try {
     const asForm = new URLSearchParams(rawBody);
-    if (asForm.has('status')) {
+    if (asForm.has('status') || asForm.has('reason') || asForm.has('token')) {
       return {
         payload: Object.fromEntries(asForm.entries()),
         parseError: null,
         rawBody,
       };
     }
-    return { payload: null, parseError: safeString(error.message, 'invalid_json'), rawBody };
-  }
+  } catch (_) {}
+  // 3) Açıklayıcı hata + body'nin başı
+  const trimmed = rawBody.trim();
+  const looksHtml = /^<(!doctype|html|head|body)/i.test(trimmed);
+  return {
+    payload: null,
+    parseError: looksHtml ? 'html_response' : 'invalid_format',
+    rawBody,
+  };
 }
 
 function createMerchantOid() {
@@ -105,8 +129,16 @@ module.exports = async function handler(req, res) {
 
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { merchantId, merchantKey, merchantSalt, hasRequiredCredentials } = getPaytrCredentials();
-  if (!hasRequiredCredentials) return res.status(500).json({ error: 'PayTR anahtarları eksik.' });
+  const creds = getPaytrCredentials();
+  const { merchantId, merchantKey, merchantSalt } = creds;
+  if (!creds.hasRequiredCredentials) {
+    console.error('[paytr] missing credentials:', creds.debugSources);
+    return res.status(500).json({
+      error: 'Ödeme altyapısı yapılandırılmamış (env eksik).',
+      missing: Object.entries(creds.debugSources)
+        .filter(([, v]) => !v).map(([k]) => k),
+    });
+  }
 
   try {
     const { items = [], customer = {}, successUrl, cancelUrl, currency = 'TL', shippingAddress = '', orderNote = '' } = req.body || {};
@@ -178,6 +210,12 @@ module.exports = async function handler(req, res) {
       timeout_limit: timeoutLimit,
       currency: paytrCurrency,
     });
+    console.log('[paytr] outbound:',
+      'merchant_oid=', merchantOid,
+      'test_mode=', testMode,
+      'amount=', paymentAmount,
+      'ip=', userIp,
+      'body_len=', params.toString().length);
 
     const response = await fetch('https://www.paytr.com/odeme/api/get-token', {
       method: 'POST',
@@ -187,6 +225,10 @@ module.exports = async function handler(req, res) {
 
     const { payload: result, parseError, rawBody } = await parsePaytrResponse(response);
     if (parseError) {
+      console.error('[paytr] parseError:', parseError,
+        'http=', response.status,
+        'content-type=', response.headers.get('content-type'),
+        'raw=', String(rawBody).slice(0, 800));
       return res.status(502).json({
         error: 'PayTR cevabı okunamadı. Lütfen mağaza yöneticisine bildirin.',
         detail: parseError,
