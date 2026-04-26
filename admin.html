@@ -3014,6 +3014,12 @@ function getAdminToken(){
 function getAdminApiKey(){
   return getAdminToken();
 }
+function requireAdminApiKey(){
+  const token = getAdminApiKey();
+  if(token) return token;
+  try{ aToast('Admin token bulunamadı, yeniden giriş yapın','error'); }catch(_){ }
+  return '';
+}
 if(window.location.pathname === '/admin/login'){
   window.history.replaceState({}, '', '/admin.html');
 }
@@ -3537,14 +3543,30 @@ async function adminSaveSocialLinks(){
       return;
     }
   }
+  const adminToken = requireAdminApiKey();
+  if(!adminToken){
+    if(status){
+      status.textContent = 'Admin token bulunamadı, yeniden giriş yapın';
+      status.style.color = '#c0392b';
+    }
+    return;
+  }
   const r = await fetch('/api/admin/site-settings', {
     method:'PUT',
-    headers:{ 'Content-Type':'application/json', 'x-admin-token': getAdminApiKey() },
+    headers:{ 'Content-Type':'application/json', 'x-admin-token': adminToken },
     body: JSON.stringify({ social: data })
   });
   if(!r.ok){
+    let msg = 'Kaydedilemedi';
+    try{
+      const j = await r.json();
+      if(j?.error) msg += ` (${r.status}: ${j.error})`;
+      else msg += ` (${r.status})`;
+    }catch(_){
+      msg += ` (${r.status})`;
+    }
     if(status){
-      status.textContent = 'Kaydedilemedi';
+      status.textContent = msg;
       status.style.color = '#c0392b';
     }
     return;
@@ -3582,12 +3604,24 @@ async function adminSaveCheckoutSettings(){
   };
   const status = document.getElementById('adminCheckoutStatus');
   try{
+    const adminToken = requireAdminApiKey();
+    if(!adminToken) throw new Error('Admin token bulunamadı, yeniden giriş yapın');
     const r = await fetch('/api/admin/site-settings', {
       method:'PUT',
-      headers:{ 'Content-Type':'application/json', 'x-admin-token': getAdminApiKey() },
+      headers:{ 'Content-Type':'application/json', 'x-admin-token': adminToken },
       body: JSON.stringify(payload)
     });
-    if(!r.ok) throw new Error('Kaydedilemedi');
+    if(!r.ok){
+      let msg = 'Kaydedilemedi';
+      try{
+        const j = await r.json();
+        if(j?.error) msg += ` (${r.status}: ${j.error})`;
+        else msg += ` (${r.status})`;
+      }catch(_){
+        msg += ` (${r.status})`;
+      }
+      throw new Error(msg);
+    }
     const data = await r.json().catch(()=>payload);
     window.__SITE_SETTINGS = data || payload;
     if(status){ status.textContent = 'Kaydedildi ✓'; status.style.color = 'var(--gold-deep)'; setTimeout(()=>{ status.textContent=''; }, 3000); }

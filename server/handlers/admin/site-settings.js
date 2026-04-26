@@ -26,8 +26,17 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'PUT' || req.method === 'POST') {
-      const links = await setSocialLinks(req.body?.social || {});
-      const checkout = await setCheckoutSettings(req.body || {});
+      const body = req.body || {};
+      let links = await getSocialLinks();
+      let checkout = await getCheckoutSettings();
+      if (body.social && typeof body.social === 'object') {
+        links = await setSocialLinks(body.social);
+      }
+      const hasCheckoutFields = ['giftWrapFee', 'freeShipThreshold', 'memberDiscount', 'deliveryRange']
+        .some((k) => k in body);
+      if (hasCheckoutFields) {
+        checkout = await setCheckoutSettings(body);
+      }
       return res.status(200).json({ social: links, ...checkout });
     }
 
