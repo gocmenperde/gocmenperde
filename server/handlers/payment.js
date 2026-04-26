@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const net = require('net');
 const { getPaytrCredentials } = require('../lib/_paytr-config');
+const { insertPending, getStatus } = require('../lib/_paytr-orders');
 
 const { applyCors } = require('../lib/_cors');
 function safeString(value, fallback = '') {
@@ -78,15 +79,37 @@ async function parsePaytrResponse(response) {
   }
 }
 
+function createMerchantOid() {
+  const ts = Date.now();
+  const rand = crypto.randomBytes(3).toString('hex');
+  return `gp_${ts}_${rand}`;
+}
+
 module.exports = async function handler(req, res) {
   if (applyCors(req, res)) return;
+  const action = safeString(req.query?.action);
+
+  if (action === 'status' && req.method === 'GET') {
+    const merchantOid = safeString(req.query?.merchant_oid);
+    if (!merchantOid) return res.status(400).json({ error: 'merchant_oid zorunlu.' });
+    const record = await getStatus(merchantOid);
+    if (!record) return res.status(404).json({ error: 'Ödeme oturumu bulunamadı.' });
+    return res.status(200).json({
+      success: true,
+      merchant_oid: record.merchant_oid,
+      status: record.status,
+      order_no: record.order_id || '',
+      total: Number(record.total_amount || 0) / 100,
+    });
+  }
+
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { merchantId, merchantKey, merchantSalt, hasRequiredCredentials } = getPaytrCredentials();
   if (!hasRequiredCredentials) return res.status(500).json({ error: 'PayTR anahtarları eksik.' });
 
   try {
-    const { items = [], customer = {}, successUrl, cancelUrl, currency = 'TL', shippingAddress = '' } = req.body || {};
+    const { items = [], customer = {}, successUrl, cancelUrl, currency = 'TL', shippingAddress = '', orderNote = '' } = req.body || {};
     if (!Array.isArray(items) || !items.length) return res.status(400).json({ error: 'Sepet boş görünüyor.' });
 
     const normalizedItems = items
@@ -104,15 +127,15 @@ module.exports = async function handler(req, res) {
     }
 
     const userIp = pickClientIp(req);
-    const merchantOid = `GP${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    const merchantOid = createMerchantOid();
     const userBasket = buildPaytrBasket(normalizedItems);
     const userEmail = normalizeEmail(customer.email);
     const userName = safeString(customer.name, 'Müşteri').slice(0, 60);
     const userPhone = normalizePhone(customer.phone);
     const userAddress = normalizeAddress(shippingAddress || customer.address || 'Türkiye');
     const baseUrl = process.env.SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://gocmenperde.com.tr');
-    const okUrl = safeString(successUrl, `${baseUrl}/?paytr=success`);
-    const failUrl = safeString(cancelUrl, `${baseUrl}/?paytr=fail`);
+    const okUrl = safeString(successUrl, `${baseUrl}/?payment=success`);
+    const failUrl = safeString(cancelUrl, `${baseUrl}/?payment=cancel`);
 
     const testMode = process.env.PAYTR_TEST_MODE === '1' ? '1' : '0';
     const debugOn = process.env.NODE_ENV === 'production' ? '0' : '1';
@@ -173,9 +196,28 @@ module.exports = async function handler(req, res) {
     }
 
     if (result?.status === 'success' && result?.token) {
+      await insertPending({
+        merchant_oid: merchantOid,
+        total_amount: paymentAmount,
+        paytr_response: result,
+        payload: {
+          customer: {
+            name: userName,
+            email: userEmail,
+            phone: userPhone,
+          },
+          shippingAddress: userAddress,
+          note: safeString(orderNote),
+          payment: 'kredikarti',
+          items,
+          total: paymentAmount / 100,
+          currency: paytrCurrency,
+        },
+      });
       return res.status(200).json({
         success: true,
         token: result.token,
+        merchant_oid: merchantOid,
         checkout_url: `https://www.paytr.com/odeme/guvenli/${result.token}`,
       });
     }
