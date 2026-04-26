@@ -775,11 +775,13 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .cart-action-btn:active .cap-chev{transform:translateX(4px)}
 @media(max-width:640px){
   .cart-action-panel{
-    left:0;right:0;bottom:0;border-radius:16px 16px 0 0;
+    left:0;right:0;
+    bottom:calc(var(--mobile-nav-offset, 76px) + env(safe-area-inset-bottom));
+    border-radius:16px 16px 0 0;
     background:rgba(20,14,10,.94);backdrop-filter:blur(12px);
     border:0;border-top:1px solid rgba(200,163,90,.25);
     box-shadow:0 -8px 24px rgba(0,0,0,.4);
-    padding-bottom:max(8px, env(safe-area-inset-bottom));
+    padding-bottom:8px;
   }
   .cap-meta{
     display:flex;justify-content:space-between;align-items:center;
@@ -2849,7 +2851,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
     <i class="fas fa-bag-shopping"></i><span>Sepet</span>
     <span class="mbn-badge" id="cartCountBottom">0</span>
   </button>
-  <button type="button" class="mbn-item" onclick="window.location.href='hesabim.html'"><i class="fas fa-user"></i><span>Hesabım</span></button>
+  <button type="button" class="mbn-item" onclick="goToAccount()"><i class="fas fa-user"></i><span>Hesabım</span></button>
   <button type="button" class="mbn-item" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>Menü</span></button>
 </div>
 
@@ -7675,6 +7677,26 @@ function goBackSmart(fallback='home'){
     return;
   }
   go(targetFallback);
+}
+
+function goToAccount(){
+  try{
+    const active = document.querySelector('.section.active');
+    const sec = active ? active.id : 'home';
+    const returnUrl = `/index.html#${sec}`;
+    try { sessionStorage.setItem('gp_account_return', returnUrl); } catch(_){}
+    const token = localStorage.getItem('token') || localStorage.getItem('gp_token');
+    if(token){
+      window.location.href = 'hesabim.html';
+    } else {
+      const next = encodeURIComponent('/hesabim.html');
+      const back = encodeURIComponent(returnUrl);
+      window.location.href = `/hesap.html?next=${next}&back=${back}`;
+    }
+  }catch(e){
+    console.warn('[gp:goToAccount]', e);
+    window.location.href = 'hesabim.html';
+  }
 }
 
 function go(id){
