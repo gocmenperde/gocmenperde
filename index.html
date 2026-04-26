@@ -3,6 +3,10 @@
 <head>
 <meta name="google-site-verification" content="4fU9nd_ZSO0GTHVDdpMuHk-tI7NE26mjVLU_gWoz2As" />
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="build-id" content="2026-04-26-v6">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" id="metaDescription" content="Bursa perdeci aramalarında güvenle tercih edilen Göçmen Perde: tül perde, zebra perde, stor perde, plise perde ve fon perde modelleri. Osmangazi'de keşif, özel ölçü, dikim ve montaj hizmeti.">
 <meta name="keywords" id="metaKeywords" content="perde, perdeci, Bursa perde, Bursa perdeci, osmangazi perdeci, tül perde, zebra perde, stor perde, plise perde, fon perde, koltuk örtüsü">
@@ -2743,6 +2747,8 @@ header.is-shrunk .logo-sub{font-size:9px}
   </div>
   <button class="cart-action-btn" id="cartActionBtn" type="button" onclick="handleCartActionClick()">Sepeti Onayla</button>
 </div>
+
+<div id="buildStamp" style="position:fixed;bottom:4px;right:6px;font-size:10px;color:rgba(255,255,255,.35);background:rgba(0,0,0,.35);padding:2px 6px;border-radius:4px;z-index:99998;pointer-events:none;font-family:monospace">build 2026-04-26-v6</div>
 
 <script>
 const WA_NUMBER = window.__APP_CONFIG?.waNumber || '905012110958';
@@ -7112,15 +7118,8 @@ window.addEventListener('load',()=>{
         if(!newWorker) return;
         newWorker.addEventListener('statechange', ()=>{
           if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
-            console.info('[sw] new version ready');
-            // Kullanıcıya yenileme önerisi göster
-            try {
-              const bar = document.createElement('div');
-              bar.id = 'swUpdateBar';
-              bar.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--gold,#c8a35a);color:#1a1a1a;padding:12px 20px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.3);z-index:99999;font-weight:600;display:flex;gap:12px;align-items:center;max-width:90vw';
-              bar.innerHTML = '<span>✨ Yeni sürüm hazır</span><button onclick="location.reload()" style="background:#1a1a1a;color:var(--gold,#c8a35a);border:0;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer">Yenile</button><button onclick="this.parentNode.remove()" style="background:transparent;border:0;color:#1a1a1a;font-size:1.2rem;cursor:pointer;padding:0 4px">×</button>';
-              document.body.appendChild(bar);
-            } catch(_) {}
+            console.info('[sw] new version ready, reloading in 1s');
+            setTimeout(()=>{ try { location.reload(); } catch(_) {} }, 1000);
           }
         });
       });
