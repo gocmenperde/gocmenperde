@@ -111,7 +111,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap&font-display=swap" rel="stylesheet">
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
 <script>
@@ -160,7 +160,7 @@ a:hover{background-size:100% 1px;}
 .toast.show{transform:translateX(0);opacity:1;visibility:visible}
 @media(max-width:480px){
   .toast{
-    right:12px;left:12px;top:calc(82px + env(safe-area-inset-top));bottom:auto;
+    right:12px;left:12px;top:calc(var(--header-height, 72px) + 8px + env(safe-area-inset-top));bottom:auto;
     transform:translateY(-130%);
   }
   .toast.show{transform:translateY(0)}
@@ -194,10 +194,11 @@ button:active,.btn:active,.add-btn:active,.nav-cart:active{transform:translateY(
 @media(max-width:640px){.home-promo-modal{padding:12px}.home-promo-shell{min-height:70vh;border-radius:18px}.home-promo-card{padding:20px 16px;border-radius:16px}.home-promo-features{grid-template-columns:1fr;}}
 
 .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(122,88,255,.16),transparent 34%),radial-gradient(circle at 78% 16%,rgba(212,175,83,.24),transparent 36%),radial-gradient(circle at 50% 86%,rgba(46,122,255,.12),transparent 40%);mix-blend-mode:screen;pointer-events:none;animation:heroAura 12s linear infinite alternate}
-@media (prefers-reduced-data: reduce){.hero::after{animation:none !important}}
+@media (prefers-reduced-motion: reduce){.hero::after{animation:none !important}}
 @keyframes heroAura{0%{transform:translate3d(-1%,0,0) scale(1)}100%{transform:translate3d(1.8%,-1%,0) scale(1.03)}}
-.signature-banner,.hero-actions,.campaign-card,.product-card{will-change:transform}
-.product-card img{filter:saturate(1.05) contrast(1.02);}
+.signature-banner:hover,.hero-actions:hover,.campaign-card:hover,.product-card:hover{will-change:transform}
+.product-card img{transition:transform 0.6s,filter .45s ease,opacity .35s ease;filter:saturate(1.02) contrast(1.01);}
+.product-card:hover img{filter:saturate(1.08) contrast(1.03)}
 .signature-banner:hover,.hero-actions:hover,.campaign-card:hover{transform:translateY(-2px)}
 
 /* ── iOS Safari kararlılık modu (render crash azaltma) ── */
@@ -574,6 +575,51 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 }
 
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}body{cursor:auto!important}.cursor-dot,.cursor-ring{display:none!important}}
+
+@media(max-width:768px){
+  html{scroll-behavior:auto}
+  body::before,body::after{display:none;content:none}
+  section::before{content:none}
+  body{background:var(--paper)}
+  .qty-minus,.qty-plus,.add-btn{min-height:44px;min-width:44px}
+  .mobile-bottom-nav button{min-height:56px}
+  .nav-icon{width:48px;height:48px}
+  .cart-action-btn{min-height:52px;font-size:.88rem}
+}
+@media(min-width:1400px){.products-grid{grid-template-columns:repeat(4,1fr);gap:24px}}
+@media(min-width:1600px){.products-grid{grid-template-columns:repeat(5,1fr)}}
+@media(min-width:1024px){
+  .products-layout{display:grid;grid-template-columns:260px 1fr;align-items:start;gap:28px}
+  .filter-sidebar,.filters-panel{position:sticky;top:calc(var(--header-height,72px) + 20px);max-height:calc(100vh - var(--header-height,72px) - 40px);overflow-y:auto;scrollbar-width:thin}
+}
+.cursor-ring.is-hovering{width:48px;height:48px;border-color:var(--gold-deep);background:rgba(200,163,90,.07);transition:width .18s ease,height .18s ease,background .18s ease}
+.add-btn:focus-visible,.cart-action-btn:focus-visible,.nav-cart:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.form-input.input-success{border-color:#2d8653!important;box-shadow:0 0 0 2px rgba(45,134,83,.12);background:#f7fdf9}
+.form-field-error{font-size:.72rem;color:#b42318;margin-top:4px;display:flex;align-items:center;gap:5px}
+.form-field-error::before{content:'\f06a';font-family:'Font Awesome 6 Free';font-weight:900;font-size:.68rem}
+.product-card{contain:content}
+.product-card.is-skeleton .product-name-btn,.product-card.is-skeleton .product-price{background:linear-gradient(110deg,#f4f1eb 8%,#ebe5d9 18%,#f4f1eb 33%);background-size:200% 100%;animation:skeletonPulse 1.2s linear infinite;color:transparent;border-radius:6px;pointer-events:none;user-select:none}
+.product-card.is-skeleton .product-name-btn{height:18px;width:80%;margin-bottom:6px}
+.product-card.is-skeleton .product-price{height:16px;width:50%}
+.no-results-state{text-align:center;padding:60px 20px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.no-results-icon{font-size:3rem;color:var(--gold);opacity:.5;margin-bottom:4px}
+.no-results-state h3{font-family:var(--ff-display);font-size:1.5rem;color:var(--ink)}
+.no-results-state p{color:var(--slate);font-size:.88rem;max-width:32ch;line-height:1.6}
+#backToTopBtn{position:fixed;right:16px;z-index:12100;bottom:calc(var(--mobile-nav-offset,0px) + var(--checkout-cta-height,0px) + env(safe-area-inset-bottom) + 76px);width:44px;height:44px;border:none;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1a1a;font-size:.9rem;cursor:pointer;box-shadow:0 8px 24px rgba(200,163,90,.4);transition:opacity .3s,transform .3s;opacity:0;transform:translateY(10px);pointer-events:none}
+#backToTopBtn.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+@media(min-width:769px){#backToTopBtn{bottom:32px;right:24px}}
+#siteFooter::before{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin-bottom:0}
+.footer-social a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid rgba(200,163,90,.3);color:var(--gold);font-size:1rem;transition:background .2s,transform .2s}
+.footer-social a:hover{background:rgba(200,163,90,.12);transform:translateY(-2px);background-image:none}
+.live-order-toast{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:rgba(26,26,26,.88);border:1px solid rgba(200,163,90,.3);border-radius:16px;overflow:hidden}
+.live-order-toast::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-deep));animation:toastProgress 4s linear forwards}
+@keyframes toastProgress{from{width:100%}to{width:0%}}
+@media(max-width:640px){.hero{min-height:85vh;padding:80px 16px 50px}.hero-title{font-size:clamp(2.2rem,9vw,3.2rem);line-height:1}.hero-subtitle{font-size:.88rem;padding:9px 16px}.hero-actions{flex-direction:column;gap:10px;padding:12px}.btn-primary,.btn-outline{min-width:unset;width:100%;padding:14px 20px}.hero-proof-row{gap:12px}}
+.modal-img-col:hover .modal-img-stage img{cursor:zoom-in}
+.modal-img-col img.zoomed{cursor:zoom-out;transform:scale(2.2);transition:transform .25s ease}
+@keyframes addedToCart{0%{box-shadow:0 0 0 0 rgba(200,163,90,.5)}50%{box-shadow:0 0 0 12px rgba(200,163,90,0)}100%{box-shadow:0 0 0 0 rgba(200,163,90,0)}}
+.product-card.just-added{animation:addedToCart .6s ease-out}
+
 .from-you-card{position:relative;overflow:hidden;border-radius:20px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);backdrop-filter:blur(4px);min-height:320px;box-shadow:0 20px 40px rgba(0,0,0,0.22);transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease}
 .from-you-card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 28px 50px rgba(0,0,0,0.32);border-color:rgba(242,210,122,0.55)}
 .from-you-card img{width:100%;height:100%;object-fit:cover;display:block}
@@ -618,15 +664,15 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .category-label{font-family:var(--ff-display);font-size:1.5rem;font-weight:700;color:var(--ink);margin-bottom:24px;display:flex;align-items:center;gap:16px}
 .category-label::after{content:'';flex:1;height:1px;background:var(--border)}
 .products-grid{width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
-@media(max-width:600px){.products-grid{grid-template-columns:1fr 1fr;gap:12px}.category-label{font-size:1.25rem;margin-bottom:16px}}
-@media(max-width:380px){.products-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.products-grid{grid-template-columns:1fr 1fr;gap:10px;padding:0 2px}.product-card .product-img-wrap{height:160px}.category-label{font-size:1.25rem;margin-bottom:16px}}
+@media(max-width:360px){.products-grid{grid-template-columns:1fr 1fr;gap:8px}.product-card .product-img-wrap{height:140px}}
 .products-loading{text-align:center;padding:60px;font-family:var(--ff-display);font-size:1.2rem;color:var(--slate);font-style:italic}
 
 /* ── Product Card ── */
 .product-card{background:#fff;border-radius:18px;overflow:hidden;border:1px solid var(--border);transition:var(--transition);cursor:default;position:relative;display:flex;flex-direction:column;height:100%;min-width:0}
 .fav-btn{position:absolute;top:14px;right:14px;width:36px;height:36px;background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--slate);transition:var(--transition);z-index:10}
 .fav-btn.active{color:#c0392b;background:rgba(255,255,255,0.95)}.fav-btn:hover{transform:scale(1.1)}
-.product-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px -20px rgba(13,20,24,.18);border-color:var(--gold-soft)}
+.product-card:hover{transform:translateY(-6px);box-shadow:0 24px 48px rgba(17,28,58,.18);border-color:var(--gold-soft)}
 .product-img-wrap{position:relative;overflow:hidden;background:#f5f5f5;cursor:pointer;aspect-ratio:4/5}
 .product-img-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,#f4f1eb 8%,#ebe5d9 18%,#f4f1eb 33%);background-size:200% 100%;animation:skeletonPulse 1.2s linear infinite}
 @keyframes skeletonPulse{to{background-position-x:-200%}}
@@ -749,8 +795,11 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .remove-btn:hover{color:#c0392b}
 .qty-update-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:50%;background:white;cursor:pointer;font-size:1rem;transition:var(--transition)}
 .qty-update-btn:hover{background:var(--gold);border-color:var(--gold);color:white}
-.cart-empty{text-align:center;padding:80px 20px;font-family:var(--ff-display);font-size:1.5rem;color:var(--slate);font-style:italic}
-.cart-empty i{display:block;font-size:3rem;margin-bottom:20px;opacity:0.3}
+.cart-empty{text-align:center;padding:80px 20px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.cart-empty-icon{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,rgba(200,163,90,.12),rgba(200,163,90,.06));border:1.5px solid rgba(200,163,90,.25);display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:var(--gold);margin-bottom:8px}
+.cart-empty h3{font-family:var(--ff-display);font-size:1.6rem;color:var(--ink)}
+.cart-empty p{font-size:.88rem;color:var(--slate);max-width:28ch;line-height:1.6}
+.cart-empty-cta{padding:12px 28px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1a1a;font-weight:700;font-size:.8rem;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;margin-top:8px}
 .coupon-area{margin:20px 0;display:flex;gap:10px;max-width:400px}
 #couponInput{flex:1;padding:12px;border:1px solid var(--border);border-radius:8px;font-family:var(--ff-body)}
 #couponBtn{padding:12px 24px;background:var(--ink);color:white;border:none;border-radius:8px;cursor:pointer;text-transform:uppercase;font-size:0.7rem;letter-spacing:2px;font-family:var(--ff-body);transition:var(--transition)}
@@ -2323,12 +2372,12 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
       </div>
       <div class="live-categories-marquee" role="region" aria-label="Kayan kategori paneli">
         <div class="live-categories-track">
-          <button class="live-pill" onclick="navigateToCategory('tul-perde')"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/foto1.jpg" alt="Tül perde" width="420" height="280"></span><span class="live-pill-text"><b>Tül Perde</b><small>Işık geçirgen şıklık</small></span></button>
-          <button class="live-pill" onclick="navigateToCategory('zebra-perde')"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774687325299-IMG_1471.jpeg" alt="Zebra perde" width="420" height="280"></span><span class="live-pill-text"><b>Zebra Perde</b><small>Pratik gün ışığı kontrolü</small></span></button>
-          <button class="live-pill" onclick="navigateToCategory('stor-perde')"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774694045163-IMG_9907.jpeg" alt="Stor perde" width="420" height="280"></span><span class="live-pill-text"><b>Stor Perde</b><small>Temiz ve modern görünüm</small></span></button>
-          <button class="live-pill" onclick="navigateToCategory('plise-perde')"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774731933026-IMG_1545.png" alt="Plise perde" width="420" height="280"></span><span class="live-pill-text"><b>Plise Perde</b><small>Dar alanlara ideal çözüm</small></span></button>
-          <button class="live-pill" onclick="navigateToCategory('carsaf')"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/foto11.jpg" alt="Çarşaf" width="420" height="280"></span><span class="live-pill-text"><b>Çarşaf</b><small>Yumuşak doku, rahat uyku</small></span></button>
-          <button class="live-pill" onclick="navigateToCategory('koltuk')"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774899432010-0-222f6c30-3bb6-440a-b26e-02904cc199d0-IMG_1770.jpeg" alt="Koltuk örtüsü" width="420" height="280"></span><span class="live-pill-text"><b>Koltuk Örtüsü</b><small>Koruma ve yenilik bir arada</small></span></button>
+          <button class="live-pill" onclick="navigateToCategory('tul-perde')" aria-hidden="true" tabindex="-1"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/foto1.jpg" alt="Tül perde" width="420" height="280"></span><span class="live-pill-text"><b>Tül Perde</b><small>Işık geçirgen şıklık</small></span></button>
+          <button class="live-pill" onclick="navigateToCategory('zebra-perde')" aria-hidden="true" tabindex="-1"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774687325299-IMG_1471.jpeg" alt="Zebra perde" width="420" height="280"></span><span class="live-pill-text"><b>Zebra Perde</b><small>Pratik gün ışığı kontrolü</small></span></button>
+          <button class="live-pill" onclick="navigateToCategory('stor-perde')" aria-hidden="true" tabindex="-1"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774694045163-IMG_9907.jpeg" alt="Stor perde" width="420" height="280"></span><span class="live-pill-text"><b>Stor Perde</b><small>Temiz ve modern görünüm</small></span></button>
+          <button class="live-pill" onclick="navigateToCategory('plise-perde')" aria-hidden="true" tabindex="-1"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774731933026-IMG_1545.png" alt="Plise perde" width="420" height="280"></span><span class="live-pill-text"><b>Plise Perde</b><small>Dar alanlara ideal çözüm</small></span></button>
+          <button class="live-pill" onclick="navigateToCategory('carsaf')" aria-hidden="true" tabindex="-1"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/foto11.jpg" alt="Çarşaf" width="420" height="280"></span><span class="live-pill-text"><b>Çarşaf</b><small>Yumuşak doku, rahat uyku</small></span></button>
+          <button class="live-pill" onclick="navigateToCategory('koltuk')" aria-hidden="true" tabindex="-1"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774899432010-0-222f6c30-3bb6-440a-b26e-02904cc199d0-IMG_1770.jpeg" alt="Koltuk örtüsü" width="420" height="280"></span><span class="live-pill-text"><b>Koltuk Örtüsü</b><small>Koruma ve yenilik bir arada</small></span></button>
           <button class="live-pill" onclick="navigateToCategory('tul-perde')"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/foto1.jpg" alt="Tül perde" width="420" height="280"></span><span class="live-pill-text"><b>Tül Perde</b><small>Işık geçirgen şıklık</small></span></button>
           <button class="live-pill" onclick="navigateToCategory('zebra-perde')"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774687325299-IMG_1471.jpeg" alt="Zebra perde" width="420" height="280"></span><span class="live-pill-text"><b>Zebra Perde</b><small>Pratik gün ışığı kontrolü</small></span></button>
           <button class="live-pill" onclick="navigateToCategory('stor-perde')"><span class="live-pill-media"><img decoding="async" loading="lazy" src="resimler/1774694045163-IMG_9907.jpeg" alt="Stor perde" width="420" height="280"></span><span class="live-pill-text"><b>Stor Perde</b><small>Temiz ve modern görünüm</small></span></button>
@@ -5696,16 +5745,18 @@ async function applyFooterSocialLinks(){
   const wrap = document.querySelector('.footer-social');
   if(!wrap) return;
   const links = await fetchSocialLinks();
+  const defaults = { whatsapp:'https://wa.me/905012110958', instagram:'https://instagram.com/gocmenperde', maps:'https://maps.google.com/?q=Bağlarbaşı+Mah.+Mümin+Gençoğlu+Cad.+Osmangazi+Bursa' };
   const map = [
-    {key:'instagram',label:'Instagram'},
-    {key:'facebook',label:'Facebook'},
-    {key:'tiktok',label:'TikTok'},
-    {key:'youtube',label:'YouTube'},
-    {key:'x',label:'X'}
+    {key:'whatsapp',label:'WhatsApp',icon:'fa-whatsapp'},
+    {key:'instagram',label:'Instagram',icon:'fa-instagram'},
+    {key:'maps',label:'Google Maps',icon:'fa-map-location-dot'}
   ];
-  wrap.innerHTML = map.filter((item)=>links[item.key]).map((item)=>{
-    const iconClass = item.key === 'x' ? resolveSocialIconClass('x') : `fa-${item.key}`;
-    return `<a href="${links[item.key]}" target="_blank" rel="noopener noreferrer" aria-label="${item.label}"><i class="fab ${iconClass}"></i></a>`;
+  wrap.innerHTML = map.map((item)=>{
+    const href = links[item.key] || defaults[item.key];
+    if(!href) return '';
+    const iconClass = item.icon || (item.key === 'x' ? resolveSocialIconClass('x') : `fa-${item.key}`);
+    const pack = iconClass.startsWith('fa-map') || iconClass.startsWith('fa-location') ? 'fas' : 'fab';
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" aria-label="${item.label}"><i class="${pack} ${iconClass}"></i></a>`;
   }).join('');
 }
 
@@ -5912,14 +5963,14 @@ function buildCard(p, index=0){
 
   const showCampaignSlot = index % 4 === 1;
 
-  return `<div class="product-card" data-cat="${p.cat}" data-price="${p.price}" data-features="${p.features||''}" data-id="${p.id}">
+  return `<div class="product-card is-skeleton" data-cat="${p.cat}" data-price="${p.price}" data-features="${p.features||''}" data-id="${p.id}">
     <button type="button" class="fav-btn ${isFav?'active':''}" data-action="toggle-fav" data-id="${p.id}">
       <i class="${isFav?'fas':'far'} fa-heart"></i>
     </button>
     <div class="product-img-wrap">
       <button class="product-media-open" type="button" data-action="open-modal" data-id="${p.id}" aria-label="${p.name} ürün detayını aç">
         ${(() => {
-          const eager = Number(index) < (window.productsState?.batchSize || (window.innerWidth < 768 ? 12 : 16));
+          const eager = Number(index) < FIRST_PAINT;
           return `<img src="${primaryImage}" alt="${p.name}" loading="${eager ? 'eager' : 'lazy'}" decoding="async" fetchpriority="${eager ? 'high' : 'low'}" width="600" height="800" onerror="this.style.opacity=0.3;this.src=\'resimler/placeholder.png\'">`;
       })()}
       </button>
@@ -5957,6 +6008,7 @@ function setProductCount(n){
   }
 }
 
+const FIRST_PAINT = 24;
 const productsState = {
   all: [],
   batchSize: window.innerWidth < 768 ? 12 : 16,
@@ -6069,13 +6121,15 @@ function renderProducts(list){
   const grid = document.getElementById('productsGrid');
   if(!grid) return;
   if(!active.length){
-    grid.innerHTML = '<div class="products-loading" style="grid-column:1/-1">Bu kriterlere uygun ürün bulunamadı.</div>';
+    grid.innerHTML = '<div class="no-results-state" style="grid-column:1/-1"><div class="no-results-icon"><i class="fas fa-magnifying-glass"></i></div><h3>Sonuç bulunamadı</h3><p>Filtreleri temizleyip farklı bir arama terimi deneyin.</p></div>';
     setProductCount(0);
     hideProductsSentinel();
     document.getElementById('productsLoadingOverlay')?.classList.remove('is-loading');
     return;
   }
+  grid.classList.add('is-loading');
   setAllProducts(active);
+  requestAnimationFrame(()=>{ document.querySelectorAll('#productsGrid .product-card').forEach(c=>c.classList.remove('is-skeleton')); grid.classList.remove('is-loading'); });
 }
 
 
@@ -6864,6 +6918,7 @@ function openModalFromProduct(id){
   clearModalSearch();
   modalReturnState = captureModalReturnState();
   document.getElementById('productModal').classList.add('open');
+  trapFocus(document.getElementById('productModal'));
   document.body.classList.add('product-modal-open');
   lockPageScrollForModal();
   setProductDeepLink(id);
@@ -6909,6 +6964,7 @@ function openGalleryModal(src,title,desc){
   clearModalSearch();
   modalReturnState = captureModalReturnState();
   document.getElementById('productModal').classList.add('open');
+  trapFocus(document.getElementById('productModal'));
   document.body.classList.add('product-modal-open');
   lockPageScrollForModal();
 }
@@ -8005,7 +8061,7 @@ function hydrateLazyIframes(sectionId=''){
   scope.querySelectorAll('iframe[data-lazy-src]').forEach((frame)=>{
     if(frame.getAttribute('src')) return;
     const nextSrc = frame.getAttribute('data-lazy-src');
-    if(nextSrc) frame.setAttribute('src', nextSrc);
+    if(nextSrc){ frame.setAttribute('src', nextSrc); frame.removeAttribute('data-lazy-src'); }
   });
 }
 
@@ -8632,6 +8688,8 @@ function addToCart(itemPayload){
   pulseTopCartButton();
   openCartSheet(cartItem);
   showToast('✓ Sepete eklendi: '+name);
+  const card = document.querySelector(`.product-card[data-id="${CSS.escape(String(id||''))}"]`) || document.getElementById(`pc-${id}`);
+  if(card){ card.classList.add('just-added'); setTimeout(()=>card.classList.remove('just-added'),700); }
   saveCartToStorage();
   try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){}
 }
@@ -8716,7 +8774,7 @@ function renderCart(){
   const cartHint = document.getElementById('cartEntryHint');
   if(!content){ console.error('[cart] cartContent element bulunamadı!'); return; }
   if(!basket.length){
-    content.innerHTML='<div class="cart-empty"><i class="fas fa-bag-shopping"></i>Sepetiniz şu an boş.<div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button type="button" onclick="go(\'products\')" style="background:var(--gold);color:#1a1a1a;border:0;padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ürünleri İncele</button><button type="button" onclick="go(\'home\')" style="background:transparent;color:var(--gold);border:1px solid var(--gold);padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ana Sayfaya Dön</button></div></div>';
+    content.innerHTML='<div class="cart-empty"><div class="cart-empty-icon"><i class="fas fa-bag-shopping"></i></div><h3>Sepetiniz boş</h3><p>Perde koleksiyonumuzu keşfetmek için ürünlere göz atın.</p><button class="cart-empty-cta" onclick="go(\'products\')">Ürünleri Keşfet</button></div>';
     footer.style.display='none';
     if(form) form.style.display='none';
     if(cartHint) cartHint.style.display='none';
@@ -10555,12 +10613,17 @@ function showRequiredFieldWarning(label){
 }
 
 function clearCheckoutFieldErrors(){
-  document.querySelectorAll('#orderForm .input-error').forEach((el)=>el.classList.remove('input-error'));
+  document.querySelectorAll('#orderForm .input-error, #orderForm .input-success').forEach((el)=>el.classList.remove('input-error','input-success'));
+  document.querySelectorAll('#orderForm .form-field-error').forEach((el)=>el.remove());
 }
 
 function markCheckoutFieldError(el, label){
   if(!el) return false;
   el.classList.add('input-error');
+  const msg = document.createElement('div');
+  msg.className = 'form-field-error';
+  msg.textContent = `${label} alanı zorunludur.`;
+  el.parentElement?.appendChild(msg);
   showRequiredFieldWarning(label);
   try{ el.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(_){}
   try{ el.focus({ preventScroll:true }); } catch(_){}
@@ -10622,6 +10685,7 @@ function validateCheckoutForm(){
     showRequiredFieldWarning('Mesafeli satış sözleşmesi ve cayma koşulları onayı');
     return false;
   }
+  document.querySelectorAll('#orderForm .form-input').forEach((el)=>{ if(!el.classList.contains('input-error') && String(el.value||'').trim()) el.classList.add('input-success'); });
   return true;
 }
 
@@ -10852,8 +10916,9 @@ window.addEventListener('pageshow', scheduleNavPad);
 try {
   const navObsTarget = document.querySelector('.mobile-bottom-nav');
   if(navObsTarget && typeof ResizeObserver !== 'undefined'){
-    const ro = new ResizeObserver(scheduleNavPad);
-    ro.observe(navObsTarget);
+    if(window.__layoutObserver) window.__layoutObserver.disconnect();
+    window.__layoutObserver = new ResizeObserver(scheduleNavPad);
+    window.__layoutObserver.observe(navObsTarget);
   }
 } catch(_){ }
 try {
@@ -10987,6 +11052,97 @@ if(typeof __origCloseProductModal==='function'){
     return r;
   }
 }
+
+(function initBackToTop(){
+  const btn = document.getElementById('backToTopBtn');
+  if(!btn) return;
+  window.addEventListener('scroll', ()=>{ btn.classList.toggle('visible', window.scrollY > 400); }, {passive:true});
+  btn.addEventListener('click', ()=>window.scrollTo({top:0, behavior:'smooth'}));
+})();
+
+(function initHeaderHeightVar(){
+  const setH = ()=>{
+    const hh = document.querySelector('header')?.offsetHeight || 72;
+    document.documentElement.style.setProperty('--header-height', hh + 'px');
+  };
+  setH();
+  window.addEventListener('resize', setH, {passive:true});
+})();
+
+(function initCheckoutInputFocusGuard(){
+  document.querySelectorAll('#checkout .form-input').forEach(input => {
+    input.addEventListener('focus', () => {
+      if(document.querySelector('.section.active')?.id === 'checkout'){
+        document.getElementById('cartActionPanel')?.style.setProperty('transform','translateY(120%)');
+      }
+    });
+    input.addEventListener('blur', () => {
+      setTimeout(()=>{ document.getElementById('cartActionPanel')?.style.removeProperty('transform'); }, 200);
+    });
+  });
+})();
+
+(function initLazyIframesObserver(){
+  const lazyIframes = document.querySelectorAll('iframe[data-lazy-src]');
+  if('IntersectionObserver' in window && lazyIframes.length){
+    const iframeObs = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){
+          const el = e.target;
+          el.src = el.dataset.lazySrc;
+          delete el.dataset.lazySrc;
+          obs.unobserve(el);
+        }
+      });
+    }, { rootMargin: '300px' });
+    lazyIframes.forEach(el => iframeObs.observe(el));
+  }
+})();
+
+(function addModalSwipeClose(){
+  const modal = document.querySelector('.product-modal');
+  if(!modal) return;
+  let startY = 0, isDragging = false;
+  modal.addEventListener('touchstart', e => { startY = e.touches[0].clientY; isDragging = true; }, {passive:true});
+  modal.addEventListener('touchmove', e => {
+    if(!isDragging) return;
+    const dy = e.touches[0].clientY - startY;
+    if(dy > 0) modal.style.transform = `translateY(${Math.min(dy * 0.4, 80)}px)`;
+  }, {passive:true});
+  modal.addEventListener('touchend', e => {
+    const dy = e.changedTouches[0].clientY - startY;
+    modal.style.transform = '';
+    if(dy > 80) closeProductModal?.();
+    isDragging = false;
+  }, {passive:true});
+})();
+
+function trapFocus(element){
+  const focusable = element.querySelectorAll('button,input,select,textarea,a[href],[tabindex]:not([tabindex="-1"])');
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if(!first || !last) return;
+  element.addEventListener('keydown', function(e){
+    if(e.key !== 'Tab') return;
+    if(e.shiftKey){ if(document.activeElement === first){ e.preventDefault(); last.focus(); } }
+    else { if(document.activeElement === last){ e.preventDefault(); first.focus(); } }
+  });
+}
+
+(function initModalDesktopZoom(){
+  const img = document.getElementById('mImg');
+  if(!img) return;
+  img.addEventListener('click', ()=>{ if(window.innerWidth > 768) img.classList.toggle('zoomed'); });
+})();
+
+(function initCursorInteractiveGrow(){
+  const ring = document.getElementById('cursorRing');
+  if(!ring) return;
+  const bind=(el)=>{ if(el.dataset.ringBound==='1') return; el.dataset.ringBound='1'; el.addEventListener('mouseenter',()=>ring?.classList.add('is-hovering')); el.addEventListener('mouseleave',()=>ring?.classList.remove('is-hovering')); };
+  document.querySelectorAll('a,button,[onclick],[role="button"]').forEach(bind);
+  const mo = new MutationObserver(()=>document.querySelectorAll('a,button,[onclick],[role="button"]').forEach(bind));
+  mo.observe(document.body,{childList:true,subtree:true});
+})();
+
 // === Sepet hash güvencesi: #cart geldiğinde her durumda renderCart çalışsın ===
 (function ensureCartRenderOnHash(){
   function maybeRender(){
@@ -11078,5 +11234,6 @@ if(typeof __origCloseProductModal==='function'){
   </div>
   <iframe id="paytrIframeEl" title="PayTR Güvenli Ödeme" allow="payment *" allowfullscreen></iframe>
 </div>
+<button id="backToTopBtn" aria-label="Sayfa başına git" style="display:none"><i class="fas fa-chevron-up"></i></button>
 </body>
 </html>

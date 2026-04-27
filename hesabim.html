@@ -1925,6 +1925,7 @@ function renderCheckoutReturnBars(isAddressesActive) {
 }
 
 window.__activeTab = 'orders';
+window.__activeHesabimTab = 'orders';
 
 function showTab(tab, el) {
     document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
@@ -1934,6 +1935,7 @@ function showTab(tab, el) {
     if (!sectionEl) return;
     sectionEl.classList.add('active');
     window.__activeTab = tab;
+    window.__activeHesabimTab = tab;
     if (tab === 'orders') loadOrders();
     if (tab === 'addresses') {
         if (!window.__addressDataLoaded) {
@@ -3022,13 +3024,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.addEventListener('pageshow', function(e) {
     if (!e.persisted) return;
-    const tabId = window.__activeTab || (function() {
-        const activeSection = document.querySelector('.gp-section.active');
-        return activeSection ? activeSection.id.replace('section-', '') : '';
-    })();
-    if (tabId === 'orders') {
-        try { loadOrders(); } catch(_) {}
-    }
+    const activeSection = document.querySelector('.gp-section.active');
+    if (!activeSection) return;
+    const tabId = activeSection.id.replace('section-', '');
+    if (tabId === 'orders') { try { loadOrders(); } catch(_) {} }
+    if (tabId === 'addresses') { try { loadAddresses?.(); } catch(_) {} }
+    if (tabId === 'favorites') { try { loadFavorites?.(); } catch(_) {} }
 });
 
 </script>
