@@ -2710,6 +2710,12 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
     sessionStorage.setItem('gp_return_to','cart');
     sessionStorage.setItem('gp_checkout_came_from','cart');
   }catch(_){}
+  // Basket'i yedekle — hesabim'den dönüşte kullanılacak
+  try {
+    if (typeof basket !== 'undefined' && basket.length > 0) {
+      sessionStorage.setItem('gp_cart_backup', JSON.stringify(basket));
+    }
+  } catch(_) {}
   // Hash-direct redirect: hesabim'a giderken back parametresi #cart hash'iyle
   var back = '/index.html#cart';
   window.location.replace('hesabim.html?tab=addresses&return=cart&back=' + encodeURIComponent(back));
@@ -7496,6 +7502,21 @@ function ensureLoaderDoesNotBlockUi(){
 }
 
 function recoverUIAfterResume(){
+  try {
+    document.body.classList.remove(
+      'cap-drawer-open','popup-open','modal-open',
+      'no-scroll','product-modal-open','order-detail-open'
+    );
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.documentElement.style.overflow = '';
+    const _cd = document.getElementById('capDrawer');
+    const _cb = document.getElementById('capBackdrop');
+    const _cp = document.getElementById('cartActionPanel');
+    if (_cd) { _cd.classList.remove('is-open'); _cd.setAttribute('aria-hidden','true'); }
+    if (_cb) _cb.classList.remove('is-open');
+    if (_cp) { _cp.classList.remove('is-sheet','has-open-drawer'); _cp.style.transform=''; _cp.style.transition=''; }
+  } catch(_) {}
   // Stale overlay/scroll-lock temizliği
   try {
     document.body.classList.remove(
@@ -7648,16 +7669,24 @@ document.addEventListener('DOMContentLoaded',()=>{
   try {
     const params = new URLSearchParams(window.location.search);
     if (params.get('redirect') !== 'cart') return;
-    // URL'i history'den temizle
+    // URL'i temizle — history'ye girmesin
     try {
-      window.history.replaceState(null, '', window.location.pathname + (window.location.hash || ''));
+      window.history.replaceState(null, '', window.location.pathname);
     } catch(_) {}
     // Bekleme ekranını göster
     const screen = document.getElementById('cartRedirectScreen');
-    if (screen) screen.style.display = 'flex';
-    function doRedirect() {
+    function _showScreen() {
+      const el = document.getElementById('cartRedirectScreen');
+      if (el) el.style.display = 'flex';
+    }
+    function _hideScreen() {
+      const el = document.getElementById('cartRedirectScreen');
+      if (!el) return;
+      el.classList.add('fade-out');
+      setTimeout(function(){ el.style.display = 'none'; el.classList.remove('fade-out'); }, 450);
+    }
+    function _unlockUI() {
       try {
-        // 1. Stale body class'larını temizle
         document.body.classList.remove(
           'cap-drawer-open','popup-open','modal-open',
           'no-scroll','product-modal-open','order-detail-open'
@@ -7665,48 +7694,81 @@ document.addEventListener('DOMContentLoaded',()=>{
         document.body.style.overflow = '';
         document.body.style.position = '';
         document.documentElement.style.overflow = '';
-        // 2. Cap drawer/backdrop'ı kapat
         const capDrawer   = document.getElementById('capDrawer');
         const capBackdrop = document.getElementById('capBackdrop');
         const capPanel    = document.getElementById('cartActionPanel');
         if (capDrawer)   { capDrawer.classList.remove('is-open'); capDrawer.setAttribute('aria-hidden','true'); }
         if (capBackdrop) capBackdrop.classList.remove('is-open');
         if (capPanel)    { capPanel.classList.remove('is-sheet','has-open-drawer'); capPanel.style.transform=''; capPanel.style.transition=''; }
-        // 3. Basket'i localStorage'dan yükle
-        try { if (typeof loadCartFromStorage === 'function') loadCartFromStorage(); } catch(_) {}
-        // 4. Sepet section'ına git
-        let sectionMoved = false;
-        if (typeof go === 'function') { try { go('cart'); sectionMoved = true; } catch(_) {} }
-        if (!sectionMoved && typeof applySectionState === 'function') {
-          try { applySectionState('cart', { scroll: false }); sectionMoved = true; } catch(_) {}
+      } catch(_) {}
+    }
+    function _restoreBasket() {
+      // 1. gpCart'tan yükle
+      try {
+        if (typeof loadCartFromStorage === 'function') loadCartFromStorage();
+      } catch(_) {}
+      // 2. Hâlâ boşsa → sessionStorage yedeğinden geri yükle
+      try {
+        const isEmpty = typeof basket === 'undefined' || !Array.isArray(basket) || basket.length === 0;
+        if (isEmpty) {
+          const backup = sessionStorage.getItem('gp_cart_backup');
+          if (backup) {
+            const parsed = JSON.parse(backup);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              basket = parsed;
+              total = basket.reduce(function(a,b){ return a + (Number(b && b.sub) || 0); }, 0);
+              // gpCart'a kaydet ki bir daha lazım olursa oradan gelsin
+              try { localStorage.setItem('gpCart', backup); } catch(_) {}
+              try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+            }
+          }
         }
-        if (!sectionMoved) { window.location.hash = '#cart'; }
-        // 5. Bir RAF sonra cart'ı render et (DOM güncellemesini bekle)
-        requestAnimationFrame(function() {
-          try { if (typeof renderCart === 'function') renderCart(); } catch(_) {}
-          try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
-          try { if (typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
-          try { if (typeof setMobileNavPadding === 'function') setMobileNavPadding(); } catch(_) {}
-        });
-        // 6. Bekleme ekranını kapat
-        if (screen) {
-          screen.classList.add('fade-out');
-          setTimeout(function() {
-            screen.style.display = 'none';
-            screen.classList.remove('fade-out');
-          }, 450);
-        }
-      } catch(err) {
-        // Hata olursa doğrudan sepete git
+      } catch(_) {}
+      // Yedeği temizle
+      try { sessionStorage.removeItem('gp_cart_backup'); } catch(_) {}
+      try { sessionStorage.removeItem('gp_return_to'); } catch(_) {}
+    }
+    function _renderCartSafe() {
+      try { if (typeof renderCart === 'function') renderCart(); } catch(_) {}
+      try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+      try { if (typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
+      try { if (typeof setMobileNavPadding === 'function') setMobileNavPadding(); } catch(_) {}
+    }
+    function _goToCart() {
+      let moved = false;
+      if (typeof go === 'function') {
+        try { go('cart'); moved = true; } catch(_) {}
+      }
+      if (!moved && typeof applySectionState === 'function') {
+        try { applySectionState('cart', { scroll: false }); moved = true; } catch(_) {}
+      }
+      if (!moved) {
         window.location.hash = '#cart';
-        if (screen) screen.style.display = 'none';
       }
     }
-    // DOM hazır olana kadar bekle, sonra çalıştır
+    function doRedirect() {
+      _showScreen();
+      _unlockUI();
+      _restoreBasket();
+      _goToCart();
+      // Render: hem hemen hem de 300ms sonra (güvenlik için)
+      requestAnimationFrame(function() {
+        _renderCartSafe();
+        setTimeout(function() {
+          _renderCartSafe();
+          _hideScreen();
+        }, 300);
+      });
+    }
+    // DOM hazır değilse bekle, hazırsa hemen çalıştır
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() { setTimeout(doRedirect, 500); });
+      document.addEventListener('DOMContentLoaded', function() {
+        _showScreen();
+        setTimeout(doRedirect, 400);
+      });
     } else {
-      setTimeout(doRedirect, 500);
+      _showScreen();
+      setTimeout(doRedirect, 300);
     }
   } catch(_) {}
 })();
