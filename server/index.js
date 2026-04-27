@@ -20,6 +20,12 @@ if (!process.env.JWT_SECRET && !process.env.AUTH_TOKEN_SECRET) {
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
 const HOST = process.env.HOST || '0.0.0.0';
+
+// Vercel / reverse-proxy arkasında gerçek client IP'yi doğru okuyabilmek için.
+if (process.env.VERCEL || process.env.TRUST_PROXY === '1') {
+  app.set('trust proxy', 1);
+}
+
 app.use(compression());
 app.use(helmet({
   contentSecurityPolicy: {
@@ -51,7 +57,13 @@ app.use(helmet({
 
 const APP_BOOTSTAMP = new Date().toISOString();
 function isLoopbackIp(ip = '') {
-  return ip === '127.0.0.1' || ip === '::1';
+  const normalized = String(ip).trim();
+  return (
+    normalized === '127.0.0.1' ||
+    normalized === '::1' ||
+    normalized === '::ffff:127.0.0.1' ||
+    normalized === 'localhost'
+  );
 }
 
 app.get('/healthz', (req, res) => {
