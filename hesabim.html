@@ -3022,24 +3022,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // sadece kullanıcı "Adresler" sekmesine geçince çalışacak.
 });
 
+
 window.addEventListener('pageshow', function(ev) {
-  if (!ev.persisted) return; // Bfcache değil, normal yükleme
-  // Bfcache'den döndük — return=cart varsa index'e fresh redirect
+  if (!ev.persisted) return;
+  // Bfcache'den döndük
   try {
     const params = new URLSearchParams(window.location.search);
     const ret = params.get('return') || '';
-    const isCartReturn = ret === 'cart' || ret === 'checkout'
-      || (function(){ try { return sessionStorage.getItem('gp_return_to') === 'cart' || sessionStorage.getItem('gp_return_to') === 'checkout'; } catch(_){ return false; } })();
+    let isCartReturn = ret === 'cart' || ret === 'checkout';
+    if (!isCartReturn) {
+      try {
+        const ss = sessionStorage.getItem('gp_return_to');
+        isCartReturn = ss === 'cart' || ss === 'checkout';
+      } catch(_) {}
+    }
     if (isCartReturn) {
-      try { sessionStorage.removeItem('gp_return_to'); } catch(_) {}
+      // Bfcache bypass: index.html'e fresh navigation, basket restore parametresiyle
       window.location.replace('/index.html?redirect=cart');
       return;
     }
-    // Cart/checkout dışı bfcache — aktif sekmeyi yenile
+    // Sepet/checkout dışı bfcache — sekme içeriğini yenile
     try {
-      const activeSection = document.querySelector('.gp-section.active');
-      if (activeSection) {
-        const tabId = activeSection.id.replace('section-','');
+      const active = document.querySelector('.gp-section.active');
+      if (active) {
+        const tabId = active.id.replace('section-','');
         if (tabId === 'orders')    { try { if(typeof loadOrders    === 'function') loadOrders();    } catch(_){} }
         if (tabId === 'addresses') { try { if(typeof loadAddresses === 'function') loadAddresses(); } catch(_){} }
         if (tabId === 'favorites') { try { if(typeof loadFavorites === 'function') loadFavorites(); } catch(_){} }
