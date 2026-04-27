@@ -811,9 +811,10 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 /* === SHEET MODU (drawer açık) === */
 .cart-action-panel.is-sheet{
   left:0; right:0;
-  top:8vh;
+  top:0;
   bottom:0;
-  border-radius:20px 20px 0 0;
+  padding-top:env(safe-area-inset-top);
+  border-radius:0;
   z-index:12400;
   box-shadow:0 -16px 40px rgba(15,14,13,.22);
   display:grid;
@@ -971,8 +972,9 @@ body.cap-drawer-open .mobile-bottom-nav{pointer-events:none;}
 .cap-toggle-label{ opacity:.85; }
 }
 
-.cap-backdrop{position:fixed;inset:0;z-index:12300;background:radial-gradient(ellipse at bottom,rgba(15,12,8,.18) 0%, rgba(15,12,8,.32) 100%);backdrop-filter:blur(6px) saturate(120%);-webkit-backdrop-filter:blur(6px) saturate(120%);opacity:0;pointer-events:none;transition:opacity .18s ease-out, backdrop-filter .18s ease-out}
-.cap-backdrop.is-open{opacity:1;pointer-events:auto}
+.cap-backdrop{position:fixed!important;inset:0!important;top:0!important;background:rgba(15,14,13,.55);z-index:12390;display:none}
+.cap-backdrop.open{display:block}
+.cap-backdrop.is-open{opacity:1;pointer-events:auto;display:block}
 .contracts-scroll-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .contract-box{border:1px solid var(--border);border-radius:12px;background:#fff;padding:10px;max-width:100%;overflow:hidden}
 .contract-box h4{font-size:0.8rem;letter-spacing:1px;margin-bottom:8px}
@@ -2563,7 +2565,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
           <div class="address-helper" id="savedAddressWrap" style="display:none;margin-top:0">
             <div class="address-helper-row">
               <strong style="font-size:0.78rem;color:var(--gold-dark)">Kayıtlı Adreslerim</strong>
-              <button type="button" onclick="(function(){try{sessionStorage.setItem('gp_return_to','checkout');}catch(_){}window.location.href='hesabim.html?tab=addresses&return=checkout';})()">Adresleri Yönet</button>
+              <button type="button" onclick="(function(){try{sessionStorage.setItem('gp_return_to','checkout');}catch(_){}var back=encodeURIComponent('/index.html?from=address-return');window.location.href='hesabim.html?tab=addresses&return=checkout&back='+back;})()">Adresleri Yönet</button>
             </div>
             <select id="savedAddressSelect" onchange="applySavedAddress(this.value)">
               <option value="">Adres seçin...</option>
@@ -10386,7 +10388,22 @@ async function submitOrder(){
       return;
     }
 
-    saveOrderToLocalStorage(name,phone,email,method,addr,note,savedBasket,savedTotal);
+    // Yerel sipariş yedeği (offline kayıt; API hatasına karşı kullanıcı verisi kaybolmasın)
+    try{
+      const __pendingKey = 'gp_pending_orders';
+      const __raw = localStorage.getItem(__pendingKey);
+      const __list = (() => { try { return JSON.parse(__raw) || []; } catch(_) { return []; } })();
+      __list.push({
+        name, phone, email, method,
+        address: addr, note,
+        items: savedBasket,
+        total: savedTotal,
+        createdAt: new Date().toISOString()
+      });
+      // Son 10 siparişi tut, fazlasını at (storage quota güvenliği)
+      while(__list.length > 10) __list.shift();
+      localStorage.setItem(__pendingKey, JSON.stringify(__list));
+    }catch(e){ console.warn('[order] yerel yedek başarısız', e); }
 
     let orderApiResult = null;
     try{
@@ -10725,20 +10742,26 @@ function setMobileNavPadding(){
   const checkoutCtaHeight = (checkoutCta && getComputedStyle(checkoutCta).display !== 'none') ? checkoutCta.offsetHeight : 0;
   document.documentElement.style.setProperty('--checkout-cta-height', `${checkoutCtaHeight}px`);
   if(nav && window.innerWidth<=1023 && getComputedStyle(nav).display!=='none'){
-    // Nav'ın viewport DİBİNDEN GERÇEK uzaklığı:
-    // margin (CSS bottom: 10px+safe) + kendi yüksekliği.
-    let navTopFromViewportBottom;
+    // DETERMINISTIK navOffset: nav'ın kendi yüksekliği + viewport dibi ile
+    // nav'ın alt kenarı arasındaki güvenli boşluk. visualViewport ↔ innerHeight
+    // uyumsuzluğu, body[position:fixed] geçici state veya DOM scroll pozisyonu
+    // bu hesabı bozamasın.
+    let navOffset;
     try{
       const r = nav.getBoundingClientRect();
       const viewportH = (window.visualViewport?.height) || window.innerHeight;
-      // Nav'ın ÜST kenarının dipten uzaklığı
-      navTopFromViewportBottom = Math.max(0, Math.round(viewportH - r.top));
+      const navHeight = nav.offsetHeight || 60;
+      // Nav alt kenarı ile viewport dibi arası (negatif olamaz)
+      const safeBelow = Math.max(0, Math.round(viewportH - r.bottom));
+      navOffset = navHeight + safeBelow;
+      // Güvenlik şartı: panel ekranın üst yarısına asla çıkamaz
+      const maxAllowed = Math.round(viewportH * 0.35);
+      if(navOffset > maxAllowed) navOffset = navHeight + 12;
+      if(!Number.isFinite(navOffset) || navOffset < 0) navOffset = 76;
     } catch(_){
-      navTopFromViewportBottom = nav.offsetHeight + 10;
+      navOffset = (nav.offsetHeight || 60) + 12;
     }
-    const navOffset = navTopFromViewportBottom;
     document.documentElement.style.setProperty('--mobile-nav-offset', `${navOffset}px`);
-    // İçerik padding'i: nav + CTA + boşluk
     const pad = navOffset + checkoutCtaHeight + 18;
     document.querySelectorAll('.section').forEach(s=>{
       s.style.paddingBottom = pad + 'px';

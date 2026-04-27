@@ -1771,12 +1771,19 @@ let user = (() => { try { return JSON.parse(localStorage.getItem('user') || 'nul
 if (!token) {
     // Çağrı zincirinde geri tuşuyla bu sayfaya geri gelmeyi engelle
     const nextPath = encodeURIComponent('/hesabim.html');
-    // back parametresi (varsa) login'e taşı — kullanıcı sonradan
-    // geldiği section'a dönebilsin
     let backParam = '';
     try{
+        const urlBack = new URLSearchParams(window.location.search).get('back');
         const ret = sessionStorage.getItem('gp_account_return');
-        if(ret) backParam = `&back=${encodeURIComponent(ret)}`;
+        const isCheckoutFlow = sessionStorage.getItem('gp_return_to') === 'checkout';
+        if(isCheckoutFlow){
+          // Checkout flow: login sonrası direkt sepete dön
+          backParam = `&back=${encodeURIComponent('/index.html?from=address-return')}`;
+        } else if(urlBack){
+          backParam = `&back=${encodeURIComponent(urlBack)}`;
+        } else if(ret){
+          backParam = `&back=${encodeURIComponent(ret)}`;
+        }
     }catch(_){}
     window.location.replace(`/hesap.html?next=${nextPath}${backParam}`);
     // throw ile aşağıdaki user init kodunu durdur (sayfa zaten gidiyor)
