@@ -1,4 +1,11 @@
 {
+  "outputDirectory": ".",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/hesapim", "destination": "/hesabim.html" },
+    { "source": "/hesap", "destination": "/hesap.html" },
+    { "source": "/admin", "destination": "/admin.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.(webp|avif|jpg|jpeg|png|svg|woff2|ico)",
