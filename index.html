@@ -853,9 +853,9 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   color:#6f511d;
   font-weight:700;
   max-width:100%;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+  overflow-wrap:anywhere;
+  white-space:normal;
+  line-height:1.25;
   box-sizing:border-box;
   align-self:flex-start;
 }
@@ -6647,6 +6647,7 @@ function loadMoreProducts(){
       }
     });
     grid.appendChild(frag);
+    grid.querySelectorAll('.product-card.is-skeleton').forEach((card) => card.classList.remove('is-skeleton'));
     // Cache'den gelen anında hazır resimler için img-loaded sınıfını ekle
     requestAnimationFrame(() => {
       grid.querySelectorAll('.product-img-wrap img:not(.img-loaded)').forEach((img) => {
