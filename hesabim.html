@@ -637,6 +637,96 @@
     }
     .info-box span { font-size: 0.85rem; color: var(--ink); font-weight: 500; }
     .info-box.full { grid-column: span 2; }
+    .order-card-skeleton { pointer-events: none; user-select: none; }
+    .orders-skeleton-wrap { display: grid; gap: 12px; }
+    .skeleton-line {
+        height: 12px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #efe5d3 25%, #f8f3e8 50%, #efe5d3 75%);
+        background-size: 240% 100%;
+        animation: skeleton-shimmer 1.25s ease-in-out infinite;
+        margin-bottom: 10px;
+    }
+    .skeleton-line.w-40 { width: 40%; }
+    .skeleton-line.w-60 { width: 60%; }
+    .skeleton-line.w-75 { width: 75%; }
+    @keyframes skeleton-shimmer {
+        0% { background-position: 100% 0; }
+        100% { background-position: -100% 0; }
+    }
+
+    /* === SİPARİŞ DETAYI — MASAÜSTÜ MOBİL TARZI === */
+    @media (min-width: 769px) {
+      #orderDetailModal.modal-overlay {
+        align-items: stretch !important;
+        justify-content: center !important;
+        padding: 24px !important;
+      }
+      #orderDetailModal .order-modal {
+        max-width: 980px !important;
+        width: 100% !important;
+        max-height: calc(100vh - 48px) !important;
+        height: calc(100vh - 48px) !important;
+        margin: 0 !important;
+        border-radius: 18px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+      }
+      #orderDetailModal .order-modal-header {
+        flex: 0 0 auto;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        padding: 18px 28px;
+      }
+      #orderDetailModal .order-modal-header h3 {
+        font-size: 1.45rem;
+      }
+      #orderDetailModal .order-modal-body,
+      #orderDetailModal #orderModalContent {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding: 28px 32px 32px 32px;
+      }
+      #orderDetailModal .modal-product-row {
+        padding: 16px 18px;
+      }
+      #orderDetailModal .modal-product-list,
+      #orderDetailModal .order-products-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      #orderDetailModal .order-info-grid,
+      #orderDetailModal .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      #orderDetailModal .modal-footer,
+      #orderDetailModal .form-modal-footer,
+      #orderDetailModal .modal-actions {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+        padding: 16px 28px;
+        border-top: 1px solid var(--line, #e5e7eb);
+        box-shadow: 0 -4px 12px rgba(0,0,0,.06);
+        z-index: 4;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+      }
+    }
+    @media (min-width: 1280px) {
+      #orderDetailModal .order-modal {
+        max-width: 1100px !important;
+      }
+    }
     @media (max-width: 480px) { .info-box.full { grid-column: span 1; } }
 
     /* ── ORDER TIMELINE ── */
@@ -1772,7 +1862,7 @@ function bindSmartBackLink(selector, fallback='/'){
         document.body.style.overflow='';
       }catch(_){}
       window.location.href = '/index.html#cart';
-    }, { once:true });
+    });
   }
 })();
 
@@ -1936,7 +2026,13 @@ function showTab(tab, el) {
     sectionEl.classList.add('active');
     window.__activeTab = tab;
     window.__activeHesabimTab = tab;
-    if (tab === 'orders') loadOrders();
+    if (tab === 'orders') {
+        const last = window.__gpLastOrdersFetch || 0;
+        if (Date.now() - last > 30000) {
+            loadOrders();
+            window.__gpLastOrdersFetch = Date.now();
+        }
+    }
     if (tab === 'addresses') {
         if (!window.__addressDataLoaded) {
             window.__addressDataLoaded = true;
@@ -2086,10 +2182,28 @@ function renderOrderSuggestions() {
 
 async function loadOrders() {
     const el = document.getElementById('ordersList');
-    if(!el){ console.warn('[loadOrders] ordersList yok'); return; }
+    if(!el){
+        const target = document.querySelector('#section-orders .orders-section') || document.querySelector('#section-orders') || document.body;
+        if (target) {
+            const existing = document.getElementById('ordersListMissingError');
+            if (existing) existing.remove();
+            const msg = document.createElement('div');
+            msg.id = 'ordersListMissingError';
+            msg.className = 'empty-state';
+            msg.style.cssText = 'display:block;padding:28px 20px;text-align:center;margin-top:14px';
+            msg.innerHTML = '<i class="fas fa-triangle-exclamation" style="font-size:2rem;color:#a3823f;margin-bottom:10px;display:block"></i><h3 style="margin:0 0 6px">Sipariş alanı yüklenemedi</h3><p style="color:#6b6354;margin:0">Lütfen sayfayı yenileyip tekrar deneyin.</p>';
+            target.prepend(msg);
+        }
+        return;
+    }
     el.style.display = '';
     el.style.minHeight = '300px';
-    el.innerHTML = '<div class="loading-state" style="padding:40px 20px;text-align:center;color:#6b6354"><i class="fas fa-circle-notch fa-spin"></i> Siparişler yükleniyor...</div>';
+    el.innerHTML = `
+      <div class="orders-skeleton-wrap" aria-hidden="true">
+        <div class="order-card order-card-skeleton"><div class="skeleton-line w-40"></div><div class="skeleton-line w-75"></div><div class="skeleton-line w-60"></div></div>
+        <div class="order-card order-card-skeleton"><div class="skeleton-line w-40"></div><div class="skeleton-line w-75"></div><div class="skeleton-line w-60"></div></div>
+        <div class="order-card order-card-skeleton"><div class="skeleton-line w-40"></div><div class="skeleton-line w-75"></div><div class="skeleton-line w-60"></div></div>
+      </div>`;
     try {
         try { await loadProductCatalog(); } catch(e){ console.warn('[loadOrders] catalog yüklenemedi', e); }
         const r = await apiFetch('/api/orders?action=my-orders', { headers: authHeaders() });
@@ -2099,7 +2213,7 @@ async function loadOrders() {
                     <i class="fas fa-lock" style="font-size:2.5rem;color:#a3823f;margin-bottom:14px;display:block"></i>
                     <h3 style="margin:0 0 8px">Oturum süreniz doldu</h3>
                     <p style="color:#6b6354;margin:0 0 16px">Siparişlerinizi görmek için tekrar giriş yapın.</p>
-                    <a href="/hesap.html?next=${encodeURIComponent('/hesabim.html?tab=orders')}" style="display:inline-flex;gap:8px;padding:12px 24px;background:#1a1a1a;color:#f5e8c5;border-radius:10px;text-decoration:none;font-weight:600">
+                    <a href="/hesap.html?next=${encodeURIComponent('/hesabim.html?tab=orders')}" style="display:inline-flex;gap:8px;padding:12px 24px;background:#1a1a1a;color:#f5e8c5;border-radius:10px;text-decoration:none;font-weight:600;min-height:48px;min-width:160px;align-items:center;justify-content:center">
                         <i class="fas fa-sign-in-alt"></i> Giriş yap
                     </a>
                 </div>`;
@@ -2116,7 +2230,7 @@ async function loadOrders() {
                     <i class="fas fa-box-open" style="font-size:3rem;color:#c8a35a;margin-bottom:16px;display:block"></i>
                     <h3 style="margin:0 0 8px">Henüz siparişiniz yok</h3>
                     <p style="color:#6b6354;margin:0 0 20px">Ürünlerimizi inceleyip size uygun perdeyi sipariş verebilirsiniz.</p>
-                    <a href="/" style="display:inline-flex;gap:8px;padding:12px 24px;background:#1a1a1a;color:#f5e8c5;border-radius:10px;text-decoration:none;font-weight:600">
+                    <a href="/" style="display:inline-flex;gap:8px;padding:12px 24px;background:#1a1a1a;color:#f5e8c5;border-radius:10px;text-decoration:none;font-weight:600;min-height:48px;min-width:160px;align-items:center;justify-content:center">
                         <i class="fas fa-th-large"></i> Ürünleri keşfet
                     </a>
                 </div>`;
@@ -2130,7 +2244,7 @@ async function loadOrders() {
                 <i class="fas fa-wifi" style="font-size:2.5rem;color:#a3823f;margin-bottom:14px;display:block"></i>
                 <h3 style="margin:0 0 8px">Siparişler yüklenemedi</h3>
                 <p style="color:#6b6354;margin:0 0 16px">Bağlantınızı kontrol edip tekrar deneyin.</p>
-                <button onclick="loadOrders()" style="padding:10px 22px;background:#c8a35a;color:#fff;border:0;border-radius:10px;cursor:pointer;font-weight:600">
+                <button onclick="loadOrders()" style="padding:10px 22px;background:#c8a35a;color:#fff;border:0;border-radius:10px;cursor:pointer;font-weight:600;min-height:48px;min-width:160px">
                     <i class="fas fa-redo"></i> Tekrar dene
                 </button>
             </div>`;
@@ -2288,6 +2402,7 @@ function openOrderDetail(orderId){
       ? safeJsonParse
       : (raw, fallback)=>{ try{ return typeof raw==='string'?JSON.parse(raw):(raw||fallback); }catch(_){ return fallback; } };
     const items = _safeJsonParse(o.urunler, Array.isArray(o.urunler) ? o.urunler : []);
+    const useDesktopGrid = Array.isArray(items) && items.length > 1 && window.matchMedia('(min-width: 769px)').matches;
     const orderDate = o.created_at ? new Date(o.created_at) : new Date();
     const dateStr = isNaN(orderDate.getTime())
       ? '—'
@@ -2332,7 +2447,7 @@ function openOrderDetail(orderId){
       }
     }).join('');
     bodyEl.innerHTML = `
-      ${productRows || '<div style="padding:14px;color:#6b7280;text-align:center">Ürün bilgisi yüklenemedi.</div>'}
+      <div class="modal-product-list${useDesktopGrid ? ' order-products-grid' : ''}">${productRows || '<div style="padding:14px;color:#6b7280;text-align:center">Ürün bilgisi yüklenemedi.</div>'}</div>
       <div class="info-grid">
         <div class="info-box"><label>Ödeme Şekli</label><span>${payMethod}</span></div>
         <div class="info-box"><label>Sipariş Tarihi</label><span>${dateStr}</span></div>
@@ -3035,7 +3150,7 @@ window.addEventListener('pageshow', function(ev) {
         isCartReturn = ss === 'cart' || ss === 'checkout';
       } catch(_) {}
     }
-    if (isCartReturn && ev.persisted) {
+    if (isCartReturn) {
       // Bfcache bypass: index.html'e fresh navigation, basket restore parametresiyle
       window.location.replace('/index.html?redirect=cart');
       return;

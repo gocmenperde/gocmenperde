@@ -2799,7 +2799,13 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 <section id="cart" class="section">
   <div class="cart-container">
     <h1 class="cart-title">Sipariş <span>Listeniz</span></h1>
-    <div id="cartContent"></div>
+    <div id="cartContent" data-state="initial">
+      <div class="cart-empty cart-empty-skeleton" id="cartInitialSkeleton">
+        <div class="cart-empty-icon"><i class="fas fa-circle-notch fa-spin"></i></div>
+        <h3>Sepetiniz hazırlanıyor</h3>
+        <p>Bir saniye, ürünlerinizi getiriyoruz...</p>
+      </div>
+    </div>
     <div class="checkout-entry-note" id="cartEntryHint" style="display:none">
       <i class="fas fa-circle-info"></i> Bu adımda sadece sepet ürünlerinizi görüyorsunuz. "Sepeti Onayla" ile teslimat ve ödeme adımına geçebilirsiniz.
     </div>
@@ -9226,7 +9232,7 @@ function updateItemQty(idx,change){
   if(basket[idx].qty < 1){ removeItem(idx); return; }
   basket[idx].sub = basket[idx].price * basket[idx].qty;
   total = basket.reduce((a,b)=>a+b.sub,0);
-  saveCartToStorage(); renderCart(); renderMiniCart();
+  saveCartToStorage(); renderMiniCart(); renderCart();
   try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){}
 }
 function removeItem(idx){
@@ -9272,6 +9278,9 @@ function renderMiniCart(){
 }
 
 function renderCart(){
+  if (window.__gpRenderCartLock) return;
+  window.__gpRenderCartLock = true;
+  requestAnimationFrame(()=>{ window.__gpRenderCartLock = false; });
   console.log('[cart] renderCart called, basket.length=', basket.length);
   // 1. Önce localStorage'dan sepet yükle (hatalı state asla render olmasın)
   try{ loadCartFromStorage(); }catch(e){ console.warn('[cart] load err', e); }
@@ -9293,6 +9302,9 @@ function renderCart(){
   const cartHint = document.getElementById('cartEntryHint');
   if(!content){ console.error('[cart] cartContent element bulunamadı!'); return; }
   if(!basket.length){
+    const skeleton = document.getElementById('cartInitialSkeleton');
+    if (skeleton) skeleton.remove();
+    content.dataset.state = 'empty';
     content.innerHTML='<div class="cart-empty"><div class="cart-empty-icon"><i class="fas fa-bag-shopping"></i></div><h3>Sepetiniz boş</h3><p>Perde koleksiyonumuzu keşfetmek için ürünlere göz atın.</p><button class="cart-empty-cta" onclick="go(\'products\')">Ürünleri Keşfet</button></div>';
     footer.style.display='none';
     if(form) form.style.display='none';
@@ -9300,13 +9312,16 @@ function renderCart(){
     updateCartActionPanel();
     return;
   }
+  const skeleton = document.getElementById('cartInitialSkeleton');
+  if (skeleton) skeleton.remove();
+  content.dataset.state = 'filled';
   const rows = basket.map((item,i)=>`
     <tr class="cart-row">
       <td>
         <div class="cart-product-cell">
           <div class="cart-item-image-wrap">
             <button type="button" class="cart-product-link" aria-label="${item.name || 'Ürün'} detayına git" onclick="goToProductByIdFromCart('${item.id || ''}')">
-              <img src="${item.image||''}" alt="${item.name||'Ürün görseli'}" loading="lazy" decoding="async" width="420" height="280">
+              <img src="${item.image||''}" alt="${item.name||'Ürün görseli'}" loading="lazy" decoding="async" fetchpriority="low" width="420" height="280">
             </button>
           </div>
           <div>
@@ -9351,8 +9366,8 @@ function renderCart(){
           cartSec.style.visibility='visible';
           cartSec.style.opacity='1';
         }
-        const items = document.querySelector('#cart .cart-items, #cartItems, #cart-items');
-        if(items && !items.children.length){
+        const items = document.getElementById('cartContent');
+        if(items && items.dataset.state !== 'filled' && basket.length > 0){
           console.warn('[cart] cart container boş, renderCart yeniden çağrılıyor');
           renderCart();
         }
@@ -10423,7 +10438,18 @@ function saveCartToStorage(){
     const isEmpty = !Array.isArray(basket) || basket.length === 0;
     // Boş basket ve KASITLI temizlik DEĞİLSE → localStorage'a YAZMA, yedeği KORU
     if (isEmpty && !isExplicitClear) {
-      // Sadece sayaç güncellensin, storage'a dokunma
+      try {
+        const backup = localStorage.getItem('gp_cart_backup_persistent') || sessionStorage.getItem('gp_cart_backup');
+        if (backup && backup !== '[]') {
+          const parsed = JSON.parse(backup);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            basket = parsed.map(_normalizeCartItem);
+            total = basket.reduce((a,b)=>a+(Number(b?.sub)||0),0);
+            try { localStorage.setItem('gpCart', backup); } catch(_) {}
+            try { localStorage.setItem('basket', backup); } catch(_) {}
+          }
+        }
+      } catch(_) {}
       try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
       return;
     }
@@ -10443,6 +10469,19 @@ function saveCartToStorage(){
 }
 function loadCartFromStorage(){
   try{
+    if (Array.isArray(basket) && basket.length > 0) {
+      // Bellek dolu → storage'dan yenileme yapma, sadece senkronla
+      try {
+        const memRaw = JSON.stringify(basket);
+        localStorage.setItem('gpCart', memRaw);
+        localStorage.setItem('basket', memRaw);
+        localStorage.setItem('gp_cart_backup_persistent', memRaw);
+        sessionStorage.setItem('gp_cart_backup', memRaw);
+      } catch(_) {}
+      total = basket.reduce((a,b)=>a+(Number(b?.sub)||0),0);
+      updateCartCount();
+      return;
+    }
     // Önce 'gpCart' dene, sonra 'basket' (eski anahtar) fallback
     let raw = null;
     try{ raw = localStorage.getItem('gpCart'); }catch(_){}
@@ -10469,20 +10508,6 @@ function loadCartFromStorage(){
           }
         }
       }catch(_){}
-      // Storage boş ama bellekte basket varsa onu KORU (race condition koruması)
-      if (typeof basket !== 'undefined' && Array.isArray(basket) && basket.length > 0) {
-        // Belleği storage'a geri yaz ki tutarsızlık olmasın
-        try {
-          const memRaw = JSON.stringify(basket);
-          localStorage.setItem('gpCart', memRaw);
-          localStorage.setItem('basket', memRaw);
-          localStorage.setItem('gp_cart_backup_persistent', memRaw);
-          sessionStorage.setItem('gp_cart_backup', memRaw);
-        } catch(_) {}
-        total = basket.reduce((a,b)=>a+(Number(b?.sub)||0),0);
-        updateCartCount();
-        return;
-      }
       basket = [];
       total = 0;
       updateCartCount();
@@ -11769,9 +11794,10 @@ function trapFocus(element){
   function maybeRender(){
     const h = (window.location.hash || '').toLowerCase();
     if(h === '#cart' || h === '#cart/' || h.startsWith('#cart?')){
-      [0, 200, 600].forEach(d=>{
+      [0, 350].forEach((d, idx)=>{
         setTimeout(()=>{
           try{
+            if (idx > 0 && document.getElementById('cartContent')?.dataset.state === 'filled') return;
             if(typeof loadCartFromStorage === 'function') loadCartFromStorage();
             if(typeof renderCart === 'function') renderCart();
             document.querySelectorAll('.section').forEach(s=>{
