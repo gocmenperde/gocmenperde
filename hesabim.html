@@ -2439,15 +2439,15 @@ function openOrderDetail(orderId){
           productInfo?.specs ? `<div class="modal-product-extra"><b>Teknik Özellik:</b> ${Object.entries(productInfo.specs).slice(0,2).map(([k,v])=>`${k}: ${v}`).join(' · ')}</div>` : ''
         ].filter(Boolean).join('');
         return `
-          <div class="modal-product-row order-item-link" onclick='try{goToProductDetail(${itemJson})}catch(_){}'>
+          <div class="modal-product-row order-item-link" onclick='try{goToProductDetail(${itemJson})}catch(_){}' style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--cream);border-radius:12px;border:1px solid var(--border);margin-bottom:10px">
             ${imgSrc ? `<img class="modal-product-img" src="${imgSrc}" alt="${safeName}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" width="420" height="280">` : ''}
             <div class="modal-product-img-placeholder" style="display:${imgSrc ? 'none' : 'flex'}">🛍️</div>
-            <div class="modal-product-info">
-              <div class="modal-product-name">${safeName}</div>
-              <div class="modal-product-sub">${qty} ${i.unitLabel || 'adet'} × ${price.toLocaleString('tr-TR')} TL${i.width && i.height ? ` • ${i.width}m × ${i.height}m` : ''}</div>
+            <div class="modal-product-info" style="flex:1;min-width:0">
+              <div class="modal-product-name" style="font-size:0.92rem;font-weight:700;color:var(--ink)">${safeName}</div>
+              <div class="modal-product-sub" style="font-size:0.78rem;color:var(--slate);margin-top:4px">${qty} ${i.unitLabel || 'adet'} × ${price.toLocaleString('tr-TR')} TL${i.width && i.height ? ` • ${i.width}m × ${i.height}m` : ''}</div>
               ${details}
             </div>
-            <div class="modal-product-price">${sub.toLocaleString('tr-TR')} TL</div>
+            <div class="modal-product-price" style="font-family:var(--ffd);font-size:1.05rem;font-weight:700;color:var(--gold);white-space:nowrap">${sub.toLocaleString('tr-TR')} TL</div>
           </div>`;
       }catch(e){
         console.warn('[orderDetail] Ürün satırı hata, atlanıyor (idx='+idx+'):', e);
@@ -2455,15 +2455,15 @@ function openOrderDetail(orderId){
       }
     }).join('');
     bodyEl.innerHTML = `
-      <div class="modal-section-title"><i class="fas fa-box-open" style="margin-right:6px;color:var(--gold)"></i>Sipariş Ürünleri</div>
-      <div class="modal-product-list${useDesktopGrid ? ' order-products-grid' : ''}">${productRows || '<div style="padding:14px;color:#6b7280;text-align:center;background:var(--cream);border:1px solid var(--border);border-radius:10px">Ürün bilgisi yüklenemedi.</div>'}</div>
-      <div class="info-grid">
+      <div class="modal-section-title" style="font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--slate);font-weight:700"><i class="fas fa-box-open" style="margin-right:6px;color:var(--gold)"></i>Sipariş Ürünleri</div>
+      <div class="modal-product-list${useDesktopGrid ? ' order-products-grid' : ''}" style="display:grid;grid-template-columns:${useDesktopGrid ? 'repeat(2,minmax(0,1fr))' : '1fr'};gap:12px">${productRows || '<div style="padding:14px;color:#6b7280;text-align:center;background:var(--cream);border:1px solid var(--border);border-radius:10px">Ürün bilgisi yüklenemedi.</div>'}</div>
+      <div class="info-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0">
         <div class="info-box"><label>Ödeme Şekli</label><span>${payMethod}</span></div>
         <div class="info-box"><label>Sipariş Tarihi</label><span>${dateStr}</span></div>
         <div class="info-box"><label>Tahmini Teslimat</label><span>${estimatedDeliveryDate}</span></div>
         <div class="info-box"><label>Sipariş Numarası</label><span>#${o.id}</span></div>
-        <div class="info-box full"><label>Teslimat Adresi</label><span>${o.adres || '—'}</span></div>
-        ${o.siparis_notu ? `<div class="info-box full"><label>Sipariş Notu</label><span>${o.siparis_notu}</span></div>` : ''}
+        <div class="info-box full" style="grid-column:1 / -1"><label>Teslimat Adresi</label><span>${o.adres || '—'}</span></div>
+        ${o.siparis_notu ? `<div class="info-box full" style="grid-column:1 / -1"><label>Sipariş Notu</label><span>${o.siparis_notu}</span></div>` : ''}
       </div>
       ${timeline ? `
         <div class="timeline-section">
@@ -2471,11 +2471,11 @@ function openOrderDetail(orderId){
           <div class="timeline">${timeline}</div>
         </div>` : ''}
       ${trackingHTML}
-      <div class="modal-total-row">
+      <div class="modal-total-row" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(135deg,var(--ink) 0%,#2a2724 100%);border-radius:12px;margin-top:16px">
         <div><div class="modal-total-label">Toplam Ödeme</div></div>
         <div class="modal-total-amount">${Number(o.toplam || 0).toLocaleString('tr-TR')} TL</div>
       </div>
-      <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+      <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end">
         <button type="button" class="btn btn-ghost" onclick="closeOrderModal()">Kapat</button>
         <button type="button" class="btn" style="background:#1a1a1a;color:#fff" onclick="printOrderDetail()"><i class="fas fa-print"></i> Yazdır / PDF Kaydet</button>
       </div>`;
