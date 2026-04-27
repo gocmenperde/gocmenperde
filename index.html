@@ -7885,7 +7885,34 @@ window.addEventListener('pageshow', async (ev)=>{
   } catch(_) {}
   if(ev.persisted){
     hideLoader(true);
+    // Stale overlay/body class temizle
+    try{
+      document.body.classList.remove('cap-drawer-open','popup-open','modal-open','no-scroll','product-modal-open','order-detail-open');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      const _cd = document.getElementById('capDrawer');
+      const _cb = document.getElementById('capBackdrop');
+      const _cp = document.getElementById('cartActionPanel');
+      if(_cd){ _cd.classList.remove('is-open'); _cd.setAttribute('aria-hidden','true'); }
+      if(_cb) _cb.classList.remove('is-open');
+      if(_cp){ _cp.classList.remove('is-sheet','has-open-drawer'); _cp.style.transform=''; _cp.style.transition=''; }
+    }catch(_){}
     recoverUIAfterResume();
+    // Bfcache'den döndük → cart section aktifse yeniden render et
+    try{
+      const activeId = document.querySelector('.section.active')?.id;
+      if(activeId === 'cart'){
+        loadCartFromStorage();
+        requestAnimationFrame(function(){
+          try{ renderCart(); }catch(_){}
+          setTimeout(function(){ try{ renderCart(); }catch(_){}  }, 350);
+        });
+      }
+      if(activeId === 'checkout'){
+        loadCartFromStorage();
+        requestAnimationFrame(function(){ try{ renderCheckout(); }catch(_){} });
+      }
+    }catch(_){}
     return;
   }
   recoverUIAfterResume();
@@ -8187,8 +8214,40 @@ function applySectionState(id, {scroll=true} = {}){
       window.scrollTo({top:savedY,behavior:'auto'});
     }
     if(targetId==='cart'){
+      // Önce storage'dan yükle, sonra render et
+      try{ loadCartFromStorage(); }catch(_){}
       try{ renderCart(); }catch(e){ console.error('[nav] sync renderCart failed:', e); }
-      requestAnimationFrame(()=>{ try{ renderCart(); }catch(_){} });
+      // RAF ile bir daha (DOM settle sonrası)
+      requestAnimationFrame(function(){
+        try{ loadCartFromStorage(); }catch(_){}
+        try{ renderCart(); }catch(_){}
+      });
+      // 400ms sonra final kontrol (iOS Safari timing güvencesi)
+      setTimeout(function(){
+        const stillCart = document.querySelector('.section.active')?.id === 'cart';
+        if(!stillCart) return;
+        try{ loadCartFromStorage(); }catch(_){}
+        if(typeof basket !== 'undefined' && basket.length > 0){
+          try{ renderCart(); }catch(_){}
+        } else {
+          // Hâlâ boş → tüm kaynaklardan zorla yükle
+          try{
+            let raw = null;
+            try{ raw = localStorage.getItem('gpCart'); }catch(_){}
+            if(!raw){ try{ raw = localStorage.getItem('basket'); }catch(_){} }
+            if(!raw){ try{ raw = sessionStorage.getItem('gp_cart_backup'); }catch(_){} }
+            if(raw){
+              const parsed = JSON.parse(raw);
+              if(Array.isArray(parsed) && parsed.length > 0){
+                basket = parsed.map(_normalizeCartItem);
+                total = basket.reduce((a,b)=>a+(Number(b?.sub)||0),0);
+                updateCartCount();
+                renderCart();
+              }
+            }
+          }catch(_){}
+        }
+      }, 400);
     }
     if(targetId==='checkout'){
       document.querySelector('.checkout-grid')?.style.setProperty('content-visibility','visible');
@@ -10110,37 +10169,93 @@ async function applySavedAddress(idx){
   syncAddressFromParts();
 }
 
-function saveCartToStorage(){ try{ localStorage.setItem('gpCart',JSON.stringify(basket)); }catch(e){ console.warn('[gp:warn]', e); } }
+function saveCartToStorage(){
+  try{
+    const raw = JSON.stringify(basket);
+    // Her iki anahtara da yaz — eski/yeni kod uyumu
+    localStorage.setItem('gpCart', raw);
+    localStorage.setItem('basket', raw);
+    // sessionStorage backup (sayfa geçişlerinde kaybolmaz)
+    try{ sessionStorage.setItem('gp_cart_backup', raw); }catch(_){}
+  }catch(e){ console.warn('[gp:warn]', e); }
+}
 function loadCartFromStorage(){
   try{
-    const s = localStorage.getItem('gpCart');
-    if(s){
-      basket = (JSON.parse(s) || []).map((item)=>{
-        const hasWidth = hasValidMeasurement(item?.width);
-        const hasHeight = hasValidMeasurement(item?.height);
-        const requiresDimensions = item?.requiresDimensions === true || hasWidth || hasHeight;
-        const requiresWidth = item?.requiresWidth === true || (item?.requiresWidth == null && hasWidth && !hasHeight);
-        const requiresHeight = item?.requiresHeight === true || (item?.requiresHeight == null && hasHeight);
-        const dims = requiresDimensions ? `${requiresWidth ? item?.width ?? '' : ''}x${requiresHeight ? item?.height ?? '' : ''}` : '';
-        return {
-          ...item,
-          requiresDimensions,
-          requiresWidth,
-          requiresHeight,
-          dimensionsKey: typeof item?.dimensionsKey === 'string' ? item.dimensionsKey : dims
-        };
-      });
-      total = basket.reduce((a,b)=>a+(Number(b?.sub) || 0),0);
+    // Önce 'gpCart' dene, sonra 'basket' (eski anahtar) fallback
+    let raw = null;
+    try{ raw = localStorage.getItem('gpCart'); }catch(_){}
+    if(!raw){ try{ raw = localStorage.getItem('basket'); }catch(_){} }
+    if(!raw){ return; } // İkisi de boş → basket olduğu gibi kalsın
+    const parsed = JSON.parse(raw) || [];
+    if(!Array.isArray(parsed) || parsed.length === 0){
+      // localStorage boş dizi → sıfırlamak yerine sessionStorage backup'a bak
+      try{
+        const backup = sessionStorage.getItem('gp_cart_backup');
+        if(backup){
+          const backupParsed = JSON.parse(backup);
+          if(Array.isArray(backupParsed) && backupParsed.length > 0){
+            basket = backupParsed.map(_normalizeCartItem);
+            total = basket.reduce((a,b)=>a+(Number(b?.sub)||0),0);
+            updateCartCount();
+            // Kalıcı hale getir
+            try{ localStorage.setItem('gpCart', JSON.stringify(basket)); }catch(_){}
+            try{ localStorage.setItem('basket', JSON.stringify(basket)); }catch(_){}
+            return;
+          }
+        }
+      }catch(_){}
+      basket = [];
+      total = 0;
       updateCartCount();
+      return;
     }
+    basket = parsed.map(_normalizeCartItem);
+    total = basket.reduce((a,b)=>a+(Number(b?.sub)||0),0);
+    updateCartCount();
+    // Her iki anahtara da yaz (senkronize et)
+    try{ localStorage.setItem('gpCart', raw); }catch(_){}
+    try{ localStorage.setItem('basket', raw); }catch(_){}
+    // sessionStorage backup'a da kaydet
+    try{ sessionStorage.setItem('gp_cart_backup', raw); }catch(_){}
   } catch(e){
-    console.error('[gp:cart-load-error] gpCart parse hatası, ham veri:', (function(){ try{return localStorage.getItem('gpCart');}catch(_){return 'erişilemedi';} })(), e);
-    // localStorage'ı SİLME — kullanıcı verisi korunsun, sadece basket'i sıfırla bu sefer
+    console.error('[gp:cart-load-error]', e);
+    // Parse hatası — backup dene
+    try{
+      const backup = sessionStorage.getItem('gp_cart_backup');
+      if(backup){
+        const bp = JSON.parse(backup);
+        if(Array.isArray(bp) && bp.length > 0){
+          basket = bp.map(_normalizeCartItem);
+          total = basket.reduce((a,b)=>a+(Number(b?.sub)||0),0);
+          updateCartCount();
+          return;
+        }
+      }
+    }catch(_){}
     basket = [];
     total = 0;
     updateCartCount();
   }
 }
+// Yardımcı normalize fonksiyonu (loadCartFromStorage içinde kullanılıyor)
+function _normalizeCartItem(item){
+  const hasWidth  = hasValidMeasurement(item?.width);
+  const hasHeight = hasValidMeasurement(item?.height);
+  const requiresDimensions = item?.requiresDimensions === true || hasWidth || hasHeight;
+  const requiresWidth  = item?.requiresWidth  === true || (item?.requiresWidth  == null && hasWidth  && !hasHeight);
+  const requiresHeight = item?.requiresHeight === true || (item?.requiresHeight == null && hasHeight);
+  const dims = requiresDimensions
+    ? `${requiresWidth ? item?.width??'' : ''}x${requiresHeight ? item?.height??'' : ''}`
+    : '';
+  return {
+    ...item,
+    requiresDimensions,
+    requiresWidth,
+    requiresHeight,
+    dimensionsKey: typeof item?.dimensionsKey === 'string' ? item.dimensionsKey : dims
+  };
+}
+
 
 async function hasCompletedOrderForCoupon(){
   const token = getAuthToken();
