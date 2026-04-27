@@ -721,8 +721,14 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 
 /* ── Cart ── */
 #cart{background:var(--warm-white)}
-.cart-container{max-width:960px;margin:0 auto;padding:0 5% 80px}
-@media(max-width:640px){.cart-container{padding:0 4% 60px}}
+.cart-container{max-width:1100px;margin:0 auto;padding:40px 5% 80px}
+@media(max-width:640px){.cart-container{padding:20px 4% 60px}}
+@media(min-width:1024px){
+  .cart-container{padding:60px 40px 100px;display:block}
+  .cart-table{font-size:1rem}
+  .cart-row td{padding:24px 8px}
+  .cart-item-image-wrap{width:96px;height:96px}
+}
 .cart-title{font-family:var(--ff-display);font-size:clamp(2rem,4vw,3rem);font-weight:700;margin-bottom:40px}
 .cart-title span{color:var(--gold);font-style:italic}
 .cart-table{width:100%;border-collapse:collapse;margin-bottom:30px}
@@ -781,14 +787,19 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .payment-sent-btn:hover{background:var(--gold-dark);color:white;transform:translateY(-2px)}
 .clear-btn{background:none;border:1px solid rgba(192,57,43,0.2);cursor:pointer;color:#c0392b;padding:12px 24px;border-radius:8px;font-size:0.7rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body)}
 .clear-btn:hover{background:#c0392b;color:white}
-.cart-action-panel{position:fixed;left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 10px);z-index:12120;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 48px rgba(0,0,0,0.15);display:none;overflow:hidden;max-width:980px;margin:0 auto}
+.cart-action-panel{display:none;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 48px rgba(0,0,0,0.15);overflow:hidden;flex-direction:column;padding:0}
+@media (max-width:1023px){
+  .cart-action-panel{position:fixed;left:14px;right:14px;bottom:calc(76px + env(safe-area-inset-bottom) + 8px);z-index:12120;max-width:980px;margin:0 auto}
+}
+@media (min-width:1024px){
+  .cart-action-panel{position:sticky;bottom:20px;margin:30px auto 0;max-width:960px;width:100%}
+}
 .cart-action-total{min-width:168px;padding:12px 15px;background:linear-gradient(135deg,#fdfcf9,#f6efe0);border-right:1px solid rgba(201,168,76,0.25)}
 .cart-action-total b{display:block;font-size:1.5rem;line-height:1.05;color:var(--ink);font-family:var(--ff-display)}
 .cart-action-total span{display:block;font-size:0.74rem;color:var(--gold-dark);font-weight:700;margin-top:3px;letter-spacing:.5px}
 .cart-action-btn{flex:1;border:none;background:var(--ink);color:#fff;font-size:1.02rem;font-weight:600;cursor:pointer;padding:14px 16px;letter-spacing:1.8px;text-transform:uppercase;font-family:var(--ff-body);transition:var(--transition)}
 .cart-action-btn:hover{background:var(--gold);color:var(--ink)}
 @media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom) + 8px) !important}.cart-action-btn{font-size:0.9rem;padding:13px 10px}}
-.cart-action-panel{flex-direction:column;padding:0}
 /* Drawer açıkken paneli backdrop'ın üstüne çıkar */
 .cart-action-panel.has-open-drawer{z-index:12400;bottom:calc(76px + env(safe-area-inset-bottom) + 8px) !important}
 .cap-meta{display:none}
@@ -7602,7 +7613,8 @@ window.addEventListener('pageshow', async (ev)=>{
   ensureNoOrphanSuccessModal();
   try {
     const activeId = document.querySelector('.section.active')?.id;
-    if(activeId === 'cart' && typeof renderCart === 'function') renderCart();
+    const cartHash = (window.location.hash || '').toLowerCase();
+    if((activeId === 'cart' || cartHash === '#cart' || cartHash === '#cart/' || cartHash.startsWith('#cart?')) && typeof renderCart === 'function') renderCart();
     if(activeId === 'checkout' && typeof renderCheckout === 'function') renderCheckout();
     if(typeof renderMiniCart === 'function') renderMiniCart();
   } catch(_) {}
@@ -8681,10 +8693,25 @@ function renderMiniCart(){
 
 function renderCart(){
   console.log('[cart] renderCart called, basket.length=', basket.length);
-  try{ loadCartFromStorage(); }catch(_){}
+  // 1. Önce localStorage'dan sepet yükle (hatalı state asla render olmasın)
+  try{ loadCartFromStorage(); }catch(e){ console.warn('[cart] load err', e); }
+  // 2. Cart section görünür hale getir (CSS lock ihtimaline karşı)
+  const cartSec = document.getElementById('cart');
+  if(cartSec){
+    cartSec.style.display = 'block';
+    cartSec.style.visibility = 'visible';
+    cartSec.style.opacity = '1';
+  }
+  // 3. Overlay/modal/drawer state'leri temizle
   try{ closeAllOverlaysAggressive(); }catch(_){}
+  try{
+    document.body.classList.remove('cap-drawer-open','popup-open','modal-open','no-scroll','cart-sheet-open','order-detail-open');
+    document.body.style.overflow = '';
+  }catch(_){}
+
   const content=document.getElementById('cartContent'),footer=document.getElementById('cartFooter'),form=document.getElementById('orderForm');
   const cartHint = document.getElementById('cartEntryHint');
+  if(!content){ console.error('[cart] cartContent element bulunamadı!'); return; }
   if(!basket.length){
     content.innerHTML='<div class="cart-empty"><i class="fas fa-bag-shopping"></i>Sepetiniz şu an boş.<div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button type="button" onclick="go(\'products\')" style="background:var(--gold);color:#1a1a1a;border:0;padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ürünleri İncele</button><button type="button" onclick="go(\'home\')" style="background:transparent;color:var(--gold);border:1px solid var(--gold);padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer">Ana Sayfaya Dön</button></div></div>';
     footer.style.display='none';
@@ -8933,6 +8960,11 @@ function changeQtyFromDrawer(itemId, delta){
 }
 window.changeQtyFromDrawer = changeQtyFromDrawer;
 function toggleCapDrawer(){
+  if(window.innerWidth >= 1024){
+    const cta = document.querySelector('.cart-action-panel');
+    if(cta) cta.scrollIntoView({ behavior:'smooth', block:'end' });
+    return;
+  }
   try { if(navigator.vibrate) navigator.vibrate(8); } catch(_){ }
   const panel = document.getElementById('cartActionPanel');
   const d     = document.getElementById('capDrawer');
@@ -10952,6 +10984,35 @@ if(typeof __origCloseProductModal==='function'){
     return r;
   }
 }
+// === Sepet hash güvencesi: #cart geldiğinde her durumda renderCart çalışsın ===
+(function ensureCartRenderOnHash(){
+  function maybeRender(){
+    const h = (window.location.hash || '').toLowerCase();
+    if(h === '#cart' || h === '#cart/' || h.startsWith('#cart?')){
+      [0, 200, 600].forEach(d=>{
+        setTimeout(()=>{
+          try{
+            if(typeof loadCartFromStorage === 'function') loadCartFromStorage();
+            if(typeof renderCart === 'function') renderCart();
+            document.querySelectorAll('.section').forEach(s=>{
+              if(s.id === 'cart'){
+                s.classList.add('active');
+                s.style.display = 'block';
+              }
+            });
+            console.log('[cart-ensure] renderCart at +'+d+'ms, basket=', (window.basket||[]).length);
+          }catch(e){ console.warn('[cart-ensure] err', e); }
+        }, d);
+      });
+    }
+  }
+  window.addEventListener('hashchange', maybeRender);
+  window.addEventListener('pageshow', maybeRender);
+  document.addEventListener('DOMContentLoaded', maybeRender);
+  if(document.readyState === 'complete' || document.readyState === 'interactive'){
+    maybeRender();
+  }
+})();
 (function gpWelcomeBanner(){
   try{
     const params = new URLSearchParams(location.search);
