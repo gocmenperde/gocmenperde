@@ -3,6 +3,10 @@
 <head>
 <meta name="google-site-verification" content="4fU9nd_ZSO0GTHVDdpMuHk-tI7NE26mjVLU_gWoz2As" />
 <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<link rel="preload" as="image" href="resimler/hero-1.webp" fetchpriority="high">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -112,7 +116,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap&font-display=swap" rel="stylesheet">
-<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
 <script>
   window.addEventListener('error', function(e){
@@ -2338,6 +2342,48 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 }
 @keyframes crs-spin{to{transform:rotate(360deg)}}
 
+
+.gp-autosugg{position:absolute; top:calc(100% + 6px); left:0; right:0; background:#fff; border:1px solid var(--border, #e5e7eb); border-radius:14px; box-shadow:0 24px 48px rgba(17,28,58,.18); z-index:9000; max-height:420px; overflow-y:auto; display:none;}
+.gp-autosugg.open{ display:block; }
+.gp-sugg-item{display:flex; gap:12px; align-items:center; width:100%; padding:10px 14px; background:transparent; border:0; text-align:left; cursor:pointer; transition:background .15s;}
+.gp-sugg-item:hover, .gp-sugg-item.is-active{ background:#fbf7ee; }
+.gp-sugg-item img{ width:48px; height:48px; object-fit:cover; border-radius:8px; }
+.gp-sugg-meta{ flex:1; min-width:0; }
+.gp-sugg-name{ font-size:.86rem; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gp-sugg-price{ font-size:.78rem; color:var(--gold-deep, #a8842c); margin-top:2px; }
+.recently-viewed{ margin-top:32px; padding:24px 0; border-top:1px solid var(--border,#e5e7eb); }
+.rv-title{ font-family:var(--ff-display); font-size:1.1rem; color:var(--ink); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.rv-title i{ color:var(--gold,#c8a35a); }
+.rv-track{ display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:12px; }
+.rv-card{ cursor:pointer; background:#fff; border:1px solid var(--border,#e5e7eb); border-radius:12px; padding:8px; transition:transform .2s, box-shadow .2s; }
+.rv-card:hover{ transform:translateY(-3px); box-shadow:0 14px 24px rgba(17,28,58,.10); border-color:var(--gold-soft,#e3c98a); }
+.rv-card img{ width:100%; height:140px; object-fit:cover; border-radius:8px; background:#f3f0ec; }
+.rv-name{ font-size:.78rem; font-weight:600; margin-top:8px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rv-price{ font-size:.82rem; color:var(--gold-deep,#a8842c); margin-top:4px; font-weight:700; }
+.similar-track{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+@media(max-width:600px){ .similar-track{ grid-template-columns:repeat(2,1fr); } }
+.similar-card{ cursor:pointer; background:#fff; border:1px solid var(--border,#e5e7eb); border-radius:10px; padding:6px; transition:transform .2s; }
+.similar-card:hover{ transform:translateY(-2px); border-color:var(--gold,#c8a35a); }
+.similar-card img{ width:100%; height:120px; object-fit:cover; border-radius:6px; }
+.similar-name{ font-size:.74rem; font-weight:600; margin-top:6px; color:var(--ink); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.similar-price{ font-size:.78rem; color:var(--gold-deep,#a8842c); margin-top:3px; font-weight:700; }
+.oos-actions{ display:flex; flex-direction:column; gap:8px; margin-top:auto; }
+.oos-pill{ background:#f1efea; color:#8a8377; padding:10px 14px; border:0; border-radius:10px; font-weight:600; font-size:.78rem; cursor:not-allowed; }
+.oos-notify{ background:linear-gradient(135deg,var(--gold,#c8a35a),var(--gold-deep,#a8842c)); color:#1a1a1a; border:0; padding:10px 14px; border-radius:10px; font-weight:700; font-size:.76rem; cursor:pointer; transition:transform .15s; }
+.oos-notify:hover{ transform:translateY(-2px); }
+.gp-coupon-toast{position:fixed; right:20px; bottom:90px; z-index:9500; display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,#1a1a1a,#2a2a2a); color:#fff; padding:14px 16px; border-radius:14px; box-shadow:0 24px 48px rgba(0,0,0,.35); max-width:380px; animation:gpSlideUp .35s ease-out;}
+.gp-coupon-toast i{ font-size:1.5rem; color:var(--gold,#c8a35a); }
+.gp-coupon-toast button{ background:var(--gold,#c8a35a); color:#1a1a1a; border:0; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer; }
+.gp-coupon-x{ background:transparent !important; color:#fff !important; padding:0 6px !important; font-size:1.2rem !important; }
+@keyframes gpSlideUp{ from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.gp-bottom-nav{ display:none; }
+@media (max-width:768px){ .gp-bottom-nav{display:flex; position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--border,#e5e7eb); padding:8px 4px calc(8px + env(safe-area-inset-bottom)) 4px; z-index:8000; justify-content:space-around; box-shadow:0 -10px 24px rgba(0,0,0,.06);} .gp-bottom-nav button{flex:1; background:transparent; border:0; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 4px; color:#5b4f3f; font-size:.62rem; font-weight:600; letter-spacing:.5px; position:relative;} .gp-bottom-nav button i{ font-size:1.1rem; color:var(--ink,#1a1a1a); } .gp-bottom-nav .bn-badge{position:absolute; top:0; right:18%; background:var(--gold,#c8a35a); color:#1a1a1a; font-size:.55rem; padding:1px 6px; border-radius:10px; font-weight:800; min-width:16px; text-align:center;} #cartActionPanel{ bottom:calc(64px + env(safe-area-inset-bottom)) !important; } body{ padding-bottom:calc(64px + env(safe-area-inset-bottom)); }}
+.zoom-wrap{ overflow:hidden; cursor:zoom-in; }
+.zoom-wrap img{ transition:transform .25s ease; will-change:transform; }
+@media(max-width:768px){ .zoom-wrap img{ transform:none !important; } }
+#scrollTopFab{position:fixed; right:20px; bottom:140px; z-index:7000; width:48px; height:48px; border-radius:50%; background:#1a1a1a; color:#fff; border:0; cursor:pointer; box-shadow:0 14px 28px rgba(0,0,0,.25); opacity:0; pointer-events:none; transform:translateY(10px); transition:opacity .25s, transform .25s;}
+#scrollTopFab.show{ opacity:1; pointer-events:auto; transform:translateY(0); }
+@media(max-width:768px){ #scrollTopFab{ bottom:160px; } }
 </style>
 </head>
 <body>
@@ -2681,9 +2727,9 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
   <div class="filters-drawer-overlay" id="filtersDrawerOverlay" onclick="toggleFiltersDrawer(false)"></div>
 
   <!-- Son Görüntülenenler -->
-  <div class="recently-viewed" id="recentlyViewedSection" style="display:none">
+  <div class="recently-viewed" id="recentlyViewedProductsSection" style="display:none">
     <div style="font-size:0.65rem;letter-spacing:4px;text-transform:uppercase;color:var(--slate);font-weight:600;margin-bottom:12px">Son Görüntülenenler</div>
-    <div class="recently-viewed-grid" id="recentlyViewedGrid"></div>
+    <div class="recently-viewed-grid" id="recentlyViewedProductsGrid"></div>
   </div>
 
   <div class="products-layout">
@@ -2808,6 +2854,10 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
     </div>
     <div class="checkout-entry-note" id="cartEntryHint" style="display:none">
       <i class="fas fa-circle-info"></i> Bu adımda sadece sepet ürünlerinizi görüyorsunuz. "Sepeti Onayla" ile teslimat ve ödeme adımına geçebilirsiniz.
+    </div>
+    <div id="recentlyViewedSection" class="recently-viewed" style="display:none">
+      <h3 class="rv-title"><i class="fas fa-clock-rotate-left"></i> Son Gezdikleriniz</h3>
+      <div class="rv-track" id="recentlyViewedTrack"></div>
     </div>
     <div class="cart-footer" id="cartFooter" style="display:none">
       <div>
@@ -3118,7 +3168,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
       <p style="font-size:0.8rem;color:var(--slate)">Arama yaparak ürün adı, açıklama ve kategoriye göre sonuçları görebilirsiniz.</p>
     </div>
     <div class="modal-img-col">
-      <div class="modal-img-stage" id="modalImgCol" onmousemove="zoomImg(event)" onmouseleave="resetImgZoom()" onclick="openImageViewer(event)">
+      <div class="modal-img-stage zoom-wrap" id="modalImgCol" onmousemove="zoomImg(event)" onmouseleave="resetImgZoom()" onclick="openImageViewer(event)">
         <img decoding="async" loading="lazy" id="mImg" width="800" height="600" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="">
         <div class="modal-discount-badge hidden" id="mDiscountBadge"></div>
         <div class="modal-gallery-controls">
@@ -3152,6 +3202,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
         <div class="modal-related-title">Bu ürüne bakanlar bunlara da baktı</div>
         <div class="modal-related-track" id="mRelatedTrack"></div>
       </div>
+      <div class="similar-products" id="similarProducts" style="margin-top:24px"></div>
       <div class="modal-reviews-wrap">
         <div class="modal-reviews-title">Ürün Yorumları</div>
         <div class="modal-photo-strip" id="mPhotoStrip" hidden></div>
@@ -5796,13 +5847,36 @@ function isOutOfStock(product){
 }
 
 function buildOutOfStockActions(productId, productName){
-  return `<div class="qty-wrap qty-wrap-oos">
-    <button type="button" class="add-btn add-btn-oos" disabled aria-disabled="true">Tükendi</button>
-    <button type="button" class="add-btn add-btn-notify" data-product-id="${escAttr(productId)}" data-product-name="${escAttr(productName || '')}">
-      <i class="fas fa-bell" aria-hidden="true"></i> Gelince Haber Ver
+  return `<div class="oos-actions">
+    <button type="button" class="oos-pill oos-disabled" disabled>
+      <i class="fas fa-circle-xmark"></i> Tükendi
+    </button>
+    <button type="button" class="oos-notify" onclick="event.stopPropagation();gpStockNotify('${productId}','${(productName||'').replace(/'/g,'&#39;')}')">
+      <i class="fas fa-bell"></i> Stok Gelince Haber Ver
     </button>
   </div>`;
 }
+function gpStockNotify(pid, pname){
+  const email = prompt(`"${pname}" stoğa girince haber alacağın e-posta adresi:`);
+  if (!email) return;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    alert('Geçerli bir e-posta gir.'); return;
+  }
+  try {
+    const list = JSON.parse(localStorage.getItem('gp_stock_alerts') || '[]');
+    list.push({ pid, pname, email, ts: Date.now() });
+    localStorage.setItem('gp_stock_alerts', JSON.stringify(list));
+  } catch(_) {}
+  try {
+    fetch('/api/stock-alert', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ productId: pid, productName: pname, email })
+    }).catch(()=>{});
+  } catch(_) {}
+  if (typeof showToast === 'function') showToast('Kayıt edildi! Stok gelince e-posta atacağız.','success');
+  else alert('Kayıt edildi! Stok gelince e-posta atacağız.');
+}
+window.gpStockNotify = gpStockNotify;
 
 function processRestockNotifications(){
 }
@@ -6198,7 +6272,7 @@ function setProductCount(n){
   }
 }
 
-const FIRST_PAINT = 24;
+const FIRST_PAINT = window.innerWidth < 768 ? 6 : 12;
 const productsState = {
   all: [],
   batchSize: window.innerWidth < 768 ? 12 : 16,
@@ -6410,8 +6484,8 @@ function trackRecentlyViewed(id){
 function renderRecentlyViewed(){
   try{
     const rv = JSON.parse(localStorage.getItem('gp_rv')||'[]');
-    const sec = document.getElementById('recentlyViewedSection');
-    const grid = document.getElementById('recentlyViewedGrid');
+    const sec = document.getElementById('recentlyViewedProductsSection');
+    const grid = document.getElementById('recentlyViewedProductsGrid');
     const items = rv.map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
     if(!items.length){ sec.style.display='none'; return; }
     sec.style.display='block';
@@ -6686,6 +6760,20 @@ function applyFilters(){
   renderActiveFilterChips({search,sort,minP,maxP,catAll,activeCats,featKar,featUtu,featPrem,colorFilters,fabricFilters,usageFilters,topRatedOnly,mostReviewedOnly,bestSellerOnly});
   if(window.innerWidth <= 900) toggleFiltersDrawer(false);
 }
+function clearAllFilters(){
+  ['searchInput','minPrice','maxPrice'].forEach(id=>{
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  const ss = document.getElementById('sortSelect');
+  if (ss) ss.value = 'popular';
+  ['feat-karartma','feat-utu','feat-premium','color-krem','color-beyaz','color-antrasit','fabric-keten','fabric-tul','fabric-fon','usage-salon','usage-yatak','topRatedOnly','mostReviewedOnly','bestSellerOnly'].forEach(id=>{
+    const el = document.getElementById(id); if (el) el.checked = false;
+  });
+  if (typeof resetCategorySelectionToAll === 'function') resetCategorySelectionToAll();
+  if (typeof applyFilters === 'function') applyFilters();
+}
+window.clearAllFilters = clearAllFilters;
+
 function renderActiveFilterChips(state){
   const wrap = document.getElementById('activeFilterChips');
   if(!wrap || !state) return;
@@ -6705,7 +6793,7 @@ function renderActiveFilterChips(state){
   if(state.mostReviewedOnly) add('Çok yorumlanan',`document.getElementById('mostReviewedOnly').checked=false;window.applyFilters?.();`);
   if(state.bestSellerOnly) add('Çok satan',`document.getElementById('bestSellerOnly').checked=false;window.applyFilters?.();`);
   if(chips.length){
-    chips.push(`<button type="button" class="chip clear-all" onclick="document.getElementById(\'searchInput\').value=\'\';document.getElementById(\'sortSelect\').value=\'popular\';document.getElementById(\'minPrice\').value=\'\';document.getElementById(\'maxPrice\').value=\'\';[\'feat-karartma\',\'feat-utu\',\'feat-premium\',\'color-krem\',\'color-beyaz\',\'color-antrasit\',\'fabric-keten\',\'fabric-tul\',\'fabric-fon\',\'usage-salon\',\'usage-yatak\',\'topRatedOnly\',\'mostReviewedOnly\',\'bestSellerOnly\'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});resetCategorySelectionToAll();window.applyFilters?.();">Tümünü Temizle</button>`);
+    chips.push(`<button type="button" class="chip clear-all" onclick="clearAllFilters()">Tümünü Temizle</button>`);
   }
   wrap.innerHTML = chips.join('');
 }
@@ -6934,6 +7022,7 @@ function openModalFromProduct(id){
   queueMicrotask(()=>bumpSocialProof(id));
   currentModalProductId = id;
   trackRecentlyViewed(id);
+  try { pushRecentView(p); } catch(_) {}
   const social = getProductSocial(id);
   const uxCopy = getUxCopy();
   currentModalImages = getProductImages(p);
@@ -7117,6 +7206,8 @@ function openModalFromProduct(id){
       renderModalThumbs();
       renderModalRelated(p);
       bindModalRelatedDelegation();
+      renderSimilarProducts(p);
+      attachZoomLens();
     };
     if(typeof requestIdleCallback === 'function'){
       requestIdleCallback(runDeferred, {timeout:250});
@@ -7837,6 +7928,10 @@ document.addEventListener('click', function(e){
   try {
     const a = e.target.closest('a[href], button[data-nav], [data-href]');
     if (!a) return;
+    if (a.matches && a.matches('a[href]')) {
+      const href = a.getAttribute('href') || '';
+      if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+    }
     // Modal kapatma, sepetten ürün silme gibi UI butonlarını dışla
     if (a.closest('#cartActionPanel') || a.closest('.cart-item') || a.closest('.cap-drawer')) return;
     _backupCartBeforeNav();
@@ -8841,6 +8936,8 @@ function toggleFavorite(id, btn){
   }
   updateFavCount();
   saveFavoritesToStorage();
+  const bnFav = document.getElementById('bnFavCount');
+  if (bnFav) bnFav.textContent = String(favorites.length);
   // Update modal fav button if open
   const mfb = document.getElementById('modal-fav-btn');
   if(mfb){
@@ -9213,7 +9310,9 @@ function addToCart(itemPayload){
   showToast('✓ Sepete eklendi: '+name);
   const card = document.querySelector(`.product-card[data-id="${CSS.escape(String(id||''))}"]`) || document.getElementById(`pc-${id}`);
   if(card){ card.classList.add('just-added'); setTimeout(()=>card.classList.remove('just-added'),700); }
+  renderMiniCart();
   saveCartToStorage();
+  renderCart();
   try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){}
 }
 
@@ -9224,6 +9323,8 @@ function updateCartCount(){
   const mc = document.getElementById('cartCountMobile'); if(mc) mc.innerText = nText;
   const mb = document.getElementById('cartBadgeMobile'); if(mb) mb.innerText = nText;
   const bb = document.getElementById('cartCountBottom'); if(bb) bb.innerText = nText;
+  const bnCart = document.getElementById('bnCartCount');
+  if (bnCart) bnCart.textContent = String(basket.length);
 }
 
 function updateItemQty(idx,change){
@@ -9243,11 +9344,12 @@ function removeItem(idx){
   try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){}
 }
 function clearCart(){
-  if(!confirm('Sepet temizlensin mi?')) return;
+  if (!confirm('Sepetteki TÜM ürünler silinecek. Emin misiniz?')) return;
   basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount();
   window.__gpExplicitCartClear = true;
   saveCartToStorage();
   renderCart();
+  renderMiniCart();
 }
 function goToProductByIdFromCart(productId){
   if(!productId){
@@ -9310,6 +9412,7 @@ function renderCart(){
     if(form) form.style.display='none';
     if(cartHint) cartHint.style.display='none';
     updateCartActionPanel();
+    renderRecentlyViewed();
     return;
   }
   const skeleton = document.getElementById('cartInitialSkeleton');
@@ -9355,6 +9458,8 @@ function renderCart(){
   if(cartHint) cartHint.style.display='block';
   updateCartActionPanel();
   applyPendingCouponFromStorage();
+  renderRecentlyViewed();
+  try { suggestApplicableCoupon(); } catch(_) {}
 
   // Son güvenlik: 600ms sonra cart-container hâlâ boş görünüyorsa ve basket doluysa zorla göster
   setTimeout(()=>{
@@ -10430,6 +10535,79 @@ async function applySavedAddress(idx){
   await syncPartsFromAddress(text);
   syncAddressFromParts();
 }
+
+const RV_KEY = 'gp_recent_views';
+const RV_MAX = 12;
+function pushRecentView(p){
+  if (!p || !p.id) return;
+  try {
+    const arr = JSON.parse(localStorage.getItem(RV_KEY) || '[]');
+    const filtered = arr.filter(x => x.id !== p.id);
+    filtered.unshift({ id: p.id, name: p.name, price: p.price, image: (typeof getPrimaryImage==='function') ? getPrimaryImage(p) : (p.image||''), ts: Date.now() });
+    localStorage.setItem(RV_KEY, JSON.stringify(filtered.slice(0, RV_MAX)));
+  } catch(_) {}
+}
+window.pushRecentView = pushRecentView;
+function getRecentViews(){
+  try { return JSON.parse(localStorage.getItem(RV_KEY) || '[]'); }
+  catch(_) { return []; }
+}
+
+function suggestApplicableCoupon(){
+  if (!Array.isArray(basket) || !basket.length) return;
+  if (sessionStorage.getItem('gp_coupon_suggested') === '1') return;
+  const total = basket.reduce((a,b)=> a + (Number(b?.sub)||0), 0);
+  const coupons = [
+    { min: 3000, code: 'PERDE5', pct: 5, text: '%5 indirim' },
+    { min: 6000, code: 'PERDE10', pct: 10, text: '%10 indirim' },
+    { min: 12000, code: 'PERDE15', pct: 15, text: '%15 indirim' }
+  ].sort((a,b)=> b.min - a.min);
+  const eligible = coupons.find(c => total >= c.min);
+  if (!eligible) return;
+  const t = document.createElement('div');
+  t.className = 'gp-coupon-toast';
+  t.innerHTML = `<i class="fas fa-ticket"></i><div><strong>${eligible.text} kazandın!</strong><div>Kupon: <code>${eligible.code}</code></div></div><button type="button" onclick="document.getElementById('couponInput').value='${eligible.code}';try{applyCoupon();}catch(_){}this.parentElement.remove();sessionStorage.setItem('gp_coupon_suggested','1');">Uygula</button><button type="button" class="gp-coupon-x" onclick="this.parentElement.remove();sessionStorage.setItem('gp_coupon_suggested','1');">×</button>`;
+  document.body.appendChild(t);
+}
+window.suggestApplicableCoupon = suggestApplicableCoupon;
+
+function renderRecentlyViewed(){
+  const el = document.getElementById('recentlyViewedSection');
+  const track = document.getElementById('recentlyViewedTrack');
+  if (!el || !track) return;
+  const items = getRecentViews().slice(0, 8);
+  if (!items.length){ el.style.display = 'none'; return; }
+  track.innerHTML = items.map(p => `<div class="rv-card" onclick="window.location.href='/?product=${encodeURIComponent(p.id)}'"><img src="${p.image}" alt="${p.name}" loading="lazy" decoding="async" width="160" height="200"><div class="rv-name">${p.name}</div><div class="rv-price">${Number(p.price||0).toLocaleString('tr-TR')} TL</div></div>`).join('');
+  el.style.display = 'block';
+}
+window.renderRecentlyViewed = renderRecentlyViewed;
+
+function renderSimilarProducts(currentProduct){
+  const wrap = document.getElementById('similarProducts');
+  if (!wrap || !Array.isArray(window.PRODUCTS) || !currentProduct) return;
+  const currentFeatures = (currentProduct.features||'').split(',').map(f=>f.trim()).filter(Boolean);
+  const sim = window.PRODUCTS.filter(p => p.id !== currentProduct.id && p?.active !== false && (p.cat === currentProduct.cat || (p.features||'').split(',').some(f => currentFeatures.includes(f.trim())))).sort(()=> Math.random()-0.5).slice(0, 6);
+  if (!sim.length){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `<h4 style="font-family:var(--ff-display);font-size:1.05rem;margin-bottom:12px;color:var(--ink)"><i class="fas fa-layer-group" style="color:var(--gold);margin-right:6px"></i>Benzer Ürünler</h4><div class="similar-track">${sim.map(p=>`<div class="similar-card" onclick="window.location.href='/?product=${encodeURIComponent(p.id)}'"><img src="${getPrimaryImage(p)}" alt="${p.name}" loading="lazy" decoding="async"><div class="similar-name">${p.name}</div><div class="similar-price">${Number(p.price||0).toLocaleString('tr-TR')} TL</div></div>`).join('')}</div>`;
+}
+window.renderSimilarProducts = renderSimilarProducts;
+
+function attachZoomLens(){
+  document.querySelectorAll('.zoom-wrap').forEach(w=>{
+    if (w.dataset.zoomBound==='1') return;
+    w.dataset.zoomBound='1';
+    const img = w.querySelector('img'); if (!img) return;
+    w.addEventListener('mousemove', e=>{
+      const r = w.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      img.style.transformOrigin = `${x}% ${y}%`;
+      img.style.transform = 'scale(2)';
+    });
+    w.addEventListener('mouseleave', ()=>{ img.style.transform = ''; img.style.transformOrigin = ''; });
+  });
+}
+window.attachZoomLens = attachZoomLens;
 
 function saveCartToStorage(){
   try{
@@ -11854,6 +12032,39 @@ function trapFocus(element){
   }catch(e){ console.warn('[gp:welcome]', e); }
 })();
 
+(function gpAutoSuggest(){
+  const SUGG_MAX = 8;
+  function buildSuggBox(input){
+    if (input.dataset.suggBound === '1') return;
+    input.dataset.suggBound = '1';
+    const box = document.createElement('div');
+    box.className = 'gp-autosugg';
+    box.setAttribute('role','listbox');
+    input.parentNode.style.position = input.parentNode.style.position || 'relative';
+    input.parentNode.appendChild(box);
+    let activeIdx = -1;
+    let timer = null;
+    function render(items){
+      if (!items.length){ box.innerHTML = ''; box.classList.remove('open'); return; }
+      box.innerHTML = items.map((p,i)=>`<button type="button" class="gp-sugg-item" role="option" data-id="${p.id}" data-i="${i}"><img src="${(typeof getPrimaryImage==='function')?getPrimaryImage(p):(p.image||'')}" alt="" loading="lazy" decoding="async"><div class="gp-sugg-meta"><div class="gp-sugg-name">${p.name}</div><div class="gp-sugg-price">${Number(p.price||0).toLocaleString('tr-TR')} TL</div></div></button>`).join('');
+      box.classList.add('open');
+      activeIdx = -1;
+    }
+    function search(q){
+      q = String(q||'').toLocaleLowerCase('tr').trim();
+      if (q.length < 2 || !Array.isArray(window.PRODUCTS)) return [];
+      return window.PRODUCTS.filter(p=>{ if (p?.active === false) return false; const hay = `${p.name||''} ${p.cat||''} ${p.desc||''}`.toLocaleLowerCase('tr'); return hay.includes(q); }).slice(0, SUGG_MAX);
+    }
+    input.addEventListener('input', ()=>{ clearTimeout(timer); timer = setTimeout(()=> render(search(input.value)), 180); });
+    input.addEventListener('keydown', (e)=>{ const items = box.querySelectorAll('.gp-sugg-item'); if (!items.length) return; if (e.key === 'ArrowDown'){ e.preventDefault(); activeIdx = (activeIdx+1) % items.length; } else if (e.key === 'ArrowUp'){ e.preventDefault(); activeIdx = (activeIdx-1+items.length) % items.length; } else if (e.key === 'Enter' && activeIdx >= 0){ e.preventDefault(); items[activeIdx].click(); } else if (e.key === 'Escape'){ box.classList.remove('open'); return; } items.forEach((it,i)=> it.classList.toggle('is-active', i === activeIdx)); });
+    box.addEventListener('click', (e)=>{ const btn = e.target.closest('.gp-sugg-item'); if (!btn) return; const id = btn.dataset.id; box.classList.remove('open'); input.value = ''; if (typeof window.openProductModalById === 'function') window.openProductModalById(id); else if (typeof window.openModalFromProduct === 'function') window.openModalFromProduct(id); else window.location.href = `/?product=${encodeURIComponent(id)}`; });
+    document.addEventListener('click', (e)=>{ if (!box.contains(e.target) && e.target !== input) box.classList.remove('open'); });
+  }
+  function bindAll(){ document.querySelectorAll('#searchInput, .modal-search-input').forEach(buildSuggBox); }
+  document.addEventListener('DOMContentLoaded', bindAll);
+  new MutationObserver(bindAll).observe(document.body,{childList:true,subtree:true});
+})();
+window.addEventListener('scroll', ()=>{ const fab = document.getElementById('scrollTopFab'); if (!fab) return; fab.classList.toggle('show', window.scrollY > 600); }, { passive: true });
 </script>
 
 <div class="mobile-action-bar" id="mobileActionBar" hidden>
@@ -11882,5 +12093,13 @@ function trapFocus(element){
   <iframe id="paytrIframeEl" title="PayTR Güvenli Ödeme" allow="payment *" allowfullscreen></iframe>
 </div>
 <button id="backToTopBtn" aria-label="Sayfa başına git" style="display:none"><i class="fas fa-chevron-up"></i></button>
+<nav class="gp-bottom-nav" aria-label="Alt navigasyon">
+  <button type="button" onclick="go('home')"><i class="fas fa-house"></i><span>Ana Sayfa</span></button>
+  <button type="button" onclick="go('products')"><i class="fas fa-grip"></i><span>Ürünler</span></button>
+  <button type="button" onclick="togglePopup('searchBar')"><i class="fas fa-search"></i><span>Ara</span></button>
+  <button type="button" onclick="togglePopup('favoriteBar')"><i class="far fa-heart"></i><span>Favori</span><span class="bn-badge" id="bnFavCount">0</span></button>
+  <button type="button" onclick="go('cart')"><i class="fas fa-bag-shopping"></i><span>Sepet</span><span class="bn-badge" id="bnCartCount">0</span></button>
+</nav>
+<button type="button" id="scrollTopFab" aria-label="Yukarı çık" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i></button>
 </body>
 </html>

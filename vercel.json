@@ -1,131 +1,29 @@
 {
-  "version": 2,
-  "buildCommand": null,
-  "outputDirectory": ".",
-  "cleanUrls": false,
-  "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/payment-logos/(.*)",
-      "destination": "/payment-logos/$1"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/router?route=$1"
-    }
-  ],
   "headers": [
     {
-      "source": "/admin.html",
+      "source": "/(.*)\\.(webp|avif|jpg|jpeg|png|svg|woff2|ico)",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        },
-        {
-          "key": "Pragma",
-          "value": "no-cache"
-        },
-        {
-          "key": "Expires",
-          "value": "0"
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     },
     {
-      "source": "/index.html",
+      "source": "/(.*)\\.(css|js)",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
+          "value": "public, max-age=86400, must-revalidate"
         }
       ]
     },
     {
-      "source": "/products.json",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=60, stale-while-revalidate=300"
-        }
-      ]
-    },
-    {
-      "source": "/categories\\.json",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=60, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/api/reviews-summary",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=60, stale-while-revalidate=300"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)\\.html",
+      "source": "/(index\\.html|hesabim\\.html|hesap\\.html)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/(.*\\.html)?",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        },
-        {
-          "key": "Pragma",
-          "value": "no-cache"
-        },
-        {
-          "key": "Expires",
-          "value": "0"
-        }
-      ]
-    },
-    {
-      "source": "/resimler/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=2592000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/api/campaigns",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store, no-cache, must-revalidate, proxy-revalidate"
-        },
-        {
-          "key": "Pragma",
-          "value": "no-cache"
-        },
-        {
-          "key": "Expires",
-          "value": "0"
-        }
-      ]
-    },
-    {
-      "source": "/sw.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store, no-cache, must-revalidate, max-age=0"
         }
       ]
     }

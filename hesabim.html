@@ -657,75 +657,50 @@
 
     /* === SİPARİŞ DETAYI — MASAÜSTÜ MOBİL TARZI === */
     @media (min-width: 769px) {
-      #orderDetailModal.modal-overlay {
-        align-items: stretch !important;
+      #orderDetailModal {
+        align-items: center !important;
         justify-content: center !important;
-        padding: 24px !important;
+        padding: 32px !important;
       }
       #orderDetailModal .order-modal {
-        max-width: 980px !important;
+        max-width: 960px !important;
         width: 100% !important;
-        max-height: calc(100vh - 48px) !important;
-        height: calc(100vh - 48px) !important;
-        margin: 0 !important;
-        border-radius: 18px !important;
+        max-height: min(720px, calc(100vh - 64px)) !important;
+        height: auto !important;
+        margin: 0 auto !important;
+        border-radius: 20px !important;
         display: flex !important;
         flex-direction: column !important;
         overflow: hidden !important;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.35) !important;
       }
       #orderDetailModal .order-modal-header {
         flex: 0 0 auto;
-        position: sticky;
-        top: 0;
-        z-index: 5;
-        padding: 18px 28px;
-      }
-      #orderDetailModal .order-modal-header h3 {
-        font-size: 1.45rem;
+        padding: 20px 28px;
       }
       #orderDetailModal .order-modal-body,
       #orderDetailModal #orderModalContent {
         flex: 1 1 auto;
         min-height: 0;
         overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
-        padding: 28px 32px 32px 32px;
-      }
-      #orderDetailModal .modal-product-row {
-        padding: 16px 18px;
+        padding: 24px 28px;
       }
       #orderDetailModal .modal-product-list,
       #orderDetailModal .order-products-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
       }
       #orderDetailModal .order-info-grid,
       #orderDetailModal .info-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-      }
-      #orderDetailModal .modal-footer,
-      #orderDetailModal .form-modal-footer,
-      #orderDetailModal .modal-actions {
-        position: sticky;
-        bottom: 0;
-        background: #fff;
-        padding: 16px 28px;
-        border-top: 1px solid var(--line, #e5e7eb);
-        box-shadow: 0 -4px 12px rgba(0,0,0,.06);
-        z-index: 4;
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
       }
     }
     @media (min-width: 1280px) {
-      #orderDetailModal .order-modal {
-        max-width: 1100px !important;
-      }
+      #orderDetailModal .order-modal { max-width: 1080px !important; }
     }
     @media (max-width: 480px) { .info-box.full { grid-column: span 1; } }
 
@@ -1800,13 +1775,10 @@ function lockBodyScrollForModal(){
 }
 function unlockBodyScrollForModal(){
   try{
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.style.width = '';
-    document.body.classList.remove('modal-open','no-scroll');
-    window.scrollTo(0, __savedScrollY);
+    const y = __savedScrollY;
+    document.body.style.cssText = "";
+    document.body.classList.remove('modal-open','no-scroll','order-detail-open');
+    requestAnimationFrame(()=> window.scrollTo(0, y));
   }catch(_){}
 }
 
@@ -2415,6 +2387,20 @@ function openOrderDetail(orderId){
     let estimatedDeliveryDate = '—';
     try { estimatedDeliveryDate = (typeof getEstimatedDeliveryDate === 'function') ? getEstimatedDeliveryDate(o, orderDate) : '—'; }
     catch(e){ console.warn('[orderDetail] getEstimatedDeliveryDate hata:', e); }
+    const trackingHTML = (() => {
+      const aktif = ['Kargoya Verildi','Yolda','Dağıtımda','Teslim Edildi'].includes(o.durum);
+      if (!aktif) return '';
+      const tno = o.kargo_takip_no || '';
+      const firma = o.kargo_firmasi || 'aras';
+      const trackUrl = (function(){
+        if (!tno) return '';
+        if (firma === 'ptt') return `https://gonderitakip.ptt.gov.tr/Track/SorguDetay?q=${encodeURIComponent(tno)}`;
+        if (firma === 'yurtici') return `https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=${encodeURIComponent(tno)}`;
+        if (firma === 'mng') return `https://service.mngkargo.com.tr/MNGKargoOnlineService/Service.svc/searchByCargoTracking/${encodeURIComponent(tno)}`;
+        return `https://kargotakip.araskargo.com.tr/mainpage.aspx?code=${encodeURIComponent(tno)}`;
+      })();
+      return `<div style="margin:18px 0;padding:14px;background:#fff8e6;border:1px solid #f3d27a;border-radius:12px"><div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#7a5a14"><i class="fas fa-truck-fast"></i> Kargo Takibi</div>${tno ? `<div style="margin-top:8px;font-size:.85rem;color:#5b4612"><strong>${firma.toUpperCase()}</strong> · No: <code>${tno}</code></div>${trackUrl ? `<a href="${trackUrl}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:8px 16px;background:#c8a35a;color:#fff;border-radius:8px;text-decoration:none;font-size:.82rem;font-weight:600"><i class="fas fa-external-link"></i> Kargoyu Takip Et</a>` : ''}` : `<div style="margin-top:6px;font-size:.82rem;color:#5b4612">Takip numarası kargo şirketi tarafından eklendiğinde burada görünecek.</div>`}</div>`;
+    })();
     // Ürün satırları — her satır kendi try/catch'inde, biri patlasa diğerleri görünsün
     const productRows = (Array.isArray(items) ? items : []).map((i, idx) => {
       try{
@@ -2460,9 +2446,14 @@ function openOrderDetail(orderId){
           <div class="timeline-title"><i class="fas fa-route" style="color:var(--gold);margin-right:6px"></i> Sipariş Süreci</div>
           <div class="timeline">${timeline}</div>
         </div>` : ''}
+      ${trackingHTML}
       <div class="modal-total-row">
         <div><div class="modal-total-label">Toplam Ödeme</div></div>
         <div class="modal-total-amount">${Number(o.toplam || 0).toLocaleString('tr-TR')} TL</div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+        <button type="button" class="btn btn-ghost" onclick="closeOrderModal()">Kapat</button>
+        <button type="button" class="btn" style="background:#1a1a1a;color:#fff" onclick="printOrderDetail()"><i class="fas fa-print"></i> Yazdır / PDF Kaydet</button>
       </div>`;
   }catch(err){
     console.error('[openOrderDetail] kritik hata:', err);
@@ -3138,33 +3129,42 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+function printOrderDetail(){
+  const modalContent = document.getElementById('orderModalContent');
+  if (!modalContent) return;
+  const orderId = document.getElementById('modalOrderId')?.textContent || '';
+  const w = window.open('', '_blank', 'width=900,height=1200');
+  if(!w) return;
+  w.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><title>Sipariş ${orderId} — Göçmen Perde</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#1a1a1a;}h1{font-size:1.4rem;margin-bottom:8px;border-bottom:2px solid #c8a35a;padding-bottom:6px}img{max-width:90px;height:auto}table{width:100%;border-collapse:collapse;margin-top:12px}td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left;font-size:.9rem}.footer{margin-top:24px;font-size:.75rem;color:#666;text-align:center}@media print{button{display:none}}</style></head><body><h1>Göçmen Perde — Sipariş ${orderId}</h1>${modalContent.innerHTML}<div class="footer">www.gocmenperde.com — ${new Date().toLocaleString('tr-TR')}</div><script>window.onload=()=>{window.print();}<\/script></body></html>`);
+  w.document.close();
+}
+window.printOrderDetail = printOrderDetail;
+
 window.addEventListener('pageshow', function(ev) {
-  // Bfcache'den döndük
   try {
+    if (!ev.persisted) {
+      try { sessionStorage.setItem('gp_landed_hesabim', '1'); } catch(_) {}
+      return;
+    }
     const params = new URLSearchParams(window.location.search);
     const ret = params.get('return') || '';
     let isCartReturn = ret === 'cart' || ret === 'checkout';
     if (!isCartReturn) {
-      try {
-        const ss = sessionStorage.getItem('gp_return_to');
-        isCartReturn = ss === 'cart' || ss === 'checkout';
-      } catch(_) {}
+      const ss = sessionStorage.getItem('gp_return_to');
+      isCartReturn = ss === 'cart' || ss === 'checkout';
     }
     if (isCartReturn) {
-      // Bfcache bypass: index.html'e fresh navigation, basket restore parametresiyle
+      try { sessionStorage.removeItem('gp_landed_hesabim'); } catch(_) {}
       window.location.replace('/index.html?redirect=cart');
       return;
     }
-    // Sepet/checkout dışı bfcache — sekme içeriğini yenile
-    try {
-      const active = document.querySelector('.gp-section.active');
-      if (active) {
-        const tabId = active.id.replace('section-','');
-        if (tabId === 'orders')    { try { if(typeof loadOrders    === 'function') loadOrders();    } catch(_){} }
-        if (tabId === 'addresses') { try { if(typeof loadAddresses === 'function') loadAddresses(); } catch(_){} }
-        if (tabId === 'favorites') { try { if(typeof loadFavorites === 'function') loadFavorites(); } catch(_){} }
-      }
-    } catch(_) {}
+    const active = document.querySelector('.gp-section.active');
+    if (active) {
+      const tabId = active.id.replace('section-','');
+      if (tabId === 'orders')    { try{ loadOrders(); }catch(_){} }
+      if (tabId === 'addresses') { try{ loadAddresses(); }catch(_){} }
+      if (tabId === 'favorites') { try{ loadFavorites(); }catch(_){} }
+    }
   } catch(_) {}
 });
 
