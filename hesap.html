@@ -264,20 +264,21 @@
                 } catch(_) {}
                 // 120ms'lik mikro-gecikme — toast bir frame görünsün
                 setTimeout(() => {
-                    try{
-                        // Eğer back hedefi varsa, önce onu history'e push et,
-                        // sonra next'e replace ile git. Böylece geri tuşu
-                        // login ekranını ATLAR ve back hedefine düşer.
-                        if(safeBackPath){
-                            history.replaceState(null, '', safeBackPath);
-                            history.pushState(null, '', safeNextPath);
-                            window.location.replace(safeNextPath);
+                    const params = new URLSearchParams(window.location.search);
+                    const back = params.get('back');
+                    const next = params.get('next');
+                    // Öncelik: back parametresi (kullanıcının başladığı yer — checkout/cart)
+                    if(back && back.startsWith('/')){
+                        // Checkout flow'undan geliyorsa direkt sepete at
+                        if(back.includes('checkout') || back.includes('cart')){
+                            window.location.replace('/index.html?from=address-return');
                         } else {
-                            // back yoksa login sayfası history'den çıksın
-                            window.location.replace(safeNextPath);
+                            window.location.replace(back);
                         }
-                    }catch(e){
-                        window.location.replace(safeNextPath);
+                    } else if(next && next.startsWith('/')){
+                        window.location.replace(next);
+                    } else {
+                        window.location.replace('/hesabim.html');
                     }
                 }, 120);
                 return;
