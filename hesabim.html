@@ -3024,7 +3024,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 window.addEventListener('pageshow', function(ev) {
-  if (!ev.persisted) return;
   // Bfcache'den döndük
   try {
     const params = new URLSearchParams(window.location.search);
@@ -3036,7 +3035,7 @@ window.addEventListener('pageshow', function(ev) {
         isCartReturn = ss === 'cart' || ss === 'checkout';
       } catch(_) {}
     }
-    if (isCartReturn) {
+    if (isCartReturn && ev.persisted) {
       // Bfcache bypass: index.html'e fresh navigation, basket restore parametresiyle
       window.location.replace('/index.html?redirect=cart');
       return;
