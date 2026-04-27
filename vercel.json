@@ -2,12 +2,50 @@
   "outputDirectory": ".",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/hesapim", "destination": "/hesabim.html" },
-    { "source": "/hesap", "destination": "/hesap.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/gizlilik-politikasi.html", "destination": "/gizlilik-politikasi" },
-    { "source": "/iade-politikasi.html", "destination": "/iade-politikasi" },
-    { "source": "/mesafeli-satis.html", "destination": "/mesafeli-satis" }
+    {
+      "source": "/cayma-kosullari",
+      "destination": "/iade-politikasi.html"
+    },
+    {
+      "source": "/cayma-kosullari.html",
+      "destination": "/iade-politikasi.html"
+    },
+    {
+      "source": "/mesafeli-satis",
+      "destination": "/mesafeli-satis.html"
+    },
+    {
+      "source": "/iade-politikasi",
+      "destination": "/iade-politikasi.html"
+    },
+    {
+      "source": "/gizlilik-politikasi",
+      "destination": "/gizlilik-politikasi.html"
+    },
+    {
+      "source": "/hesapim",
+      "destination": "/hesabim.html"
+    },
+    {
+      "source": "/hesap",
+      "destination": "/hesap.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/gizlilik-politikasi.html",
+      "destination": "/gizlilik-politikasi"
+    },
+    {
+      "source": "/iade-politikasi.html",
+      "destination": "/iade-politikasi"
+    },
+    {
+      "source": "/mesafeli-satis.html",
+      "destination": "/mesafeli-satis"
+    }
   ],
   "headers": [
     {
