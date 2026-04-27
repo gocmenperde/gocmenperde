@@ -621,7 +621,11 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 #siteFooter::before{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin-bottom:0}
 .footer-social a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid rgba(200,163,90,.3);color:var(--gold);font-size:1rem;transition:background .2s,transform .2s}
 .footer-social a:hover{background:rgba(200,163,90,.12);transform:translateY(-2px);background-image:none}
-.live-order-toast{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:rgba(26,26,26,.88);border:1px solid rgba(200,163,90,.3);border-radius:16px;overflow:hidden}
+.live-order-toast{backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);background:rgba(250,248,244,0.97) !important;border:1px solid rgba(200,163,90,0.25) !important;border-left:3px solid var(--gold) !important;border-radius:16px;overflow:hidden;box-shadow:0 16px 40px rgba(15,14,13,0.16)}
+.live-order-toast .lo-body strong{color:var(--ink,#1a1a1a) !important;}
+.live-order-toast .lo-meta{color:var(--slate,#555) !important;}
+.live-order-toast .lo-verified{color:#1e8e3e !important;}
+.live-order-toast .lo-close{color:var(--slate,#555) !important;}
 .live-order-toast::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-deep));animation:toastProgress 4s linear forwards}
 @keyframes toastProgress{from{width:100%}to{width:0%}}
 @media(max-width:640px){.hero{min-height:85vh;padding:80px 16px 50px}.hero-title{font-size:clamp(2.2rem,9vw,3.2rem);line-height:1}.hero-subtitle{font-size:.88rem;padding:9px 16px}.hero-actions{flex-direction:column;gap:10px;padding:12px}.btn-primary,.btn-outline{min-width:unset;width:100%;padding:14px 20px}.hero-proof-row{gap:12px}}
@@ -848,7 +852,7 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .clear-btn:hover{background:#c0392b;color:white}
 .cart-action-panel{display:none;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 48px rgba(0,0,0,0.15);overflow:hidden;flex-direction:column;padding:0}
 @media (max-width:1023px){
-  .cart-action-panel{position:fixed;left:14px;right:14px;bottom:calc(76px + env(safe-area-inset-bottom) + 8px);z-index:12240;max-width:980px;margin:0 auto}
+  .cart-action-panel{position:fixed;left:14px;right:14px;bottom:calc(var(--mobile-nav-offset,76px) + env(safe-area-inset-bottom,0px) + 8px);z-index:12240;max-width:980px;margin:0 auto}
 }
 @media (min-width:1024px){
   .cart-action-panel{position:sticky;bottom:20px;margin:30px auto 0;max-width:960px;width:100%}
@@ -858,9 +862,9 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .cart-action-total span{display:block;font-size:0.74rem;color:var(--gold-dark);font-weight:700;margin-top:3px;letter-spacing:.5px}
 .cart-action-btn{flex:1;border:none;background:var(--ink);color:#fff;font-size:1.02rem;font-weight:600;cursor:pointer;padding:14px 16px;letter-spacing:1.8px;text-transform:uppercase;font-family:var(--ff-body);transition:var(--transition)}
 .cart-action-btn:hover{background:var(--gold);color:var(--ink)}
-@media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom) + 8px) !important}.cart-action-btn{font-size:0.9rem;padding:13px 10px}}
+@media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(var(--mobile-nav-offset,76px) + env(safe-area-inset-bottom,0px) + 8px) !important}.cart-action-btn{font-size:0.9rem;padding:13px 10px}}
 /* Drawer açıkken paneli backdrop'ın üstüne çıkar */
-.cart-action-panel.has-open-drawer{z-index:12400;bottom:calc(76px + env(safe-area-inset-bottom) + 8px) !important}
+.cart-action-panel.has-open-drawer{z-index:12400;bottom:calc(var(--mobile-nav-offset,76px) + env(safe-area-inset-bottom,0px) + 8px) !important}
 .cap-meta{display:none}
 .cap-row{display:flex;width:100%}
 .cap-chev{display:inline-block;margin-left:8px;transition:transform .2s ease}
@@ -870,7 +874,7 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 /* === KOMPAKT MOD (sheet kapalı) === */
 .cart-action-panel{
   position:fixed; left:8px; right:8px;
-  bottom:calc(76px + env(safe-area-inset-bottom) + 8px) !important;
+  bottom:calc(var(--mobile-nav-offset,76px) + env(safe-area-inset-bottom,0px) + 8px) !important;
   z-index:12240;
   background:#fff;
   border-radius:18px;
@@ -1050,6 +1054,12 @@ body.cap-drawer-open .mobile-bottom-nav{opacity:0 !important;pointer-events:none
 .cap-backdrop.open{display:block}
 .cap-backdrop.is-open{opacity:1;pointer-events:auto;display:block}
 @media(max-width:1023px){.cart-action-panel.is-sheet{z-index:12300 !important;}}
+@media(max-width:1023px){
+  .cart-action-panel{
+    will-change:bottom;
+    transition:bottom 0.15s ease;
+  }
+}
 body.cap-drawer-open header,
 body.cap-drawer-open #mainHeader{opacity:0.15;pointer-events:none;transition:opacity 0.25s ease;}
 .contracts-scroll-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
@@ -7486,7 +7496,7 @@ function ensureLoaderDoesNotBlockUi(){
 }
 
 function recoverUIAfterResume(){
-  // YENİ: bfcache/resume sonrası stale overlay class'larını temizle
+  // Stale overlay/scroll-lock temizliği
   try {
     document.body.classList.remove(
       'cap-drawer-open','popup-open','modal-open',
@@ -7495,13 +7505,12 @@ function recoverUIAfterResume(){
     document.body.style.overflow = '';
     document.body.style.position = '';
     document.documentElement.style.overflow = '';
-    // Cap drawer'ı kapat
-    const capDrawer = document.getElementById('capDrawer');
+    const capDrawer   = document.getElementById('capDrawer');
     const capBackdrop = document.getElementById('capBackdrop');
-    const capPanel = document.getElementById('cartActionPanel');
-    if (capDrawer) { capDrawer.classList.remove('is-open'); capDrawer.setAttribute('aria-hidden','true'); }
+    const capPanel    = document.getElementById('cartActionPanel');
+    if (capDrawer)   { capDrawer.classList.remove('is-open'); capDrawer.setAttribute('aria-hidden','true'); }
     if (capBackdrop) capBackdrop.classList.remove('is-open');
-    if (capPanel) { capPanel.classList.remove('is-sheet'); capPanel.style.transform = ''; capPanel.style.transition = ''; }
+    if (capPanel)    { capPanel.classList.remove('is-sheet','has-open-drawer'); capPanel.style.transform=''; capPanel.style.transition=''; }
   } catch(_) {}
   hideLoader(true);
   stopLiveViewerCounter();
@@ -7636,47 +7645,71 @@ function runSafely(taskName, fn){
 document.addEventListener('DOMContentLoaded',()=>{
   // "Sepete yönlendiriliyorsunuz" ara ekranı — hesabim.html'den bfcache bypass dönüşü
   (function handleCartRedirect(){
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('redirect') !== 'cart') return;
+    // URL'i history'den temizle
     try {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('redirect') !== 'cart') return;
-      // URL'i temizle (history'ye girmesin)
-      const cleanUrl = window.location.pathname + window.location.hash;
-      window.history.replaceState(null, '', cleanUrl);
-      // Bekleme ekranını göster
-      const screen = document.getElementById('cartRedirectScreen');
-      if (screen) screen.style.display = 'flex';
-      // Kısa bekleme → sepet section'ını aç
-      function doRedirect(){
-        try {
-          // Stale overlay temizliği
-          document.body.classList.remove(
-            'cap-drawer-open','popup-open','modal-open',
-            'no-scroll','product-modal-open'
-          );
-          document.body.style.overflow = '';
-          // Cart'a git
-          if (typeof go === 'function') {
-            go('cart');
-          } else if (typeof applySectionState === 'function') {
-            applySectionState('cart', { scroll: false });
-          } else {
-            window.location.hash = '#cart';
-          }
-          // Bekleme ekranını kapat
-          if (screen) {
-            screen.classList.add('fade-out');
-            setTimeout(()=>{ screen.style.display='none'; screen.classList.remove('fade-out'); }, 450);
-          }
-        } catch(_) {}
-      }
-      // DOM hazır olana kadar bekle
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', ()=>setTimeout(doRedirect, 600));
-      } else {
-        setTimeout(doRedirect, 600);
-      }
+      window.history.replaceState(null, '', window.location.pathname + (window.location.hash || ''));
     } catch(_) {}
-  })();
+    // Bekleme ekranını göster
+    const screen = document.getElementById('cartRedirectScreen');
+    if (screen) screen.style.display = 'flex';
+    function doRedirect() {
+      try {
+        // 1. Stale body class'larını temizle
+        document.body.classList.remove(
+          'cap-drawer-open','popup-open','modal-open',
+          'no-scroll','product-modal-open','order-detail-open'
+        );
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.documentElement.style.overflow = '';
+        // 2. Cap drawer/backdrop'ı kapat
+        const capDrawer   = document.getElementById('capDrawer');
+        const capBackdrop = document.getElementById('capBackdrop');
+        const capPanel    = document.getElementById('cartActionPanel');
+        if (capDrawer)   { capDrawer.classList.remove('is-open'); capDrawer.setAttribute('aria-hidden','true'); }
+        if (capBackdrop) capBackdrop.classList.remove('is-open');
+        if (capPanel)    { capPanel.classList.remove('is-sheet','has-open-drawer'); capPanel.style.transform=''; capPanel.style.transition=''; }
+        // 3. Basket'i localStorage'dan yükle
+        try { if (typeof loadCartFromStorage === 'function') loadCartFromStorage(); } catch(_) {}
+        // 4. Sepet section'ına git
+        let sectionMoved = false;
+        if (typeof go === 'function') { try { go('cart'); sectionMoved = true; } catch(_) {} }
+        if (!sectionMoved && typeof applySectionState === 'function') {
+          try { applySectionState('cart', { scroll: false }); sectionMoved = true; } catch(_) {}
+        }
+        if (!sectionMoved) { window.location.hash = '#cart'; }
+        // 5. Bir RAF sonra cart'ı render et (DOM güncellemesini bekle)
+        requestAnimationFrame(function() {
+          try { if (typeof renderCart === 'function') renderCart(); } catch(_) {}
+          try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+          try { if (typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
+          try { if (typeof setMobileNavPadding === 'function') setMobileNavPadding(); } catch(_) {}
+        });
+        // 6. Bekleme ekranını kapat
+        if (screen) {
+          screen.classList.add('fade-out');
+          setTimeout(function() {
+            screen.style.display = 'none';
+            screen.classList.remove('fade-out');
+          }, 450);
+        }
+      } catch(err) {
+        // Hata olursa doğrudan sepete git
+        window.location.hash = '#cart';
+        if (screen) screen.style.display = 'none';
+      }
+    }
+    // DOM hazır olana kadar bekle, sonra çalıştır
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() { setTimeout(doRedirect, 500); });
+    } else {
+      setTimeout(doRedirect, 500);
+    }
+  } catch(_) {}
+})();
   runSafely('applyFooterSocialLinks', ()=>applyFooterSocialLinks());
   runSafely('renderHomeSlider (dom ready)', ()=>renderHomeSlider());
   runSafely('loadHomeSlider (dom ready)', ()=>loadHomeSlider());
@@ -10993,11 +11026,10 @@ function setMobileNavPadding(){
   const checkoutCtaHeight = (checkoutCta && getComputedStyle(checkoutCta).display !== 'none') ? checkoutCta.offsetHeight : 0;
   document.documentElement.style.setProperty('--checkout-cta-height', `${checkoutCtaHeight}px`);
   if(nav && window.innerWidth<=1023 && getComputedStyle(nav).display!=='none'){
-    // CSS-only sabit değer kullan; visualViewport dalgalanmaları paneli sallayamasın.
-    // Mobile bottom nav: ~60px height + 10px CSS bottom + safe-area = sabit ~76px
-    document.documentElement.style.setProperty('--mobile-nav-offset', '76px');
+    const navH = nav.offsetHeight || 76;
+    document.documentElement.style.setProperty('--mobile-nav-offset', navH + 'px');
     // Section padding-bottom (içerik nav'ın altında kalmasın)
-    const pad = 76 + checkoutCtaHeight + 18;
+    const pad = navH + checkoutCtaHeight + 18;
     document.querySelectorAll('.section').forEach(s=>{
       s.style.paddingBottom = pad + 'px';
     });
@@ -11008,6 +11040,16 @@ function setMobileNavPadding(){
     document.body.style.paddingBottom = '';
     document.querySelectorAll('.section').forEach(s=>{ s.style.paddingBottom=''; });
   }
+  try {
+    const navH = document.querySelector('.mobile-bottom-nav')?.offsetHeight || 76;
+    document.documentElement.style.setProperty('--mobile-nav-offset', navH + 'px');
+    // CTA panelini de güncelle
+    const capPanel = document.getElementById('cartActionPanel');
+    if (capPanel && window.innerWidth < 1024) {
+      const safeArea = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('padding-bottom') || '0') || 0;
+      capPanel.style.bottom = `calc(${navH}px + env(safe-area-inset-bottom, 0px) + 8px)`;
+    }
+  } catch(_) {}
   const section = getSectionFromLocation();
   updateCartActionPanel();
   updateFloatingCta(section);

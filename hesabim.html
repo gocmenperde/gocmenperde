@@ -3023,32 +3023,29 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('pageshow', function(ev) {
-  // Bfcache'den döndük (Safari back gesture)
-  if (ev.persisted) {
-    // "Adresleri Yönet" akışından dönüş → index.html'e fresh navigation
+  if (!ev.persisted) return; // Bfcache değil, normal yükleme
+  // Bfcache'den döndük — return=cart varsa index'e fresh redirect
+  try {
     const params = new URLSearchParams(window.location.search);
     const ret = params.get('return') || '';
-    const fromCart = ret === 'cart' || ret === 'checkout'
-      || sessionStorage.getItem('gp_return_to') === 'cart'
-      || sessionStorage.getItem('gp_return_to') === 'checkout';
-    if (fromCart) {
-      // Bfcache'i bypass et → index.html sepet yönlendirme ekranıyla aç
+    const isCartReturn = ret === 'cart' || ret === 'checkout'
+      || (function(){ try { return sessionStorage.getItem('gp_return_to') === 'cart' || sessionStorage.getItem('gp_return_to') === 'checkout'; } catch(_){ return false; } })();
+    if (isCartReturn) {
       try { sessionStorage.removeItem('gp_return_to'); } catch(_) {}
       window.location.replace('/index.html?redirect=cart');
       return;
     }
-    // Diğer bfcache durumları — aktif sekmeyi yenile
+    // Cart/checkout dışı bfcache — aktif sekmeyi yenile
     try {
       const activeSection = document.querySelector('.gp-section.active');
       if (activeSection) {
-        const tabId = activeSection.id.replace('section-', '');
-        if (tabId === 'orders') { try { loadOrders(); } catch(_) {} }
-        if (tabId === 'addresses') { try { if(typeof loadAddresses === 'function') loadAddresses(); } catch(_) {} }
-        if (tabId === 'favorites') { try { if(typeof loadFavorites === 'function') loadFavorites(); } catch(_) {} }
+        const tabId = activeSection.id.replace('section-','');
+        if (tabId === 'orders')    { try { if(typeof loadOrders    === 'function') loadOrders();    } catch(_){} }
+        if (tabId === 'addresses') { try { if(typeof loadAddresses === 'function') loadAddresses(); } catch(_){} }
+        if (tabId === 'favorites') { try { if(typeof loadFavorites === 'function') loadFavorites(); } catch(_){} }
       }
     } catch(_) {}
-    return;
-  }
+  } catch(_) {}
 });
 
 </script>
