@@ -7707,8 +7707,15 @@ function scheduleForegroundRefresh({force=false} = {}){
 
 function _backupCartBeforeNav() {
   try {
+    // Bellekte basket boşsa storage'dan tazele; hesap sayfasına geçişte yanlış "boş sepet" yedeği alınmasın.
+    if ((typeof basket === 'undefined' || !Array.isArray(basket) || basket.length === 0) && typeof loadCartFromStorage === 'function') {
+      loadCartFromStorage();
+    }
     if (typeof basket !== 'undefined' && Array.isArray(basket) && basket.length > 0) {
-      sessionStorage.setItem('gp_cart_backup', JSON.stringify(basket));
+      const raw = JSON.stringify(basket);
+      sessionStorage.setItem('gp_cart_backup', raw);
+      // Sekmeler arası da dayanıklı yedek (hesap→geri dönüşte iOS/Safari edge-case'leri için)
+      localStorage.setItem('gp_cart_backup_persistent', raw);
       sessionStorage.setItem('gp_return_to', 'cart');
     }
   } catch(_) {}
@@ -10283,6 +10290,12 @@ function saveCartToStorage(){
     localStorage.setItem('basket', raw);
     // sessionStorage backup (sayfa geçişlerinde kaybolmaz)
     try{ sessionStorage.setItem('gp_cart_backup', raw); }catch(_){}
+    // Kalıcı acil durum yedeği: sadece dolu sepette tut, boş sepette temizle
+    if(Array.isArray(basket) && basket.length > 0){
+      try{ localStorage.setItem('gp_cart_backup_persistent', raw); }catch(_){}
+    } else {
+      try{ localStorage.removeItem('gp_cart_backup_persistent'); }catch(_){}
+    }
   }catch(e){ console.warn('[gp:warn]', e); }
 }
 function loadCartFromStorage(){
@@ -10294,10 +10307,13 @@ function loadCartFromStorage(){
     if(!raw){ return; } // İkisi de boş → basket olduğu gibi kalsın
     const parsed = JSON.parse(raw) || [];
     if(!Array.isArray(parsed) || parsed.length === 0){
-      // localStorage boş dizi → sıfırlamak yerine sessionStorage backup'a bak
+      // localStorage boş dizi → sıfırlamak yerine backup'lara bak
       try{
-        const backup = sessionStorage.getItem('gp_cart_backup');
-        if(backup){
+        const backupCandidates = [
+          sessionStorage.getItem('gp_cart_backup'),
+          localStorage.getItem('gp_cart_backup_persistent')
+        ].filter(Boolean);
+        for(const backup of backupCandidates){
           const backupParsed = JSON.parse(backup);
           if(Array.isArray(backupParsed) && backupParsed.length > 0){
             basket = backupParsed.map(_normalizeCartItem);
@@ -10325,10 +10341,13 @@ function loadCartFromStorage(){
     try{ sessionStorage.setItem('gp_cart_backup', raw); }catch(_){}
   } catch(e){
     console.error('[gp:cart-load-error]', e);
-    // Parse hatası — backup dene
+    // Parse hatası — backup'ları dene
     try{
-      const backup = sessionStorage.getItem('gp_cart_backup');
-      if(backup){
+      const backupCandidates = [
+        sessionStorage.getItem('gp_cart_backup'),
+        localStorage.getItem('gp_cart_backup_persistent')
+      ].filter(Boolean);
+      for(const backup of backupCandidates){
         const bp = JSON.parse(backup);
         if(Array.isArray(bp) && bp.length > 0){
           basket = bp.map(_normalizeCartItem);
