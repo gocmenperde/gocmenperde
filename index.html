@@ -2376,6 +2376,12 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 .gp-coupon-toast button{ background:var(--gold,#c8a35a); color:#1a1a1a; border:0; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer; }
 .gp-coupon-x{ background:transparent !important; color:#fff !important; padding:0 6px !important; font-size:1.2rem !important; }
 @keyframes gpSlideUp{ from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+@media (min-width:1024px){
+  .gp-coupon-toast{right:24px;bottom:24px;max-width:420px}
+}
+@media (max-width:1023px){
+  .gp-coupon-toast{right:12px;left:12px;bottom:calc(var(--mobile-nav-offset, 76px) + env(safe-area-inset-bottom) + 18px);max-width:none}
+}
 .gp-bottom-nav{ display:none; }
 @media (max-width:768px){ .gp-bottom-nav{display:flex; position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--border,#e5e7eb); padding:8px 4px calc(8px + env(safe-area-inset-bottom)) 4px; z-index:8000; justify-content:space-around; box-shadow:0 -10px 24px rgba(0,0,0,.06);} .gp-bottom-nav button{flex:1; background:transparent; border:0; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 4px; color:#5b4f3f; font-size:.62rem; font-weight:600; letter-spacing:.5px; position:relative;} .gp-bottom-nav button i{ font-size:1.1rem; color:var(--ink,#1a1a1a); } .gp-bottom-nav .bn-badge{position:absolute; top:0; right:18%; background:var(--gold,#c8a35a); color:#1a1a1a; font-size:.55rem; padding:1px 6px; border-radius:10px; font-weight:800; min-width:16px; text-align:center;} #cartActionPanel{ bottom:calc(64px + env(safe-area-inset-bottom)) !important; } body{ padding-bottom:calc(64px + env(safe-area-inset-bottom)); }}
 .zoom-wrap{ overflow:hidden; cursor:zoom-in; }
@@ -2384,6 +2390,49 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 #scrollTopFab{position:fixed; right:20px; bottom:140px; z-index:7000; width:48px; height:48px; border-radius:50%; background:#1a1a1a; color:#fff; border:0; cursor:pointer; box-shadow:0 14px 28px rgba(0,0,0,.25); opacity:0; pointer-events:none; transform:translateY(10px); transition:opacity .25s, transform .25s;}
 #scrollTopFab.show{ opacity:1; pointer-events:auto; transform:translateY(0); }
 @media(max-width:768px){ #scrollTopFab{ bottom:160px; } }
+
+/* Desktop checkout/cart panel: sipariş detaylarını masaüstünde de görünür tut */
+@media (min-width:1024px){
+  body[data-section="cart"] .cart-action-panel,
+  body[data-section="checkout"] .cart-action-panel{
+    width:min(1180px, calc(100vw - 56px)) !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(330px, 360px);
+    align-items:stretch;
+    overflow:visible;
+  }
+  body[data-section="cart"] .cart-action-panel .cap-drawer,
+  body[data-section="checkout"] .cart-action-panel .cap-drawer{
+    display:block !important;
+    opacity:1 !important;
+    max-height:none !important;
+    background:#fff;
+    border-left:1px solid rgba(201,168,76,0.25);
+  }
+  body[data-section="cart"] .cart-action-panel .cap-drawer-inner,
+  body[data-section="checkout"] .cart-action-panel .cap-drawer-inner{
+    max-height:320px;
+    overflow:auto;
+    padding:14px 14px 12px;
+  }
+  body[data-section="cart"] .cart-action-panel .cap-toggle,
+  body[data-section="checkout"] .cart-action-panel .cap-toggle,
+  body[data-section="cart"] .cart-action-panel .cap-sheet-handle,
+  body[data-section="checkout"] .cart-action-panel .cap-sheet-handle,
+  body[data-section="cart"] .cart-action-panel .cap-sheet-header,
+  body[data-section="checkout"] .cart-action-panel .cap-sheet-header,
+  body[data-section="cart"] .cart-action-panel .cap-meta,
+  body[data-section="checkout"] .cart-action-panel .cap-meta{
+    display:none !important;
+  }
+  body[data-section="cart"] .cart-action-panel .cap-row,
+  body[data-section="checkout"] .cart-action-panel .cap-row{
+    height:100%;
+  }
+  #userNameText{font-size:.82rem !important;letter-spacing:.3px !important;font-weight:700;max-width:92px;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+  .products-grid .product-desc{line-height:1.5;color:#665b49}
+  .products-grid .product-name{line-height:1.35}
+}
 </style>
 </head>
 <body>
@@ -10557,16 +10606,29 @@ function suggestApplicableCoupon(){
   if (!Array.isArray(basket) || !basket.length) return;
   if (sessionStorage.getItem('gp_coupon_suggested') === '1') return;
   const total = basket.reduce((a,b)=> a + (Number(b?.sub)||0), 0);
-  const coupons = [
-    { min: 3000, code: 'PERDE5', pct: 5, text: '%5 indirim' },
-    { min: 6000, code: 'PERDE10', pct: 10, text: '%10 indirim' },
-    { min: 12000, code: 'PERDE15', pct: 15, text: '%15 indirim' }
-  ].sort((a,b)=> b.min - a.min);
-  const eligible = coupons.find(c => total >= c.min);
-  if (!eligible) return;
+  const eligible = (Array.isArray(activeCampaigns) ? activeCampaigns : [])
+    .filter((campaign)=>isCampaignActiveNow(campaign) && String(campaign?.couponCode || '').trim())
+    .map((campaign)=>{
+      const minAmount = Number(
+        campaign?.minAmount ??
+        campaign?.minOrderAmount ??
+        campaign?.minimumAmount ??
+        campaign?.minBasketAmount ?? 0
+      ) || 0;
+      return {
+        campaign,
+        code: String(campaign.couponCode || '').trim().toUpperCase(),
+        minAmount,
+        discountAmount: calculateCampaignDiscount(campaign, total)
+      };
+    })
+    .filter((item)=>item.code && total >= item.minAmount && item.discountAmount > 0)
+    .sort((a,b)=>b.discountAmount - a.discountAmount)[0];
+  if (!eligible?.campaign) return;
+  const discountText = formatCampaignDiscount(eligible.campaign) || 'özel';
   const t = document.createElement('div');
   t.className = 'gp-coupon-toast';
-  t.innerHTML = `<i class="fas fa-ticket"></i><div><strong>${eligible.text} kazandın!</strong><div>Kupon: <code>${eligible.code}</code></div></div><button type="button" onclick="document.getElementById('couponInput').value='${eligible.code}';try{applyCoupon();}catch(_){}this.parentElement.remove();sessionStorage.setItem('gp_coupon_suggested','1');">Uygula</button><button type="button" class="gp-coupon-x" onclick="this.parentElement.remove();sessionStorage.setItem('gp_coupon_suggested','1');">×</button>`;
+  t.innerHTML = `<i class="fas fa-ticket"></i><div><strong>${discountText} indirim hazır!</strong><div>Kupon: <code>${eligible.code}</code></div></div><button type="button" onclick="document.getElementById('couponInput').value='${eligible.code}';try{applyCoupon();}catch(_){}this.parentElement.remove();sessionStorage.setItem('gp_coupon_suggested','1');">Uygula</button><button type="button" class="gp-coupon-x" onclick="this.parentElement.remove();sessionStorage.setItem('gp_coupon_suggested','1');">×</button>`;
   document.body.appendChild(t);
 }
 window.suggestApplicableCoupon = suggestApplicableCoupon;
@@ -11515,6 +11577,18 @@ async function sendOrderEmailNotification({name,phone,email,addr,note,method,ite
 }
 
 // ── Kullanıcı Oturumu ──
+function getDisplayNameFromUser(user){
+  const rawName = String(user?.ad_soyad || '').replace(/\s+/g, ' ').trim();
+  if(rawName){
+    const first = rawName.split(' ')[0] || '';
+    return first.slice(0, 16);
+  }
+  const email = String(user?.email || '').trim().toLowerCase();
+  if(email && email.includes('@')){
+    return email.split('@')[0].slice(0, 16);
+  }
+  return '';
+}
 function initUserSession(){
   try{
     const userData = localStorage.getItem('user');
@@ -11529,8 +11603,8 @@ function initUserSession(){
     if(loginText) loginText.innerText='Giriş Yap';
     if(userData){
       const user = JSON.parse(userData);
-      if(user && user.ad_soyad){
-        const ilkIsim = user.ad_soyad.trim().split(' ')[0];
+      const ilkIsim = getDisplayNameFromUser(user);
+      if(ilkIsim){
         const dName = document.getElementById('userNameText');
         if(dName) dName.innerText = ilkIsim;
         const mName = document.getElementById('loginTextMobile');
