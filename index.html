@@ -7462,7 +7462,9 @@ function closeAllOverlaysAggressive(){
   try{
     const capBack = document.getElementById('capBackdrop');
     if(capBack){
+      capBack.classList.remove('open');
       capBack.classList.remove('is-open');
+      capBack.style.display = 'none';
       console.log('[checkout-debug] capBackdrop closed');
     }
   }catch(e){ console.log('[checkout-debug] capBackdrop cleanup failed', e); }
@@ -7505,6 +7507,13 @@ function closeAllOverlaysAggressive(){
       console.log('[checkout-debug] globalOverlay closed');
     }
   }catch(e){ console.log('[checkout-debug] globalOverlay close failed', e); }
+  try{
+    const redirect = document.getElementById('cartRedirectScreen');
+    if(redirect){
+      redirect.classList.remove('fade-out');
+      redirect.style.display = 'none';
+    }
+  }catch(e){ console.log('[checkout-debug] cartRedirectScreen cleanup failed', e); }
 }
 function togglePopup(id){
   const p = document.getElementById(id);
@@ -7568,7 +7577,11 @@ function recoverUIAfterResume(){
     const _cb = document.getElementById('capBackdrop');
     const _cp = document.getElementById('cartActionPanel');
     if (_cd) { _cd.classList.remove('is-open'); _cd.setAttribute('aria-hidden','true'); }
-    if (_cb) _cb.classList.remove('is-open');
+    if (_cb) {
+      _cb.classList.remove('open');
+      _cb.classList.remove('is-open');
+      _cb.style.display = 'none';
+    }
     if (_cp) { _cp.classList.remove('is-sheet','has-open-drawer'); _cp.style.transform=''; _cp.style.transition=''; }
   } catch(_) {}
   // Stale overlay/scroll-lock temizliği
@@ -7584,8 +7597,19 @@ function recoverUIAfterResume(){
     const capBackdrop = document.getElementById('capBackdrop');
     const capPanel    = document.getElementById('cartActionPanel');
     if (capDrawer)   { capDrawer.classList.remove('is-open'); capDrawer.setAttribute('aria-hidden','true'); }
-    if (capBackdrop) capBackdrop.classList.remove('is-open');
+    if (capBackdrop) {
+      capBackdrop.classList.remove('open');
+      capBackdrop.classList.remove('is-open');
+      capBackdrop.style.display = 'none';
+    }
     if (capPanel)    { capPanel.classList.remove('is-sheet','has-open-drawer'); capPanel.style.transform=''; capPanel.style.transition=''; }
+  } catch(_) {}
+  try{
+    const redirect = document.getElementById('cartRedirectScreen');
+    if(redirect){
+      redirect.classList.remove('fade-out');
+      redirect.style.display = 'none';
+    }
   } catch(_) {}
   hideLoader(true);
   stopLiveViewerCounter();
