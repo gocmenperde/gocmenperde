@@ -3064,8 +3064,8 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 
       <h3><i class="fas fa-file-contract" style="color:var(--gold);margin-right:10px"></i>Cayma Koşulları ve Mesafeli Satış Sözleşmesi</h3>
       <div class="contracts-scroll-wrap">
-        <div class="contract-box"><h4>Mesafeli Satış Sözleşmesi</h4><iframe data-lazy-src="/mesafeli-satis" loading="lazy" title="Mesafeli Satış Sözleşmesi"></iframe></div>
-        <div class="contract-box"><h4>Cayma Koşulları</h4><iframe data-lazy-src="/iade-politikasi" loading="lazy" title="Cayma Koşulları"></iframe></div>
+        <div class="contract-box"><h4>Mesafeli Satış Sözleşmesi</h4><iframe data-lazy-src="/mesafeli-satis.html" loading="lazy" title="Mesafeli Satış Sözleşmesi" onload="this.dataset.loaded='1'" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"></iframe><a href="/mesafeli-satis.html" target="_blank" rel="noopener" class="contract-fallback" style="display:none;padding:14px;text-align:center;color:#7d2c2c;font-weight:600;text-decoration:underline">Sözleşmeyi yeni sekmede aç</a></div>
+        <div class="contract-box"><h4>Cayma Koşulları</h4><iframe data-lazy-src="/iade-politikasi.html" loading="lazy" title="Cayma Koşulları" onload="this.dataset.loaded='1'" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"></iframe><a href="/iade-politikasi.html" target="_blank" rel="noopener" class="contract-fallback" style="display:none;padding:14px;text-align:center;color:#7d2c2c;font-weight:600;text-decoration:underline">Cayma koşullarını yeni sekmede aç</a></div>
       </div>
       <label class="contract-accept"><input type="checkbox" id="f-contract-accept"> Mesafeli satış sözleşmesi ve cayma koşullarını kabul ediyorum. *</label>
     </div>
@@ -7864,6 +7864,16 @@ function recoverUIAfterResume(){
     closeImageViewer();
   }
   closeMobileMenuWrapper();
+  // Alt nav ve cart panel offsetlerini her resume'da yenile
+  try{
+    const nav = document.querySelector('.mobile-bottom-nav');
+    if(nav && window.getComputedStyle(nav).display !== 'none'){
+      const navH = nav.offsetHeight || 76;
+      document.documentElement.style.setProperty('--mobile-nav-offset', navH + 'px');
+    } else {
+      document.documentElement.style.setProperty('--mobile-nav-offset', '0px');
+    }
+  }catch(err){ console.warn('[gp:nav-offset]', err); }
   const activeSection = document.querySelector('.section.active');
   if(!activeSection){
     applySectionState(getSectionFromLocation(), {scroll:false});
@@ -8302,34 +8312,34 @@ window.addEventListener('pageshow', async (ev)=>{
   } catch(_) {}
   if(ev.persisted){
     hideLoader(true);
-    // Stale overlay/body class temizle
-    try{
-      document.body.classList.remove('cap-drawer-open','popup-open','modal-open','no-scroll','product-modal-open','order-detail-open');
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      const _cd = document.getElementById('capDrawer');
-      const _cb = document.getElementById('capBackdrop');
-      const _cp = document.getElementById('cartActionPanel');
-      if(_cd){ _cd.classList.remove('is-open'); _cd.setAttribute('aria-hidden','true'); }
-      if(_cb) _cb.classList.remove('is-open');
-      if(_cp){ _cp.classList.remove('is-sheet','has-open-drawer'); _cp.style.transform=''; _cp.style.transition=''; }
-    }catch(_){}
     recoverUIAfterResume();
-    // Bfcache'den döndük → cart section aktifse yeniden render et
+    // BFCache restore: aktif section ne olursa olsun içeriği yeniden render et
     try{
-      const activeId = document.querySelector('.section.active')?.id;
-      if(activeId === 'cart'){
-        loadCartFromStorage();
-        requestAnimationFrame(function(){
-          try{ renderCart(); }catch(_){}
-          setTimeout(function(){ try{ renderCart(); }catch(_){}  }, 350);
-        });
+      const active = document.querySelector('.section.active')?.id || '';
+      const sec = active.replace(/^page-/, '');
+      if(sec === 'cart' || sec === 'checkout'){
+        if(typeof renderCart === 'function') renderCart();
+        if(typeof renderCheckout === 'function') renderCheckout();
+        if(typeof updateCartActionPanel === 'function') updateCartActionPanel();
+        if(typeof refreshCapDrawer === 'function') refreshCapDrawer();
+        if(typeof renderCapDrawer === 'function') renderCapDrawer();
+      } else if(sec === 'favorites'){
+        if(typeof renderFavorites === 'function') renderFavorites();
+      } else if(sec === 'products'){
+        if(typeof refreshProductsView === 'function') refreshProductsView();
+        if(typeof applyFilters === 'function') applyFilters();
       }
-      if(activeId === 'checkout'){
-        loadCartFromStorage();
-        requestAnimationFrame(function(){ try{ renderCheckout(); }catch(_){} });
+      // Alt nav offset'i yeniden hesapla
+      const nav = document.querySelector('.mobile-bottom-nav');
+      if(nav){
+        const navH = nav.offsetHeight || 76;
+        document.documentElement.style.setProperty('--mobile-nav-offset', navH + 'px');
       }
-    }catch(_){}
+      // Cart action panel pozisyonunu yenile (sepet/checkout aktifse)
+      if((sec === 'cart' || sec === 'checkout') && document.body.dataset.section !== sec){
+        document.body.dataset.section = sec;
+      }
+    }catch(err){ console.warn('[gp:bfcache]', err); }
     return;
   }
   recoverUIAfterResume();
