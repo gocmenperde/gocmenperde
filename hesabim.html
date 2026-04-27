@@ -576,6 +576,23 @@
     .modal-close:active { background: var(--red); transform: scale(.94); }
     .modal-close:hover { background: var(--red); }
     .order-modal-body { padding: 24px; }
+    #orderDetailModal .order-modal-body {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .modal-section-title {
+        font-size: 0.68rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--slate);
+        font-weight: 700;
+    }
+    .modal-product-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
 
     /* Product row in modal */
     .modal-product-row {
@@ -686,7 +703,11 @@
         overscroll-behavior: contain;
         padding: 24px 28px;
       }
-      #orderDetailModal .modal-product-list,
+      #orderDetailModal .modal-product-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
       #orderDetailModal .order-products-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -701,6 +722,7 @@
     }
     @media (min-width: 1280px) {
       #orderDetailModal .order-modal { max-width: 1080px !important; }
+      #orderDetailModal .modal-product-list { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 480px) { .info-box.full { grid-column: span 1; } }
 
@@ -2433,11 +2455,13 @@ function openOrderDetail(orderId){
       }
     }).join('');
     bodyEl.innerHTML = `
-      <div class="modal-product-list${useDesktopGrid ? ' order-products-grid' : ''}">${productRows || '<div style="padding:14px;color:#6b7280;text-align:center">Ürün bilgisi yüklenemedi.</div>'}</div>
+      <div class="modal-section-title"><i class="fas fa-box-open" style="margin-right:6px;color:var(--gold)"></i>Sipariş Ürünleri</div>
+      <div class="modal-product-list${useDesktopGrid ? ' order-products-grid' : ''}">${productRows || '<div style="padding:14px;color:#6b7280;text-align:center;background:var(--cream);border:1px solid var(--border);border-radius:10px">Ürün bilgisi yüklenemedi.</div>'}</div>
       <div class="info-grid">
         <div class="info-box"><label>Ödeme Şekli</label><span>${payMethod}</span></div>
         <div class="info-box"><label>Sipariş Tarihi</label><span>${dateStr}</span></div>
         <div class="info-box"><label>Tahmini Teslimat</label><span>${estimatedDeliveryDate}</span></div>
+        <div class="info-box"><label>Sipariş Numarası</label><span>#${o.id}</span></div>
         <div class="info-box full"><label>Teslimat Adresi</label><span>${o.adres || '—'}</span></div>
         ${o.siparis_notu ? `<div class="info-box full"><label>Sipariş Notu</label><span>${o.siparis_notu}</span></div>` : ''}
       </div>
