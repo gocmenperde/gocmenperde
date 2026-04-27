@@ -62,6 +62,25 @@ app.get('/readyz', (req, res) => {
   res.status(200).json({ ready: true, pid: process.pid, host: HOST, port: PORT });
 });
 
+// Friendly URL'leri tüm ortamlarda garanti et (Express + Vercel parity).
+const staticHtmlAliases = {
+  '/mesafeli-satis': 'mesafeli-satis.html',
+  '/mesafeli-satis-sozlesmesi': 'mesafeli-satis.html',
+  '/iade-politikasi': 'iade-politikasi.html',
+  '/cayma-kosullari': 'iade-politikasi.html',
+  '/cayma-kosullari.html': 'iade-politikasi.html',
+  '/gizlilik-politikasi': 'gizlilik-politikasi.html',
+  '/hesapim': 'hesabim.html',
+  '/hesap': 'hesap.html',
+  '/admin': 'admin.html',
+};
+
+Object.entries(staticHtmlAliases).forEach(([route, fileName]) => {
+  app.get(route, (req, res) => {
+    res.sendFile(path.resolve(__dirname, '..', fileName));
+  });
+});
+
 app.get('/sitemap.xml', (req, res) => {
   try {
     const products = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'products.json'), 'utf8'));
