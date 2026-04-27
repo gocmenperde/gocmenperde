@@ -728,7 +728,7 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .price-unit{font-size:0.72rem;color:var(--slate);font-family:var(--ff-body)}
 .qty-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .product-card .qty-wrap .add-btn{display:inline-flex}
-.qty-input{width:48px;height:36px;text-align:center;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;color:var(--ink);background:var(--cream);font-family:var(--ff-body)}
+.qty-input{width:62px;height:36px;text-align:center;border:1px solid var(--border);border-radius:8px;font-size:0.95rem;color:var(--ink);background:var(--cream);font-family:var(--ff-body);padding:0 6px}
 @media(max-width:600px){.qty-input{width:40px;height:32px;font-size:0.8rem}}
 .product-dimensions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px;flex:1 1 100%}
 .product-dimensions .dim-field{display:flex;flex-direction:column;gap:3px}
@@ -1369,7 +1369,7 @@ body.cap-drawer-open #mainHeader{opacity:0.15;pointer-events:none;transition:opa
 .modal-tab.active{background:white;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
 .modal-tab-content{display:none}.modal-tab-content.active{display:block}
 .modal-desc{font-size:0.84rem;color:var(--slate);line-height:1.9;margin-bottom:16px}
-.modal-features{display:flex;flex-direction:column;gap:8px}
+.modal-features{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
 .modal-feat{display:flex;align-items:center;gap:10px;font-size:0.8rem;color:var(--slate)}
 .modal-feat i{color:var(--gold);font-size:0.85rem;width:16px}
 .modal-commerce-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 14px}
@@ -1382,7 +1382,7 @@ body.cap-drawer-open #mainHeader{opacity:0.15;pointer-events:none;transition:opa
 .modal-spec-row:last-child{border-bottom:none}
 .modal-spec-key{color:var(--slate)}.modal-spec-val{color:var(--ink);font-weight:600;text-align:right}
 .modal-add-wrap{margin-top:16px;display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:linear-gradient(135deg,#ffffff,#faf7f1);border:1px solid rgba(201,168,76,0.2);box-shadow:0 10px 24px rgba(15,14,13,0.06)}
-.modal-add-main-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:nowrap;width:100%;padding:10px 15px 0;position:relative;z-index:999}
+.modal-add-main-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:nowrap;width:100%;padding:10px 15px 0;position:relative;z-index:1}
 .modal-add-extra-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;justify-content:center}
 .modal-add-action-row{display:flex;align-items:center;gap:10px;width:100%;padding:0 15px;flex-wrap:wrap}
 .modal-add-bottom-row{display:grid;grid-template-columns:1fr auto 44px;align-items:center;gap:8px}
@@ -1407,8 +1407,8 @@ body.cap-drawer-open #mainHeader{opacity:0.15;pointer-events:none;transition:opa
 .modal-shipping-hint i{color:var(--gold);margin-right:6px}
 .modal-formula-hint{font:400 11px var(--ff-body);color:var(--slate);margin:0;text-align:center;opacity:.85}
 .modal-quick-buy-bar{display:none}
-.modal-qty-stepper{flex:0 0 100px;height:48px;display:flex;align-items:center;justify-content:space-between;border:1px solid #e3dfd6;border-radius:10px;background:#fff;overflow:hidden}
-.modal-qty-step-btn{width:32px;height:100%;border:none;background:transparent;color:var(--ink);font-size:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-qty-stepper{flex:0 0 128px;height:48px;display:flex;align-items:center;justify-content:space-between;border:1px solid #e3dfd6;border-radius:10px;background:#fff;overflow:hidden}
+.modal-qty-step-btn{width:36px;height:100%;border:none;background:transparent;color:var(--ink);font-size:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .modal-qty-step-btn:hover{background:#f3f4f7}
 .modal-qty-stepper .modal-qty-input{flex:1;height:100%;border:none;border-left:1px solid #ebe7de;border-right:1px solid #ebe7de;border-radius:0;text-align:center;box-shadow:none}
 .modal-qty-input{width:58px;height:44px;text-align:center;border:1px solid #e3dfd6;border-radius:10px;font-size:1rem;font-family:var(--ff-body);background:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,0.8)}
