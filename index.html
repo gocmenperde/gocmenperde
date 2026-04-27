@@ -536,12 +536,13 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   z-index:12500 !important;
   font:400 12px var(--ff-body);
   color:var(--ink);
-  transform:translateX(-120%);
-  transition:transform .45s cubic-bezier(.2,.8,.2,1);
+  transform:translate3d(-110%,0,0);
+  transition:transform .22s cubic-bezier(.2,.8,.2,1);
+  will-change:transform;
   cursor:pointer;
 }
-.live-order-toast.is-visible{display:flex;transform:translateX(0);}
-.live-order-toast:hover{box-shadow:0 20px 44px rgba(15,14,13,.24);transform:translateX(0) translateY(-2px);}
+.live-order-toast.is-visible{display:flex;transform:translate3d(0,0,0);}
+.live-order-toast:hover{box-shadow:0 20px 44px rgba(15,14,13,.24);transform:translate3d(0,-2px,0);}
 .live-order-toast .lo-avatar{
   width:36px;height:36px;border-radius:50%;
   background:linear-gradient(135deg,var(--gold),var(--gold-dark));
@@ -4944,6 +4945,7 @@ const LIVE_ORDER_CFG = {
   intervalMin: 60000,
   intervalMax: 120000,
   showDuration: 6500,
+  animationDuration: 220,
   pauseOnHidden: true,
   source: 'demo'
 };
@@ -5031,7 +5033,7 @@ function hideLiveOrderToast(userClosed){
   if(!el) return;
   clearTimeout(_liveOrderHideTimer);
   el.classList.remove('is-visible');
-  setTimeout(()=>{ el.style.display = 'none'; }, 450);
+  setTimeout(()=>{ el.style.display = 'none'; }, LIVE_ORDER_CFG.animationDuration);
   if(userClosed){
     clearTimeout(_liveOrderTimer);
     _liveOrderTimer = null;
