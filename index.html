@@ -789,7 +789,7 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .clear-btn:hover{background:#c0392b;color:white}
 .cart-action-panel{display:none;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 48px rgba(0,0,0,0.15);overflow:hidden;flex-direction:column;padding:0}
 @media (max-width:1023px){
-  .cart-action-panel{position:fixed;left:14px;right:14px;bottom:calc(76px + env(safe-area-inset-bottom) + 8px);z-index:12120;max-width:980px;margin:0 auto}
+  .cart-action-panel{position:fixed;left:14px;right:14px;bottom:calc(76px + env(safe-area-inset-bottom) + 8px);z-index:12240;max-width:980px;margin:0 auto}
 }
 @media (min-width:1024px){
   .cart-action-panel{position:sticky;bottom:20px;margin:30px auto 0;max-width:960px;width:100%}
@@ -812,7 +812,7 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .cart-action-panel{
   position:fixed; left:8px; right:8px;
   bottom:calc(76px + env(safe-area-inset-bottom) + 8px) !important;
-  z-index:12120;
+  z-index:12240;
   background:#fff;
   border-radius:18px;
   box-shadow:0 18px 40px rgba(15,14,13,.14), 0 2px 8px rgba(0,0,0,.06);
@@ -4547,7 +4547,10 @@ function updateProductSeoArtifacts(products=[]){
       name: p.name || 'Ürün',
       description: p.desc || '',
       sku: p.serialNumber || p.id || undefined,
-      gtin: p.barcode || undefined,
+      gtin: (function() {
+        const b = String(p.barcode || '').trim();
+        return /^\d{8}$|^\d{12}$|^\d{13}$|^\d{14}$/.test(b) ? b : undefined;
+      })(),
       category: p.cat || undefined,
       image: image || undefined,
       keywords: (Array.isArray(p.seoKeywords) && p.seoKeywords.length) ? p.seoKeywords.join(', ') : undefined,

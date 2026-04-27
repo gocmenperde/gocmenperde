@@ -1924,6 +1924,8 @@ function renderCheckoutReturnBars(isAddressesActive) {
     } catch(_) {}
 }
 
+window.__activeTab = 'orders';
+
 function showTab(tab, el) {
     document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.gp-section').forEach(s => s.classList.remove('active'));
@@ -1931,6 +1933,7 @@ function showTab(tab, el) {
     const sectionEl = document.getElementById('section-' + tab);
     if (!sectionEl) return;
     sectionEl.classList.add('active');
+    window.__activeTab = tab;
     if (tab === 'orders') loadOrders();
     if (tab === 'addresses') {
         if (!window.__addressDataLoaded) {
@@ -3006,6 +3009,7 @@ document.addEventListener('DOMContentLoaded', () => {
     trackAccountVisit();
     loadProfile();
     const __urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (__urlTab) window.__activeTab = __urlTab;
     if(!__urlTab || __urlTab === 'orders'){
         setTimeout(()=>{ try{ loadOrders(); }catch(e){} }, 50);
     }
@@ -3014,6 +3018,17 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCheckoutReturnBars(Boolean(activeAddresses));
     // initAddressLocationData() artık burada çağrılmıyor;
     // sadece kullanıcı "Adresler" sekmesine geçince çalışacak.
+});
+
+window.addEventListener('pageshow', function(e) {
+    if (!e.persisted) return;
+    const tabId = window.__activeTab || (function() {
+        const activeSection = document.querySelector('.gp-section.active');
+        return activeSection ? activeSection.id.replace('section-', '') : '';
+    })();
+    if (tabId === 'orders') {
+        try { loadOrders(); } catch(_) {}
+    }
 });
 
 </script>
