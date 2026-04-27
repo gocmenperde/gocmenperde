@@ -9433,7 +9433,14 @@ async function syncFavoriteWithServer(action, product){
 let basket = [], total = 0;
 let appliedCouponCode = "";
 let couponDiscountAmount = 0;
+window.couponDiscountAmount = 0;
 let cartSheetTimer = null;
+
+function setCouponDiscountAmount(value){
+  couponDiscountAmount = Math.max(0, Number(value) || 0);
+  window.couponDiscountAmount = couponDiscountAmount;
+  return couponDiscountAmount;
+}
 let guestCheckoutSelected = false;
 
 function openCartSheet(item){
@@ -9733,7 +9740,7 @@ function updateCartCount(){
 }
 
 function updateItemQty(idx,change){
-  appliedCouponCode = ''; couponDiscountAmount = 0;
+  appliedCouponCode = ''; setCouponDiscountAmount(0);
   basket[idx].qty += change;
   if(basket[idx].qty < 1){ removeItem(idx); return; }
   basket[idx].sub = basket[idx].price * basket[idx].qty;
@@ -9745,7 +9752,7 @@ function removeItem(idx){
   const itemIndex = Number(idx);
   if(!Number.isInteger(itemIndex) || itemIndex < 0 || itemIndex >= basket.length) return;
   appliedCouponCode = '';
-  couponDiscountAmount = 0;
+  setCouponDiscountAmount(0);
   basket.splice(itemIndex,1);
   if (!basket.length) window.__gpExplicitCartClear = true;
   total = basket.reduce((a,b)=>a+b.sub,0);
@@ -9757,7 +9764,7 @@ function removeItem(idx){
 }
 function clearCart(){
   if (!confirm('Sepetteki TÜM ürünler silinecek. Emin misiniz?')) return;
-  basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount();
+  basket=[]; total=0; appliedCouponCode=''; setCouponDiscountAmount(0); updateCartCount();
   window.__gpExplicitCartClear = true;
   saveCartToStorage();
   renderCart();
@@ -10040,7 +10047,7 @@ function selectPayMethod(method){
   updateCartActionPanel();
 }
 window.selectPayMethod = selectPayMethod;
-function applyCouponFromDrawer(){
+async function applyCouponFromDrawer(){
   const inp = document.getElementById('capCouponInput');
   const msg = document.getElementById('capCouponMsg');
   if(!inp || !msg) return;
@@ -10050,7 +10057,7 @@ function applyCouponFromDrawer(){
   if(typeof applyCoupon === 'function'){
     try {
       inp.value = code;
-      const result = applyCoupon(code);
+      const result = await applyCoupon(code);
       if(result === false || (result && result.ok === false)){ msg.textContent = (result?.error || 'Geçersiz kupon'); msg.classList.add('is-error'); }
       else { msg.textContent = '✓ Kupon uygulandı'; inp.value = ''; }
     } catch(e){ msg.textContent='Kupon uygulanamadı'; msg.classList.add('is-error'); }
@@ -10192,7 +10199,7 @@ window.computeShippingFee = computeShippingFee;
 function renderCapDrawer(){
   if(typeof basket === 'undefined' || !Array.isArray(basket)) return;
   const subtotal = basket.reduce((a,b)=>a + (Number(b.sub)||0), 0);
-  const couponDisc = Number(window.couponDiscountAmount || 0);
+  const couponDisc = Number(couponDiscountAmount || 0);
   const memberPct = getMemberDiscountPct();
   const memberDisc = memberPct > 0 ? Math.round(subtotal * memberPct / 100) : 0;
   const giftFee = getGiftWrapFee();
@@ -11338,22 +11345,31 @@ function refreshTotalAmount(){
 async function applyCoupon(codeFromBanner=''){
   const input = document.getElementById('couponInput');
   const c = (codeFromBanner || input?.value || '').trim().toUpperCase();
-  if(!c){ showToast('Kupon kodu giriniz'); return; }
-  const campaign = findCouponCampaign(c);
-  if(!campaign || !isCampaignActiveNow(campaign)){ showToast('❌ Geçersiz kupon kodu'); return; }
+  if(!c){ showToast('Kupon kodu giriniz'); return { ok:false, error:'Kupon kodu giriniz' }; }
+  let campaign = findCouponCampaign(c);
+  if((!campaign || !isCampaignActiveNow(campaign)) && typeof loadActiveCampaigns === 'function'){
+    await loadActiveCampaigns();
+    campaign = findCouponCampaign(c);
+  }
+  if(!campaign || !isCampaignActiveNow(campaign)){ showToast('❌ Geçersiz kupon kodu'); return { ok:false, error:'Geçersiz kupon kodu' }; }
   if(c === 'ILKSIPARIS10'){
     const hasOrder = await hasCompletedOrderForCoupon();
     if(hasOrder){
       showToast('❌ İlk sipariş kuponu sadece ilk siparişte geçerlidir');
-      return;
+      return { ok:false, error:'İlk sipariş kuponu sadece ilk siparişte geçerlidir' };
     }
   }
   appliedCouponCode = c;
-  couponDiscountAmount = calculateCampaignDiscount(campaign, total);
+  setCouponDiscountAmount(calculateCampaignDiscount(campaign, total));
   if(input) input.value = c;
   refreshTotalAmount();
   showToast(`🎉 ${campaign.name || c} indirimi uygulandı!`);
-  try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){}
+  try {
+    const capMsg = document.getElementById('capCouponMsg');
+    if(capMsg){ capMsg.textContent = `✓ ${c} kuponu uygulandı`; capMsg.classList.remove('is-error'); }
+  } catch(_){ }
+  try { if(typeof updateCartActionPanel==='function') updateCartActionPanel(); } catch(_){ }
+  return { ok:true, code:c, discount:couponDiscountAmount };
 }
 
 function applyPendingCouponFromStorage(){
@@ -11546,7 +11562,7 @@ async function resolvePaytrStatus(merchantOid=''){
   const status = String(statusPayload?.status || '').toLowerCase();
   if(status === 'paid'){
     try { closePaytrIframeModal('paid'); } catch(_){ }
-    basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount(); window.__gpExplicitCartClear = true; saveCartToStorage();
+    basket=[]; total=0; appliedCouponCode=''; setCouponDiscountAmount(0); updateCartCount(); window.__gpExplicitCartClear = true; saveCartToStorage();
     clearActivePaytrSession();
     showOrderSuccessModal(statusPayload?.order_no || '');
     showToast('Ödemeniz onaylandı, siparişiniz oluşturuldu.');
@@ -11799,7 +11815,7 @@ async function submitOrder(){
 
     await sendOrderEmailNotification({name,phone,email,addr,note,method,items:savedBasket,total:savedTotal,apiResult:orderApiResult});
 
-    basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount(); window.__gpExplicitCartClear = true; saveCartToStorage();
+    basket=[]; total=0; appliedCouponCode=''; setCouponDiscountAmount(0); updateCartCount(); window.__gpExplicitCartClear = true; saveCartToStorage();
     const createdOrderNo = String(orderApiResult?.order_no || '').replace(/\D/g,'');
     showOrderSuccessModal(createdOrderNo);
     setTimeout(()=>sendWhatsApp(name,phone,method,addr,note,savedBasket,savedTotal),1200);
