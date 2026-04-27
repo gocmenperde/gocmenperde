@@ -2082,27 +2082,27 @@ function renderOrderSuggestions() {
 
 async function loadOrders() {
     const el = document.getElementById('ordersList');
-    if(!el){ console.warn('[loadOrders] ordersList element bulunamadı'); return; }
+    if(!el){ console.warn('[loadOrders] ordersList yok'); return; }
     el.style.display = '';
     el.style.minHeight = '300px';
-    el.innerHTML = '<div class="loading-state"><i class="fas fa-circle-notch"></i> Siparişler yükleniyor...</div>';
+    el.innerHTML = '<div class="loading-state" style="padding:40px 20px;text-align:center;color:#6b6354"><i class="fas fa-circle-notch fa-spin"></i> Siparişler yükleniyor...</div>';
     try {
         try { await loadProductCatalog(); } catch(e){ console.warn('[loadOrders] catalog yüklenemedi', e); }
         const r = await apiFetch('/api/orders?action=my-orders', { headers: authHeaders() });
         if(r.status === 401 || r.status === 403){
             el.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-lock"></i>
-                    <h3>Oturum süreniz doldu</h3>
-                    <p>Siparişlerinizi görmek için tekrar giriş yapmanız gerekiyor.</p>
-                    <a href="/hesap.html?next=${encodeURIComponent('/hesabim.html?tab=orders')}" class="btn-to-shop">
+                <div class="empty-state" style="display:block;padding:40px 20px;text-align:center">
+                    <i class="fas fa-lock" style="font-size:2.5rem;color:#a3823f;margin-bottom:14px;display:block"></i>
+                    <h3 style="margin:0 0 8px">Oturum süreniz doldu</h3>
+                    <p style="color:#6b6354;margin:0 0 16px">Siparişlerinizi görmek için tekrar giriş yapın.</p>
+                    <a href="/hesap.html?next=${encodeURIComponent('/hesabim.html?tab=orders')}" style="display:inline-flex;gap:8px;padding:12px 24px;background:#1a1a1a;color:#f5e8c5;border-radius:10px;text-decoration:none;font-weight:600">
                         <i class="fas fa-sign-in-alt"></i> Giriş yap
                     </a>
                 </div>`;
             return;
         }
         let data;
-        try { data = await r.json(); } catch(e){ data = { orders: [] }; }
+        try { data = await r.json(); } catch(_){ data = { orders: [] }; }
         allOrders = Array.isArray(data.orders) ? data.orders : [];
         updateProfileMetrics({ orders: allOrders.length });
         updateOrderStats(allOrders);
@@ -2111,8 +2111,8 @@ async function loadOrders() {
                 <div class="empty-state" style="display:block;padding:40px 20px;text-align:center">
                     <i class="fas fa-box-open" style="font-size:3rem;color:#c8a35a;margin-bottom:16px;display:block"></i>
                     <h3 style="margin:0 0 8px">Henüz siparişiniz yok</h3>
-                    <p style="color:#6b6354;margin:0 0 20px">Ürünlerimizi inceleyip size uygun perdeyi birkaç adımda sipariş verebilirsiniz.</p>
-                    <a href="/" class="btn-to-shop" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:#1a1a1a;color:#f5e8c5;border-radius:10px;text-decoration:none">
+                    <p style="color:#6b6354;margin:0 0 20px">Ürünlerimizi inceleyip size uygun perdeyi sipariş verebilirsiniz.</p>
+                    <a href="/" style="display:inline-flex;gap:8px;padding:12px 24px;background:#1a1a1a;color:#f5e8c5;border-radius:10px;text-decoration:none;font-weight:600">
                         <i class="fas fa-th-large"></i> Ürünleri keşfet
                     </a>
                 </div>`;
@@ -2120,7 +2120,7 @@ async function loadOrders() {
         }
         applyOrderFilters();
     } catch(e) {
-        console.error('[loadOrders] hata', e);
+        console.error('[loadOrders]', e);
         el.innerHTML = `
             <div class="empty-state" style="display:block;padding:40px 20px;text-align:center">
                 <i class="fas fa-wifi" style="font-size:2.5rem;color:#a3823f;margin-bottom:14px;display:block"></i>
@@ -3005,11 +3005,10 @@ function trackAccountVisit(){
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', () => {
     trackAccountVisit();
-    loadOrders();
     loadProfile();
     const __urlTab = new URLSearchParams(window.location.search).get('tab');
     if(!__urlTab || __urlTab === 'orders'){
-        setTimeout(()=>{ try{ loadOrders(); }catch(e){ console.warn(e); } }, 50);
+        setTimeout(()=>{ try{ loadOrders(); }catch(e){} }, 50);
     }
     activateTabFromQuery();
     const activeAddresses = document.getElementById('section-addresses')?.classList.contains('active');

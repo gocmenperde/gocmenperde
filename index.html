@@ -292,7 +292,15 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 @media(max-width:1023px){nav{display:none}.mobile-toggle{display:flex}header .header-inner{height:72px;transition:height .25s ease}header.header-compact .header-inner{height:56px}}
 
 /* ── Sections ── */
-.section{display:none;min-height:100vh;padding-top:75px;width:100%}.section.active{display:block}
+.section{
+  display:none;
+  padding-top:max(8px, env(safe-area-inset-top));
+  width:100%;
+}
+.section.active{
+  display:block;
+  min-height:60vh;
+}
 #home{padding-top:0}
 
 /* ── Hero ── */
@@ -713,8 +721,8 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 
 /* ── Cart ── */
 #cart{background:var(--warm-white)}
-.cart-container{max-width:960px;margin:0 auto;padding:100px 5% 80px}
-@media(max-width:640px){.cart-container{padding:80px 4% 60px}}
+.cart-container{max-width:960px;margin:0 auto;padding:0 5% 80px}
+@media(max-width:640px){.cart-container{padding:0 4% 60px}}
 .cart-title{font-family:var(--ff-display);font-size:clamp(2rem,4vw,3rem);font-weight:700;margin-bottom:40px}
 .cart-title span{color:var(--gold);font-style:italic}
 .cart-table{width:100%;border-collapse:collapse;margin-bottom:30px}
@@ -1467,6 +1475,18 @@ footer span{color:var(--gold)}
 .cart-sheet.open{transform:translateY(0)}
 body.cart-sheet-open .mobile-bottom-nav{opacity:0;pointer-events:none;transform:translateY(120%)}
 body.product-modal-open .mobile-bottom-nav{opacity:0;pointer-events:none;transform:translateY(120%)}
+/* Sheet/modal açıkken page header'ı TAMAMEN gizle —
+   backdrop-filter stacking context z-index 12400'ü bile aşıyor */
+body.cart-sheet-open header,
+body.cart-sheet-open #mainHeader,
+body.cap-drawer-open header,
+body.cap-drawer-open #mainHeader,
+body.modal-open header,
+body.modal-open #mainHeader,
+body.product-modal-open header,
+body.product-modal-open #mainHeader{
+  display:none !important;
+}
 .cart-sheet-handle{width:60px;height:5px;border-radius:999px;background:#d7d7d7;margin:0 auto 12px}
 .cart-sheet-title{display:flex;align-items:center;gap:8px;color:#16a34a;font-size:1.05rem;font-weight:700;margin-bottom:12px}
 .cart-sheet-body{display:flex;align-items:center;gap:12px;background:#f8f8f8;border:1px solid #ececec;border-radius:14px;padding:10px 12px}
@@ -2005,7 +2025,7 @@ header.is-shrunk .logo-sub{font-size:9px}
 .product-card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.10)}
 @media (max-width:768px){.product-card:active{transform:scale(.98)}}
 .btn-primary,.add-btn,.modal-add-btn{min-height:48px;border-radius:12px;transition:all .18s ease}
-.btn-secondary{min-height:48px;padding:12px 22px;border-radius:12px;border:1px solid #c8a35a;background:#fff;color:#a3823f;font-family:var(--ff-body, 'Inter', sans-serif);font-size:.95rem;font-weight:600;letter-spacing:.3px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all .18s ease}
+.btn-secondary{min-height:48px;padding:12px 22px;border-radius:12px;border:1px solid #c8a35a;background:#fff;color:#a3823f;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all .18s ease}
 .btn-secondary:hover{background:#f8f1e2;border-color:#a3823f}
 .btn-secondary:active{transform:scale(.98)}
 .btn-danger{min-height:48px;border-radius:12px;border:1px solid #dc2626;background:#fff;color:#dc2626;transition:all .18s ease}
