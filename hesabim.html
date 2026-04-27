@@ -1397,6 +1397,16 @@
   .form-modal,
   .modal,
   #orderDetailModal{z-index:9500!important}
+  /* Sipariş detay modal açıkken page header'ı tamamen gizle */
+  body.order-detail-open .gp-header,
+  body.order-detail-open .gp-back{
+    display:none!important;
+  }
+  /* Modal ekranın gerçek tepesinden başlasın */
+  body.order-detail-open #orderDetailModal,
+  body.order-detail-open .modal-overlay#orderDetailBackdrop{
+    top:0!important;
+  }
 }
 
 </style>
@@ -2072,27 +2082,54 @@ function renderOrderSuggestions() {
 
 async function loadOrders() {
     const el = document.getElementById('ordersList');
+    if(!el){ console.warn('[loadOrders] ordersList element bulunamadı'); return; }
+    el.style.display = '';
+    el.style.minHeight = '300px';
     el.innerHTML = '<div class="loading-state"><i class="fas fa-circle-notch"></i> Siparişler yükleniyor...</div>';
     try {
-        await loadProductCatalog();
+        try { await loadProductCatalog(); } catch(e){ console.warn('[loadOrders] catalog yüklenemedi', e); }
         const r = await apiFetch('/api/orders?action=my-orders', { headers: authHeaders() });
-        const data = await r.json();
-        allOrders = data.orders || [];
+        if(r.status === 401 || r.status === 403){
+            el.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-lock"></i>
+                    <h3>Oturum süreniz doldu</h3>
+                    <p>Siparişlerinizi görmek için tekrar giriş yapmanız gerekiyor.</p>
+                    <a href="/hesap.html?next=${encodeURIComponent('/hesabim.html?tab=orders')}" class="btn-to-shop">
+                        <i class="fas fa-sign-in-alt"></i> Giriş yap
+                    </a>
+                </div>`;
+            return;
+        }
+        let data;
+        try { data = await r.json(); } catch(e){ data = { orders: [] }; }
+        allOrders = Array.isArray(data.orders) ? data.orders : [];
         updateProfileMetrics({ orders: allOrders.length });
         updateOrderStats(allOrders);
         if (!allOrders.length) {
             el.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-box-open"></i>
-                    <h3>Henüz siparişiniz yok</h3>
-                    <p>Ürünlerimizi inceleyip size uygun perdeyi birkaç adımda sipariş verebilirsiniz.</p>
-                    <a href="/" class="btn-to-shop"><i class="fas fa-th-large"></i> Ürünleri keşfet</a>
+                <div class="empty-state" style="display:block;padding:40px 20px;text-align:center">
+                    <i class="fas fa-box-open" style="font-size:3rem;color:#c8a35a;margin-bottom:16px;display:block"></i>
+                    <h3 style="margin:0 0 8px">Henüz siparişiniz yok</h3>
+                    <p style="color:#6b6354;margin:0 0 20px">Ürünlerimizi inceleyip size uygun perdeyi birkaç adımda sipariş verebilirsiniz.</p>
+                    <a href="/" class="btn-to-shop" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:#1a1a1a;color:#f5e8c5;border-radius:10px;text-decoration:none">
+                        <i class="fas fa-th-large"></i> Ürünleri keşfet
+                    </a>
                 </div>`;
             return;
         }
         applyOrderFilters();
     } catch(e) {
-        el.innerHTML = `<div class="empty-state"><i class="fas fa-wifi"></i><p>Siparişler yüklenemedi.</p></div>`;
+        console.error('[loadOrders] hata', e);
+        el.innerHTML = `
+            <div class="empty-state" style="display:block;padding:40px 20px;text-align:center">
+                <i class="fas fa-wifi" style="font-size:2.5rem;color:#a3823f;margin-bottom:14px;display:block"></i>
+                <h3 style="margin:0 0 8px">Siparişler yüklenemedi</h3>
+                <p style="color:#6b6354;margin:0 0 16px">Bağlantınızı kontrol edip tekrar deneyin.</p>
+                <button onclick="loadOrders()" style="padding:10px 22px;background:#c8a35a;color:#fff;border:0;border-radius:10px;cursor:pointer;font-weight:600">
+                    <i class="fas fa-redo"></i> Tekrar dene
+                </button>
+            </div>`;
     }
 }
 
@@ -2210,6 +2247,7 @@ function renderOrders(orders, totalCount = orders.length) {
 }
 
 function openOrderDetail(orderId){
+  document.body.classList.add('order-detail-open','modal-open','no-scroll');
   try{
     const modal = document.getElementById('orderDetailModal');
     const titleEl = document.getElementById('modalOrderId');
@@ -2408,7 +2446,7 @@ function closeOrderModal() {
     const modal = document.getElementById('orderDetailModal');
     if (modal) modal.classList.remove('open');
     unlockBodyScrollForModal();
-    document.body.classList.remove('has-modal');
+    document.body.classList.remove('order-detail-open','modal-open','no-scroll','has-modal');
     document.documentElement.style.overflow = '';
 }
 
@@ -2969,6 +3007,10 @@ document.addEventListener('DOMContentLoaded', () => {
     trackAccountVisit();
     loadOrders();
     loadProfile();
+    const __urlTab = new URLSearchParams(window.location.search).get('tab');
+    if(!__urlTab || __urlTab === 'orders'){
+        setTimeout(()=>{ try{ loadOrders(); }catch(e){ console.warn(e); } }, 50);
+    }
     activateTabFromQuery();
     const activeAddresses = document.getElementById('section-addresses')?.classList.contains('active');
     renderCheckoutReturnBars(Boolean(activeAddresses));

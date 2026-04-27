@@ -1382,7 +1382,14 @@ body.cap-drawer-open .mobile-bottom-nav{pointer-events:none;}
 .success-box h2{font-family:var(--ff-display);font-size:2rem;margin-bottom:10px}
 .success-box p{color:var(--slate);margin-bottom:14px}
 .success-close-x{position:absolute;top:10px;right:12px;border:none;background:transparent;font-size:2rem;line-height:1;cursor:pointer;color:#5f6676}
-.success-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.success-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.success-actions .btn-primary,
+.success-actions .btn-secondary{flex:1 1 180px;max-width:240px;min-height:50px;padding:13px 20px;font-size:.95rem;font-weight:600}
+@media(max-width:480px){
+  .success-actions{flex-direction:column;gap:10px}
+  .success-actions .btn-primary,
+  .success-actions .btn-secondary{flex:1 1 auto;max-width:none;width:100%}
+}
 .success-autoclose{font-size:.85rem;color:#747f93;margin-top:10px}
 .paytr-waiting-card{margin-top:14px;background:#fff9ec;border:1px solid rgba(201,168,76,.42);border-radius:14px;padding:14px}
 .paytr-waiting-card h4{margin:0 0 8px;font-size:1rem;color:#5d4209}
@@ -1998,8 +2005,9 @@ header.is-shrunk .logo-sub{font-size:9px}
 .product-card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.10)}
 @media (max-width:768px){.product-card:active{transform:scale(.98)}}
 .btn-primary,.add-btn,.modal-add-btn{min-height:48px;border-radius:12px;transition:all .18s ease}
-.btn-secondary{min-height:48px;border-radius:12px;border:1px solid #c8a35a;background:#fff;color:#a3823f;transition:all .18s ease}
-.btn-secondary:hover{background:#f8f1e2}
+.btn-secondary{min-height:48px;padding:12px 22px;border-radius:12px;border:1px solid #c8a35a;background:#fff;color:#a3823f;font-family:var(--ff-body, 'Inter', sans-serif);font-size:.95rem;font-weight:600;letter-spacing:.3px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all .18s ease}
+.btn-secondary:hover{background:#f8f1e2;border-color:#a3823f}
+.btn-secondary:active{transform:scale(.98)}
 .btn-danger{min-height:48px;border-radius:12px;border:1px solid #dc2626;background:#fff;color:#dc2626;transition:all .18s ease}
 .btn-danger:hover{background:#dc2626;color:#fff}
 .mobile-action-bar{display:none}
