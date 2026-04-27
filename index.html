@@ -787,10 +787,10 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .cart-action-total span{display:block;font-size:0.74rem;color:var(--gold-dark);font-weight:700;margin-top:3px;letter-spacing:.5px}
 .cart-action-btn{flex:1;border:none;background:var(--ink);color:#fff;font-size:1.02rem;font-weight:600;cursor:pointer;padding:14px 16px;letter-spacing:1.8px;text-transform:uppercase;font-family:var(--ff-body);transition:var(--transition)}
 .cart-action-btn:hover{background:var(--gold);color:var(--ink)}
-@media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(var(--mobile-nav-offset, 0px) + env(safe-area-inset-bottom) + 10px)}.cart-action-btn{font-size:0.9rem;padding:13px 10px}}
+@media(max-width:640px){.cart-action-panel{left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom) + 8px) !important}.cart-action-btn{font-size:0.9rem;padding:13px 10px}}
 .cart-action-panel{flex-direction:column;padding:0}
 /* Drawer açıkken paneli backdrop'ın üstüne çıkar */
-.cart-action-panel.has-open-drawer{z-index:12400;bottom:var(--mobile-nav-offset, 76px) !important}
+.cart-action-panel.has-open-drawer{z-index:12400;bottom:calc(76px + env(safe-area-inset-bottom) + 8px) !important}
 .cap-meta{display:none}
 .cap-row{display:flex;width:100%}
 .cap-chev{display:inline-block;margin-left:8px;transition:transform .2s ease}
@@ -800,18 +800,14 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 /* === KOMPAKT MOD (sheet kapalı) === */
 .cart-action-panel{
   position:fixed; left:8px; right:8px;
-  bottom:calc(var(--mobile-nav-offset, 76px) + 8px);
+  bottom:calc(76px + env(safe-area-inset-bottom) + 8px) !important;
   z-index:12120;
   background:#fff;
   border-radius:18px;
   box-shadow:0 18px 40px rgba(15,14,13,.14), 0 2px 8px rgba(0,0,0,.06);
   display:flex; flex-direction:column;
   max-height:none;
-  transition:left .24s cubic-bezier(.2,.8,.2,1),
-             right .24s cubic-bezier(.2,.8,.2,1),
-             bottom .24s cubic-bezier(.2,.8,.2,1),
-             top .24s cubic-bezier(.2,.8,.2,1),
-             border-radius .24s ease;
+  transition: transform .25s ease, opacity .25s ease;
 }
 /* Kompakt modda gizli olanlar */
 .cap-sheet-handle,
@@ -2593,7 +2589,15 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
           <div class="address-helper" id="savedAddressWrap" style="display:none;margin-top:0">
             <div class="address-helper-row">
               <strong style="font-size:0.78rem;color:var(--gold-dark)">Kayıtlı Adreslerim</strong>
-              <button type="button" onclick="(function(){try{sessionStorage.setItem('gp_return_to','checkout');}catch(_){}var back=encodeURIComponent('/index.html?from=address-return');window.location.href='hesabim.html?tab=addresses&return=checkout&back='+back;})()">Adresleri Yönet</button>
+              <button type="button" onclick="(function(){
+  try{
+    sessionStorage.setItem('gp_return_to','cart');
+    sessionStorage.setItem('gp_checkout_came_from','cart');
+  }catch(_){}
+  // Hash-direct redirect: hesabim'a giderken back parametresi #cart hash'iyle
+  var back = encodeURIComponent('/index.html#cart');
+  window.location.href = 'hesabim.html?tab=addresses&return=cart&back=' + back;
+})()">Adresleri Yönet</button>
             </div>
             <select id="savedAddressSelect" onchange="applySavedAddress(this.value)">
               <option value="">Adres seçin...</option>
@@ -10770,27 +10774,11 @@ function setMobileNavPadding(){
   const checkoutCtaHeight = (checkoutCta && getComputedStyle(checkoutCta).display !== 'none') ? checkoutCta.offsetHeight : 0;
   document.documentElement.style.setProperty('--checkout-cta-height', `${checkoutCtaHeight}px`);
   if(nav && window.innerWidth<=1023 && getComputedStyle(nav).display!=='none'){
-    // DETERMINISTIK navOffset: nav'ın kendi yüksekliği + viewport dibi ile
-    // nav'ın alt kenarı arasındaki güvenli boşluk. visualViewport ↔ innerHeight
-    // uyumsuzluğu, body[position:fixed] geçici state veya DOM scroll pozisyonu
-    // bu hesabı bozamasın.
-    let navOffset;
-    try{
-      const r = nav.getBoundingClientRect();
-      const viewportH = (window.visualViewport?.height) || window.innerHeight;
-      const navHeight = nav.offsetHeight || 60;
-      // Nav alt kenarı ile viewport dibi arası (negatif olamaz)
-      const safeBelow = Math.max(0, Math.round(viewportH - r.bottom));
-      navOffset = navHeight + safeBelow;
-      // Güvenlik şartı: panel ekranın üst yarısına asla çıkamaz
-      const maxAllowed = Math.round(viewportH * 0.35);
-      if(navOffset > maxAllowed) navOffset = navHeight + 12;
-      if(!Number.isFinite(navOffset) || navOffset < 0) navOffset = 76;
-    } catch(_){
-      navOffset = (nav.offsetHeight || 60) + 12;
-    }
-    document.documentElement.style.setProperty('--mobile-nav-offset', `${navOffset}px`);
-    const pad = navOffset + checkoutCtaHeight + 18;
+    // CSS-only sabit değer kullan; visualViewport dalgalanmaları paneli sallayamasın.
+    // Mobile bottom nav: ~60px height + 10px CSS bottom + safe-area = sabit ~76px
+    document.documentElement.style.setProperty('--mobile-nav-offset', '76px');
+    // Section padding-bottom (içerik nav'ın altında kalmasın)
+    const pad = 76 + checkoutCtaHeight + 18;
     document.querySelectorAll('.section').forEach(s=>{
       s.style.paddingBottom = pad + 'px';
     });

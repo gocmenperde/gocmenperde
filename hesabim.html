@@ -1751,24 +1751,27 @@ function bindSmartBackLink(selector, fallback='/'){
 (function patchSmartBackForCheckoutReturn(){
   const backEl = document.querySelector('.gp-back');
   if(!backEl) return;
-  const cameFromCheckout = (function(){
+  const cameFromCart = (function(){
     try{
-      if(sessionStorage.getItem('gp_return_to') === 'checkout') return true;
+      const ret = sessionStorage.getItem('gp_return_to');
+      if(ret === 'cart' || ret === 'checkout') return true;
+      const urlReturn = new URLSearchParams(window.location.search).get('return');
+      if(urlReturn === 'cart' || urlReturn === 'checkout') return true;
       const ref = document.referrer || '';
-      if(ref.includes('#checkout') || ref.includes('#cart')) return true;
+      if(ref.includes('#cart') || ref.includes('#checkout')) return true;
     }catch(_){}
     return false;
   })();
-  if(cameFromCheckout){
-    backEl.setAttribute('href', 'index.html#cart');
+  if(cameFromCart){
+    backEl.setAttribute('href', '/index.html#cart');
     backEl.addEventListener('click', (ev)=>{
       ev.preventDefault();
       try{
         sessionStorage.removeItem('gp_return_to');
-        document.body.classList.remove('cap-drawer-open','popup-open','modal-open','no-scroll');
+        document.body.classList.remove('cap-drawer-open','popup-open','modal-open','no-scroll','order-detail-open');
         document.body.style.overflow='';
       }catch(_){}
-      window.location.href = 'index.html#cart';
+      window.location.href = '/index.html#cart';
     }, { once:true });
   }
 })();
@@ -1779,24 +1782,20 @@ const token = localStorage.getItem('token') || localStorage.getItem('gp_token');
 let user = (() => { try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; } })();
 
 if (!token) {
-    // Çağrı zincirinde geri tuşuyla bu sayfaya geri gelmeyi engelle
     const nextPath = encodeURIComponent('/hesabim.html');
     let backParam = '';
     try{
         const urlBack = new URLSearchParams(window.location.search).get('back');
-        const ret = sessionStorage.getItem('gp_account_return');
-        const isCheckoutFlow = sessionStorage.getItem('gp_return_to') === 'checkout';
+        const isCheckoutFlow = sessionStorage.getItem('gp_return_to') === 'cart' 
+                            || sessionStorage.getItem('gp_return_to') === 'checkout';
         if(isCheckoutFlow){
-          // Checkout flow: login sonrası direkt sepete dön
-          backParam = `&back=${encodeURIComponent('/index.html?from=address-return')}`;
+          // HER ZAMAN sepete (hash-direct) — checkout boş ekranı asla gözükmesin
+          backParam = `&back=${encodeURIComponent('/index.html#cart')}`;
         } else if(urlBack){
           backParam = `&back=${encodeURIComponent(urlBack)}`;
-        } else if(ret){
-          backParam = `&back=${encodeURIComponent(ret)}`;
         }
     }catch(_){}
     window.location.replace(`/hesap.html?next=${nextPath}${backParam}`);
-    // throw ile aşağıdaki user init kodunu durdur (sayfa zaten gidiyor)
     throw new Error('redirect');
 }
 if (token && !user) {
