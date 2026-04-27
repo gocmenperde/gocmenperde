@@ -66,7 +66,7 @@ app.get('/sitemap.xml', (req, res) => {
   try {
     const products = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'products.json'), 'utf8'));
     const base = 'https://gocmenperde.com.tr';
-    const staticUrls = ['/', '/hesap.html', '/gizlilik-politikasi.html', '/iade-politikasi.html', '/mesafeli-satis.html'];
+    const staticUrls = ['/', '/hesap.html', '/gizlilik-politikasi', '/gizlilik-politikasi.html', '/iade-politikasi', '/iade-politikasi.html', '/mesafeli-satis', '/mesafeli-satis.html'];
     const urls = staticUrls.map((u) => `<url><loc>${base}${u}</loc></url>`).join('');
     const productUrls = products
       .filter((p) => p?.active !== false)

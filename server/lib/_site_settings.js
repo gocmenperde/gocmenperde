@@ -10,7 +10,7 @@ const DEFAULT_SOCIAL_LINKS = {
   x: ''
 };
 const DEFAULT_CHECKOUT_SETTINGS = {
-  giftWrapFee: '',
+  giftWrapFee: 0,
   freeShipThreshold: '',
   memberDiscount: '',
   deliveryRange: '',
