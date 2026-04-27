@@ -3039,7 +3039,7 @@ async function doLogin(){
     sessionStorage.removeItem('gp_admin_token');
     localStorage.removeItem('admin_api_key');
     localStorage.removeItem('gp_admin_token');
-    const response = await fetch('/api/auth?action=admin-login', {
+    const response = await apiFetch('/api/auth?action=admin-login', {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({ email: e, key: p })

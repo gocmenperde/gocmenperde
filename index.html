@@ -4101,10 +4101,19 @@ function parseShowcaseJSON(key, fallback){
   return fallback;
 }
 
+function buildApiRouterFallback(path=''){
+  const clean = String(path || '').trim();
+  if(!clean.startsWith('/api/')) return '';
+  const route = clean.replace(/^\/api\//,'').replace(/^\/+|\/+$/g,'');
+  return route ? `/api/router?route=${encodeURIComponent(route)}` : '';
+}
+
 async function fetchWithApiFallback(path, options = {}){
-  // Vercel dönemindeki /api/router rewrite fallback'i kaldırıldı.
-  // Replit Express tarafında /api/* doğrudan routerHandler ile çözülüyor.
-  return fetch(path, options);
+  const primary = await fetch(path, options);
+  if(primary.ok || primary.status !== 404) return primary;
+  const fallback = buildApiRouterFallback(path);
+  if(!fallback) return primary;
+  return fetch(fallback, options);
 }
 async function submitLiveSupport(event){
   if(event) event.preventDefault();
@@ -11324,7 +11333,7 @@ async function fetchWithTimeout(input, init = {}, timeoutMs = 15000){
   const controller = new AbortController();
   const timer = setTimeout(()=>{ try { controller.abort(); } catch(_) {} }, Math.max(1000, Number(timeoutMs) || 15000));
   try {
-    return await fetch(input, { ...init, signal: controller.signal });
+    return await fetchWithApiFallback(input, { ...init, signal: controller.signal });
   } catch(err) {
     if(err && (err.name === 'AbortError' || /aborted/i.test(String(err.message || '')))){
       throw new Error(`İstek zaman aşımına uğradı (${Math.round(timeoutMs/1000)} sn).`);
