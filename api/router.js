@@ -45,6 +45,7 @@ const ROUTES = {
   visits: () => require('../server/handlers/visits'),
   'address-data': () => require('../server/handlers/address-data'),
   'stock-alerts': () => require('../server/handlers/stock-alerts'),
+  'stock-alert': () => require('../server/handlers/stock-alerts'),
   'admin/stock-alerts': () => require('../server/handlers/admin/stock-alerts'),
   campaigns: () => require('../server/handlers/campaigns'),
   'admin/campaigns': () => require('../server/handlers/admin/campaigns'),
@@ -61,12 +62,18 @@ const ROUTES = {
 };
 
 module.exports = async function handler(req, res) {
-  const rewrittenRoute = typeof req.query?.route === 'string' ? req.query.route : '';
-  const pathRoute = String(req.path || req.url || '')
-    .replace(/^\/api\/?/, '')
+  const queryRoute = req.query?.route;
+  const rewrittenRoute = Array.isArray(queryRoute)
+    ? queryRoute.filter(Boolean).join('/')
+    : (typeof queryRoute === 'string' ? queryRoute : '');
+
+  const rawPath = String(req.path || req.url || '')
+    .replace(/\?.*$/, '')
+    .replace(/^\/+(api|router)\/?/, '')
     .replace(/^\/+|\/+$/g, '')
-    .replace(/^router\/?/, '');
-  const route = (rewrittenRoute || pathRoute || '').replace(/^\/+|\/+$/g, '');
+    .replace(/^\[\.\.\.route\]$/, '');
+
+  const route = (rewrittenRoute || rawPath || '').replace(/^\/+|\/+$/g, '');
   const loader = ROUTES[route];
 
   if (!loader) {
