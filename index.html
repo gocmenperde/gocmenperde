@@ -7799,24 +7799,53 @@ function scheduleForegroundRefresh({force=false} = {}){
 
 function _backupCartBeforeNav() {
   try {
-    // Bellekte basket boşsa storage'dan tazele; hesap sayfasına geçişte yanlış "boş sepet" yedeği alınmasın.
-    if ((typeof basket === 'undefined' || !Array.isArray(basket) || basket.length === 0) && typeof loadCartFromStorage === 'function') {
-      loadCartFromStorage();
+    // Bellekteki basket boşsa → ÖNCE storage'dan tazele (sıfırlamayan loadCartFromStorage versiyonu)
+    if (typeof basket === 'undefined' || !Array.isArray(basket) || basket.length === 0) {
+      let raw = null;
+      try { raw = localStorage.getItem('gpCart'); } catch(_) {}
+      if (!raw || raw === '[]') { try { raw = localStorage.getItem('gp_cart_backup_persistent'); } catch(_) {} }
+      if (!raw || raw === '[]') { try { raw = sessionStorage.getItem('gp_cart_backup'); } catch(_) {} }
+      if (raw && raw !== '[]') {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            basket = parsed;
+            total = basket.reduce((a,b)=> a + (Number(b && b.sub) || 0), 0);
+          }
+        } catch(_) {}
+      }
     }
+    // Basket doluysa TÜM yedekleri yenile
     if (typeof basket !== 'undefined' && Array.isArray(basket) && basket.length > 0) {
       const raw = JSON.stringify(basket);
-      sessionStorage.setItem('gp_cart_backup', raw);
-      // Sekmeler arası da dayanıklı yedek (hesap→geri dönüşte iOS/Safari edge-case'leri için)
-      localStorage.setItem('gp_cart_backup_persistent', raw);
-      sessionStorage.setItem('gp_return_to', 'cart');
+      try { sessionStorage.setItem('gp_cart_backup', raw); } catch(_) {}
+      try { localStorage.setItem('gp_cart_backup_persistent', raw); } catch(_) {}
+      try { localStorage.setItem('gpCart', raw); } catch(_) {}
+      try { localStorage.setItem('basket', raw); } catch(_) {}
+      try { sessionStorage.setItem('gp_return_to', 'cart'); } catch(_) {}
     }
   } catch(_) {}
 }
+// Yedeği TÜM iç/dış navigasyon click'lerinde al (capture phase ile linkler default davranıştan önce yakalanır)
 document.addEventListener('click', function(e){
-  const a = e.target.closest('a[href*="hesabim.html"], a[href*="hesap.html"], button[data-nav="account"]');
-  if (a) _backupCartBeforeNav();
+  try {
+    const a = e.target.closest('a[href], button[data-nav], [data-href]');
+    if (!a) return;
+    // Modal kapatma, sepetten ürün silme gibi UI butonlarını dışla
+    if (a.closest('#cartActionPanel') || a.closest('.cart-item') || a.closest('.cap-drawer')) return;
+    _backupCartBeforeNav();
+  } catch(_) {}
 }, true);
+// Hash değişimi de iç navigasyon — buradan da yedek al (örn. # ile sayfa içi geçişler)
+window.addEventListener('hashchange', function(){
+  try { _backupCartBeforeNav(); } catch(_) {}
+});
 window.addEventListener('beforeunload', _backupCartBeforeNav);
+// iOS Safari: beforeunload droplanır, pagehide+visibilitychange daha güvenilir
+window.addEventListener('pagehide', _backupCartBeforeNav);
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState === 'hidden') _backupCartBeforeNav();
+});
 
 function _toggleCartCta(sectionName){
   const cta = document.getElementById('cartActionPanel');
@@ -7845,16 +7874,27 @@ function runSafely(taskName, fn){
 document.addEventListener('DOMContentLoaded',()=>{
   try {
     const isEmpty = typeof basket === 'undefined' || !Array.isArray(basket) || basket.length === 0;
-    const backup = sessionStorage.getItem('gp_cart_backup');
-    if (isEmpty && backup) {
-      const parsed = JSON.parse(backup);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        basket = parsed;
-        total = basket.reduce((a,b)=> a + (Number(b && b.sub) || 0), 0);
-        try { localStorage.setItem('gpCart', backup); } catch(_) {}
-        try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
-        try { if (typeof renderCart === 'function') renderCart(); } catch(_) {}
-        try { if (typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
+    if (isEmpty) {
+      // Öncelik sırası: localStorage.gpCart → gp_cart_backup_persistent → sessionStorage.gp_cart_backup
+      let raw = null;
+      try { raw = localStorage.getItem('gpCart'); } catch(_) {}
+      if (!raw || raw === '[]') { try { raw = localStorage.getItem('basket'); } catch(_) {} }
+      if (!raw || raw === '[]') { try { raw = localStorage.getItem('gp_cart_backup_persistent'); } catch(_) {} }
+      if (!raw || raw === '[]') { try { raw = sessionStorage.getItem('gp_cart_backup'); } catch(_) {} }
+      if (raw && raw !== '[]') {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          basket = parsed;
+          total = basket.reduce((a,b)=> a + (Number(b && b.sub) || 0), 0);
+          // Tüm anahtarları senkronla
+          try { localStorage.setItem('gpCart', raw); } catch(_) {}
+          try { localStorage.setItem('basket', raw); } catch(_) {}
+          try { localStorage.setItem('gp_cart_backup_persistent', raw); } catch(_) {}
+          try { sessionStorage.setItem('gp_cart_backup', raw); } catch(_) {}
+          try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+          try { if (typeof renderCart === 'function') renderCart(); } catch(_) {}
+          try { if (typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
+        }
       }
     }
   } catch(_) {}
@@ -9199,7 +9239,9 @@ function removeItem(idx){
 function clearCart(){
   if(!confirm('Sepet temizlensin mi?')) return;
   basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount();
-  saveCartToStorage(); renderCart();
+  window.__gpExplicitCartClear = true;
+  saveCartToStorage();
+  renderCart();
 }
 function goToProductByIdFromCart(productId){
   if(!productId){
@@ -10376,19 +10418,28 @@ async function applySavedAddress(idx){
 
 function saveCartToStorage(){
   try{
+    const isExplicitClear = window.__gpExplicitCartClear === true;
     const raw = JSON.stringify(basket);
-    // Her iki anahtara da yaz — eski/yeni kod uyumu
+    const isEmpty = !Array.isArray(basket) || basket.length === 0;
+    // Boş basket ve KASITLI temizlik DEĞİLSE → localStorage'a YAZMA, yedeği KORU
+    if (isEmpty && !isExplicitClear) {
+      // Sadece sayaç güncellensin, storage'a dokunma
+      try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+      return;
+    }
+    // Normal durum: kaydet
     localStorage.setItem('gpCart', raw);
     localStorage.setItem('basket', raw);
-    // sessionStorage backup (sayfa geçişlerinde kaybolmaz)
-    try{ sessionStorage.setItem('gp_cart_backup', raw); }catch(_){}
-    // Kalıcı acil durum yedeği: sadece dolu sepette tut, boş sepette temizle
-    if(Array.isArray(basket) && basket.length > 0){
-      try{ localStorage.setItem('gp_cart_backup_persistent', raw); }catch(_){}
-    } else {
-      try{ localStorage.removeItem('gp_cart_backup_persistent'); }catch(_){}
+    try { sessionStorage.setItem('gp_cart_backup', raw); } catch(_) {}
+    if (!isEmpty) {
+      try { localStorage.setItem('gp_cart_backup_persistent', raw); } catch(_) {}
+    } else if (isExplicitClear) {
+      // Sadece kullanıcı clearCart() çağırdıysa kalıcı yedeği sil
+      try { localStorage.removeItem('gp_cart_backup_persistent'); } catch(_) {}
+      try { sessionStorage.removeItem('gp_cart_backup'); } catch(_) {}
+      window.__gpExplicitCartClear = false;
     }
-  }catch(e){ console.warn('[gp:warn]', e); }
+  } catch(e){ console.warn('[gp:warn]', e); }
 }
 function loadCartFromStorage(){
   try{
@@ -10418,6 +10469,20 @@ function loadCartFromStorage(){
           }
         }
       }catch(_){}
+      // Storage boş ama bellekte basket varsa onu KORU (race condition koruması)
+      if (typeof basket !== 'undefined' && Array.isArray(basket) && basket.length > 0) {
+        // Belleği storage'a geri yaz ki tutarsızlık olmasın
+        try {
+          const memRaw = JSON.stringify(basket);
+          localStorage.setItem('gpCart', memRaw);
+          localStorage.setItem('basket', memRaw);
+          localStorage.setItem('gp_cart_backup_persistent', memRaw);
+          sessionStorage.setItem('gp_cart_backup', memRaw);
+        } catch(_) {}
+        total = basket.reduce((a,b)=>a+(Number(b?.sub)||0),0);
+        updateCartCount();
+        return;
+      }
       basket = [];
       total = 0;
       updateCartCount();
@@ -10844,7 +10909,7 @@ async function resolvePaytrStatus(merchantOid=''){
   const status = String(statusPayload?.status || '').toLowerCase();
   if(status === 'paid'){
     try { closePaytrIframeModal('paid'); } catch(_){ }
-    basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount(); saveCartToStorage();
+    basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount(); window.__gpExplicitCartClear = true; saveCartToStorage();
     clearActivePaytrSession();
     showOrderSuccessModal(statusPayload?.order_no || '');
     showToast('Ödemeniz onaylandı, siparişiniz oluşturuldu.');
@@ -11097,7 +11162,7 @@ async function submitOrder(){
 
     await sendOrderEmailNotification({name,phone,email,addr,note,method,items:savedBasket,total:savedTotal,apiResult:orderApiResult});
 
-    basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount(); saveCartToStorage();
+    basket=[]; total=0; appliedCouponCode=''; couponDiscountAmount=0; updateCartCount(); window.__gpExplicitCartClear = true; saveCartToStorage();
     const createdOrderNo = String(orderApiResult?.order_no || '').replace(/\D/g,'');
     showOrderSuccessModal(createdOrderNo);
     setTimeout(()=>sendWhatsApp(name,phone,method,addr,note,savedBasket,savedTotal),1200);
