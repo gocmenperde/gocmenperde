@@ -6039,8 +6039,9 @@ function isPleatedMeterProduct(product){
 function requiresHeightMeasurement(product){
   const explicit = getExplicitMeasurementSetting(product, 'requiresHeight');
   if(explicit !== null) return explicit;
-  if(isPieceUnitProduct(product)) return false;
+  // Fon perde ürünlerinde birim "adet" olsa bile dikim için boy bilgisi istenir.
   if(isFonPerdeProduct(product)) return true;
+  if(isPieceUnitProduct(product)) return false;
   if(isSquareMeterProduct(product) || isMeterProduct(product) || isPleatedMeterProduct(product)) return true;
   if(isCurtainMeasurementCategory(product) && isMeterLikeUnit(product)) return true;
   return isGuneslikProduct(product);
@@ -7214,6 +7215,33 @@ function unlockPageScrollForModal(){
     document.body.classList.remove('modal-open','no-scroll');
     window.scrollTo(0, modalLockedScrollY || 0);
   }catch(_){}
+}
+
+function hasAnyBlockingOverlayOpen(){
+  return !!(
+    document.getElementById('productModal')?.classList.contains('open') ||
+    document.getElementById('stockAlertModal')?.style.display === 'flex' ||
+    document.getElementById('paytrIframeModal')?.hidden === false ||
+    document.getElementById('mobileMenu')?.classList.contains('open') ||
+    document.getElementById('capDrawer')?.classList.contains('is-open') ||
+    document.getElementById('capBackdrop')?.classList.contains('open')
+  );
+}
+function forceReleaseStaleScrollLock(){
+  if(hasAnyBlockingOverlayOpen()) return;
+  const body = document.body;
+  if(!body) return;
+  const hasLockClass = body.classList.contains('no-scroll') || body.classList.contains('modal-open');
+  const isFixed = body.style.position === 'fixed';
+  if(!hasLockClass && !isFixed) return;
+  body.style.position = '';
+  body.style.top = '';
+  body.style.left = '';
+  body.style.right = '';
+  body.style.width = '';
+  body.style.overflow = '';
+  body.classList.remove('modal-open','no-scroll','product-modal-open','menu-open');
+  document.documentElement.style.overflow = '';
 }
 
 function preloadImage(src, priority='auto'){
@@ -8677,6 +8705,9 @@ window.addEventListener('focus', ()=>{
   recoverUIAfterResume();
   scheduleForegroundRefresh();
 });
+window.addEventListener('pageshow', ()=>{ setTimeout(forceReleaseStaleScrollLock, 0); });
+document.addEventListener('touchstart', forceReleaseStaleScrollLock, { passive:true });
+window.addEventListener('hashchange', forceReleaseStaleScrollLock);
 
 window.addEventListener('error', ()=>{
   setTimeout(ensureLoaderDoesNotBlockUi, 0);
