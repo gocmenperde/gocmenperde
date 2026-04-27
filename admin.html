@@ -4310,7 +4310,7 @@ async function adminFetchReviews(){
   const productId = document.getElementById('reviewProductFilter')?.value || '';
   const url = `/api/admin/reviews?status=${encodeURIComponent(status)}` + (productId ? `&productId=${encodeURIComponent(productId)}` : '');
   try {
-    const res = await fetch(url, { headers:{'X-Admin-Token': token} });
+    const res = await apiFetch(url, { headers:{'X-Admin-Token': token} });
     if(res.status === 401){ alert('Admin yetkiniz yok'); return; }
     const json = await res.json().catch(()=>({}));
     if (!res.ok || !json.success) {
@@ -4361,7 +4361,7 @@ async function adminReviewAction(action, id){
   if (!token) { alert('Admin token boş — önce giriş yapın.'); return; }
   if (action === 'delete' && !confirm('Bu yorumu silmek istiyor musunuz?')) return;
   try {
-    const r = await fetch('/api/admin/reviews', {
+    const r = await apiFetch('/api/admin/reviews', {
       method:'POST',
       headers:{'Content-Type':'application/json','X-Admin-Token':token},
       body: JSON.stringify({ action, id })
@@ -4381,7 +4381,7 @@ async function adminReplyReview(id){
   const token = getAdminToken();
   const reply = (document.getElementById('reply-'+id)?.value||'').trim();
   try {
-    const r = await fetch('/api/admin/reviews',{
+    const r = await apiFetch('/api/admin/reviews',{
       method:'POST',
       headers:{'Content-Type':'application/json','X-Admin-Token':token},
       body: JSON.stringify({ action:'reply', id, reply })
@@ -4398,7 +4398,7 @@ async function adminRegenerateSeeds(productId){
   if (!confirm(`"${productId}" ürünü için sahte yorumlar yenilensin mi? (Mevcut sahte yorumlar silinip yeniden oluşturulur, gerçek yorumlar etkilenmez.)`)) return;
   const token = getAdminToken();
   try {
-    const r = await fetch('/api/admin/reviews',{
+    const r = await apiFetch('/api/admin/reviews',{
       method:'POST',
       headers:{'Content-Type':'application/json','X-Admin-Token':token},
       body: JSON.stringify({ action:'regenerate-seeds', productId })
@@ -4414,7 +4414,7 @@ async function adminFetchStockAlerts(){
   const token = getAdminToken();
   const productId = document.getElementById('stockAlertProductFilter')?.value || '';
   const url = '/api/admin/stock-alerts' + (productId ? `?productId=${encodeURIComponent(productId)}` : '');
-  const res = await fetch(url, { headers:{'X-Admin-Token': token} });
+  const res = await apiFetch(url, { headers:{'X-Admin-Token': token} });
   if(res.status === 401){ alert('Admin yetkiniz yok'); return; }
   const json = await res.json();
   document.getElementById('stockAlertSummary').textContent = `Toplam: ${json.total} • Bekleyen: ${json.pending}`;
@@ -4444,7 +4444,7 @@ async function adminFetchStockAlerts(){
     const payload = { action:'delete', productId: btn.dataset.pid };
     if(btn.dataset.email) payload.email = btn.dataset.email;
     else if(btn.dataset.phone) payload.phone = btn.dataset.phone;
-    await fetch('/api/admin/stock-alerts', {
+    await apiFetch('/api/admin/stock-alerts', {
       method:'POST',
       headers:{'Content-Type':'application/json','X-Admin-Token':tokenDel},
       body: JSON.stringify(payload)
@@ -4459,7 +4459,7 @@ async function adminCheckStockNow(){
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Kontrol ediliyor...'; }
   try {
     const token = getAdminToken();
-    const res = await fetch('/api/admin/stock-alerts', {
+    const res = await apiFetch('/api/admin/stock-alerts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
       body: JSON.stringify({ action: 'check-now' })
@@ -4495,7 +4495,7 @@ async function adminForceStockRecheck(){
             + 'olarak değerlendirilecek.')) return;
   const token = getAdminToken();
   try {
-    const res = await fetch('/api/admin/stock-alerts', {
+    const res = await apiFetch('/api/admin/stock-alerts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
       body: JSON.stringify({ action: 'reset-snapshot' })
@@ -4516,7 +4516,7 @@ document.getElementById('stockAlertResetBtn')?.addEventListener('click', adminFo
 document.getElementById('stockAlertRefreshBtn')?.addEventListener('click', adminFetchStockAlerts);
 document.getElementById('reviewsSeedAllBtn')?.addEventListener('click', async ()=>{
   if(!confirm('Tüm ürünlerde eksik sahte yorumlar tamamlansın mı?')) return;
-  const r = await fetch('/api/admin/reviews', { method:'POST', headers:{'X-Admin-Token':getAdminToken(),'Content-Type':'application/json'}, body: JSON.stringify({action:'seed-all'}) });
+  const r = await apiFetch('/api/admin/reviews', { method:'POST', headers:{'X-Admin-Token':getAdminToken(),'Content-Type':'application/json'}, body: JSON.stringify({action:'seed-all'}) });
   const j = await r.json().catch(()=>({}));
   if (!r.ok || !j.success) { alert('Hata: '+(j?.error||r.status)); return; }
   alert(`${j.totalAdded||0} sahte yorum eklendi (${j.productsTouched||0} ürün).`);
