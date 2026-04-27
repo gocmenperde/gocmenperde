@@ -3022,19 +3022,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // sadece kullanıcı "Adresler" sekmesine geçince çalışacak.
 });
 
-window.addEventListener('pageshow', function(e) {
-    if (!e.persisted) return;
+window.addEventListener('pageshow', function(ev) {
+  // Bfcache'den döndük (Safari back gesture)
+  if (ev.persisted) {
+    // "Adresleri Yönet" akışından dönüş → index.html'e fresh navigation
     const params = new URLSearchParams(window.location.search);
-    if(params.get('return') === 'cart'){
-      window.location.replace('/?#checkout');
+    const ret = params.get('return') || '';
+    const fromCart = ret === 'cart' || ret === 'checkout'
+      || sessionStorage.getItem('gp_return_to') === 'cart'
+      || sessionStorage.getItem('gp_return_to') === 'checkout';
+    if (fromCart) {
+      // Bfcache'i bypass et → index.html sepet yönlendirme ekranıyla aç
+      try { sessionStorage.removeItem('gp_return_to'); } catch(_) {}
+      window.location.replace('/index.html?redirect=cart');
       return;
     }
-    const activeSection = document.querySelector('.gp-section.active');
-    if (!activeSection) return;
-    const tabId = activeSection.id.replace('section-', '');
-    if (tabId === 'orders') { try { loadOrders(); } catch(_) {} }
-    if (tabId === 'addresses') { try { loadAddresses?.(); } catch(_) {} }
-    if (tabId === 'favorites') { try { loadFavorites?.(); } catch(_) {} }
+    // Diğer bfcache durumları — aktif sekmeyi yenile
+    try {
+      const activeSection = document.querySelector('.gp-section.active');
+      if (activeSection) {
+        const tabId = activeSection.id.replace('section-', '');
+        if (tabId === 'orders') { try { loadOrders(); } catch(_) {} }
+        if (tabId === 'addresses') { try { if(typeof loadAddresses === 'function') loadAddresses(); } catch(_) {} }
+        if (tabId === 'favorites') { try { if(typeof loadFavorites === 'function') loadFavorites(); } catch(_) {} }
+      }
+    } catch(_) {}
+    return;
+  }
 });
 
 </script>

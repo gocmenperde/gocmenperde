@@ -513,7 +513,12 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .live-order-toast{
   position:fixed;
   left:18px;
-  bottom:calc(var(--mobile-nav-offset,76px) + env(safe-area-inset-bottom) + 12px) !important;
+  bottom:calc(
+    var(--mobile-nav-offset, 76px)
+    + var(--checkout-cta-height, 0px)
+    + env(safe-area-inset-bottom, 0px)
+    + 16px
+  ) !important;
   max-width:300px;
   background:#fff;
   border:1px solid var(--border);
@@ -551,7 +556,12 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   .live-order-toast{
     left:10px;right:10px;max-width:none;
     /* Nav + CTA + safe-area + 12px boşluk */
-    bottom:calc(var(--mobile-nav-offset,76px) + env(safe-area-inset-bottom) + 12px) !important;
+    bottom:calc(
+    var(--mobile-nav-offset, 76px)
+    + var(--checkout-cta-height, 0px)
+    + env(safe-area-inset-bottom, 0px)
+    + 16px
+  ) !important;
     /* Beyaz kart estetiği — menü ile uyumlu */
     background:rgba(251,249,245,0.96);
     backdrop-filter:blur(18px) saturate(180%);
@@ -2167,9 +2177,44 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
   #gpWelcomeBanner .gp-wb-title{font-size:18px}
   #gpWelcomeBanner .gp-wb-sub{font-size:12px}
 }
+
+/* Sepet yönlendirme ara ekranı */
+#cartRedirectScreen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--paper,#faf9f5);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;
+  opacity:1;transition:opacity 0.4s ease;
+}
+#cartRedirectScreen.fade-out{opacity:0;pointer-events:none;}
+#cartRedirectScreen .crs-logo{
+  font:700 1.1rem var(--ff-heading,'Playfair Display',serif);
+  letter-spacing:.08em;color:var(--ink,#1a1a1a);
+  display:flex;align-items:center;gap:8px;
+}
+#cartRedirectScreen .crs-logo span{color:var(--gold,#c8a35a);}
+#cartRedirectScreen .crs-msg{
+  font:400 0.95rem var(--ff-body,'Inter',sans-serif);
+  color:var(--slate,#555);text-align:center;
+  max-width:260px;line-height:1.55;
+}
+#cartRedirectScreen .crs-spinner{
+  width:36px;height:36px;border-radius:50%;
+  border:3px solid rgba(200,163,90,.2);
+  border-top-color:var(--gold,#c8a35a);
+  animation:crs-spin 0.8s linear infinite;
+}
+@keyframes crs-spin{to{transform:rotate(360deg)}}
+
 </style>
 </head>
 <body>
+
+<div id="cartRedirectScreen" style="display:none" aria-live="polite">
+  <div class="crs-logo">GÖÇMEN <span>PERDE</span></div>
+  <div class="crs-spinner"></div>
+  <p class="crs-msg">Sepetinize yönlendiriliyorsunuz…</p>
+</div>
 
 <div id="menuOverlay" onclick="toggleMenu()"></div>
 <div class="overlay" id="globalOverlay" onclick="closeAllPopups()"></div>
@@ -7441,6 +7486,23 @@ function ensureLoaderDoesNotBlockUi(){
 }
 
 function recoverUIAfterResume(){
+  // YENİ: bfcache/resume sonrası stale overlay class'larını temizle
+  try {
+    document.body.classList.remove(
+      'cap-drawer-open','popup-open','modal-open',
+      'no-scroll','product-modal-open','order-detail-open'
+    );
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.documentElement.style.overflow = '';
+    // Cap drawer'ı kapat
+    const capDrawer = document.getElementById('capDrawer');
+    const capBackdrop = document.getElementById('capBackdrop');
+    const capPanel = document.getElementById('cartActionPanel');
+    if (capDrawer) { capDrawer.classList.remove('is-open'); capDrawer.setAttribute('aria-hidden','true'); }
+    if (capBackdrop) capBackdrop.classList.remove('is-open');
+    if (capPanel) { capPanel.classList.remove('is-sheet'); capPanel.style.transform = ''; capPanel.style.transition = ''; }
+  } catch(_) {}
   hideLoader(true);
   stopLiveViewerCounter();
   document.getElementById('mUrgencyBadge')?.remove();
@@ -7572,6 +7634,49 @@ function runSafely(taskName, fn){
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
+  // "Sepete yönlendiriliyorsunuz" ara ekranı — hesabim.html'den bfcache bypass dönüşü
+  (function handleCartRedirect(){
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('redirect') !== 'cart') return;
+      // URL'i temizle (history'ye girmesin)
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState(null, '', cleanUrl);
+      // Bekleme ekranını göster
+      const screen = document.getElementById('cartRedirectScreen');
+      if (screen) screen.style.display = 'flex';
+      // Kısa bekleme → sepet section'ını aç
+      function doRedirect(){
+        try {
+          // Stale overlay temizliği
+          document.body.classList.remove(
+            'cap-drawer-open','popup-open','modal-open',
+            'no-scroll','product-modal-open'
+          );
+          document.body.style.overflow = '';
+          // Cart'a git
+          if (typeof go === 'function') {
+            go('cart');
+          } else if (typeof applySectionState === 'function') {
+            applySectionState('cart', { scroll: false });
+          } else {
+            window.location.hash = '#cart';
+          }
+          // Bekleme ekranını kapat
+          if (screen) {
+            screen.classList.add('fade-out');
+            setTimeout(()=>{ screen.style.display='none'; screen.classList.remove('fade-out'); }, 450);
+          }
+        } catch(_) {}
+      }
+      // DOM hazır olana kadar bekle
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ()=>setTimeout(doRedirect, 600));
+      } else {
+        setTimeout(doRedirect, 600);
+      }
+    } catch(_) {}
+  })();
   runSafely('applyFooterSocialLinks', ()=>applyFooterSocialLinks());
   runSafely('renderHomeSlider (dom ready)', ()=>renderHomeSlider());
   runSafely('loadHomeSlider (dom ready)', ()=>loadHomeSlider());
