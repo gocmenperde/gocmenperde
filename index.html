@@ -851,11 +851,65 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .clear-btn{background:none;border:1px solid rgba(192,57,43,0.2);cursor:pointer;color:#c0392b;padding:12px 24px;border-radius:8px;font-size:0.7rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;transition:var(--transition);font-family:var(--ff-body)}
 .clear-btn:hover{background:#c0392b;color:white}
 .cart-action-panel{display:none;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 48px rgba(0,0,0,0.15);overflow:hidden;flex-direction:column;padding:0}
+/* Sadece cart/checkout section aktifken görünsün */
+body:not([data-section="cart"]):not([data-section="checkout"]) .cart-action-panel{display:none !important}
 @media (max-width:1023px){
   .cart-action-panel{position:fixed;left:14px;right:14px;bottom:calc(var(--mobile-nav-offset,76px) + env(safe-area-inset-bottom,0px) + 8px);z-index:12240;max-width:980px;margin:0 auto}
 }
 @media (min-width:1024px){
-  .cart-action-panel{position:sticky;bottom:20px;margin:30px auto 0;max-width:960px;width:100%}
+  .cart-action-panel{
+    position: sticky;
+    bottom: 20px;
+    margin: 30px auto 0;
+    max-width: 960px;
+    width: 100%;
+    flex-direction: row;
+    align-items: stretch;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a241a 100%);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+    overflow: hidden;
+  }
+  .cart-action-panel .cap-row{
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+  }
+  .cart-action-panel .cart-action-total{
+    background: linear-gradient(135deg,#fdfcf9,#f6efe0);
+    color: var(--ink);
+    padding: 16px 22px;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid rgba(201,168,76,0.3);
+  }
+  .cart-action-panel .cart-action-btn{
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 18px 28px;
+    transition: background .25s ease, color .25s ease;
+  }
+  .cart-action-panel .cart-action-btn:hover{
+    background: var(--gold-deep, var(--gold-dark));
+    color: #fff;
+  }
+  /* Masaüstünde mobil 'is-sheet' davranışını iptal et */
+  .cart-action-panel.is-sheet{
+    position: sticky !important;
+    transform: none !important;
+    border-radius: 18px !important;
+  }
+  .cart-action-panel .cap-sheet-handle,
+  .cart-action-panel .cap-sheet-header{
+    display: none !important;
+  }
 }
 .cart-action-total{min-width:168px;padding:12px 15px;background:linear-gradient(135deg,#fdfcf9,#f6efe0);border-right:1px solid rgba(201,168,76,0.25)}
 .cart-action-total b{display:block;font-size:1.5rem;line-height:1.05;color:var(--ink);font-family:var(--ff-display)}
@@ -2335,7 +2389,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
         <i class="fas fa-bag-shopping" style="font-size:0.9rem"></i> Sepet
         <span class="cart-badge" id="cartCount">0</span>
       </button>
-      <button class="nav-icon" onclick="window.location.href='/hesabim.html'" title="Hesabım" id="userNavBtn">
+      <button class="nav-icon" data-nav="account" onclick="window.location.href='/hesabim.html'" title="Hesabım" id="userNavBtn">
         <i class="fas fa-user-circle"></i>
         <span id="userNameText" style="font-size:0.7rem;letter-spacing:1px;margin-left:4px"></span>
       </button>
@@ -2980,9 +3034,9 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
         <input type="text" id="modalSearchInput" class="modal-search-input" placeholder="Ürün, kategori veya açıklama ara..." oninput="searchProductsFromModal(this.value)" onfocus="searchProductsFromModal(this.value)">
       </label>
       <div class="mh-actions">
-        <button class="mh-btn" type="button" onclick="window.location.href='/hesabim.html'" title="Hesabım"><i class="fas fa-user"></i></button>
+        <button class="mh-btn" type="button" data-nav="account" onclick="window.location.href='/hesabim.html'" title="Hesabım"><i class="fas fa-user"></i></button>
         <button class="mh-btn" type="button" onclick="togglePopup('favoriteBar')" title="Favorilerim"><i class="far fa-heart"></i></button>
-        <button class="mh-btn" type="button" onclick="window.location.href='/hesabim.html?tab=orders'" title="Siparişlerim"><i class="fas fa-box-open"></i></button>
+        <button class="mh-btn" type="button" data-nav="account" onclick="window.location.href='/hesabim.html?tab=orders'" title="Siparişlerim"><i class="fas fa-box-open"></i></button>
         <button class="mh-btn" type="button" onclick="go('cart');closeProductModal()" title="Sepetim"><i class="fas fa-bag-shopping"></i></button>
       </div>
     </div>
@@ -3123,13 +3177,13 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
       <span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-user-plus"></i></span>Kayıt Ol
     </button>
     <div id="mobileAccountLinks" style="display:none">
-      <button onclick="window.location.href='hesabim.html?tab=orders';closeMobileMenuWrapper()">
+      <button data-nav="account" onclick="window.location.href='hesabim.html?tab=orders';closeMobileMenuWrapper()">
         <span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-box"></i></span>Siparişlerim
       </button>
-      <button onclick="window.location.href='hesabim.html?tab=addresses';closeMobileMenuWrapper()">
+      <button data-nav="account" onclick="window.location.href='hesabim.html?tab=addresses';closeMobileMenuWrapper()">
         <span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-location-dot"></i></span>Adreslerim
       </button>
-      <button onclick="window.location.href='hesabim.html?tab=favorites';closeMobileMenuWrapper()">
+      <button data-nav="account" onclick="window.location.href='hesabim.html?tab=favorites';closeMobileMenuWrapper()">
         <span class="menu-entry-icon" aria-hidden="true"><i class="fas fa-heart"></i></span>Favorilerim
       </button>
       <button onclick="logoutUser();closeMobileMenuWrapper()">
@@ -3171,7 +3225,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
     <i class="fas fa-bag-shopping"></i><span>Sepet</span>
     <span class="mbn-badge" id="cartCountBottom">0</span>
   </button>
-  <button type="button" class="mbn-item" onclick="goToAccount()"><i class="fas fa-user"></i><span>Hesabım</span></button>
+  <button type="button" class="mbn-item" data-nav="account" onclick="goToAccount()"><i class="fas fa-user"></i><span>Hesabım</span></button>
   <button type="button" class="mbn-item" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>Menü</span></button>
 </div>
 
@@ -7650,6 +7704,32 @@ function scheduleForegroundRefresh({force=false} = {}){
   }, FOREGROUND_REFRESH_DEBOUNCE_MS);
 }
 
+
+function _backupCartBeforeNav() {
+  try {
+    if (typeof basket !== 'undefined' && Array.isArray(basket) && basket.length > 0) {
+      sessionStorage.setItem('gp_cart_backup', JSON.stringify(basket));
+      sessionStorage.setItem('gp_return_to', 'cart');
+    }
+  } catch(_) {}
+}
+document.addEventListener('click', function(e){
+  const a = e.target.closest('a[href*="hesabim.html"], a[href*="hesap.html"], button[data-nav="account"]');
+  if (a) _backupCartBeforeNav();
+}, true);
+window.addEventListener('beforeunload', _backupCartBeforeNav);
+
+function _toggleCartCta(sectionName){
+  const cta = document.getElementById('cartActionPanel');
+  if (!cta) return;
+  const allowed = (sectionName === 'cart' || sectionName === 'checkout');
+  if (allowed && typeof basket !== 'undefined' && Array.isArray(basket) && basket.length > 0) {
+    cta.style.display = 'flex';
+  } else {
+    cta.style.display = 'none';
+  }
+}
+
 function runSafely(taskName, fn){
   try{
     const result = fn();
@@ -7664,6 +7744,21 @@ function runSafely(taskName, fn){
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
+  try {
+    const isEmpty = typeof basket === 'undefined' || !Array.isArray(basket) || basket.length === 0;
+    const backup = sessionStorage.getItem('gp_cart_backup');
+    if (isEmpty && backup) {
+      const parsed = JSON.parse(backup);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        basket = parsed;
+        total = basket.reduce((a,b)=> a + (Number(b && b.sub) || 0), 0);
+        try { localStorage.setItem('gpCart', backup); } catch(_) {}
+        try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
+        try { if (typeof renderCart === 'function') renderCart(); } catch(_) {}
+        try { if (typeof renderMiniCart === 'function') renderMiniCart(); } catch(_) {}
+      }
+    }
+  } catch(_) {}
   // "Sepete yönlendiriliyorsunuz" ara ekranı — hesabim.html'den bfcache bypass dönüşü
   (function handleCartRedirect(){
   try {
@@ -7703,6 +7798,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       } catch(_) {}
     }
     function _restoreBasket() {
+      let restoredFromBackup = false;
       // 1. gpCart'tan yükle
       try {
         if (typeof loadCartFromStorage === 'function') loadCartFromStorage();
@@ -7717,6 +7813,7 @@ document.addEventListener('DOMContentLoaded',()=>{
             if (Array.isArray(parsed) && parsed.length > 0) {
               basket = parsed;
               total = basket.reduce(function(a,b){ return a + (Number(b && b.sub) || 0); }, 0);
+              restoredFromBackup = true;
               // gpCart'a kaydet ki bir daha lazım olursa oradan gelsin
               try { localStorage.setItem('gpCart', backup); } catch(_) {}
               try { if (typeof updateCartCount === 'function') updateCartCount(); } catch(_) {}
@@ -7724,9 +7821,7 @@ document.addEventListener('DOMContentLoaded',()=>{
           }
         }
       } catch(_) {}
-      // Yedeği temizle
-      try { sessionStorage.removeItem('gp_cart_backup'); } catch(_) {}
-      try { sessionStorage.removeItem('gp_return_to'); } catch(_) {}
+      return restoredFromBackup;
     }
     function _renderCartSafe() {
       try { if (typeof renderCart === 'function') renderCart(); } catch(_) {}
@@ -7744,13 +7839,19 @@ document.addEventListener('DOMContentLoaded',()=>{
       }
       if (!moved) {
         window.location.hash = '#cart';
+        moved = true;
       }
+      return moved;
     }
     function doRedirect() {
       _showScreen();
       _unlockUI();
-      _restoreBasket();
-      _goToCart();
+      const restoredFromBackup = _restoreBasket();
+      const movedToCart = _goToCart();
+      if (restoredFromBackup && movedToCart) {
+        try { sessionStorage.removeItem('gp_cart_backup'); } catch(_) {}
+      }
+      try { sessionStorage.removeItem('gp_return_to'); } catch(_) {}
       // Render: hem hemen hem de 300ms sonra (güvenlik için)
       requestAnimationFrame(function() {
         _renderCartSafe();
@@ -8166,6 +8267,7 @@ function applySectionState(id, {scroll=true} = {}){
   const currentActive = document.querySelector('.section.active')?.id;
   const scrollMode = scroll === false ? 'none' : (scroll === 'restore' ? 'restore' : 'top');
   if(currentActive === targetId){
+    document.body.dataset.section = targetId;
     if(scrollMode === 'restore'){
       const savedY = getSavedSectionScroll(targetId);
       window.scrollTo({top:savedY,behavior:'auto'});
@@ -8174,6 +8276,7 @@ function applySectionState(id, {scroll=true} = {}){
     if(targetId === 'checkout'){
       document.querySelector('.checkout-grid')?.style.setProperty('content-visibility','visible');
     }
+    _toggleCartCta(targetId);
     updateCartActionPanel();
     updateFloatingCta(targetId);
     syncHomePromoVisibility(targetId);
@@ -8271,6 +8374,8 @@ function applySectionState(id, {scroll=true} = {}){
     if(targetId === 'checkout'){
       document.querySelector('.checkout-grid')?.style.setProperty('content-visibility','visible');
     }
+    document.body.dataset.section = targetId;
+    _toggleCartCta(targetId);
     updateCartActionPanel();
     updateFloatingCta(targetId);
     syncHomePromoVisibility(targetId);
@@ -8367,6 +8472,7 @@ function goBackSmart(fallback='home'){
 }
 
 function goToAccount(){
+  _backupCartBeforeNav();
   try{
     const active = document.querySelector('.section.active');
     const sec = active ? active.id : 'home';
@@ -9210,7 +9316,7 @@ function updateCartActionPanel(){
   if(!panel || !btn || !amount || !shipping || !ctaLabel || !cartSection || !checkoutSection) return;
   const inCart = cartSection.classList.contains('active');
   const inCheckout = checkoutSection.classList.contains('active');
-  if((!inCart && !inCheckout) || !basket.length){ panel.style.display = 'none'; return; }
+  if((!inCart && !inCheckout) || !basket.length){ _toggleCartCta(inCheckout ? 'checkout' : (inCart ? 'cart' : '')); return; }
   const subtotalRaw = basket.reduce((a,b)=>a+b.sub,0);
   const shipInfo = (typeof computeShippingFee === 'function') ? computeShippingFee(basket, subtotalRaw) : { fee:0, originalFee:0, isFree:true };
   const memberPct = (typeof getMemberDiscountPct === 'function') ? getMemberDiscountPct() : 0;
@@ -9222,7 +9328,7 @@ function updateCartActionPanel(){
   const tutarStr = `₺${Math.max(0, grandTotal).toLocaleString('tr-TR')}`;
   amount.textContent = `${Math.max(0, grandTotal).toLocaleString('tr-TR')} TL`;
   shipping.textContent = shipInfo.isFree ? (shipInfo.originalFee > 0 ? `Kargo Bedava (${shipInfo.originalFee} TL)` : 'Kargo Bedava') : `Kargo: ₺${shipInfo.fee.toLocaleString('tr-TR')}`;
-  panel.style.display = 'flex';
+  _toggleCartCta(inCheckout ? 'checkout' : 'cart');
   const hasStockWarn = (typeof window.__gpStockWarn === 'boolean' ? window.__gpStockWarn : false);
   const selectedPaymentEl = document.getElementById('f-payment');
   const selectedPayment = selectedPaymentEl ? (selectedPaymentEl.value || '') : '';
