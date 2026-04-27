@@ -15,6 +15,10 @@
       "destination": "/mesafeli-satis.html"
     },
     {
+      "source": "/mesafeli-satis-sozlesmesi",
+      "destination": "/mesafeli-satis.html"
+    },
+    {
       "source": "/iade-politikasi",
       "destination": "/iade-politikasi.html"
     },
@@ -33,18 +37,6 @@
     {
       "source": "/admin",
       "destination": "/admin.html"
-    },
-    {
-      "source": "/gizlilik-politikasi.html",
-      "destination": "/gizlilik-politikasi"
-    },
-    {
-      "source": "/iade-politikasi.html",
-      "destination": "/iade-politikasi"
-    },
-    {
-      "source": "/mesafeli-satis.html",
-      "destination": "/mesafeli-satis"
     }
   ],
   "headers": [
