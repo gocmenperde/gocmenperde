@@ -4753,8 +4753,12 @@ const ADMIN_CACHE_KEY = 'gp_admin_products_cache_v1';
 function getApiFallbackUrl(path=''){
   const clean = String(path || '').trim();
   if(!clean.startsWith('/api/')) return '';
-  const route = clean.replace(/^\/api\//,'').replace(/^\/+|\/+$/g,'');
-  return route ? `/api/router?route=${encodeURIComponent(route)}` : '';
+  const [pathname, queryString=''] = clean.split('?');
+  const route = String(pathname || '').replace(/^\/api\//,'').replace(/^\/+|\/+$/g,'');
+  if(!route) return '';
+  const fallback = new URLSearchParams(queryString);
+  fallback.set('route', route);
+  return `/api/router?${fallback.toString()}`;
 }
 
 async function apiFetch(url, options = {}, timeoutMs = 12000){
