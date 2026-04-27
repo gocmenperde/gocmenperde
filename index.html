@@ -724,12 +724,17 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 .product-price{display:flex;flex-direction:column;gap:2px}
 .old-price{text-decoration:line-through;color:#a0a0a0;font-size:0.82rem}
 .current-price{color:#c0392b;font-weight:700;font-size:1.1rem;font-family:var(--ff-display)}
-.bursa-badge{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:4px 8px;border-radius:999px;font-size:.58rem;letter-spacing:.7px;text-transform:uppercase;background:rgba(212,175,83,.18);border:1px solid rgba(212,175,83,.44);color:#6f511d;font-weight:700}
-.product-info .bursa-badge{display:inline-flex;width:auto;align-self:flex-start;margin-top:8px;clear:both}
-.product-info .current-price,
-.product-info .old-price{display:inline-block;vertical-align:baseline}
-.product-info .price-row,
-.product-info .price-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.bursa-badge{display:inline-flex;align-items:center;gap:6px;margin-top:0;padding:4px 8px;border-radius:999px;font-size:.58rem;letter-spacing:.7px;text-transform:uppercase;background:rgba(212,175,83,.18);border:1px solid rgba(212,175,83,.44);color:#6f511d;font-weight:700}
+.product-bottom{display:flex;flex-direction:column;gap:10px;margin-top:auto}
+.product-bottom .product-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;line-height:1.2}
+.product-bottom .product-price .old-price,
+.product-bottom .product-price .current-price{display:inline-flex;align-items:baseline}
+.product-bottom .product-price .bursa-badge{flex-basis:100%;width:max-content;max-width:100%;margin:8px 0 0;align-self:flex-start}
+.modal-price-wrap .bursa-badge,
+#mPriceWrap .bursa-badge{display:inline-flex;margin:8px 0 0 0;align-self:flex-start;width:max-content}
+@media(max-width:600px){
+  .product-bottom .product-price .bursa-badge{font-size:.55rem;padding:3px 7px}
+}
 .price-unit{font-size:0.72rem;color:var(--slate);font-family:var(--ff-body)}
 .qty-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .product-card .qty-wrap .add-btn{display:inline-flex}
@@ -2956,25 +2961,24 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
       <div class="form-grid" style="margin-bottom:18px">
         <div class="form-group full">
           <label>Adres Seçimi *</label>
+          <div class="address-helper-cta" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+            <strong style="font-size:0.78rem;color:var(--gold-dark)">Kayıtlı Adreslerim</strong>
+            <button type="button" class="manage-address-btn" onclick="(function(){
+      try{
+        sessionStorage.setItem('gp_return_to','cart');
+        sessionStorage.setItem('gp_checkout_came_from','cart');
+      }catch(_){}
+      try {
+        if (typeof basket !== 'undefined' && basket.length > 0) {
+          sessionStorage.setItem('gp_cart_backup', JSON.stringify(basket));
+          try{ localStorage.setItem('gp_cart_backup_persistent', JSON.stringify(basket)); }catch(_){}
+        }
+      } catch(_) {}
+      var back = '/index.html#cart';
+      window.location.assign('hesabim.html?tab=addresses&return=cart&back=' + encodeURIComponent(back));
+    })()" style="background:var(--gold);color:#1a1a1a;border:0;padding:8px 16px;border-radius:8px;font-weight:600;font-size:.78rem;cursor:pointer;letter-spacing:.3px;display:inline-flex;align-items:center;gap:6px"><i class="fas fa-location-dot"></i> Adresleri Yönet</button>
+          </div>
           <div class="address-helper" id="savedAddressWrap" style="display:none;margin-top:0">
-            <div class="address-helper-row">
-              <strong style="font-size:0.78rem;color:var(--gold-dark)">Kayıtlı Adreslerim</strong>
-              <button type="button" onclick="(function(){
-  try{
-    sessionStorage.setItem('gp_return_to','cart');
-    sessionStorage.setItem('gp_checkout_came_from','cart');
-  }catch(_){}
-  // Basket'i yedekle — hesabim'den dönüşte kullanılacak
-  try {
-    if (typeof basket !== 'undefined' && basket.length > 0) {
-      sessionStorage.setItem('gp_cart_backup', JSON.stringify(basket));
-    }
-  } catch(_) {}
-  // Hash-direct redirect: hesabim'a giderken back parametresi #cart hash'iyle
-  var back = '/index.html#cart';
-  window.location.replace('hesabim.html?tab=addresses&return=cart&back=' + encodeURIComponent(back));
-})()">Adresleri Yönet</button>
-            </div>
             <select id="savedAddressSelect" onchange="applySavedAddress(this.value)">
               <option value="">Adres seçin...</option>
             </select>
@@ -8208,6 +8212,23 @@ document.addEventListener('DOMContentLoaded',()=>{
   setTimeout(ensureLoaderDoesNotBlockUi, 2200);
   ensureNoOrphanSuccessModal();
   setInterval(ensureNoOrphanSuccessModal, 3000);
+  try{
+    const initQs = new URLSearchParams(window.location.search);
+    const initReturn = initQs.get('return');
+    if(initReturn === 'cart' || initReturn === 'checkout'){
+      setTimeout(()=>{
+        try{
+          if(typeof loadCartFromStorage === 'function') loadCartFromStorage();
+          if(typeof go === 'function') go(initReturn);
+          if(initReturn === 'cart' && typeof renderCart === 'function') renderCart();
+          if(initReturn === 'checkout' && typeof renderCheckout === 'function') renderCheckout();
+          // URL'i temizle (return param'i tüket)
+          const cleaned = window.location.pathname + '#' + initReturn;
+          history.replaceState(null, '', cleaned);
+        }catch(e){ console.warn('[gp:return-init]', e); }
+      }, 80);
+    }
+  }catch(_){}
 });
 
 window.addEventListener('load',()=>{
@@ -8313,32 +8334,52 @@ window.addEventListener('pageshow', async (ev)=>{
   if(ev.persisted){
     hideLoader(true);
     recoverUIAfterResume();
-    // BFCache restore: aktif section ne olursa olsun içeriği yeniden render et
     try{
-      const active = document.querySelector('.section.active')?.id || '';
-      const sec = active.replace(/^page-/, '');
-      if(sec === 'cart' || sec === 'checkout'){
+      // 1) Sepet yedeğini ZORLA restore et
+      try{
+        if(typeof loadCartFromStorage === 'function') loadCartFromStorage();
+        if((!basket || basket.length === 0)){
+          let raw = null;
+          try{ raw = sessionStorage.getItem('gp_cart_backup'); }catch(_){}
+          if(!raw){ try{ raw = localStorage.getItem('gp_cart_backup_persistent'); }catch(_){} }
+          if(raw){
+            try{ basket = JSON.parse(raw) || []; }catch(_){ basket = []; }
+            try{ localStorage.setItem('gpCart', raw); }catch(_){}
+          }
+        }
+      }catch(err){ console.warn('[gp:basket-restore]', err); }
+      // 2) URL query'den return hedefini oku
+      const qs = new URLSearchParams(window.location.search);
+      const returnTo = qs.get('return') || sessionStorage.getItem('gp_return_to') || '';
+      const wantedSec = returnTo === 'cart' ? 'cart'
+                      : returnTo === 'checkout' ? 'checkout'
+                      : (document.querySelector('.section.active')?.id || 'home');
+      // 3) Doğru section'ı aktif et
+      if(typeof go === 'function') go(wantedSec);
+      else if(typeof applySectionState === 'function') applySectionState(wantedSec, {scroll:'restore'});
+      // 4) Section render'larını çağır
+      if(wantedSec === 'cart'){
         if(typeof renderCart === 'function') renderCart();
+        if(typeof updateCartCount === 'function') updateCartCount();
+      } else if(wantedSec === 'checkout'){
         if(typeof renderCheckout === 'function') renderCheckout();
-        if(typeof updateCartActionPanel === 'function') updateCartActionPanel();
-        if(typeof refreshCapDrawer === 'function') refreshCapDrawer();
-        if(typeof renderCapDrawer === 'function') renderCapDrawer();
-      } else if(sec === 'favorites'){
+      } else if(wantedSec === 'favorites'){
         if(typeof renderFavorites === 'function') renderFavorites();
-      } else if(sec === 'products'){
-        if(typeof refreshProductsView === 'function') refreshProductsView();
-        if(typeof applyFilters === 'function') applyFilters();
       }
-      // Alt nav offset'i yeniden hesapla
+      if(typeof updateCartActionPanel === 'function') updateCartActionPanel();
+      if(typeof renderCapDrawer === 'function') renderCapDrawer();
+      // 5) Alt nav offset
       const nav = document.querySelector('.mobile-bottom-nav');
-      if(nav){
+      if(nav && window.getComputedStyle(nav).display !== 'none'){
         const navH = nav.offsetHeight || 76;
         document.documentElement.style.setProperty('--mobile-nav-offset', navH + 'px');
       }
-      // Cart action panel pozisyonunu yenile (sepet/checkout aktifse)
-      if((sec === 'cart' || sec === 'checkout') && document.body.dataset.section !== sec){
-        document.body.dataset.section = sec;
+      // 6) data-section senkronu
+      if(wantedSec === 'cart' || wantedSec === 'checkout'){
+        document.body.dataset.section = wantedSec;
       }
+      // 7) Tek seferlik return işaretini temizle
+      try{ sessionStorage.removeItem('gp_return_to'); }catch(_){}
     }catch(err){ console.warn('[gp:bfcache]', err); }
     return;
   }
