@@ -3024,6 +3024,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.addEventListener('pageshow', function(e) {
     if (!e.persisted) return;
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('return') === 'cart'){
+      window.location.replace('/?#checkout');
+      return;
+    }
     const activeSection = document.querySelector('.gp-section.active');
     if (!activeSection) return;
     const tabId = activeSection.id.replace('section-', '');
