@@ -1067,6 +1067,8 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 #couponInput{flex:1;padding:12px;border:1px solid var(--border);border-radius:8px;font-family:var(--ff-body)}
 #couponBtn{padding:12px 24px;background:var(--ink);color:white;border:none;border-radius:8px;cursor:pointer;text-transform:uppercase;font-size:0.7rem;letter-spacing:2px;font-family:var(--ff-body);transition:var(--transition)}
 #couponBtn:hover{background:var(--gold);color:var(--ink)}
+.coupon-active-note{margin:8px 0 12px;font-size:.82rem;color:var(--ink);display:flex;align-items:center;gap:8px}
+.coupon-active-note i{color:var(--gold)}
 .bank-info-box{background:rgba(201,168,76,0.08);padding:24px;border-radius:12px;margin:20px 0;border:1px solid rgba(201,168,76,0.25)}
 .bank-info-box h4{font-size:0.9rem;margin-bottom:16px;color:var(--ink);font-weight:600}
 .bank-info-box p{margin:10px 0;color:var(--slate);font-size:0.95rem}
@@ -3716,6 +3718,7 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
         <input type="text" id="capCouponInput" placeholder="Kupon kodu" autocomplete="off" />
         <button type="button" onclick="applyCouponFromDrawer()">Uygula</button>
         <span class="cap-coupon-msg" id="capCouponMsg"></span>
+        <span class="cap-coupon-msg" id="capAppliedCouponCode"></span>
       </div>
       <div class="cap-member-row" id="capMemberRow" hidden><span id="capMemberText"></span></div>
       <div class="cap-eta" id="capEta" hidden>📦 Tahmini teslim: <strong id="capEtaText"></strong></div>
@@ -6037,6 +6040,7 @@ function requiresHeightMeasurement(product){
   const explicit = getExplicitMeasurementSetting(product, 'requiresHeight');
   if(explicit !== null) return explicit;
   if(isPieceUnitProduct(product)) return false;
+  if(isFonPerdeProduct(product)) return true;
   if(isSquareMeterProduct(product) || isMeterProduct(product) || isPleatedMeterProduct(product)) return true;
   if(isCurtainMeasurementCategory(product) && isMeterLikeUnit(product)) return true;
   return isGuneslikProduct(product);
@@ -9875,9 +9879,11 @@ function renderCart(){
     <input type="text" id="couponInput" class="form-input" placeholder="Kupon kodu girin">
     <button id="couponBtn" onclick="applyCoupon()">Uygula</button>
   </div>
+  ${(couponDiscountAmount > 0 && appliedCouponCode) ? `<div class="coupon-active-note"><i class="fas fa-ticket"></i> Uygulanan kupon: <strong>${escapeHtml(appliedCouponCode)}</strong></div>` : ''}
   <div id="cartCampaignHints"></div>`;
   refreshTotalAmount();
   renderCampaignCouponHints();
+  try { loadActiveCampaigns(); } catch(_) {}
   footer.style.display='flex';
   if(form) form.style.display='none';
   if(cartHint) cartHint.style.display='block';
@@ -10225,6 +10231,10 @@ function renderCapDrawer(){
   const dRow = document.getElementById('capDiscountRow');
   const dEl = document.getElementById('capDiscount');
   if(dRow && dEl){ if(couponDisc > 0){ dRow.hidden=false; dEl.textContent=`-${fmt(couponDisc)}`; } else dRow.hidden=true; }
+  const appliedCodeEl = document.getElementById('capAppliedCouponCode');
+  if(appliedCodeEl){
+    appliedCodeEl.textContent = (couponDisc > 0 && appliedCouponCode) ? `Kod: ${appliedCouponCode}` : '';
+  }
   const tEl = document.getElementById('capTotal'); if(tEl) tEl.textContent = fmt(total);
   const threshold = Number(window.__SITE_SETTINGS?.freeShipThreshold || 0);
   const bar = document.getElementById('capFreeshipBar'); const fill = document.getElementById('capFreeshipFill'); const txt = document.getElementById('capFreeshipText');
@@ -11005,6 +11015,22 @@ function suggestApplicableCoupon(){
 }
 window.suggestApplicableCoupon = suggestApplicableCoupon;
 
+function getIstanbulDateIso(){
+  try{
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Istanbul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date());
+    const y = parts.find((p)=>p.type === 'year')?.value;
+    const m = parts.find((p)=>p.type === 'month')?.value;
+    const d = parts.find((p)=>p.type === 'day')?.value;
+    if(y && m && d) return `${y}-${m}-${d}`;
+  } catch(_){}
+  return new Date().toISOString().slice(0,10);
+}
+
 function renderRecentlyViewed(){
   const el = document.getElementById('recentlyViewedSection');
   const track = document.getElementById('recentlyViewedTrack');
@@ -11197,7 +11223,7 @@ async function hasCompletedOrderForCoupon(){
 
 function isCampaignActiveNow(c){
   if(!c || c.isActive === false) return false;
-  const today = new Date().toISOString().slice(0,10);
+  const today = getIstanbulDateIso();
   if(c.startDate && String(c.startDate) > today) return false;
   if(c.endDate && String(c.endDate) < today) return false;
   return true;
@@ -11359,8 +11385,10 @@ async function applyCoupon(codeFromBanner=''){
       return { ok:false, error:'İlk sipariş kuponu sadece ilk siparişte geçerlidir' };
     }
   }
+  const subtotal = basket.reduce((a,b)=> a + (Number(b?.sub) || 0), 0);
+  total = subtotal;
   appliedCouponCode = c;
-  setCouponDiscountAmount(calculateCampaignDiscount(campaign, total));
+  setCouponDiscountAmount(calculateCampaignDiscount(campaign, subtotal));
   if(input) input.value = c;
   refreshTotalAmount();
   showToast(`🎉 ${campaign.name || c} indirimi uygulandı!`);

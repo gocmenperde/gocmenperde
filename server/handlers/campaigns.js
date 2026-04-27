@@ -2,6 +2,22 @@ const { pool } = require('../lib/_db');
 const { ensureCampaignsSchema, mapCampaignRow } = require('../lib/_campaigns');
 
 const { applyCors } = require('../lib/_cors');
+
+function getIstanbulDateIso() {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Istanbul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+    const year = parts.find((p) => p.type === 'year')?.value;
+    const month = parts.find((p) => p.type === 'month')?.value;
+    const day = parts.find((p) => p.type === 'day')?.value;
+    if (year && month && day) return `${year}-${month}-${day}`;
+  } catch (_) {}
+  return new Date().toISOString().slice(0, 10);
+}
 module.exports = async function handler(req, res) {
   if (applyCors(req, res)) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Desteklenmeyen method.' });
@@ -9,7 +25,7 @@ module.exports = async function handler(req, res) {
   try {
     await ensureCampaignsSchema();
     const includeInactive = String(req.query?.includeInactive || '').toLowerCase() === '1';
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getIstanbulDateIso();
 
     const query = includeInactive
       ? `SELECT id, name, description, image_url AS "imageUrl", discount_type AS "discountType", discount_value AS "discountValue",
