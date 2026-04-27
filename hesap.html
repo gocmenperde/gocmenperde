@@ -265,20 +265,30 @@
                 // 120ms'lik mikro-gecikme — toast bir frame görünsün
                 setTimeout(() => {
                     const params = new URLSearchParams(window.location.search);
-                    const back = params.get('back');
-                    const next = params.get('next');
-                    // Öncelik: back parametresi (kullanıcının başladığı yer — checkout/cart)
-                    if(back && back.startsWith('/')){
-                        // Checkout flow'undan geliyorsa direkt sepete at
-                        if(back.includes('checkout') || back.includes('cart')){
-                            window.location.replace('/index.html?from=address-return');
-                        } else {
-                            window.location.replace(back);
-                        }
-                    } else if(next && next.startsWith('/')){
-                        window.location.replace(next);
+                    const backRaw = (params.get('back') || '').trim();
+                    const nextRaw = (params.get('next') || '').trim();
+                    function safePath(raw, fallback){
+                      if(!raw) return fallback;
+                      try{
+                        const resolved = new URL(raw, window.location.origin);
+                        if(resolved.origin !== window.location.origin) return fallback;
+                        return `${resolved.pathname}${resolved.search}${resolved.hash}`;
+                      }catch(_){ return fallback; }
+                    }
+                    // Öncelik sırası: back > next > default
+                    // back varsa ve cart/sepet içeriyorsa → direkt #cart hash'iyle git
+                    if(backRaw){
+                      const safeBack = safePath(backRaw, '');
+                      if(safeBack && (safeBack.includes('#cart') || safeBack.includes('cart') || safeBack.includes('checkout'))){
+                        // Sepete dön (hash-direct, query param'a güvenme)
+                        window.location.replace('/index.html#cart');
+                      } else if(safeBack){
+                        window.location.replace(safeBack);
+                      } else {
+                        window.location.replace(safePath(nextRaw, '/hesabim.html'));
+                      }
                     } else {
-                        window.location.replace('/hesabim.html');
+                      window.location.replace(safePath(nextRaw, '/hesabim.html'));
                     }
                 }, 120);
                 return;
