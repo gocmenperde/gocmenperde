@@ -1370,7 +1370,7 @@ body.cap-drawer-open #mainHeader{opacity:0.15;pointer-events:none;transition:opa
 .modal-tab-content{display:none}.modal-tab-content.active{display:block}
 .modal-desc{font-size:0.84rem;color:var(--slate);line-height:1.9;margin-bottom:16px}
 .modal-features{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
-.modal-feat{display:flex;align-items:center;gap:10px;font-size:0.8rem;color:var(--slate)}
+.modal-feat{display:flex;align-items:flex-start;gap:10px;font-size:0.8rem;color:var(--slate);line-height:1.4}
 .modal-feat i{color:var(--gold);font-size:0.85rem;width:16px}
 .modal-commerce-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 14px}
 .modal-commerce-item{padding:10px;border:1px solid var(--border);border-radius:10px;background:#faf8f3}
@@ -2391,48 +2391,71 @@ body.paytr-iframe-open{overflow:hidden;touch-action:none}
 #scrollTopFab.show{ opacity:1; pointer-events:auto; transform:translateY(0); }
 @media(max-width:768px){ #scrollTopFab{ bottom:160px; } }
 
-/* Desktop checkout/cart panel: sipariş detaylarını masaüstünde de görünür tut */
+/* Desktop checkout/cart panel: masaüstünde de mobildeki gibi aç/kapa çalışsın */
 @media (min-width:1024px){
   body[data-section="cart"] .cart-action-panel,
   body[data-section="checkout"] .cart-action-panel{
-    width:min(1180px, calc(100vw - 56px)) !important;
-    display:grid !important;
-    grid-template-columns:minmax(0,1fr) minmax(330px, 360px);
-    align-items:stretch;
-    overflow:visible;
+    width:min(960px, calc(100vw - 48px)) !important;
+    display:flex !important;
+    flex-direction:column;
+    overflow:hidden;
   }
   body[data-section="cart"] .cart-action-panel .cap-drawer,
   body[data-section="checkout"] .cart-action-panel .cap-drawer{
     display:block !important;
-    opacity:1 !important;
-    max-height:none !important;
+    opacity:0;
+    max-height:0;
     background:#fff;
-    border-left:1px solid rgba(201,168,76,0.25);
+    border-top:1px solid rgba(201,168,76,0.25);
+    transition:max-height .22s ease-out, opacity .18s ease-out;
+  }
+  body[data-section="cart"] .cart-action-panel .cap-drawer.is-open,
+  body[data-section="checkout"] .cart-action-panel .cap-drawer.is-open{
+    opacity:1;
+    max-height:420px;
   }
   body[data-section="cart"] .cart-action-panel .cap-drawer-inner,
   body[data-section="checkout"] .cart-action-panel .cap-drawer-inner{
-    max-height:320px;
+    max-height:420px;
     overflow:auto;
     padding:14px 14px 12px;
   }
-  body[data-section="cart"] .cart-action-panel .cap-toggle,
-  body[data-section="checkout"] .cart-action-panel .cap-toggle,
   body[data-section="cart"] .cart-action-panel .cap-sheet-handle,
   body[data-section="checkout"] .cart-action-panel .cap-sheet-handle,
   body[data-section="cart"] .cart-action-panel .cap-sheet-header,
-  body[data-section="checkout"] .cart-action-panel .cap-sheet-header,
+  body[data-section="checkout"] .cart-action-panel .cap-sheet-header{
+    display:none !important;
+  }
+  body[data-section="cart"] .cart-action-panel .cap-toggle,
+  body[data-section="checkout"] .cart-action-panel .cap-toggle{
+    display:flex !important;
+  }
   body[data-section="cart"] .cart-action-panel .cap-meta,
   body[data-section="checkout"] .cart-action-panel .cap-meta{
-    display:none !important;
+    display:flex !important;
   }
   body[data-section="cart"] .cart-action-panel .cap-row,
   body[data-section="checkout"] .cart-action-panel .cap-row{
-    height:100%;
+    height:auto;
+  }
+  body[data-section="cart"] .cart-action-panel .cap-backdrop,
+  body[data-section="checkout"] .cart-action-panel .cap-backdrop,
+  body.cap-drawer-open .mobile-bottom-nav{
+    display:none !important;
+  }
+  body.cap-drawer-open{
+    overflow:auto;
+  }
+  body.cap-drawer-open header,
+  body.cap-drawer-open #mainHeader{
+    opacity:1;
+    pointer-events:auto;
   }
   #userNameText{font-size:.82rem !important;letter-spacing:.3px !important;font-weight:700;max-width:92px;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
   .products-grid .product-desc{line-height:1.5;color:#665b49}
   .products-grid .product-name{line-height:1.35}
 }
+
 </style>
 </head>
 <body>
@@ -7134,7 +7157,7 @@ function openModalFromProduct(id){
     {icon:'fas fa-truck',text:'Bursa içi teslimat'},
     {icon:'fas fa-rotate-left',text:'Memnuniyet garantisi'}
   ];
-  document.getElementById('mFeatures').innerHTML = feats.map(f=>`<div class="modal-feat"><i class="${f.icon}"></i> ${f.text}</div>`).join('');
+  document.getElementById('mFeatures').innerHTML = feats.map(f=>`<div class="modal-feat"><i class="${f.icon}"></i><span>${f.text}</span></div>`).join('');
   specsNode.innerHTML += Object.entries(p.specs||{}).map(([k,v])=>`<div class="modal-spec-row"><span class="modal-spec-key">${k}</span><span class="modal-spec-val">${v}</span></div>`).join('') || '<p style="color:var(--slate);font-size:0.84rem;padding:12px 0">Özellik bilgisi eklenmemiş.</p>';
   document.getElementById('mCare').innerHTML  = Object.entries(p.care||{}).map(([k,v])=>`<div class="modal-spec-row"><span class="modal-spec-key">${k}</span><span class="modal-spec-val">${v}</span></div>`).join('') || '<p style="color:var(--slate);font-size:0.84rem;padding:12px 0">Bakım bilgisi eklenmemiş.</p>';
 
@@ -9709,21 +9732,17 @@ function changeQtyFromDrawer(itemId, delta){
 }
 window.changeQtyFromDrawer = changeQtyFromDrawer;
 function toggleCapDrawer(){
-  if(window.innerWidth >= 1024){
-    const cta = document.querySelector('.cart-action-panel');
-    if(cta) cta.scrollIntoView({ behavior:'smooth', block:'end' });
-    return;
-  }
+  const isDesktop = window.innerWidth >= 1024;
   try { if(navigator.vibrate) navigator.vibrate(8); } catch(_){ }
   const panel = document.getElementById('cartActionPanel');
   const d     = document.getElementById('capDrawer');
   const back  = document.getElementById('capBackdrop');
   const tog   = document.getElementById('capToggle');
   if(!panel || !d) return;
-  const open = !panel.classList.contains('is-sheet');
-  panel.classList.toggle('is-sheet', open);
+  const open = !d.classList.contains('is-open');
+  panel.classList.toggle('is-sheet', !isDesktop && open);
   d.classList.toggle('is-open', open);
-  if(back) back.classList.toggle('is-open', open);
+  if(back) back.classList.toggle('is-open', !isDesktop && open);
   if(tog){
     tog.classList.toggle('is-open', open);
     tog.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -9731,7 +9750,7 @@ function toggleCapDrawer(){
     if(lbl) lbl.textContent = open ? 'Özeti gizle' : 'Detaylar';
   }
   d.setAttribute('aria-hidden', open ? 'false' : 'true');
-  document.body.classList.toggle('cap-drawer-open', open);
+  document.body.classList.toggle('cap-drawer-open', !isDesktop && open);
   if(open){
     try { renderCapDrawer(); } catch(_){ }
     requestAnimationFrame(()=>{
