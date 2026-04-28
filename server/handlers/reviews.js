@@ -82,7 +82,7 @@ module.exports = async function handler(req, res) {
     const offset = Math.max(0, Number(req.query?.offset || 0));
     const r = await pool.query(
       `SELECT id, name, rating, text, photos, verified_purchase, helpful_count, is_seed, source, created_at, admin_reply, admin_reply_at
-       FROM product_reviews WHERE product_id=$1 AND status='approved' AND is_seed=FALSE
+       FROM product_reviews WHERE product_id=$1 AND status='approved'
        ORDER BY verified_purchase DESC, helpful_count DESC NULLS LAST, created_at DESC
        LIMIT $2 OFFSET $3`,
       [productId, limit, offset]
@@ -92,7 +92,7 @@ module.exports = async function handler(req, res) {
               COALESCE(AVG(rating),0)::float AS avg,
               COUNT(*) FILTER (WHERE photos != '[]'::jsonb)::int AS with_photo,
               COUNT(*) FILTER (WHERE verified_purchase)::int AS verified
-       FROM product_reviews WHERE product_id=$1 AND status='approved' AND is_seed=FALSE`,
+       FROM product_reviews WHERE product_id=$1 AND status='approved'`,
       [productId]
     );
     return res.status(200).json({ success: true, items: r.rows, stats: stats.rows[0] });
