@@ -5202,6 +5202,38 @@ function buildSeoKeywordPool(products=[]){
   return [...set].slice(0, 120);
 }
 
+function normalizeSchemaSku(product={}){
+  const rawSku = String(product?.serialNumber || product?.id || '').trim();
+  if(!rawSku) return undefined;
+  const sanitized = rawSku
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9._-]/g, '')
+    .slice(0, 64);
+  return sanitized.length >= 2 ? sanitized : undefined;
+}
+
+function toSafeSchemaDescription(product={}){
+  const raw = String(product?.desc || '').trim();
+  if(raw.length >= 10) return raw.slice(0, 5000);
+  const parts = [
+    String(product?.name || '').trim(),
+    String(product?.cat || '').trim(),
+    'Göçmen Perde güvencesiyle Bursa içi ölçü, dikim ve montaj desteği.'
+  ].filter(Boolean);
+  return parts.join(' - ').slice(0, 5000);
+}
+
+function isValidGtinWithCheckDigit(candidate=''){
+  const value = String(candidate || '').trim();
+  if(!/^\d{8}$|^\d{12}$|^\d{13}$|^\d{14}$/.test(value)) return false;
+  const digits = value.split('').map((n)=>Number(n));
+  const checkDigit = digits[digits.length - 1];
+  const payload = digits.slice(0, -1).reverse();
+  const sum = payload.reduce((acc, digit, index)=>acc + digit * (index % 2 === 0 ? 3 : 1), 0);
+  const expected = (10 - (sum % 10)) % 10;
+  return checkDigit === expected;
+}
+
 function updateProductSeoArtifacts(products=[]){
   const activeProducts = (Array.isArray(products) ? products : []).filter(p=>p?.active !== false);
   const pool = buildSeoKeywordPool(activeProducts);
@@ -5237,6 +5269,9 @@ function updateProductSeoArtifacts(products=[]){
     const reviewAuthor = String(firstReview?.name || '').trim();
     const reviewBody = String(firstReview?.text || '').trim();
     const reviewRating = Number(firstReview?.rating || 0);
+    const validGtin = isValidGtinWithCheckDigit(p.barcode) ? String(p.barcode).trim() : undefined;
+    const schemaDescription = toSafeSchemaDescription(p);
+    const schemaSku = normalizeSchemaSku(p);
     const aggregateRating = (reviewCount > 0 && avgRating > 0)
       ? {
           '@type': 'AggregateRating',
@@ -5255,12 +5290,9 @@ function updateProductSeoArtifacts(products=[]){
     const data = {
       '@type':'Product',
       name: p.name || 'Ürün',
-      description: p.desc || '',
-      sku: p.serialNumber || p.id || undefined,
-      gtin: (function() {
-        const b = String(p.barcode || '').trim();
-        return /^\d{8}$|^\d{12}$|^\d{13}$|^\d{14}$/.test(b) ? b : undefined;
-      })(),
+      description: schemaDescription,
+      sku: schemaSku,
+      gtin: validGtin,
       category: p.cat || undefined,
       image: image || undefined,
       keywords: (Array.isArray(p.seoKeywords) && p.seoKeywords.length) ? p.seoKeywords.join(', ') : undefined,
@@ -5273,7 +5305,42 @@ function updateProductSeoArtifacts(products=[]){
         priceCurrency: 'TRY',
         price: Number(p.price) || 0,
         availability: (Number(p.stock) > 0 || p.stock == null) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-        url: productUrl
+        url: productUrl,
+        hasMerchantReturnPolicy: {
+          '@type': 'MerchantReturnPolicy',
+          applicableCountry: 'TR',
+          returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+          merchantReturnDays: 14,
+          returnMethod: 'https://schema.org/ReturnByMail',
+          returnFees: 'https://schema.org/FreeReturn'
+        },
+        shippingDetails: {
+          '@type': 'OfferShippingDetails',
+          shippingDestination: {
+            '@type': 'DefinedRegion',
+            addressCountry: 'TR'
+          },
+          deliveryTime: {
+            '@type': 'ShippingDeliveryTime',
+            handlingTime: {
+              '@type': 'QuantitativeValue',
+              minValue: 1,
+              maxValue: 3,
+              unitCode: 'DAY'
+            },
+            transitTime: {
+              '@type': 'QuantitativeValue',
+              minValue: 1,
+              maxValue: 7,
+              unitCode: 'DAY'
+            }
+          },
+          shippingRate: {
+            '@type': 'MonetaryAmount',
+            value: 0,
+            currency: 'TRY'
+          }
+        }
       }
     };
     return {
