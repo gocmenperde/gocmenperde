@@ -5230,6 +5230,28 @@ function updateProductSeoArtifacts(products=[]){
   const itemList = activeProducts.slice(0, 200).map((p, idx)=>{
     const image = getPrimaryImage(p) || '';
     const productUrl = `https://gocmenperde.com.tr/?product=${encodeURIComponent(String(p.id || ''))}#products`;
+    const social = getProductSocial(p.id);
+    const reviewCount = Number(social?.reviewCount || 0);
+    const avgRating = Number(social?.avgRating || 0);
+    const firstReview = Array.isArray(social?.reviews) ? social.reviews[0] : null;
+    const reviewAuthor = String(firstReview?.name || '').trim();
+    const reviewBody = String(firstReview?.text || '').trim();
+    const reviewRating = Number(firstReview?.rating || 0);
+    const aggregateRating = (reviewCount > 0 && avgRating > 0)
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: Number(avgRating.toFixed(1)),
+          reviewCount
+        }
+      : undefined;
+    const review = (reviewAuthor && reviewBody && reviewRating >= 1 && reviewRating <= 5)
+      ? [{
+          '@type': 'Review',
+          author: { '@type': 'Person', name: reviewAuthor },
+          reviewRating: { '@type': 'Rating', ratingValue: reviewRating, bestRating: 5, worstRating: 1 },
+          reviewBody
+        }]
+      : undefined;
     const data = {
       '@type':'Product',
       name: p.name || 'Ürün',
@@ -5244,6 +5266,8 @@ function updateProductSeoArtifacts(products=[]){
       keywords: (Array.isArray(p.seoKeywords) && p.seoKeywords.length) ? p.seoKeywords.join(', ') : undefined,
       url: productUrl,
       brand: { '@type':'Brand', name:'Göçmen Perde' },
+      aggregateRating,
+      review,
       offers: {
         '@type':'Offer',
         priceCurrency: 'TRY',
@@ -5413,9 +5437,26 @@ function applyReviewsSummary(sum){
   const data = sum?.summary || sum?.items || sum;
   if (!data || typeof data !== 'object') return;
   Object.entries(data).forEach(([pid, s])=>{
+    const sample = s?.sampleReview || null;
+    const sampleReview = (sample && sample.name && sample.text && Number(sample.rating || 0) > 0)
+      ? [{
+          id: sample.id || `sample-${pid}`,
+          name: sample.name,
+          text: sample.text,
+          rating: Number(sample.rating || 0),
+          date: String(sample.createdAt || '').slice(0, 10),
+          photos: [],
+          verified: !!sample.verifiedPurchase,
+          helpful: 0,
+          source: sample.source || 'user',
+          adminReply: '',
+          adminReplyDate: null
+        }]
+      : [];
     PRODUCT_SOCIAL[pid] = Object.assign({ salesCount: 0, reviews: [] }, PRODUCT_SOCIAL[pid] || {}, {
       reviewCount: Number(s?.total ?? s?.count ?? 0) || 0,
       avgRating: Number(s?.avg ?? s?.average ?? 0) || 0,
+      reviews: sampleReview.length ? sampleReview : (Array.isArray(PRODUCT_SOCIAL[pid]?.reviews) ? PRODUCT_SOCIAL[pid].reviews : []),
     });
   });
   document.querySelectorAll('[data-id]').forEach((card)=>{
@@ -5429,6 +5470,7 @@ function applyReviewsSummary(sum){
     if(starsVal) starsVal.textContent = Number(social.avgRating || 0).toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1});
     if(countEl) countEl.textContent = `(${social.reviewCount || 0} yorum)`;
   });
+  updateProductSeoArtifacts(PRODUCTS);
 }
 
 function queueReviewsSummaryLoad(){
