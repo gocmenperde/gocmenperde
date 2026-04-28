@@ -542,7 +542,7 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   border-left:3px solid var(--gold);
   border-radius:12px;
   padding:12px 14px 12px 12px;
-  box-shadow:0 16px 38px rgba(15,14,13,.18);
+  box-shadow:0 10px 24px rgba(15,14,13,.16);
   display:none;
   align-items:flex-start;
   gap:10px;
@@ -550,11 +550,13 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
   font:400 12px var(--ff-body);
   color:var(--ink);
   transform:translate3d(-110%,0,0);
-  transition:transform .22s cubic-bezier(.2,.8,.2,1);
-  will-change:transform;
+  opacity:0;
+  transition:transform .2s cubic-bezier(.2,.8,.2,1),opacity .2s ease;
+  will-change:transform,opacity;
+  contain:layout paint style;
   cursor:pointer;
 }
-.live-order-toast.is-visible{display:flex;transform:translate3d(0,0,0);}
+.live-order-toast.is-visible{display:flex;transform:translate3d(0,0,0);opacity:1;}
 .live-order-toast:hover{box-shadow:0 20px 44px rgba(15,14,13,.24);transform:translate3d(0,-2px,0);}
 .live-order-toast .lo-avatar{
   width:36px;height:36px;border-radius:50%;
@@ -639,13 +641,12 @@ nav,.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justi
 #siteFooter::before{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin-bottom:0}
 .footer-social a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid rgba(200,163,90,.3);color:var(--gold);font-size:1rem;transition:background .2s,transform .2s}
 .footer-social a:hover{background:rgba(200,163,90,.12);transform:translateY(-2px);background-image:none}
-.live-order-toast{backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);background:rgba(250,248,244,0.97) !important;border:1px solid rgba(200,163,90,0.25) !important;border-left:3px solid var(--gold) !important;border-radius:16px;overflow:hidden;box-shadow:0 16px 40px rgba(15,14,13,0.16)}
+.live-order-toast{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(250,248,244,0.98) !important;border:1px solid rgba(200,163,90,0.25) !important;border-left:3px solid var(--gold) !important;border-radius:16px;overflow:hidden;box-shadow:0 10px 26px rgba(15,14,13,0.14)}
 .live-order-toast .lo-body strong{color:var(--ink,#1a1a1a) !important;}
 .live-order-toast .lo-meta{color:var(--slate,#555) !important;}
 .live-order-toast .lo-verified{color:#1e8e3e !important;}
 .live-order-toast .lo-close{color:var(--slate,#555) !important;}
-.live-order-toast::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-deep));animation:toastProgress 4s linear forwards}
-@keyframes toastProgress{from{width:100%}to{width:0%}}
+.live-order-toast::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-deep))}
 @media(max-width:640px){.hero{min-height:85vh;padding:80px 16px 50px}.hero-title{font-size:clamp(2.2rem,9vw,3.2rem);line-height:1}.hero-subtitle{font-size:.88rem;padding:9px 16px}.hero-actions{flex-direction:column;gap:10px;padding:12px}.btn-primary,.btn-outline{min-width:unset;width:100%;padding:14px 20px}.hero-proof-row{gap:12px}}
 .modal-img-col:hover .modal-img-stage img{cursor:zoom-in}
 .modal-img-col img.zoomed{cursor:zoom-out;transform:scale(2.2);transition:transform .25s ease}
@@ -4968,6 +4969,42 @@ let _liveOrderResumeBlockUntil = 0;
 const _liveOrderRecent = [];
 let _liveOrderShownCount = 0;
 const LIVE_ORDER_SHOWN_COUNT_KEY = 'gp_live_orders_shown_count';
+let _liveOrderToastReady = false;
+let _liveOrderToastRefs = null;
+function _ensureLiveOrderToast(){
+  const el = document.getElementById('liveOrderToast');
+  if(!el) return null;
+  if(_liveOrderToastReady && _liveOrderToastRefs) return { el, ..._liveOrderToastRefs };
+  el.innerHTML = `
+    <div class="lo-avatar"></div>
+    <div class="lo-body">
+      <strong class="lo-title"></strong>
+      <span class="lo-product"></span>
+      <span class="lo-meta"></span>
+    </div>
+    <button class="lo-close" type="button" aria-label="Kapat">×</button>
+    <button class="lo-optout" type="button">Tekrar gösterme</button>
+  `;
+  const refs = {
+    avatar: el.querySelector('.lo-avatar'),
+    title: el.querySelector('.lo-title'),
+    product: el.querySelector('.lo-product'),
+    meta: el.querySelector('.lo-meta'),
+    closeBtn: el.querySelector('.lo-close'),
+    optoutBtn: el.querySelector('.lo-optout')
+  };
+  refs.closeBtn?.addEventListener('click', (event)=>{
+    event.stopPropagation();
+    hideLiveOrderToast(true);
+  });
+  refs.optoutBtn?.addEventListener('click', (event)=>{
+    event.stopPropagation();
+    optOutLiveOrders();
+  });
+  _liveOrderToastReady = true;
+  _liveOrderToastRefs = refs;
+  return { el, ...refs };
+}
 function _scheduleNextLiveOrder(){
   clearTimeout(_liveOrderTimer);
   _liveOrderTimer = null;
@@ -5014,24 +5051,21 @@ function optOutLiveOrders(){
 function showLiveOrderToast(){
   if(Date.now() < _liveOrderResumeBlockUntil) return;
   if(LIVE_ORDER_CFG.pauseOnHidden && document.hidden){ return; }
-  const el = document.getElementById('liveOrderToast');
-  if(!el){ _scheduleNextLiveOrder(); return; }
+  const toast = _ensureLiveOrderToast();
+  if(!toast){ _scheduleNextLiveOrder(); return; }
+  const { el, avatar, title, product, meta, optoutBtn } = toast;
   const item = _buildLiveOrderItem();
   if(!item){ _scheduleNextLiveOrder(); return; }
   _liveOrderShownCount += 1;
   localStorage.setItem(LIVE_ORDER_SHOWN_COUNT_KEY, String(_liveOrderShownCount));
   const showOptOut = _liveOrderShownCount >= 5;
-  const initial = item.name.charAt(0);
-  el.innerHTML = `
-    <div class="lo-avatar">${initial}</div>
-    <div class="lo-body">
-      <strong>${item.city}'dan ${item.name}</strong>
-      <span>${item.product} sipariş verdi</span>
-      <span class="lo-meta">${item.minutesAgo} dakika önce${item.verified ? ' · <span class="lo-verified">✓ Doğrulandı</span>' : ''}</span>
-    </div>
-    <button class="lo-close" type="button" aria-label="Kapat" onclick="hideLiveOrderToast(true)">×</button>
-    ${showOptOut ? '<button class="lo-optout" type="button" onclick="event.stopPropagation();optOutLiveOrders()">Tekrar gösterme</button>' : ''}
-  `;
+  avatar.textContent = item.name.charAt(0);
+  title.textContent = `${item.city}'dan ${item.name}`;
+  product.textContent = `${item.product} sipariş verdi`;
+  meta.innerHTML = item.verified
+    ? `${item.minutesAgo} dakika önce · <span class="lo-verified">✓ Doğrulandı</span>`
+    : `${item.minutesAgo} dakika önce`;
+  optoutBtn.style.display = showOptOut ? 'inline-flex' : 'none';
   if(!el.dataset.clickBound){
     _attachLiveToastClick(el);
     el.dataset.clickBound = '1';
@@ -5042,8 +5076,9 @@ function showLiveOrderToast(){
   _liveOrderHideTimer = setTimeout(()=>hideLiveOrderToast(false), LIVE_ORDER_CFG.showDuration);
 }
 function hideLiveOrderToast(userClosed){
-  const el = document.getElementById('liveOrderToast');
-  if(!el) return;
+  const toast = _ensureLiveOrderToast();
+  if(!toast) return;
+  const { el } = toast;
   clearTimeout(_liveOrderHideTimer);
   el.classList.remove('is-visible');
   setTimeout(()=>{ el.style.display = 'none'; }, LIVE_ORDER_CFG.animationDuration);
