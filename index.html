@@ -5203,13 +5203,26 @@ function buildSeoKeywordPool(products=[]){
 }
 
 function normalizeSchemaSku(product={}){
+  const MAX_SCHEMA_SKU_LEN = 50;
+  const MIN_SCHEMA_SKU_LEN = 3;
   const rawSku = String(product?.serialNumber || product?.id || '').trim();
   if(!rawSku) return undefined;
+
   const sanitized = rawSku
     .replace(/\s+/g, '-')
-    .replace(/[^a-zA-Z0-9._-]/g, '')
-    .slice(0, 64);
-  return sanitized.length >= 2 ? sanitized : undefined;
+    .replace(/[^a-zA-Z0-9._-]/g, '');
+
+  if(sanitized.length < MIN_SCHEMA_SKU_LEN) return undefined;
+  if(sanitized.length <= MAX_SCHEMA_SKU_LEN) return sanitized;
+
+  const shortHash = String(product?.id || '')
+    .split('')
+    .reduce((acc, ch)=>((acc * 33) + ch.charCodeAt(0)) >>> 0, 5381)
+    .toString(36);
+
+  const sliced = sanitized.slice(0, MAX_SCHEMA_SKU_LEN - shortHash.length - 1).replace(/[-_.]+$/g, '');
+  const compact = `${sliced}-${shortHash}`.slice(0, MAX_SCHEMA_SKU_LEN);
+  return compact.length >= MIN_SCHEMA_SKU_LEN ? compact : sanitized.slice(0, MAX_SCHEMA_SKU_LEN);
 }
 
 function toSafeSchemaDescription(product={}){
